@@ -1,0 +1,12 @@
+{
+  "name": "TuGo",
+  "displayName": "TuGo",
+  "expo": {
+    "name": "TuGo",
+    "slug": "TuGo",
+    "version": "1.0.0",
+    "assetBundlePatterns": [
+      "**/*"
+    ]
+  }
+}
