@@ -2,6 +2,8 @@
 TuGo/android/app/build
 TuGo/constants.js
 
+.expo
+
 # Xcode
 !**/*.xcodeproj
 !**/*.pbxproj
