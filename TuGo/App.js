@@ -17,9 +17,13 @@ class App extends React.Component {
     fetch(`${API_URL}/api/accounts/1`)
       .then(response=>response.json())
       .then(resp=>{
-        console.log(resp)
+        this.setState({
+          info:resp
+        })
       })
-
+      .catch(error=>{
+        console.log(error)
+      })
 
   }
 
@@ -31,10 +35,10 @@ class App extends React.Component {
       </Text>
       {/*Running GET Request*/}
 
-      <Text>{this.state.info}</Text>
+      <Text>{this.state.info!=null ? this.state.info.name : "null"}</Text>
 
       <Text style={{ textAlign: "center", marginTop: 18 }}>
-        www.aboutreact.com
+
       </Text>
     </View>
   );
