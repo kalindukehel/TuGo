@@ -5,7 +5,7 @@ import { StyleSheet, View, TouchableOpacity, Text } from "react-native";
 //import all the components we are going to use.
 import axios from "axios";
 import { API_URL } from "./constants";
-import useAcconts from "./app.hooks";
+import useAccounts from "./app.hooks";
 const App = () => {
   // componentDidMount(){
   //   fetch(`${API_URL}/api/accounts/1`)
@@ -18,7 +18,7 @@ const App = () => {
   //     .catch(error=>{
   //       console.log(error)
   //     })
-  const { accounts } = useAcconts();
+  const { accounts } = useAccounts();
   console.log(accounts);
   return (
     <View style={styles.MainContainer}>
