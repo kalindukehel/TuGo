@@ -15,11 +15,14 @@ const App = () => {
   //         info:resp
   //       })
   //     })
+
   //     .catch(error=>{
   //       console.log(error)
   //     })
-  const accounts = useAccounts();
-  console.log(accounts);
+ const accounts = useAccounts().map(account=>{
+   return <Text>{"\n"}Name: {account.name} || Username: {account.username}</Text>
+ });
+ 
   return (
     <View style={styles.MainContainer}>
       <Text style={{ fontSize: 30, textAlign: "center" }}>
@@ -27,8 +30,7 @@ const App = () => {
       </Text>
       {/*Running GET Request*/}
 
-      <Text>hello world</Text>
-
+      {accounts != undefined? <Text>{accounts}</Text>:null}
       <Text style={{ textAlign: "center", marginTop: 18 }}></Text>
     </View>
   );
