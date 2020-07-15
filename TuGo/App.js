@@ -18,7 +18,7 @@ const App = () => {
   //     .catch(error=>{
   //       console.log(error)
   //     })
-  const { accounts } = useAccounts();
+  const accounts = useAccounts();
   console.log(accounts);
   return (
     <View style={styles.MainContainer}>
