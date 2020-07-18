@@ -26,6 +26,15 @@ edit settings.py and add local ip to ALLOWED_HOSTS
 last parameter opens the server to the network
 
 
+## Install dependencies
+
+    $ yarn install
+
+or
+
+    $ npm install
+
+
 ## Run App Debugging Server
 
     $ cd TuGo
@@ -33,3 +42,7 @@ last parameter opens the server to the network
 Edit constants.js to include local ip ex. "192.168.0.18"
 
     $ yarn start
+
+or run using expo
+
+    $ expo start
