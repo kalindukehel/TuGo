@@ -1,8 +1,19 @@
 from rest_framework import routers
-from .api import AccountViewSet
-
-
+from .views import AccountViewSet
+from .views import PostViewSet
+from .views import login, logout, signup
+from django.contrib import admin
+from django.urls import re_path, path, include
+from django.conf.urls import url
 router = routers.DefaultRouter()
-router.register('api/accounts',AccountViewSet,'accounts')
+router.register('accounts',AccountViewSet,'accounts')
+router.register('posts', PostViewSet, 'posts')
 
-urlpatterns = router.urls
+
+urlpatterns = [
+    url(r'^api/', include((router.urls,'accounts'), namespace='api')),
+    url(r'^login/', login, name="login_user"),
+    url(r'^logout/', logout, name="logout_user"),
+    url(r'^signup/', signup, name="signup_user"),
+    path('admin/',admin.site.urls)
+]
