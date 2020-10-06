@@ -15,6 +15,7 @@ export async function createAccount(data) {
     username: data.username,
     email: data.email,
     name: data.name,
+    password: data.password,
   });
 }
 
