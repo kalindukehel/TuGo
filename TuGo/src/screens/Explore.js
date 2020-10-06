@@ -1,12 +1,12 @@
 import React from "react";
 import { View, Text } from "react-native";
 
-const SignUp = ({ navigation }) => {
+const Explore = ({ navigation }) => {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
-      <Text>Sign Up</Text>
+      <Text>Explore</Text>
     </View>
   );
 };
 
-export default SignUp;
+export default Explore;

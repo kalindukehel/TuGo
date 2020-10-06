@@ -1,0 +1,146 @@
+import React, { useState } from "react";
+import {
+  KeyboardAvoidingView,
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  Button,
+  TextInput,
+  Keyboard,
+  TouchableWithoutFeedback,
+  Alert,
+} from "react-native";
+import { signIn as signInAPI } from "../api";
+import { onSignIn } from "../auth";
+import { useAuthDispatch } from "../context/authContext";
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    justifyContent: "center",
+  },
+  SectionStyle: {
+    flexDirection: "row",
+    height: 40,
+    marginTop: 20,
+    marginLeft: 35,
+    marginRight: 35,
+    margin: 10,
+  },
+  buttonStyle: {
+    backgroundColor: "#7DE24E",
+    borderWidth: 0,
+    color: "#FFFFFF",
+    borderColor: "#7DE24E",
+    height: 40,
+    alignItems: "center",
+    borderRadius: 30,
+    marginLeft: 35,
+    marginRight: 35,
+    marginTop: 20,
+    marginBottom: 20,
+  },
+  buttonTextStyle: {
+    color: "#FFFFFF",
+    paddingVertical: 10,
+    fontSize: 16,
+  },
+  inputStyle: {
+    flex: 1,
+    color: "black",
+    paddingLeft: 15,
+    paddingRight: 15,
+    borderWidth: 1,
+    borderRadius: 10,
+    borderColor: "black",
+    backgroundColor: "#D3D3D3",
+  },
+  registerTextStyle: {
+    color: "#FFFFFF",
+    textAlign: "center",
+    fontWeight: "bold",
+    fontSize: 14,
+  },
+  errorTextStyle: {
+    color: "red",
+    textAlign: "center",
+    fontSize: 14,
+  },
+  button: {
+    alignItems: "center",
+    marginTop: 30,
+    backgroundColor: "black",
+    marginHorizontal: 60,
+    padding: 10,
+    borderRadius: 30,
+  },
+});
+
+const SignIn = ({ navigation }) => {
+  const dispatch = useAuthDispatch();
+  const [username, setUsername] = useState(null);
+  const [password, setPassword] = useState(null);
+  async function login() {
+    try {
+      const data = {
+        username: username,
+        password: password,
+      };
+      const res = await signInAPI(data);
+      onSignIn(res.data.token);
+      console.log(res.data.token);
+      dispatch({ type: "SIGN_IN", token: res.data.token });
+    } catch (error) {
+      console.log("error");
+      Alert.alert(error);
+    }
+  }
+  return (
+    <View style={styles.container}>
+      <KeyboardAvoidingView enabled>
+        <Text style={{ marginBottom: 40, fontSize: 50, textAlign: "center" }}>Login</Text>
+        <View style={styles.SectionStyle}>
+          <TextInput
+            style={styles.inputStyle}
+            onChangeText={(username) => setUsername(username)}
+            underlineColorAndroid="#FFFFFF"
+            placeholder="Enter Username"
+            placeholderTextColor="black"
+            autoCapitalize="none"
+            keyboardType="email-address"
+            returnKeyType="done"
+            onSubmitEditing={Keyboard.dismiss}
+            blurOnSubmit={false}
+          />
+        </View>
+        <View style={styles.SectionStyle}>
+          <TextInput
+            style={styles.inputStyle}
+            onChangeText={(password) => setPassword(password)}
+            underlineColorAndroid="#FFFFFF"
+            placeholder="Enter Password"
+            placeholderTextColor="black"
+            keyboardType="default"
+            returnKeyType="done"
+            onSubmitEditing={Keyboard.dismiss}
+            blurOnSubmit={false}
+            secureTextEntry={true}
+          />
+        </View>
+        <TouchableOpacity
+          style={styles.button}
+          onPress={() => {
+            if (username && password) {
+              login();
+            }
+          }}
+        >
+          <Text style={{ color: "white" }}>Login</Text>
+        </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </View>
+  );
+};
+
+export default SignIn;

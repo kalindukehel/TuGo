@@ -1,4 +1,4 @@
-package com.tugo.generated;
+package com.newapp.generated;
 
 import java.util.Arrays;
 import java.util.List;

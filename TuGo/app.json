@@ -1,9 +1,9 @@
 {
-  "name": "TuGo",
-  "displayName": "TuGo",
+  "name": "newapp",
+  "displayName": "newapp",
   "expo": {
-    "name": "TuGo",
-    "slug": "TuGo",
+    "name": "newapp",
+    "slug": "newapp",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
