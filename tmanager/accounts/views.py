@@ -18,6 +18,9 @@ class AccountViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated
     ]
     serializer_class = AccountSerializer
+
+    def get_object(self):
+        return self.request.user
     
     @action(detail=True, methods=['POST','GET'], serializer_class=FollowerSerializer)
     def followers(self,request,*args,**kwargs):
