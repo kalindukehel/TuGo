@@ -1,7 +1,7 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
 import HomeScreen from "../screens/Feed";
-import Profile from "../screens/Profile";
+import profileNavigator from "./profileNavigator";
 import Explore from "../screens/Explore";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
@@ -41,7 +41,7 @@ const MainNavigator = () => {
     >
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Explore" component={Explore} />
-      <Tab.Screen name="Profile" component={Profile} />
+      <Tab.Screen name="Profile" component={profileNavigator} />
     </Tab.Navigator>
   );
 };

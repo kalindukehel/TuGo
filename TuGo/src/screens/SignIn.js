@@ -10,6 +10,7 @@ import {
   Keyboard,
   TouchableWithoutFeedback,
   Alert,
+  SafeAreaView,
 } from "react-native";
 import { signIn as signInAPI } from "../api";
 import { onSignIn } from "../auth";
@@ -18,62 +19,36 @@ import { useAuthDispatch } from "../context/authContext";
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    justifyContent: "center",
   },
-  SectionStyle: {
-    flexDirection: "row",
-    height: 40,
-    marginTop: 20,
-    marginLeft: 35,
-    marginRight: 35,
-    margin: 10,
-  },
-  buttonStyle: {
-    backgroundColor: "#7DE24E",
-    borderWidth: 0,
-    color: "#FFFFFF",
-    borderColor: "#7DE24E",
-    height: 40,
-    alignItems: "center",
-    borderRadius: 30,
-    marginLeft: 35,
-    marginRight: 35,
-    marginTop: 20,
-    marginBottom: 20,
-  },
-  buttonTextStyle: {
-    color: "#FFFFFF",
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  inputStyle: {
+  inner: {
+    padding: 24,
     flex: 1,
+    justifyContent: "flex-end",
+    marginTop: "30%",
+  },
+  header: {
+    fontSize: 50,
+    marginBottom: 40,
+    textAlign: "center",
+  },
+  input: {
+    height: 40,
+    borderColor: "gray",
     color: "black",
-    paddingLeft: 15,
-    paddingRight: 15,
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: "black",
-    backgroundColor: "#D3D3D3",
-  },
-  registerTextStyle: {
-    color: "#FFFFFF",
-    textAlign: "center",
-    fontWeight: "bold",
-    fontSize: 14,
-  },
-  errorTextStyle: {
-    color: "red",
-    textAlign: "center",
-    fontSize: 14,
+    marginBottom: 15,
+    paddingHorizontal: 20,
+    marginHorizontal: 10,
+    backgroundColor: "#FFFFFF",
   },
   button: {
     alignItems: "center",
     marginTop: 30,
-    backgroundColor: "black",
     marginHorizontal: 60,
     padding: 10,
     borderRadius: 30,
+    //backgroundColor: "black",
   },
 });
 
@@ -87,59 +62,67 @@ const SignIn = ({ navigation }) => {
         username: username,
         password: password,
       };
+      console.log(data);
       const res = await signInAPI(data);
       onSignIn(res.data.token);
       console.log(res.data.token);
       dispatch({ type: "SIGN_IN", token: res.data.token });
     } catch (error) {
-      console.log("error");
-      Alert.alert(error);
+      console.log(error);
     }
   }
   return (
-    <View style={styles.container}>
-      <KeyboardAvoidingView enabled>
-        <Text style={{ marginBottom: 40, fontSize: 50, textAlign: "center" }}>Login</Text>
-        <View style={styles.SectionStyle}>
-          <TextInput
-            style={styles.inputStyle}
-            onChangeText={(username) => setUsername(username)}
-            underlineColorAndroid="#FFFFFF"
-            placeholder="Enter Username"
-            placeholderTextColor="black"
-            autoCapitalize="none"
-            keyboardType="email-address"
-            returnKeyType="done"
-            onSubmitEditing={Keyboard.dismiss}
-            blurOnSubmit={false}
-          />
-        </View>
-        <View style={styles.SectionStyle}>
-          <TextInput
-            style={styles.inputStyle}
-            onChangeText={(password) => setPassword(password)}
-            underlineColorAndroid="#FFFFFF"
-            placeholder="Enter Password"
-            placeholderTextColor="black"
-            keyboardType="default"
-            returnKeyType="done"
-            onSubmitEditing={Keyboard.dismiss}
-            blurOnSubmit={false}
-            secureTextEntry={true}
-          />
-        </View>
-        <TouchableOpacity
-          style={styles.button}
-          onPress={() => {
-            if (username && password) {
-              login();
-            }
-          }}
-        >
-          <Text style={{ color: "white" }}>Login</Text>
-        </TouchableOpacity>
-      </KeyboardAvoidingView>
-    </View>
+    <KeyboardAvoidingView
+      behavior={Platform.OS === "ios" ? "padding" : "height"}
+      keyboardVerticalOffset={20}
+      style={{
+        flex: 1,
+      }}
+    >
+      <SafeAreaView style={styles.container}>
+        <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+          <View style={styles.inner}>
+            <Text style={styles.header}>Login</Text>
+            <TextInput
+              onChangeText={(username) => setUsername(username)}
+              placeholder="Enter Username"
+              autoCapitalize="none"
+              keyboardType="email-address"
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
+              blurOnSubmit={false}
+              style={styles.input}
+            />
+            <TextInput
+              onChangeText={(password) => setPassword(password)}
+              placeholder="Enter Password"
+              keyboardType="default"
+              returnKeyType="done"
+              onSubmitEditing={Keyboard.dismiss}
+              blurOnSubmit={false}
+              secureTextEntry={true}
+              style={styles.input}
+            />
+            <TouchableOpacity
+              disabled={!password || !username}
+              style={
+                password && username
+                  ? { ...styles.button, backgroundColor: "gray" }
+                  : { ...styles.button, backgroundColor: "#d3d3d3" }
+              }
+              onPress={() => {
+                if (username && password) {
+                  login();
+                }
+              }}
+            >
+              <Text style={{ color: "white" }}>Login</Text>
+            </TouchableOpacity>
+            <View style={{ flex: 1 }} />
+          </View>
+        </TouchableWithoutFeedback>
+      </SafeAreaView>
+    </KeyboardAvoidingView>
   );
 };
 

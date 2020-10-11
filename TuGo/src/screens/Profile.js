@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
 import { signOut as signOutAPI } from "../api";
 import { onSignOut } from "../auth";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
+import Ionicons from "react-native-vector-icons/Ionicons";
 
 const styles = StyleSheet.create({
   SectionStyle: {
@@ -19,7 +20,26 @@ const Profile = ({ navigation }) => {
   const { userToken } = useAuthState();
   const dispatch = useAuthDispatch();
   return (
-    <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
+    <View style={{ flex: 1 }}>
+      <TouchableOpacity
+        style={{
+          marginTop: "10%",
+          width: 25,
+          alignItems: "center",
+          alignSelf: "flex-end",
+          marginRight: 20,
+        }}
+      >
+        <Ionicons
+          name="ios-settings"
+          backgroundColor="red"
+          size={25}
+          color={"black"}
+          onPress={async () => {
+            navigation.navigate("Settings");
+          }}
+        />
+      </TouchableOpacity>
       <View style={styles.SectionStyle}>
         <TouchableOpacity
           onPress={async () => {
