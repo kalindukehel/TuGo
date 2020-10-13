@@ -5,6 +5,7 @@ import profileNavigator from "./profileNavigator";
 import Explore from "../screens/Explore";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { Image } from "react-native";
 
 const Tab = createBottomTabNavigator();
 
@@ -26,6 +27,16 @@ const MainNavigator = () => {
           }
 
           // You can return any component that you like here!
+
+          if (route.name === "Explore") {
+            return (
+              <Image
+                style={{ height: 40, width: 40 }}
+                resizeMode={"contain"}
+                source={require(`../../assets/ExploreIcon.png`)}
+              ></Image>
+            );
+          }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
