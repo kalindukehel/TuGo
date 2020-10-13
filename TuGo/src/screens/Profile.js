@@ -1,5 +1,5 @@
-import React from "react";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import React, {useState,useEffect} from "react";
+import { View, Text, TouchableOpacity, StyleSheet, Image} from "react-native";
 import { signOut as signOutAPI } from "../api";
 import { onSignOut } from "../auth";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
@@ -17,10 +17,12 @@ const styles = StyleSheet.create({
 });
 
 const Profile = ({ navigation }) => {
-  const { userToken } = useAuthState();
+  const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
+
   return (
     <View style={{ flex: 1 }}>
+      
       <TouchableOpacity
         style={{
           marginTop: "10%",
@@ -41,6 +43,7 @@ const Profile = ({ navigation }) => {
         />
       </TouchableOpacity>
       <View style={styles.SectionStyle}>
+      <Image source={{uri: self.profile_picture}} style={{width: "10%", height: "50%"}} ></Image>
         <TouchableOpacity
           onPress={async () => {
             onSignOut();
@@ -55,6 +58,7 @@ const Profile = ({ navigation }) => {
         >
           <Text>Logout</Text>
         </TouchableOpacity>
+
       </View>
     </View>
   );
