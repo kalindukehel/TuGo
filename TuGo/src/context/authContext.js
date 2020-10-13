@@ -9,6 +9,7 @@ const AuthProvider = ({ children }) => {
     isLoading: true,
     isSignout: false,
     userToken: null,
+    self: null,
   });
   return (
     <AuthStateContext.Provider value={state}>

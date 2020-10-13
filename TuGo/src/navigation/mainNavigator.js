@@ -26,8 +26,6 @@ const MainNavigator = () => {
           }
 
           // You can return any component that you like here!
-          console.log(size);
-          console.log(color);
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}

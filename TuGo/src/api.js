@@ -44,3 +44,21 @@ export async function signOut(userToken) {
     },
   });
 }
+
+export async function getSelf(userToken){
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/accounts/self/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/accounts/self/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}

@@ -18,6 +18,11 @@ export const authReducer = (prevState, action) => {
         isSignout: true,
         userToken: null,
       };
+      case "GET_SELF":
+        return {
+          ...prevState,
+          self: action.self,
+        }
     default:
       return prevState;
   }

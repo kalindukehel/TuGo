@@ -6,6 +6,7 @@ import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { isSignedIn } from "../auth";
 import AuthNavigator from "./authNavigator";
 import MainNavigator from "./mainNavigator";
+import {getSelf as getSelfAPI} from "../api"
 
 const Stack = createStackNavigator();
 
@@ -18,6 +19,11 @@ export default AppNavigator = () => {
       try {
         const token = await isSignedIn();
         dispatch({ type: "RESTORE_TOKEN", token });
+        if (token){
+        const response = await getSelfAPI(token);
+        dispatch({ type: "GET_SELF", self: response.data});
+        }
+
       } catch (e) {
         console.log(e);
       }
