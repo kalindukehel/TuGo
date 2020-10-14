@@ -18,11 +18,11 @@ export default AppNavigator = () => {
     const getToken = async () => {
       try {
         const token = await isSignedIn();
-        dispatch({ type: "RESTORE_TOKEN", token });
         if (token){
-        const response = await getSelfAPI(token);
-        dispatch({ type: "GET_SELF", self: response.data});
+          const response = await getSelfAPI(token);
+          dispatch({ type: "GET_SELF", self: response.data});
         }
+        dispatch({ type: "RESTORE_TOKEN", token });
 
       } catch (e) {
         console.log(e);

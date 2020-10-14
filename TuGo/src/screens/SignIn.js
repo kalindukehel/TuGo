@@ -67,9 +67,9 @@ const SignIn = ({ navigation }) => {
       const res = await signInAPI(data);
       onSignIn(res.data.token);
       console.log(res.data.token);
-      dispatch({ type: "SIGN_IN", token: res.data.token });
       const response = await getSelfAPI(res.data.token);
       dispatch({ type: "GET_SELF", self: response.data})
+      dispatch({ type: "SIGN_IN", token: res.data.token });
     } catch (error) {
       console.log(error);
     }
