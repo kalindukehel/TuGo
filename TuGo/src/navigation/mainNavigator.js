@@ -1,15 +1,19 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import {Image} from "react-native";
 import HomeScreen from "../screens/Feed";
 import profileNavigator from "./profileNavigator";
 import Explore from "../screens/Explore";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { Image } from "react-native";
+import { useAuthState, useAuthDispatch } from "../context/authContext";
 
 const Tab = createBottomTabNavigator();
 
 const MainNavigator = () => {
+  const { userToken, self } = useAuthState();
+
   return (
     <Tab.Navigator
       initialRouteName="Home"
@@ -17,11 +21,11 @@ const MainNavigator = () => {
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-
           if (route.name === "Home") {
             iconName = focused ? "md-home" : "md-home";
           } else if (route.name === "Profile") {
-            iconName = focused ? "md-square" : "md-square-outline";
+            console.log(self)
+            return <Image source={{uri:self.profile_picture}} style={{width:20,height:20}}></Image>
           } else if (route.name === "Explore") {
             iconName = focused ? "md-add-circle" : "md-add-circle-outline";
           }
