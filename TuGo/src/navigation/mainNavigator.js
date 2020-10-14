@@ -1,6 +1,6 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import {Image} from "react-native";
+import { Image } from "react-native";
 import HomeScreen from "../screens/Feed";
 import profileNavigator from "./profileNavigator";
 import Explore from "../screens/Explore";
@@ -23,8 +23,13 @@ const MainNavigator = () => {
           if (route.name === "Home") {
             iconName = focused ? "md-home" : "md-home";
           } else if (route.name === "Profile") {
-            console.log(self)
-            return <Image source={{uri:self.profile_picture}} style={{width:20,height:20,borderRadius:5,borderWidth:focused?1:0.5}}></Image>
+            console.log(self);
+            return (
+              <Image
+                source={{ uri: self.profile_picture }}
+                style={{ width: 20, height: 20, borderRadius: 5, borderWidth: focused ? 1 : 0.5 }}
+              ></Image>
+            );
           } else if (route.name === "Explore") {
             iconName = focused ? "md-add-circle" : "md-add-circle-outline";
           }
@@ -34,9 +39,14 @@ const MainNavigator = () => {
           if (route.name === "Explore") {
             return (
               <Image
+                transition={false}
                 style={{ height: 40, width: 40 }}
                 resizeMode={"contain"}
-                source={require(`../../assets/ExploreIcon.png`)}
+                source={
+                  focused
+                    ? require(`../../assets/ExploreIconActive.png`)
+                    : require(`../../assets/ExploreIcon.png`)
+                }
               ></Image>
             );
           }
