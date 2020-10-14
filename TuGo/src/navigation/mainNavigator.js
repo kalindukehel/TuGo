@@ -6,7 +6,6 @@ import profileNavigator from "./profileNavigator";
 import Explore from "../screens/Explore";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Image } from "react-native";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 
 const Tab = createBottomTabNavigator();
@@ -25,7 +24,7 @@ const MainNavigator = () => {
             iconName = focused ? "md-home" : "md-home";
           } else if (route.name === "Profile") {
             console.log(self)
-            return <Image source={{uri:self.profile_picture}} style={{width:20,height:20}}></Image>
+            return <Image source={{uri:self.profile_picture}} style={{width:20,height:20,borderRadius:5,borderWidth:focused?1:0.5}}></Image>
           } else if (route.name === "Explore") {
             iconName = focused ? "md-add-circle" : "md-add-circle-outline";
           }
