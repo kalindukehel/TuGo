@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import Account, Post, Follower, Comment, Video_Tile
+from accounts.models import Account, Post, Follower, Comment, Video_Tile, Feed_Item
 from rest_framework.validators import UniqueValidator
 
 
@@ -24,10 +24,18 @@ class PostSerializer(serializers.ModelSerializer):
     def create(self, request, *args, **kwargs):
         # request.data.update({"user": request.user.pk})
         newPost = super().create(request, *args, **kwargs)
-        for follower in request['author'].followers.all():
-            print(follower.follower.username)
+        for followerObject in request['author'].followers.all():
+            feed_item = Feed_Item(user=followerObject.follower,post=newPost)
+            feed_item.save()
         return newPost
-        
+
+class FeedSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Feed_Item
+        fields = (
+            '__all__'
+        )
+
 class CommentSerializer(serializers.ModelSerializer):
      class Meta:
         model = Comment

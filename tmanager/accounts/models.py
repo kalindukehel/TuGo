@@ -66,6 +66,10 @@ class Post(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['soundcloud_art', 'soundcloud_audio', 'song_name','song_artist', 'created_at']
 
+class Feed_Item(models.Model):
+    user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='feed')
+    post = models.OneToOneField(Post,on_delete=models.CASCADE, primary_key=True)
+
 class Video_Tile(models.Model):
     post = models.ForeignKey('Post',on_delete=models.CASCADE,related_name='tiles')
     tile_type = models.CharField(max_length=20) #posted_cover, posted_choreo, suggested_cover, suggested_choreo

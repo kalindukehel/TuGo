@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from accounts.models import Account, Post, Like, Comment, Video_Tile
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, VideoSerializer
+from .serializers import AccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, VideoSerializer, FeedSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED
@@ -53,7 +53,12 @@ class AccountViewSet(viewsets.ModelViewSet):
         all_posts = self.get_object().posts.all()
         serializer = PostSerializer(all_posts,many=True)
         return Response(serializer.data)
-    
+
+    @action(detail=True, methods=['GET'])
+    def feed(self,request,*args,**kwargs):
+        feed_posts = self.get_object().feed.all()
+        serializer = FeedSerializer(feed_posts,many=True)
+        return Response(serializer.data)
 
 
 
