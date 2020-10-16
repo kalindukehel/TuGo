@@ -21,7 +21,13 @@ class PostSerializer(serializers.ModelSerializer):
         fields = (
             '__all__'
         )
-
+    def create(self, request, *args, **kwargs):
+        # request.data.update({"user": request.user.pk})
+        newPost = super().create(request, *args, **kwargs)
+        for follower in request['author'].followers.all():
+            print(follower.follower.username)
+        return newPost
+        
 class CommentSerializer(serializers.ModelSerializer):
      class Meta:
         model = Comment

@@ -65,10 +65,7 @@ class PostViewSet(viewsets.ModelViewSet):
     permission_classes = [
         permissions.IsAuthenticated
     ]
-    def create(self, request, *args, **kwargs):
-        # request.data.update({"user": request.user.pk})
-        return super(PostViewSet, self).create(request, *args, **kwargs)
-    
+
     @action(detail=True,methods=['POST','GET'],serializer_class=VideoSerializer)
     def video(self,request,*args,**kwargs):
         if(request.method=='POST'):
