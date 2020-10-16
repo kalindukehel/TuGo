@@ -2,8 +2,11 @@ import React from "react";
 import { View, Text, TouchableOpacity } from "react-native";
 import { signOut as signOutAPI } from "../api";
 import { onSignOut } from "../auth";
+import { useAuthState, useAuthDispatch } from "../context/authContext";
 
-const Explore = ({ navigation }) => {
+const Settings = ({ navigation }) => {
+  const { userToken } = useAuthState();
+  const dispatch = useAuthDispatch();
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <Text>Settings</Text>
@@ -26,4 +29,4 @@ const Explore = ({ navigation }) => {
   );
 };
 
-export default Explore;
+export default Settings;

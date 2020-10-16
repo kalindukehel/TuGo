@@ -5,6 +5,7 @@ import { useAuthDispatch } from "../context/authContext";
 import { signOut as signOutAPI } from "../api";
 import { useAuthState } from "../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { Header } from "react-native-elements";
 
 const Feed = ({ navigation }) => {
   const { userToken } = useAuthState();
@@ -25,7 +26,6 @@ const Feed = ({ navigation }) => {
         }}
       >
         <Text style={{ marginTop: 30, fontSize: 25, textAlign: "center" }}>TuGo</Text>
-        {/* <Ionicons name={"ios-arrow-dropleft-circle"} size={25} color={"black"} /> */}
       </View>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}></View>
     </>

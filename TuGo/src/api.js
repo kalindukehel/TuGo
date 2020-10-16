@@ -45,7 +45,7 @@ export async function signOut(userToken) {
   });
 }
 
-export async function getSelf(userToken){
+export async function getSelf(userToken) {
   let token = userToken;
   try {
     token = JSON.parse(token);
@@ -57,6 +57,61 @@ export async function getSelf(userToken){
     });
   }
   return axios.get(`${API_URL}/api/accounts/self/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function getFollowers(userToken, id) {
+  console.log(userToken);
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/accounts/${id}/followers/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/accounts/${id}/followers/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function getFollowing(userToken, id) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/accounts/${id}/following/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/accounts/${id}/following/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function getPosts(userToken, id) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/accounts/${id}/posts/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/accounts/${id}/posts/`, {
     headers: {
       Authorization: "Token " + token,
     },

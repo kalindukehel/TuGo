@@ -20,7 +20,12 @@ class AccountViewSet(viewsets.ModelViewSet):
     serializer_class = AccountSerializer
 
     def get_object(self):
-        return self.request.user
+        pk = self.kwargs.get('pk')
+
+        if pk == "self":
+            return self.request.user
+
+        return super(AccountViewSet, self).get_object()
     
     @action(detail=True, methods=['POST','GET'], serializer_class=FollowerSerializer)
     def followers(self,request,*args,**kwargs):

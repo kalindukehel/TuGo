@@ -16,7 +16,6 @@ const MainNavigator = () => {
   return (
     <Tab.Navigator
       initialRouteName="Home"
-      headerMode="none"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;

@@ -1,14 +1,24 @@
 import React from "react";
+import { TouchableOpacity } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Profile from "../screens/Profile";
 import settingsNavigator from "./settingsNavigator";
+import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
 
 const profileNavigator = () => {
+  const { self } = useAuthState();
   return (
-    <Stack.Navigator initialRouteName="Profile" headerMode="none">
-      <Stack.Screen name="Profile" component={Profile} />
+    <Stack.Navigator initialRouteName="Profile">
+      <Stack.Screen
+        options={{
+          title: self.username,
+        }}
+        name="Profile"
+        component={Profile}
+        headerMode="screen"
+      />
       <Stack.Screen name="Settings" component={settingsNavigator} headerMode="screen" />
     </Stack.Navigator>
   );
