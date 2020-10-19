@@ -7,6 +7,10 @@ import {
   Image,
   Flatlist,
   SafeAreaView,
+  TouchableHighlight,
+  RefreshControl,
+  ScrollView,
+  Dimensions,
 } from "react-native";
 import {
   getFollowers as getFollowersAPI,
@@ -41,13 +45,24 @@ const styles = StyleSheet.create({
   },
 });
 
+const wait = (timeout) => {
+  return new Promise((resolve) => {
+    setTimeout(resolve, timeout);
+  });
+};
+
+var { width, height } = Dimensions.get("window");
+
 const Profile = ({ navigation }) => {
   const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [posts, setPosts] = useState([]);
-  useEffect(() => {
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
     async function getUserStates() {
       const followerState = await getFollowersAPI(userToken, self.id);
       const followingState = await getFollowingAPI(userToken, self.id);
@@ -57,66 +72,127 @@ const Profile = ({ navigation }) => {
       setPosts(postsState.data);
     }
     getUserStates();
+    wait(1000).then(() => setRefreshing(false));
   }, []);
-  return (
-    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+  useEffect(() => {
+    onRefresh();
+  }, []);
+
+  renderSection = () => {
+    return posts.map((post, index) => {
+      return (
+        <View
+          key={index}
+          style={[
+            { width: width / 2 },
+            { height: width / 2 },
+            { paddingRight: 2 },
+            { paddingLeft: 2 },
+            { paddingBottom: 4 },
+          ]}
+        >
+          <Image
+            style={{ flex: 1, width: undefined, height: undefined }}
+            source={{ uri: post.soundcloud_art }}
+          ></Image>
+        </View>
+      );
+    });
+  };
+
+  renderBackground = () => {
+    const topPosts = posts.filter((post, index) => index <= 5);
+    console.log(topPosts);
+    return (
       <View style={{ height: "35%" }}>
         <View
           style={{
             flexDirection: "row",
-            height: "50%",
+            flexWrap: "wrap",
+            height: "100%",
             width: "100%",
             opacity: 0.6,
           }}
         >
-          <View style={{ backgroundColor: "black", height: "100%", width: "33%" }}></View>
-          <View style={{ backgroundColor: "green", height: "100%", width: "34%" }}></View>
-          <View
-            style={{
-              backgroundColor: "gray",
-              height: "100%",
-              width: "33%",
-            }}
-          >
-            <TouchableOpacity
-              style={{
-                width: 25,
-                alignItems: "center",
-                alignSelf: "flex-end",
-                marginRight: 5,
-                marginTop: 5,
-              }}
-            >
-              <Ionicons
-                name="ios-settings"
-                backgroundColor="red"
-                size={25}
-                color={"black"}
-                onPress={async () => {
-                  navigation.navigate("Settings");
+          {topPosts.map((post, index) => {
+            console.log(posts.length);
+            return (
+              <View
+                key={index}
+                style={{
+                  borderColor: "gray",
+                  borderWidth: 1,
+                  backgroundColor: "white",
+                  height: "50%",
+                  width: "33%",
                 }}
-              />
-            </TouchableOpacity>
-          </View>
+              >
+                {index === 0 && (
+                  <Image
+                    style={{ flex: 1, width: undefined, height: undefined }}
+                    source={{ uri: post.soundcloud_art }}
+                  ></Image>
+                )}
+                {index === 1 && (
+                  <Image
+                    style={{ flex: 1, width: undefined, height: undefined }}
+                    source={{ uri: post.soundcloud_art }}
+                  ></Image>
+                )}
+                {index === 2 && (
+                  <>
+                    <Image
+                      style={{ flex: 1, width: undefined, height: undefined }}
+                      source={{ uri: post.soundcloud_art }}
+                    ></Image>
+
+                    <TouchableOpacity
+                      style={{
+                        width: 25,
+                        alignItems: "center",
+                        alignSelf: "flex-end",
+                        marginRight: 5,
+                        marginTop: 5,
+                        zIndex: 5,
+                        position: "absolute",
+                      }}
+                    >
+                      <Ionicons
+                        name="ios-settings"
+                        backgroundColor="red"
+                        size={25}
+                        color={"black"}
+                        onPress={async () => {
+                          navigation.navigate("Settings");
+                        }}
+                      />
+                    </TouchableOpacity>
+                  </>
+                )}
+                {index === 3 && (
+                  <Image
+                    style={{ flex: 1, width: undefined, height: undefined }}
+                    source={{ uri: post.soundcloud_art }}
+                  ></Image>
+                )}
+                {index === 4 && (
+                  <Image
+                    style={{ flex: 1, width: undefined, height: undefined }}
+                    source={{ uri: post.soundcloud_art }}
+                  ></Image>
+                )}
+                {index === 5 && (
+                  <Image
+                    style={{ flex: 1, width: undefined, height: undefined }}
+                    source={{ uri: post.soundcloud_art }}
+                  ></Image>
+                )}
+                {/* {topPosts.length == index + 1 && renderBoxes(6 - topPosts.length)} */}
+              </View>
+            );
+          })}
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            height: "50%",
-            width: "100%",
-            opacity: 0.6,
-          }}
-        >
-          <View style={{ backgroundColor: "yellow", height: "100%", width: "33%" }}></View>
-          <View style={{ backgroundColor: "pink", height: "100%", width: "34%" }}></View>
-          <View
-            style={{
-              backgroundColor: "brown",
-              height: "100%",
-              width: "33%",
-            }}
-          ></View>
-        </View>
+
         <Image
           source={{ uri: self.profile_picture }}
           style={{
@@ -131,30 +207,45 @@ const Profile = ({ navigation }) => {
           }}
         ></Image>
       </View>
-      <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-        <TouchableOpacity>
-          <Text style={styles.userStatsNumber}>{following}</Text>
-          <Text style={styles.userStatsText}>Following</Text>
-        </TouchableOpacity>
-        <View style={{ marginTop: 25 }}>
-          <Text style={styles.userStatsNumber}>{posts.length}</Text>
-          <Text
-            style={{ ...styles.userStatsText, backgroundColor: "#D3D3D3", borderColor: "#D3D3D3" }}
-          >
-            Songs
-          </Text>
+    );
+  };
+  return (
+    <SafeAreaView style={{ flex: 1, backgroundColor: "white" }}>
+      <ScrollView
+        contentContainerStyle={{ flex: 1 }}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        {renderBackground()}
+        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+          <TouchableOpacity>
+            <Text style={styles.userStatsNumber}>{following}</Text>
+            <Text style={styles.userStatsText}>Following</Text>
+          </TouchableOpacity>
+          <View style={{ marginTop: 25 }}>
+            <Text style={styles.userStatsNumber}>{posts.length}</Text>
+            <Text
+              style={{
+                ...styles.userStatsText,
+                backgroundColor: "#D3D3D3",
+                borderColor: "#D3D3D3",
+              }}
+            >
+              Songs
+            </Text>
+          </View>
+          <TouchableOpacity>
+            <Text style={styles.userStatsNumber}>{followers}</Text>
+            <Text style={styles.userStatsText}>Followers</Text>
+          </TouchableOpacity>
         </View>
-        <TouchableOpacity>
-          <Text style={styles.userStatsNumber}>{followers}</Text>
-          <Text style={styles.userStatsText}>Followers</Text>
-        </TouchableOpacity>
-      </View>
-      <View
-        style={{ borderBottom: "solid", borderWidth: 2, marginTop: 10, borderColor: "#EDEDED" }}
-      />
-      <View>
-        <Text style={{ fontWeight: "bold", margin: 10 }}>Portfolio</Text>
-      </View>
+        <View
+          style={{ borderBottom: "solid", borderWidth: 2, marginTop: 10, borderColor: "#EDEDED" }}
+        />
+        <View style={{}}>
+          <Text style={{ fontWeight: "bold", margin: 10 }}>Portfolio</Text>
+        </View>
+        <View style={{ flexDirection: "row", flexWrap: "wrap" }}>{renderSection()}</View>
+      </ScrollView>
     </SafeAreaView>
   );
 };
