@@ -5,7 +5,6 @@ import { useAuthDispatch } from "../context/authContext";
 import { signOut as signOutAPI } from "../api";
 import { useAuthState } from "../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
-import { Header } from "react-native-elements";
 
 const Feed = ({ navigation }) => {
   const { userToken } = useAuthState();

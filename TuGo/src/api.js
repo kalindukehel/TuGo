@@ -27,7 +27,6 @@ export async function signIn(data) {
 }
 
 export async function signOut(userToken) {
-  console.log("userToken in api logout is: " + userToken);
   let token = userToken;
   try {
     token = JSON.parse(token);
@@ -64,7 +63,6 @@ export async function getSelf(userToken) {
 }
 
 export async function getFollowers(userToken, id) {
-  console.log(userToken);
   let token = userToken;
   try {
     token = JSON.parse(token);

@@ -12,7 +12,7 @@ import {
   Alert,
   SafeAreaView,
 } from "react-native";
-import { signIn as signInAPI, getSelf as getSelfAPI} from "../api";
+import { signIn as signInAPI, getSelf as getSelfAPI } from "../api";
 
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
@@ -63,12 +63,10 @@ const SignIn = ({ navigation }) => {
         username: username,
         password: password,
       };
-      console.log(data);
       const res = await signInAPI(data);
       onSignIn(res.data.token);
-      console.log(res.data.token);
       const response = await getSelfAPI(res.data.token);
-      dispatch({ type: "GET_SELF", self: response.data})
+      dispatch({ type: "GET_SELF", self: response.data });
       dispatch({ type: "SIGN_IN", token: res.data.token });
     } catch (error) {
       console.log(error);

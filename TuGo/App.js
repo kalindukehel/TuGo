@@ -1,9 +1,6 @@
 import React, { useState, useEffect } from "react";
 import Navigator from "./routes/homeStack";
 import { StyleSheet } from "react-native";
-import Feed from "./src/screens/Feed";
-import Profile from "./src/screens/Profile";
-import { NavigationContainer } from "@react-navigation/native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { isSignedIn, signed } from "./src/auth";
 import AppNavigator from "./src/navigation/appNavigator";

@@ -14,7 +14,7 @@ export default AppNavigator = () => {
   const { isSignout, userToken } = useAuthState();
   const dispatch = useAuthDispatch();
   const [loading, useLoading] = useState(false);
-
+  
   useEffect(() => {
     const getToken = async () => {
       try {
@@ -28,14 +28,11 @@ export default AppNavigator = () => {
       } catch (e) {
         console.log(e);
       } finally {
-        console.log(loading);
         useLoading(false);
-        console.log(loading);
       }
     };
     getToken();
   }, [dispatch]);
-  console.log(userToken);
   return (
     !loading && (
       <SafeAreaProvider>

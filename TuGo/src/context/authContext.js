@@ -23,7 +23,6 @@ const useAuthState = () => {
   if (context === undefined) {
     throw new Error("useAuthState must be used within a AuthProvider");
   }
-  console.log(context);
   return context;
 };
 

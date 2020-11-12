@@ -69,7 +69,6 @@ const SignIn = ({ navigation }) => {
       const signUpRes = await signUpAPI(data);
       const signInRes = await SignInApi({ username: data.username, password: data.password });
       onSignIn(signInRes.data.token);
-      console.log(signInRes.data.token);
       dispatch({ type: "SIGN_IN", token: signInRes.data.token });
     } catch (error) {
       console.log(error);
