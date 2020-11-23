@@ -30,7 +30,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=['POST','GET'], serializer_class=FollowerSerializer)
     def followers(self,request,*args,**kwargs):
         if(request.method=='POST'):
-            follower, created = self.get_object().followers.all().get_or_create(follower=Account.objects.filter(username='kal')[0],following=self.get_object())
+            follower, created = self.get_object().followers.all().get_or_create(follower=request.user,following=self.get_object())
             #if follower was not created it already exists
             if not created:
                 follower.delete()
