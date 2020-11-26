@@ -27,6 +27,13 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         return super(AccountViewSet, self).get_object()
     
+    @action(detail=False, methods=['POST'], serializer_class=AccountSerializer)
+    def by_ids(self,request,*args,**kwargs):
+        id_set = self.request.data.get('ids')
+        user_list = Account.objects.filter(id__in=id_set if id_set !=None else [])
+        serialized = AccountSerializer(user_list,many=True)
+        return Response(serialized.data)
+    
     @action(detail=True, methods=['POST','GET'], serializer_class=FollowerSerializer)
     def followers(self,request,*args,**kwargs):
         if(request.method=='POST'):

@@ -27,6 +27,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 console.disableYellowBox = true;
 
 var { width, height } = Dimensions.get("window");
+const blank = "https://www.publicdomainpictures.net/pictures/30000/velka/plain-white-background.jpg"
 
 const styles = StyleSheet.create({
   profilePicture: {
@@ -40,7 +41,7 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   list: {
-    paddingBottom: height / 2.65,
+    paddingBottom: height / 100,
   },
   SectionStyle: {
     flexDirection: "row",
@@ -93,7 +94,6 @@ const Profile = (props) => {
       const followerState = await getFollowersAPI(userToken, profileId);
       const followingState = await getFollowingAPI(userToken, profileId);
       const postsState = await getPostsAPI(userToken, profileId);
-      console.log(followerState.data);
       setFollowers(followerState.data);
       setFollowing(followingState.data);
       setPosts(postsState.data);
@@ -130,9 +130,9 @@ const Profile = (props) => {
 
   renderBackground = () => {
     const topPosts = posts.filter((post, index) => index <= 5);
-    console.log(topPosts);
+    const six = [0,1,2,3,4,5];
     return (
-      <View style={{ width: width, height: "50%" }}>
+      <View style={{ width: width, height: height/3.4 }}>
         <View
           style={{
             flexDirection: "row",
@@ -142,8 +142,7 @@ const Profile = (props) => {
             opacity: 0.6,
           }}
         >
-          {topPosts.map((post, index) => {
-            console.log(posts.length);
+          {six.map((index) => {
             return (
               <View
                 key={index}
@@ -155,45 +154,10 @@ const Profile = (props) => {
                   width: width / 3,
                 }}
               >
-                {index === 0 && (
-                  <Image
-                    style={{ flex: 1, width: undefined, height: undefined }}
-                    source={{ uri: post.soundcloud_art }}
-                  ></Image>
-                )}
-                {index === 1 && (
-                  <Image
-                    style={{ flex: 1, width: undefined, height: undefined }}
-                    source={{ uri: post.soundcloud_art }}
-                  ></Image>
-                )}
-                {index === 2 && (
-                  <>
-                    <Image
-                      style={{ flex: 1, width: undefined, height: undefined }}
-                      source={{ uri: post.soundcloud_art }}
-                    ></Image>
-                  </>
-                )}
-                {index === 3 && (
-                  <Image
-                    style={{ flex: 1, width: undefined, height: undefined }}
-                    source={{ uri: post.soundcloud_art }}
-                  ></Image>
-                )}
-                {index === 4 && (
-                  <Image
-                    style={{ flex: 1, width: undefined, height: undefined }}
-                    source={{ uri: post.soundcloud_art }}
-                  ></Image>
-                )}
-                {index === 5 && (
-                  <Image
-                    style={{ flex: 1, width: undefined, height: undefined }}
-                    source={{ uri: post.soundcloud_art }}
-                  ></Image>
-                )}
-                {/* {topPosts.length == index + 1 && renderBoxes(6 - topPosts.length)} */}
+                <Image
+                  style={{ flex: 1, width: undefined, height: undefined }}
+                  source={{ uri: topPosts[index] ? topPosts[index].soundcloud_art : blank}}
+                ></Image>
               </View>
             );
           })}
@@ -246,7 +210,8 @@ const Profile = (props) => {
           </View>
           <TouchableOpacity onPress={() => {
                           navigation.navigate("Followers", {
-                            id: profileId
+                            id: profileId,
+                            followerList: followers,
                           });
                         }}>
             <Text style={styles.userStatsNumber}>{followers.length}</Text>

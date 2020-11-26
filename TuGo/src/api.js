@@ -6,8 +6,22 @@ export async function getAccounts() {
   return axios.get(`${API_URL}/api/accounts`);
 }
 
-export async function getAccountById(id) {
-  return axios.get(`${API_URL}/api/accounts/${id}`);
+export async function getAccountById(id, userToken) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/accounts/${id}/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/accounts/${id}/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });   
 }
 
 export async function signUp(data) {
@@ -112,6 +126,31 @@ export async function getPosts(userToken, id) {
   return axios.get(`${API_URL}/api/accounts/${id}/posts/`, {
     headers: {
       Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function by_ids(data, userToken) {
+  let token = userToken;
+  console.log(data);
+  let dic = {
+    ids: data ? data : null
+  }
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.post(`${API_URL}/api/accounts/by_ids/`,dic, {
+      headers: {
+        Authorization: "Token " + userToken,
+        'Content-Type':'application/json',
+      },
+    });
+  }
+  console.log(token);
+  return axios.post(`${API_URL}/api/accounts/by_ids/`,dic, {
+    headers: {
+      Authorization: "Token " + token,
+      'Content-Type':'application/json',
     },
   });
 }
