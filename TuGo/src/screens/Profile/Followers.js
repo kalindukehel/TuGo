@@ -4,10 +4,13 @@ import { useAuthState } from "../../context/authContext";
 import {
     getFollowers as getFollowersAPI,
     getAccountById as getAccountByIdAPI,
+    getFollowing as getFollowingAPI,
+    changeFollow as changeFollowAPI,
     by_ids as by_idsAPI
   } from "../../api";
 import { FlatList } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
+import { useFollow } from "./Followers.hooks"
 
 // console.disableYellowBox = true;  
 
@@ -40,7 +43,7 @@ import { API_URL } from "../../../constants";
       backgroundColor: "#FFFFFF",
     },
     button: {
-      backgroundColor: "black",
+      backgroundColor: "purple",
       borderWidth: 1,
       alignSelf: "flex-end",
       borderRadius: 5,
@@ -50,7 +53,11 @@ import { API_URL } from "../../../constants";
 
 const Followers = (props) => {
   const { navigation } = props;
-  const { id, followerList } = props.route.params;
+
+
+  const [followingStatus, setFollowingStatus] = useState({});
+
+  const { followerList } = props.route.params;
   const list = followerList.map((item) => item.follower);
   const { userToken, self } = useAuthState();
   const [refreshing, setRefreshing] = useState(false);
@@ -59,6 +66,15 @@ const Followers = (props) => {
   const [search, setSearch] = useState('');
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
+    async function getIsFollowing() {
+      const res = await getFollowingAPI(userToken, self.id);
+      const ids = res.data.map(item => item.following);
+      let tempFollowingStatus = {}
+      for(let i=0;i<list.length;i++){
+        tempFollowingStatus[list[i]] = ids.includes(list[i]);
+      }
+    }
+  getIsFollowing();
     async function getUserStates() {
       const res = await by_idsAPI(list, userToken);
       setFilteredData(res.data);
@@ -71,20 +87,7 @@ const Followers = (props) => {
     onRefresh();
   }, []);
 
-  // const [scrollYValue, setScrollYValue] = useState(new Animated.Value(0));
-  // const clampedScroll = Animated.diffClamp(
-  //   Animated.add(
-  //     scrollYValue.interpolate({
-  //       inputRange: [0, 1],
-  //       outputRange: [0, 1],
-  //       extrapolateLeft: 'clamp',
-  //       useNativeDriver: true,
-  //     }),
-  //     new Animated.Value(0),
-  //   ),
-  //   0,
-  //   50,
-  // )
+
 
 const searchFilterFunction = (text) => {
     // Check if searched text is not blank
@@ -112,10 +115,15 @@ const searchFilterFunction = (text) => {
     }
 };
 
+
+
+  async function changeFollow(id) {
+    const res = await changeFollowAPI(userToken, id);
+    followingStatus[id] = !followingStatus[id];
+  }
+
   const renderItem = (item) => {
     let follower = item.item;
-    console.log(follower);
-    console.log(self.profile_picture);
     return(
       <View
         style={{borderColor: "#C8C8C8", borderWidth: 1, padding: 20, borderRadius: 20, flexDirection: "row", justifyContent: "space-between"}}>
@@ -134,10 +142,12 @@ const searchFilterFunction = (text) => {
             follower.name }
         </Text>
         <TouchableOpacity
-          style={styles.button}>
+          style={{ ...styles.button, backgroundColor: "gray" }}
+          onPress={() => changeFollow(follower.id)
+          }>
           <Text
-            style={{alignSelf: "flex-end", color: "white"}}>
-            Following
+            style={{alignSelf: "flex-end", color: followingStatus[follower.id] ? "white" : "black"}}>
+            {followingStatus[follower.id] ? `Following` : `Follow`}
           </Text>
         </TouchableOpacity>
 
@@ -182,6 +192,7 @@ const searchFilterFunction = (text) => {
       <FlatList
         contentContainerStyle={{ flexGrow: 1 }}
         data={filteredData}
+        extraData={followingStatus}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListHeaderComponent={getHeader}

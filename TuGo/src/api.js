@@ -154,3 +154,24 @@ export async function by_ids(data, userToken) {
     },
   });
 }
+
+export async function changeFollow(userToken, id) {
+  let token = userToken;
+  console.log(userToken);
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.post(`${API_URL}/api/accounts/${id}/followers/`,null, {
+      headers: {
+        Authorization: "Token " + userToken,
+        'Content-Type':'application/json',
+      },
+    });
+  }
+  return axios.post(`${API_URL}/api/accounts/${id}/followers/`,null, {
+    headers: {
+      Authorization: "Token " + token,
+      'Content-Type':'application/json',
+    },
+  });
+}
