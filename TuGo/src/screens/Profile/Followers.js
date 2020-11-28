@@ -69,12 +69,13 @@ const Followers = (props) => {
     async function getIsFollowing() {
       const res = await getFollowingAPI(userToken, self.id);
       const ids = res.data.map(item => item.following);
-      let tempFollowingStatus = {}
+      let tempFollowingStatus = {};
       for(let i=0;i<list.length;i++){
         tempFollowingStatus[list[i]] = ids.includes(list[i]);
       }
+      setFollowingStatus(tempFollowingStatus);
     }
-  getIsFollowing();
+    getIsFollowing();
     async function getUserStates() {
       const res = await by_idsAPI(list, userToken);
       setFilteredData(res.data);
@@ -119,7 +120,9 @@ const searchFilterFunction = (text) => {
 
   async function changeFollow(id) {
     const res = await changeFollowAPI(userToken, id);
-    followingStatus[id] = !followingStatus[id];
+    let tempFollowingStatus = Object.assign({},followingStatus);
+    tempFollowingStatus[id] = !followingStatus[id];
+    setFollowingStatus(tempFollowingStatus)
   }
 
   const renderItem = (item) => {
