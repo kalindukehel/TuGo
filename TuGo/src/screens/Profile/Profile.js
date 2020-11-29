@@ -26,7 +26,6 @@ import { useAuthState, useAuthDispatch } from "../../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { API_URL } from "../../../constants";
 
-console.disableYellowBox = true;
 
 var { width, height } = Dimensions.get("window");
 const blank = "https://www.publicdomainpictures.net/pictures/30000/velka/plain-white-background.jpg"
@@ -81,11 +80,9 @@ const wait = (timeout) => {
 };
 
 const Profile = (props) => {
-  console.log(props);
   const { navigation } = props;
   let id = null;
   if(props.route.params) id = props.route.params.id
-  console.log("id is " + id);
   const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
   const [followers, setFollowers] = useState([]);
@@ -96,14 +93,11 @@ const Profile = (props) => {
   let profileId = self.id;
   if(id) {
     profileId = id;
-    console.log("profileID is assigned " + profileId);
   }
   const onRefresh = React.useCallback(() => {
-    console.log("profileId is " + profileId);
     setRefreshing(true);
     async function getUserStates() {
       const userState = await by_idsAPI([profileId], userToken)
-      console.log(userState + " is the userState")
       setUser(userState.data[0])
       const followerState = await getFollowersAPI(userToken, profileId);
       const followingState = await getFollowingAPI(userToken, profileId);
@@ -119,9 +113,20 @@ const Profile = (props) => {
     onRefresh();
   }, [profileId]);
 
+  navigation.setOptions({
+    title: user ? user.username : ""
+  })
+
   const renderSection = (post) => {
+    let curPost = post.item;
     return (
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={()=>{
+          navigation.push('PostNavigator', {
+            screen: 'Post',
+            params: { post: curPost },
+          });
+        }}>
         <View
           style={{
             flex: 1,
@@ -134,7 +139,7 @@ const Profile = (props) => {
         >
           <Image
             style={{ flex: 1, width: undefined, height: undefined }}
-            source={{ uri: post.item.soundcloud_art }}
+            source={{ uri: curPost.soundcloud_art }}
           ></Image>
         </View>
       </TouchableOpacity>
@@ -190,7 +195,6 @@ const Profile = (props) => {
             }}
           />
         </TouchableOpacity>}
-          {console.log(profileId.profile_picture)}
         <Image
           source={{ uri: user ? API_URL + user.profile_picture : API_URL + "/media/default.jpg" }}
           style={styles.profilePicture}
@@ -205,7 +209,8 @@ const Profile = (props) => {
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <TouchableOpacity onPress={() => {
                           navigation.push("Following", {
-                            id: profileId
+                            id: profileId,
+                            type: "following"
                           });
                         }}>
             <Text style={styles.userStatsNumber}>{following.length}</Text>
@@ -226,7 +231,7 @@ const Profile = (props) => {
           <TouchableOpacity onPress={() => {
                           navigation.push("Followers", {
                             id: profileId,
-                            followerList: followers,
+                            type: "followers"
                           });
                         }}>
             <Text style={styles.userStatsNumber}>{followers.length}</Text>

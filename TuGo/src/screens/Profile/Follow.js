@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { View, Button, Text, TextInput, RefreshControl, Dimensions, StyleSheet, KeyboardAvoidingView, Image, TouchableOpacity } from "react-native";
+import { View, Vibration, Text, TextInput, RefreshControl, Dimensions, StyleSheet, KeyboardAvoidingView, Image, TouchableOpacity } from "react-native";
 import { useAuthState } from "../../context/authContext";
 import {
     getFollowers as getFollowersAPI,
@@ -10,9 +10,15 @@ import {
   } from "../../api";
 import { FlatList } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
-import { useFollow } from "./Followers.hooks"
+import ReactNativeHapticFeedback from "react-native-haptic-feedback";
+import * as Haptics from 'expo-haptics';
 
 var { width, height } = Dimensions.get("window");  
+
+const options = {
+  enableVibrateFallback: true,
+  ignoreAndroidSystemSettings: false
+};
 
   const maxlimit = 20;
 
@@ -29,44 +35,50 @@ var { width, height } = Dimensions.get("window");
       paddingLeft: 20,
       margin: 5,
       borderColor: 'gray',
-      backgroundColor: 'black',
+      backgroundColor: '#A80000',
       borderRadius: 10,
       color: "white"
     },
-    input: {
-      height: 40,
-      borderColor: "gray",
-      color: "black",
-      borderWidth: 1,
-      borderRadius: 10,
-      marginBottom: 15,
-      paddingHorizontal: 20,
-      marginHorizontal: 10,
-      backgroundColor: "#FFFFFF",
-    },
-    button: {
+    followButton: {
       borderWidth: 1,
       borderRadius: 5,
       borderColor: "white",
       padding: 3
+    },
+    followButtonText: {
+      alignSelf: "flex-end"
+    },
+    followElement: {
+      flex: 1,
+      borderColor: "#C8C8C8",
+      borderWidth: 1,
+      paddingHorizontal: 15,
+      paddingVertical: 20, 
+      borderRadius: 20
     }
   });
 
 const Followers = (props) => {
   const { navigation } = props;
-
-
-  const [followingStatus, setFollowingStatus] = useState({});
-
-  const { followerList } = props.route.params;
-  const list = followerList.map((item) => item.follower);
   const { userToken, self } = useAuthState();
+  const [followingStatus, setFollowingStatus] = useState({});
+  const { type, id } = props.route.params;
+  let list = [];
   const [refreshing, setRefreshing] = useState(false);
   const [filteredData, setFilteredData] = useState([]);
   const [masterData, setMasterData] = useState([]);
   const [search, setSearch] = useState('');
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
+    async function getUserStates() {
+      const followStat = type == "followers" ? await getFollowersAPI(userToken, id)
+       : await getFollowingAPI(userToken, id);
+      list = followStat.data.map(item => type == "followers" ? item.follower : item.following);
+      const res = await by_idsAPI(list, userToken);
+      setFilteredData(res.data);
+      setMasterData(res.data);
+      getIsFollowing();
+    }
     async function getIsFollowing() {
       const res = await getFollowingAPI(userToken, self.id);
       const ids = res.data.map(item => item.following);
@@ -75,12 +87,6 @@ const Followers = (props) => {
         tempFollowingStatus[list[i]] = ids.includes(list[i]);
       }
       setFollowingStatus(tempFollowingStatus);
-    }
-    getIsFollowing();
-    async function getUserStates() {
-      const res = await by_idsAPI(list, userToken);
-      setFilteredData(res.data);
-      setMasterData(res.data);
     }
     getUserStates();
     wait(500).then(() => setRefreshing(false));
@@ -123,44 +129,49 @@ const searchFilterFunction = (text) => {
     const res = await changeFollowAPI(userToken, id);
     let tempFollowingStatus = Object.assign({},followingStatus);
     tempFollowingStatus[id] = !followingStatus[id];
-    setFollowingStatus(tempFollowingStatus)
+    setFollowingStatus(tempFollowingStatus);
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
   const renderItem = (item) => {
-    let follower = item.item;
+    let follow = item.item;
+    const isSelf = follow.id == self.id;
     return(
       <TouchableOpacity
-        style={{flex: 1, borderColor: "#C8C8C8", borderWidth: 1, paddingHorizontal: 15, paddingVertical: 20, borderRadius: 20,}}
+        style={styles.followElement}
         onPress={()=>{
           navigation.push("Profile", {
-            id: follower.id,
+            id: follow.id,
           });
         }}>
         <View
           style={{flexDirection: "row", alignContent: "center"}}>
             <Image
-              source={{ uri: API_URL + follower.profile_picture }}
+              source={{ uri: API_URL + follow.profile_picture }}
               style={{ width: height/20, height: height/20, borderRadius: 5, borderWidth: 1 }}
             ></Image>
             <View
               style={{justifyContent: "space-between", flexDirection: "row", flex: 1, alignItems: "center", marginLeft: 10}}>
               <Text
-                style={{fontWeight: "bold"}}>{ ((follower.username).length > maxlimit) ? 
-                  (((follower.username).substring(0,maxlimit-3)) + '...') : 
-                  follower.username }
+                style={{fontWeight: "bold"}}>{ ((follow.username).length > maxlimit) ? 
+                  (((follow.username).substring(0,maxlimit-3)) + '...') : 
+                  follow.username }
               </Text>
               <Text
-                style={{}}>{ ((follower.username).length > maxlimit) ? 
-                  (((follower.name).substring(0,maxlimit-3)) + '...') : 
-                  follower.name }
+                style={{}}>{ ((follow.username).length > maxlimit) ? 
+                  (((follow.name).substring(0,maxlimit-3)) + '...') : 
+                  follow.name }
               </Text>
               <TouchableOpacity
-                style={{ ...styles.button, backgroundColor: followingStatus[follower.id] ? "purple" : "#DCDCDC"}}
-                onPress={() => changeFollow(follower.id)
+                style={{ ...styles.followButton, backgroundColor: isSelf ? "black" : followingStatus[follow.id] ? "purple" : "#DCDCDC"}}
+                onPress={() => !isSelf ? changeFollow(follow.id) :
+                    navigation.push("Profile", {
+                      id: follow.id,
+                    })
                 }>
                 <Text
-                  style={{alignSelf: "flex-end", color: followingStatus[follower.id] ? "white" : "black"}}>
-                  {followingStatus[follower.id] ? `Following` : `Follow`}
+                  style={{ ...styles.followButtonText, color: isSelf ? "white" : followingStatus[follow.id] ? "white" : "black", fontWeight: "bold"}}>
+                  {isSelf ? `View` : followingStatus[follow.id] ? `Following` : `Follow`}
                 </Text>
               </TouchableOpacity>
             </View>
