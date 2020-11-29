@@ -79,7 +79,7 @@ class PostViewSet(viewsets.ModelViewSet):
     ]
 
     @action(detail=True,methods=['POST','GET'],serializer_class=VideoSerializer)
-    def video(self,request,*args,**kwargs):
+    def videos(self,request,*args,**kwargs):
         if(request.method=='POST'):
             post = self.get_object()
             tile_type = request.data.get('tile_type')
@@ -96,10 +96,9 @@ class PostViewSet(viewsets.ModelViewSet):
         
 
     @action(detail=True, methods=['GET'], )
-    def like(self, request, *args, **kwargs):
+    def likes(self, request, *args, **kwargs):
         post = self.get_object()
-        user = Account.objects.filter(username='kal')[0]
-        like, created = Like.objects.get_or_create(author=user,post=self.get_object())
+        like, created = Like.objects.get_or_create(author=request.user,post=self.get_object())
         #if like was not created it already exists
         if not created:
             like.delete()
@@ -108,11 +107,10 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(status=status.HTTP_201_CREATED)
     
     @action(detail=True, methods=['GET','POST'], serializer_class=CommentSerializer )
-    def comment(self, request, *args, **kwargs): 
+    def comments(self, request, *args, **kwargs): 
         if(request.method=='POST'):
-            user = Account.objects.filter(username='kal')[0]
             value = request.data.get('value')
-            comment = Comment(author=user,post=self.get_object(),value=value)
+            comment = Comment(author=request.user,post=self.get_object(),value=value)
             comment.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
