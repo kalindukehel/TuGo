@@ -1,5 +1,5 @@
 import React, {useState, useEffect} from "react";
-import { View, Button, Text, TextInput, RefreshControl, Keyboard, StyleSheet, KeyboardAvoidingView, Image, TouchableOpacity } from "react-native";
+import { View, Button, Text, TextInput, RefreshControl, Dimensions, StyleSheet, KeyboardAvoidingView, Image, TouchableOpacity } from "react-native";
 import { useAuthState } from "../../context/authContext";
 import {
     getFollowers as getFollowersAPI,
@@ -12,7 +12,7 @@ import { FlatList } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
 import { useFollow } from "./Followers.hooks"
 
-// console.disableYellowBox = true;  
+var { width, height } = Dimensions.get("window");  
 
   const maxlimit = 20;
 
@@ -28,8 +28,10 @@ import { useFollow } from "./Followers.hooks"
       borderWidth: 1,
       paddingLeft: 20,
       margin: 5,
-      borderColor: '#009688',
-      backgroundColor: '#FFFFFF',
+      borderColor: 'gray',
+      backgroundColor: 'black',
+      borderRadius: 10,
+      color: "white"
     },
     input: {
       height: 40,
@@ -43,11 +45,10 @@ import { useFollow } from "./Followers.hooks"
       backgroundColor: "#FFFFFF",
     },
     button: {
-      backgroundColor: "purple",
       borderWidth: 1,
-      alignSelf: "flex-end",
       borderRadius: 5,
-      paddingHorizontal: 5
+      borderColor: "white",
+      padding: 3
     }
   });
 
@@ -82,7 +83,7 @@ const Followers = (props) => {
       setMasterData(res.data);
     }
     getUserStates();
-    wait(1000).then(() => setRefreshing(false));
+    wait(500).then(() => setRefreshing(false));
   }, []);
   useEffect(() => {
     onRefresh();
@@ -128,33 +129,44 @@ const searchFilterFunction = (text) => {
   const renderItem = (item) => {
     let follower = item.item;
     return(
-      <View
-        style={{borderColor: "#C8C8C8", borderWidth: 1, padding: 20, borderRadius: 20, flexDirection: "row", justifyContent: "space-between"}}>
-        <Image
-          source={{ uri: API_URL + follower.profile_picture }}
-          style={{ width: 20, height: 20, borderRadius: 5, borderWidth: 1 }}
-        ></Image>
-        <Text
-          style={{}}>{ ((follower.username).length > maxlimit) ? 
-            (((follower.username).substring(0,maxlimit-3)) + '...') : 
-            follower.username }
-        </Text>
-        <Text
-          style={{paddingHorizontal: 20}}>{ ((follower.username).length > maxlimit) ? 
-            (((follower.name).substring(0,maxlimit-3)) + '...') : 
-            follower.name }
-        </Text>
-        <TouchableOpacity
-          style={{ ...styles.button, backgroundColor: "gray" }}
-          onPress={() => changeFollow(follower.id)
-          }>
-          <Text
-            style={{alignSelf: "flex-end", color: followingStatus[follower.id] ? "white" : "black"}}>
-            {followingStatus[follower.id] ? `Following` : `Follow`}
-          </Text>
-        </TouchableOpacity>
+      <TouchableOpacity
+        style={{flex: 1, borderColor: "#C8C8C8", borderWidth: 1, paddingHorizontal: 15, paddingVertical: 20, borderRadius: 20,}}
+        onPress={()=>{
+          navigation.push("Profile", {
+            id: follower.id,
+          });
+        }}>
+        <View
+          style={{flexDirection: "row", alignContent: "center"}}>
+            <Image
+              source={{ uri: API_URL + follower.profile_picture }}
+              style={{ width: height/20, height: height/20, borderRadius: 5, borderWidth: 1 }}
+            ></Image>
+            <View
+              style={{justifyContent: "space-between", flexDirection: "row", flex: 1, alignItems: "center", marginLeft: 10}}>
+              <Text
+                style={{fontWeight: "bold"}}>{ ((follower.username).length > maxlimit) ? 
+                  (((follower.username).substring(0,maxlimit-3)) + '...') : 
+                  follower.username }
+              </Text>
+              <Text
+                style={{}}>{ ((follower.username).length > maxlimit) ? 
+                  (((follower.name).substring(0,maxlimit-3)) + '...') : 
+                  follower.name }
+              </Text>
+              <TouchableOpacity
+                style={{ ...styles.button, backgroundColor: followingStatus[follower.id] ? "purple" : "#DCDCDC"}}
+                onPress={() => changeFollow(follower.id)
+                }>
+                <Text
+                  style={{alignSelf: "flex-end", color: followingStatus[follower.id] ? "white" : "black"}}>
+                  {followingStatus[follower.id] ? `Following` : `Follow`}
+                </Text>
+              </TouchableOpacity>
+            </View>
 
-      </View>
+        </View>
+      </TouchableOpacity>
     )
   }
 
@@ -172,18 +184,6 @@ const searchFilterFunction = (text) => {
     );
   };
 
-  const getHeader = () => {
-    return (
-      // Flat List Item Separator
-      <TextInput
-      style={styles.textInputStyle}
-      onChangeText={(text) => searchFilterFunction(text)}
-      value={search}
-      underlineColorAndroid="transparent"
-      placeholder="Search Here"
-    />
-    );
-  };
 
   return (
     <View
@@ -192,15 +192,22 @@ const searchFilterFunction = (text) => {
         backgroundColor: "white",
       }}
     >
+      <TextInput
+        style={styles.textInputStyle}
+        onChangeText={(text) => searchFilterFunction(text)}
+        value={search}
+        placeholder="Search"
+        placeholderTextColor="white"
+      />
       <FlatList
         contentContainerStyle={{ flexGrow: 1 }}
         data={filteredData}
         extraData={followingStatus}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
-        ListHeaderComponent={getHeader}
         ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
+        keyboardDismissMode={'on-drag'}
       />
     </View>
   );

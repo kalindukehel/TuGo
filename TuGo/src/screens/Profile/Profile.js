@@ -19,10 +19,12 @@ import {
   getFollowers as getFollowersAPI,
   getFollowing as getFollowingAPI,
   getPosts as getPostsAPI,
+  by_ids as by_idsAPI
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { API_URL } from "../../../constants";
 
 console.disableYellowBox = true;
 
@@ -79,18 +81,30 @@ const wait = (timeout) => {
 };
 
 const Profile = (props) => {
-  const { navigation, id } = props;
+  console.log(props);
+  const { navigation } = props;
+  let id = null;
+  if(props.route.params) id = props.route.params.id
+  console.log("id is " + id);
   const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [posts, setPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const profileId = self.id;
-  if(id) profileId = id;
+  const [user, setUser] = useState(null);
+  let profileId = self.id;
+  if(id) {
+    profileId = id;
+    console.log("profileID is assigned " + profileId);
+  }
   const onRefresh = React.useCallback(() => {
+    console.log("profileId is " + profileId);
     setRefreshing(true);
     async function getUserStates() {
+      const userState = await by_idsAPI([profileId], userToken)
+      console.log(userState + " is the userState")
+      setUser(userState.data[0])
       const followerState = await getFollowersAPI(userToken, profileId);
       const followingState = await getFollowingAPI(userToken, profileId);
       const postsState = await getPostsAPI(userToken, profileId);
@@ -103,7 +117,7 @@ const Profile = (props) => {
   }, []);
   useEffect(() => {
     onRefresh();
-  }, []);
+  }, [profileId]);
 
   const renderSection = (post) => {
     return (
@@ -162,6 +176,7 @@ const Profile = (props) => {
             );
           })}
         </View>
+        {profileId == self.id && 
         <TouchableOpacity
           style={styles.settingsIcon}
         >
@@ -174,10 +189,10 @@ const Profile = (props) => {
               navigation.navigate("Settings");
             }}
           />
-        </TouchableOpacity>
-
+        </TouchableOpacity>}
+          {console.log(profileId.profile_picture)}
         <Image
-          source={{ uri: self.profile_picture }}
+          source={{ uri: user ? API_URL + user.profile_picture : API_URL + "/media/default.jpg" }}
           style={styles.profilePicture}
         ></Image>
       </View>
@@ -189,7 +204,7 @@ const Profile = (props) => {
         {renderBackground()}
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <TouchableOpacity onPress={() => {
-                          navigation.navigate("Following", {
+                          navigation.push("Following", {
                             id: profileId
                           });
                         }}>
@@ -209,7 +224,7 @@ const Profile = (props) => {
             </Text>
           </View>
           <TouchableOpacity onPress={() => {
-                          navigation.navigate("Followers", {
+                          navigation.push("Followers", {
                             id: profileId,
                             followerList: followers,
                           });
