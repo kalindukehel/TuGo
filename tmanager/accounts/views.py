@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from accounts.models import Account, Post, Like, Comment, Video_Tile
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, VideoSerializer, FeedSerializer
+from .serializers import AccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, VideoSerializer, FeedSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED
@@ -95,16 +95,21 @@ class PostViewSet(viewsets.ModelViewSet):
             return Response(serializer.data)
         
 
-    @action(detail=True, methods=['GET'], )
+    @action(detail=True, methods=['GET','POST'], serializer_class=LikeSerializer)
     def likes(self, request, *args, **kwargs):
-        post = self.get_object()
-        like, created = Like.objects.get_or_create(author=request.user,post=self.get_object())
-        #if like was not created it already exists
-        if not created:
-            like.delete()
+        if(request.method == 'POST'):
+            post = self.get_object()
+            like, created = self.get_object().likes.all().get_or_create(author=request.user,post=self.get_object())
+            #if like was not created it already exists
+            if not created:
+                like.delete()
+            else:
+                like.save()
+            return Response(status=status.HTTP_201_CREATED)
         else:
-            like.save()
-        return Response(status=status.HTTP_201_CREATED)
+            all_likes = self.get_object().likes.all()
+            serializer = LikeSerializer(all_likes,many=True)
+            return Response(serializer.data)
     
     @action(detail=True, methods=['GET','POST'], serializer_class=CommentSerializer )
     def comments(self, request, *args, **kwargs): 
