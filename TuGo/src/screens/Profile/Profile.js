@@ -19,12 +19,13 @@ import {
   getFollowers as getFollowersAPI,
   getFollowing as getFollowingAPI,
   getPosts as getPostsAPI,
+  by_ids as by_idsAPI
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { API_URL } from "../../../constants";
 
-console.disableYellowBox = true;
 
 var { width, height } = Dimensions.get("window");
 const blank = "https://www.publicdomainpictures.net/pictures/30000/velka/plain-white-background.jpg"
@@ -79,18 +80,25 @@ const wait = (timeout) => {
 };
 
 const Profile = (props) => {
-  const { navigation, id } = props;
+  const { navigation } = props;
+  let id = null;
+  if(props.route.params) id = props.route.params.id
   const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
   const [followers, setFollowers] = useState([]);
   const [following, setFollowing] = useState([]);
   const [posts, setPosts] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const profileId = self.id;
-  if(id) profileId = id;
+  const [user, setUser] = useState(null);
+  let profileId = self.id;
+  if(id) {
+    profileId = id;
+  }
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     async function getUserStates() {
+      const userState = await by_idsAPI([profileId], userToken)
+      setUser(userState.data[0])
       const followerState = await getFollowersAPI(userToken, profileId);
       const followingState = await getFollowingAPI(userToken, profileId);
       const postsState = await getPostsAPI(userToken, profileId);
@@ -103,11 +111,22 @@ const Profile = (props) => {
   }, []);
   useEffect(() => {
     onRefresh();
-  }, []);
+  }, [profileId]);
+
+  navigation.setOptions({
+    title: user ? user.username : ""
+  })
 
   const renderSection = (post) => {
+    let curPost = post.item;
     return (
-      <TouchableOpacity>
+      <TouchableOpacity
+        onPress={()=>{
+          navigation.push('PostNavigator', {
+            screen: 'Post',
+            params: { post: curPost },
+          });
+        }}>
         <View
           style={{
             flex: 1,
@@ -120,7 +139,7 @@ const Profile = (props) => {
         >
           <Image
             style={{ flex: 1, width: undefined, height: undefined }}
-            source={{ uri: post.item.soundcloud_art }}
+            source={{ uri: curPost.soundcloud_art }}
           ></Image>
         </View>
       </TouchableOpacity>
@@ -162,6 +181,7 @@ const Profile = (props) => {
             );
           })}
         </View>
+        {profileId == self.id && 
         <TouchableOpacity
           style={styles.settingsIcon}
         >
@@ -174,10 +194,9 @@ const Profile = (props) => {
               navigation.navigate("Settings");
             }}
           />
-        </TouchableOpacity>
-
+        </TouchableOpacity>}
         <Image
-          source={{ uri: self.profile_picture }}
+          source={{ uri: user ? API_URL + user.profile_picture : API_URL + "/media/default.jpg" }}
           style={styles.profilePicture}
         ></Image>
       </View>
@@ -189,8 +208,9 @@ const Profile = (props) => {
         {renderBackground()}
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <TouchableOpacity onPress={() => {
-                          navigation.navigate("Following", {
-                            id: profileId
+                          navigation.push("Following", {
+                            id: profileId,
+                            type: "following"
                           });
                         }}>
             <Text style={styles.userStatsNumber}>{following.length}</Text>
@@ -209,9 +229,9 @@ const Profile = (props) => {
             </Text>
           </View>
           <TouchableOpacity onPress={() => {
-                          navigation.navigate("Followers", {
+                          navigation.push("Followers", {
                             id: profileId,
-                            followerList: followers,
+                            type: "followers"
                           });
                         }}>
             <Text style={styles.userStatsNumber}>{followers.length}</Text>
