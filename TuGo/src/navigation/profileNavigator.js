@@ -12,7 +12,6 @@ const Stack = createStackNavigator();
 
 const profileNavigator = ({username}) => {
   const { self } = useAuthState();
-  console.log("hello");
   return (
     <Stack.Navigator initialRouteName="Profile">
       <Stack.Screen

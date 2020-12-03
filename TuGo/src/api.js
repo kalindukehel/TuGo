@@ -175,3 +175,21 @@ export async function changeFollow(userToken, id) {
     },
   });
 }
+
+export async function getPostById(userToken, id) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/posts/${id}/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/posts/${id}/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
