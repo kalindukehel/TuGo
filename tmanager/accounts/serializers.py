@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import Account, Post, Follower, Like, Comment, Video_Tile, Feed_Item
+from accounts.models import Account, Post, Follower, Like, Comment, Tile, Feed_Item
 from rest_framework.validators import UniqueValidator
 
 
@@ -65,9 +65,9 @@ class FollowingSerializer(serializers.ModelSerializer):
             'following',
         )
 
-class VideoSerializer(serializers.ModelSerializer):
+class TileSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Video_Tile
+        model = Tile
         fields = (
             '__all__'
         )

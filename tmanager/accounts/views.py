@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from accounts.models import Account, Post, Like, Comment, Video_Tile
+from accounts.models import Account, Post, Like, Comment, Tile
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, VideoSerializer, FeedSerializer
+from .serializers import AccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED
@@ -77,24 +77,7 @@ class PostViewSet(viewsets.ModelViewSet):
     permission_classes = [
         permissions.IsAuthenticated
     ]
-
-    @action(detail=True,methods=['POST','GET'],serializer_class=VideoSerializer)
-    def videos(self,request,*args,**kwargs):
-        if(request.method=='POST'):
-            post = self.get_object()
-            tile_type = request.data.get('tile_type')
-            is_youtube = request.data.get('is_youtube') == 'true'
-            link = request.data.get('link')
-            image = request.data.get('image')
-            video = Video_Tile(post=post,tile_type=tile_type,is_youtube=is_youtube,link=link,image=image)
-            video.save()
-            return Response(status=status.HTTP_201_CREATED)
-        else:
-            videos = Video_Tile.objects.all()
-            serializer = VideoSerializer(videos,many=True)
-            return Response(serializer.data)
         
-
     @action(detail=True, methods=['GET','POST'], serializer_class=LikeSerializer)
     def likes(self, request, *args, **kwargs):
         if(request.method == 'POST'):
@@ -121,6 +104,23 @@ class PostViewSet(viewsets.ModelViewSet):
         else:
             all_comments = self.get_object().comments.all()
             serializer = CommentSerializer(all_comments,many=True)
+            return Response(serializer.data)
+
+    @action(detail=True, methods=['GET','POST'], serializer_class=TileSerializer )
+    def tiles(self, request, *args, **kwargs): 
+        if(request.method=='POST'):
+            tile_type = request.data.get('tile_type')
+            if(tile_type not in ['posted_cover', 'posted_choreo', 'suggested_cover', 'suggested_choreo']):
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            is_youtube = request.data.get('is_youtube')
+            link = request.data.get('link')
+            image = request.data.get('image')
+            tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,link=link,image=image)
+            tile.save()
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            tiles = self.get_object().tiles.all()
+            serializer = TileSerializer(tiles,many=True)
             return Response(serializer.data)
 
 @api_view(['POST'])
