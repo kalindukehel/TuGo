@@ -193,3 +193,75 @@ export async function getPostById(userToken, id) {
     },
   });
 }
+
+export async function getPostLikes(userToken, id) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/posts/${id}/likes/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/posts/${id}/likes/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function getPostComments(userToken, id) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/posts/${id}/comments/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/posts/${id}/comments/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function getPostTiles(userToken, id) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.get(`${API_URL}/api/posts/${id}/tiles/`, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.get(`${API_URL}/api/posts/${id}/tiles/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function likePost(userToken, id) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.post(`${API_URL}/api/posts/${id}/likes/`,null, {
+      headers: {
+        Authorization: "Token " + userToken,
+      },
+    });
+  }
+  return axios.post(`${API_URL}/api/posts/${id}/likes/`,null, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
