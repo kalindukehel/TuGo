@@ -10,7 +10,6 @@ import {
   } from "../../api";
 import { FlatList } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
-import ReactNativeHapticFeedback from "react-native-haptic-feedback";
 import * as Haptics from 'expo-haptics';
 
 var { width, height } = Dimensions.get("window");  

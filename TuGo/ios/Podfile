@@ -88,6 +88,8 @@ target 'newapp' do
   add_flipper_pods!
   pod 'RNReactNativeHapticFeedback', :path => '../node_modules/react-native-haptic-feedback'
 
+  pod 'RNSVG', :path => '../node_modules/react-native-svg'
+
   post_install do |installer|
     flipper_post_install(installer)
   end

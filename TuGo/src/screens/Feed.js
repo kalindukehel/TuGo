@@ -24,7 +24,7 @@ const Feed = ({ navigation }) => {
           alignContent: "row",
         }}
       >
-        <Text style={{ marginTop: 30, fontSize: 25, textAlign: "center" }}>TuGo</Text>
+        <Text style={{ marginTop: 30, fontSize: 25, textAlign: "center", color: "#065581" }}>TuGo</Text>
       </View>
       <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}></View>
     </>

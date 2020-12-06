@@ -13,12 +13,12 @@ const Stack = createStackNavigator();
 export default AppNavigator = () => {
   const { isSignout, userToken } = useAuthState();
   const dispatch = useAuthDispatch();
-  const [loading, useLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   
   useEffect(() => {
     const getToken = async () => {
       try {
-        useLoading(true);
+        setLoading(true);
         const token = await isSignedIn();
         if (token) {
           const response = await getSelfAPI(token);
@@ -28,7 +28,7 @@ export default AppNavigator = () => {
       } catch (e) {
         console.log(e);
       } finally {
-        useLoading(false);
+        setLoading(false);
       }
     };
     getToken();

@@ -124,7 +124,10 @@ const Profile = (props) => {
         onPress={()=>{
           navigation.push('PostNavigator', {
             screen: 'Post',
-            params: { post: curPost },
+            params: { 
+              postId: curPost.id,
+              authorId: curPost.author,
+            },
           });
         }}>
         <View
