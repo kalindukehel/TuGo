@@ -13,6 +13,16 @@ class AccountSerializer(serializers.ModelSerializer):
         user.set_password(validated_data['password'])
         user.save()
         return user
+    
+class PrivateAccountSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Account
+        fields = (
+            'id',
+            'username',
+            'profile_picture',
+            'name'
+            )
 
 class PostSerializer(serializers.ModelSerializer):
 
