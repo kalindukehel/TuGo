@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from accounts.models import Account, Post, Like, Comment, Tile
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED
@@ -18,6 +18,19 @@ class AccountViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated
     ]
     serializer_class = AccountSerializer
+
+    def get_serializer_class(self):
+        if(self.action == 'list'):
+            return PrivateAccountSerializer
+        elif(self.action == 'retrieve'):
+            if(self.get_object().is_private == False or
+            self.get_object().followers.filter(follower=self.request.user).exists() or
+            self.get_object() == self.request.user):
+                return AccountSerializer
+            else:
+                return PrivateAccountSerializer
+
+        return AccountSerializer
 
     def get_object(self):
         pk = self.kwargs.get('pk')
