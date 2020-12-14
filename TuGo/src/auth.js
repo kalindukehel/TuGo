@@ -12,9 +12,8 @@ export const onSignOut = () => {
 export const isSignedIn = async () => {
   try {
     const value = await AsyncStorage.getItem("USER_KEY");
-    console.log("async storage", value);
     if (value !== null) {
-      return value;
+      return JSON.parse(value);
       // We have data!!
     } else {
       return null;
