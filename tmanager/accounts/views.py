@@ -1,10 +1,10 @@
 from django.shortcuts import render
 from accounts.models import Account, Post, Like, Comment, Tile
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
-from rest_framework.status import HTTP_401_UNAUTHORIZED
+from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from rest_framework import status
 from django.contrib.auth import authenticate
 from rest_framework.authtoken.views import ObtainAuthToken
@@ -19,6 +19,19 @@ class AccountViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = AccountSerializer
 
+    def get_serializer_class(self):
+        if(self.action == 'list'):
+            return PrivateAccountSerializer
+        elif(self.action == 'retrieve'):
+            if(self.get_object().is_private == False or
+            self.get_object().followers.filter(follower=self.request.user).exists() or
+            self.get_object() == self.request.user):
+                return AccountSerializer
+            else:
+                return PrivateAccountSerializer
+
+        return AccountSerializer
+
     def get_object(self):
         pk = self.kwargs.get('pk')
 
@@ -31,7 +44,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     def by_ids(self,request,*args,**kwargs):
         id_set = self.request.data.get('ids')
         user_list = Account.objects.filter(id__in=id_set if id_set !=None else [])
-        serialized = AccountSerializer(user_list,many=True)
+        serialized = PrivateAccountSerializer(user_list,many=True)
         return Response(serialized.data)
     
     @action(detail=True, methods=['POST','GET'], serializer_class=FollowerSerializer)
@@ -45,25 +58,40 @@ class AccountViewSet(viewsets.ModelViewSet):
                 follower.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
-            all_followers = self.get_object().followers.all()
-            serializer = FollowerSerializer(all_followers,many=True)
-            return Response(serializer.data)
+            if(self.get_object().is_private == False or
+            self.get_object().followers.filter(follower=self.request.user).exists() or
+            self.get_object() == self.request.user):
+                all_followers = self.get_object().followers.all()
+                serializer = FollowerSerializer(all_followers,many=True)
+                return Response(serializer.data)
+            else:
+                return Response(status=HTTP_403_FORBIDDEN)
 
     @action(detail=True, methods=['GET'])
     def following(self,request,*args,**kwargs):
-        all_following = self.get_object().following.all()
-        serializer = FollowingSerializer(all_following,many=True)
-        return Response(serializer.data)
+        if(self.get_object().is_private == False or
+        self.get_object().followers.filter(follower=self.request.user).exists() or
+        self.get_object() == self.request.user):
+            all_following = self.get_object().following.all()
+            serializer = FollowingSerializer(all_following,many=True)
+            return Response(serializer.data)
+        else:
+            return Response(status=HTTP_403_FORBIDDEN)
 
     @action(detail=True, methods=['GET'])
     def posts(self,request,*args,**kwargs):
-        all_posts = self.get_object().posts.all()
-        serializer = PostSerializer(all_posts,many=True)
-        return Response(serializer.data)
+        if(self.get_object().is_private == False or
+        self.get_object().followers.filter(follower=self.request.user).exists() or
+        self.get_object() == self.request.user):
+            all_posts = self.get_object().posts.all()
+            serializer = PostSerializer(all_posts,many=True)
+            return Response(serializer.data)
+        else:
+            return Response(status=HTTP_403_FORBIDDEN)
 
-    @action(detail=True, methods=['GET'])
+    @action(detail=False, methods=['GET'])
     def feed(self,request,*args,**kwargs):
-        feed_posts = self.get_object().feed.all()
+        feed_posts = request.user.feed.all()
         serializer = FeedSerializer(feed_posts,many=True)
         return Response(serializer.data)
 
