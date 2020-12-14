@@ -46,6 +46,14 @@ class AccountViewSet(viewsets.ModelViewSet):
         user_list = Account.objects.filter(id__in=id_set if id_set !=None else [])
         serialized = PrivateAccountSerializer(user_list,many=True)
         return Response(serialized.data)
+
+    @action(detail=True, methods=['GET'])
+    def details(self,request,*args,**kwargs):
+        return Response({
+            'posts': self.get_object().posts.count(),
+            'followers': self.get_object().followers.count(),
+            'following': self.get_object().following.count()
+        })
     
     @action(detail=True, methods=['POST','GET'], serializer_class=FollowerSerializer)
     def followers(self,request,*args,**kwargs):
