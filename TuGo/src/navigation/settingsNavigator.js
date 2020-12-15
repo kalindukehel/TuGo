@@ -8,7 +8,7 @@ const Stack = createStackNavigator();
 const settingsNavigator = () => {
   const { self } = useAuthState();
   return (
-    <Stack.Navigator initialRouteName="Settings" headerMode="float">
+    <Stack.Navigator initialRouteName="Settings" headerMode="none">
       <Stack.Screen name="Settings" component={Settings} />
     </Stack.Navigator>
   );
