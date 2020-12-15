@@ -41,6 +41,7 @@ const wait = (timeout) => {
   });
 };
 
+Audio.setAudioModeAsync({playsInSilentModeIOS:true})
 const soundObj = new Audio.Sound;
 const Post = (props) => {
     const { navigation } = props;
@@ -71,7 +72,11 @@ const Post = (props) => {
         const tilesRes = await getPostTilesAPI(userToken, postId);
         setTiles(tilesRes.data);
 
-        const sound_url = (await Axios.get(postRes.data.soundcloud_audio + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM').then((result)=>result)).data.url
+        const sound_url = (await Axios.get(postRes.data.soundcloud_audio + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM')
+          .then((result)=>result)
+          .catch(error =>{
+            console.log(error)
+          })).data.url
         try{
           await soundObj.loadAsync({uri:sound_url})
         }catch(error){
@@ -151,6 +156,7 @@ const Post = (props) => {
             style={{flexDirection: "row", justifyContent: "space-between", marginVertical: 10, alignItems: "center", marginHorizontal: 10}}>
             <TouchableOpacity
               onPress={()=>{
+                isPlaying && doPlay() //if sound is playing toggle it off when going to a profile
                 navigation.push("Profile", {
                   id: author.id,
                 });
