@@ -28,13 +28,17 @@ const options = {
   };
 
   const styles = StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: 'white',
+    },
     textInputStyle: {
       height: 40,
       borderWidth: 1,
       paddingLeft: 20,
       margin: 5,
       borderColor: 'gray',
-      backgroundColor: '#A80000',
+      backgroundColor: '#065581',
       borderRadius: 10,
       color: "white"
     },
@@ -162,7 +166,7 @@ const searchFilterFunction = (text) => {
                   follow.name }
               </Text>
               <TouchableOpacity
-                style={{ ...styles.followButton, backgroundColor: isSelf ? "black" : followingStatus[follow.id] ? "purple" : "#DCDCDC"}}
+                style={{ ...styles.followButton, backgroundColor: isSelf ? "black" : followingStatus[follow.id] ? "#065581" : "#DCDCDC"}}
                 onPress={() => !isSelf ? changeFollow(follow.id) :
                     navigation.push("Profile", {
                       id: follow.id,
@@ -197,10 +201,7 @@ const searchFilterFunction = (text) => {
 
   return (
     <View
-      style={{
-        flex: 1,
-        backgroundColor: "white",
-      }}
+      style={styles.container}
     >
       <TextInput
         style={styles.textInputStyle}

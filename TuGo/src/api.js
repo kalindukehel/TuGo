@@ -130,3 +130,32 @@ export async function likePost(token, id) {
     },
   });
 }
+
+export async function addComment(userToken, id, data) {
+  let token = userToken;
+  try {
+    token = JSON.parse(token);
+  } catch (e) {
+    return axios.post(`${API_URL}/api/posts/${id}/comments/`,data, {
+      headers: {
+        Authorization: "Token " + userToken,
+        'Content-Type':'application/json',
+      },
+    });
+  }
+  console.log(token);
+  return axios.post(`${API_URL}/api/posts/${id}/comments/`,data, {
+    headers: {
+      Authorization: "Token " + token,
+      'Content-Type':'application/json',
+    },
+  });
+}
+
+export async function getUserInfo(token, id) {
+  return axios.get(`${API_URL}/api/accounts/${id}/details/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}

@@ -23,7 +23,7 @@ const profileNavigator = ({username}) => {
         headerMode="screen"
       />
       <Stack.Screen name="Settings" component={settingsNavigator} headerMode="screen" />
-      <Stack.Screen name="PostNavigator" component={postNavigator} headerMode="screen" />
+      <Stack.Screen name="Post" component={postNavigator} headerMode="screen" />
       <Stack.Screen 
         name="Following" 
         options={{

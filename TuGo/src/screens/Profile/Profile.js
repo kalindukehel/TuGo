@@ -16,8 +16,7 @@ import {
   StatusBar,
 } from "react-native";
 import {
-  getFollowers as getFollowersAPI,
-  getFollowing as getFollowingAPI,
+  getUserInfo as getUserInfoAPI,
   getPosts as getPostsAPI,
   by_ids as by_idsAPI
 } from "../../api";
@@ -85,11 +84,14 @@ const Profile = (props) => {
   if(props.route.params) id = props.route.params.id
   const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
-  const [followers, setFollowers] = useState([]);
-  const [following, setFollowing] = useState([]);
+  const [followers, setFollowers] = useState(0);
+  const [following, setFollowing] = useState(0);
   const [posts, setPosts] = useState([]);
+  const [postsLength, setPostsLength] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState(null);
+  const [error, setError] = useState(200);
+  const [onBack, setOnBack] = useState(false);
   let profileId = self.id;
   if(id) {
     profileId = id;
@@ -98,13 +100,18 @@ const Profile = (props) => {
     setRefreshing(true);
     async function getUserStates() {
       const userState = await by_idsAPI([profileId], userToken)
-      setUser(userState.data[0])
-      const followerState = await getFollowersAPI(userToken, profileId);
-      const followingState = await getFollowingAPI(userToken, profileId);
-      const postsState = await getPostsAPI(userToken, profileId);
-      setFollowers(followerState.data);
-      setFollowing(followingState.data);
-      setPosts(postsState.data);
+      setUser(userState.data[0]);
+      const userInfo = await getUserInfoAPI(userToken, profileId);
+      try {
+        const postsState = await getPostsAPI(userToken, profileId);
+        setPosts(postsState.data);
+      }
+      catch(err) {
+        setError(err.response.status);
+      }
+      setFollowers(userInfo.data.followers);
+      setFollowing(userInfo.data.following);
+      setPostsLength(userInfo.data.posts);
     }
     getUserStates();
     wait(1000).then(() => setRefreshing(false));
@@ -112,6 +119,25 @@ const Profile = (props) => {
   useEffect(() => {
     onRefresh();
   }, [profileId]);
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', async () => {
+      const userState = await by_idsAPI([profileId], userToken)
+      setUser(userState.data[0]);
+      const userInfo = await getUserInfoAPI(userToken, profileId);
+      try {
+        const postsState = await getPostsAPI(userToken, profileId);
+        setPosts(postsState.data);
+      }
+      catch(err) {
+        setError(err.response.status);
+      }
+      setFollowers(userInfo.data.followers);
+      setFollowing(userInfo.data.following);
+      setPostsLength(userInfo.data.posts);
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   navigation.setOptions({
     title: user ? user.username : ""
@@ -122,7 +148,7 @@ const Profile = (props) => {
     return (
       <TouchableOpacity
         onPress={()=>{
-          navigation.push('PostNavigator', {
+          navigation.push('Post', {
             screen: 'Post',
             params: { 
               postId: curPost.id,
@@ -178,7 +204,7 @@ const Profile = (props) => {
               >
                 <Image
                   style={{ flex: 1, width: undefined, height: undefined }}
-                  source={{ uri: topPosts[index] ? topPosts[index].soundcloud_art : blank}}
+                  source={{ uri: topPosts[index] && error != 403 ? topPosts[index].soundcloud_art : blank}}
                 ></Image>
               </View>
             );
@@ -210,17 +236,19 @@ const Profile = (props) => {
       <>
         {renderBackground()}
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-          <TouchableOpacity onPress={() => {
-                          navigation.push("Following", {
-                            id: profileId,
-                            type: "following"
-                          });
-                        }}>
-            <Text style={styles.userStatsNumber}>{following.length}</Text>
+          <TouchableOpacity 
+            disabled={error == 403}
+            onPress={() => {
+              navigation.push("Following", {
+                id: profileId,
+                type: "following"
+              });
+            }}>
+            <Text style={styles.userStatsNumber}>{following}</Text>
             <Text style={styles.userStatsText}>Following</Text>
           </TouchableOpacity >
           <View style={{ marginTop: 25 }}>
-            <Text style={styles.userStatsNumber}>{posts.length}</Text>
+            <Text style={styles.userStatsNumber}>{postsLength}</Text>
             <Text
               style={{
                 ...styles.userStatsText,
@@ -231,13 +259,15 @@ const Profile = (props) => {
               Songs
             </Text>
           </View>
-          <TouchableOpacity onPress={() => {
-                          navigation.push("Followers", {
-                            id: profileId,
-                            type: "followers"
-                          });
-                        }}>
-            <Text style={styles.userStatsNumber}>{followers.length}</Text>
+          <TouchableOpacity 
+            disabled={error == 403}
+            onPress={() => {
+              navigation.push("Followers", {
+                id: profileId,
+                type: "followers"
+              });
+            }}>
+            <Text style={styles.userStatsNumber}>{followers}</Text>
             <Text style={styles.userStatsText}>Followers</Text>
           </TouchableOpacity>
         </View>
@@ -250,6 +280,15 @@ const Profile = (props) => {
       </>
     );
   };
+
+  const getFooter = () => {
+    return(
+      error == 403 &&
+      <Text
+        style={{fontSize: 20, fontWeight: 'bold', alignSelf: 'center', marginTop: '20%'}}>Forbidden! Follow to see.
+      </Text>
+    )
+  }
   return (
     <View
       style={{
@@ -262,6 +301,7 @@ const Profile = (props) => {
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListHeaderComponent={getHeader}
+        ListFooterComponent={getFooter}
         data={posts}
         renderItem={renderSection}
         keyExtractor={(item) => item.id.toString()}

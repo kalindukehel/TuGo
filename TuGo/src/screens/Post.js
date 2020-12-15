@@ -28,6 +28,10 @@ import CommentsButton from "../../assets/CommentsButton.svg"
 import moment from "moment";
 import ImageModal from 'react-native-image-modal';
 import * as Haptics from 'expo-haptics';
+// import Modal from 'react-native-modal';
+
+import {Audio} from "expo-av"
+import Axios from "axios";
 
 var { width, height } = Dimensions.get("window");
 
@@ -37,6 +41,7 @@ const wait = (timeout) => {
   });
 };
 
+const soundObj = new Audio.Sound;
 const Post = (props) => {
     const { navigation } = props;
     const { postId, authorId } = props.route.params;
@@ -47,7 +52,9 @@ const Post = (props) => {
     const [comments, setComments] = useState(null);
     const [tiles, setTiles] = useState(null);
     const [author, setAuthor] = useState(null);
-    const [maxlimit, setMaxlimit] = useState(6);
+    const [maxlimit, setMaxlimit] = useState(95);
+    const [isModalVisible, setModalVisible] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
     //const { postId } = props.route.params;
 
     const onRefresh = React.useCallback(() => {
@@ -63,13 +70,44 @@ const Post = (props) => {
         setAuthor(authorRes.data);
         const tilesRes = await getPostTilesAPI(userToken, postId);
         setTiles(tilesRes.data);
+
+        const sound_url = (await Axios.get(postRes.data.soundcloud_audio + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM').then((result)=>result)).data.url
+        try{
+          await soundObj.loadAsync({uri:sound_url})
+        }catch(error){
+          console.log(error)
+        }
+        wait(100).then(() => setRefreshing(false));
       }
       getPostStates();
-      wait(500).then(() => setRefreshing(false));
     }, []);
     useEffect(() => {
       onRefresh();
+      return()=>{ //When component exits
+        try{
+          soundObj.unloadAsync()
+        }catch(error){
+          console.log("Error")
+        }
+      }
     }, []);
+
+    React.useEffect(() => {
+      const unsubscribe = navigation.addListener('focus', async () => {
+        const postRes = await getPostByIdAPI(userToken, postId);
+        setPost(postRes.data);
+        const likesRes = await getPostLikesAPI(userToken, postId);
+        setLikes(likesRes.data);
+        const commentsRes = await getPostCommentsAPI(userToken, postId);
+        setComments(commentsRes.data);
+        const authorRes = await getAccountByIdAPI(authorId, userToken);
+        setAuthor(authorRes.data);
+        const tilesRes = await getPostTilesAPI(userToken, postId);
+        setTiles(tilesRes.data);
+      });
+    
+      return unsubscribe;
+    }, [navigation]);
 
 
     async function getLikesStates() {
@@ -80,6 +118,23 @@ const Post = (props) => {
     async function likePost(){
       const likeRes = await likePostAPI(userToken, postId);
       getLikesStates();
+    }
+
+    const toggleModal = () => {
+      setModalVisible(!isModalVisible);
+    };
+    
+    async function doPlay(){
+    try {
+      if(isPlaying){
+        await soundObj.pauseAsync();
+      }else{
+        await soundObj.playAsync();
+      }
+      setIsPlaying(!isPlaying);
+    } catch(error) {
+      console.log(error)
+    }
     }
 
     return( 
@@ -96,7 +151,7 @@ const Post = (props) => {
             style={{flexDirection: "row", justifyContent: "space-between", marginVertical: 10, alignItems: "center", marginHorizontal: 10}}>
             <TouchableOpacity
               onPress={()=>{
-                navigation.navigate("Profile", {
+                navigation.push("Profile", {
                   id: author.id,
                 });
               }}>
@@ -147,25 +202,42 @@ const Post = (props) => {
                   {post.song_name}
                 </Text>
               </View>
+              <TouchableOpacity disabled={refreshing?true:false} onPress={doPlay} style={{marginLeft:"auto",paddingRight:20}} >
+                <Text style={{fontWeight:"bold"}}>{isPlaying?"pause":"play"}</Text>
+              </TouchableOpacity>
             </View>
           </View>
           <View
             style={{flexDirection: "row", justifyContent: "space-between", margin: 10}}>
-            <TouchableOpacity
-              style={{alignSelf: "center"}}
-              onPress={()=>{
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                likePost();
-              }}>
-              <View
-                style={{flexDirection: "row", alignItems: "center"}}>
-                  <Like width={40} height={35} fill="red"/>
-                  <Text>{likes ? likes.length : `loading`}</Text>
-              </View>
-            </TouchableOpacity>
+            <View
+              style={{flexDirection: "row"}}>
+              <TouchableOpacity
+                style={{alignSelf: "center"}}
+                onPress={()=>{
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  likePost();
+                }}>
+                <View
+                  style={{flexDirection: "row", alignItems: "center"}}>
+                    <Like width={40} height={35} fill="red"/>
+                </View>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={{alignSelf: "center"}}
+                onPress={()=>{
+                  navigation.push("Likes", {
+                    postId: post.id,
+                  });
+                }}>
+                <Text>{likes ? likes.length == 1 ? likes.length + ` like` : likes.length + ` likes` : `loading`}</Text>
+              </TouchableOpacity>
+            </View>
             <TouchableOpacity
               style={styles.moreButton}
-              onPress={() => {Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);}}>
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                toggleModal();
+              }}>
               <Text
                 style={styles.moreButtonText}>
                 More
@@ -175,8 +247,8 @@ const Post = (props) => {
               style={{alignSelf: "center"}}
               onPress={()=>{
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                if(maxlimit == 6) setMaxlimit(100);
-                if(maxlimit == 100) setMaxlimit(6);
+                if(maxlimit == 95) setMaxlimit(10000);
+                if(maxlimit == 10000) setMaxlimit(95);
               }}>
               <DMButton width={40} height={35}/>
             </TouchableOpacity>
@@ -184,17 +256,26 @@ const Post = (props) => {
           <View
             style={{flexDirection: "row", marginHorizontal: 20, marginVertical: 10}}>
             <Text
-              style={{fontWeight: "bold"}}>
-                {author.username + `: `}
+              style={{flexWrap: "wrap"}}>
+              <Text
+                style={{fontWeight: "bold"}}>
+                  {author.username + `: ` }
+              </Text>
+              <Text
+                style={{}}>{ ((post.caption).length > maxlimit) ? 
+                  (((post.caption).substring(0,maxlimit-3)) + '...') : 
+                  post.caption }
+              </Text> 
             </Text>
-            <Text>{ ((post.caption).length > maxlimit) ? 
-                (((post.caption).substring(0,maxlimit-3)) + '...') : 
-                post.caption }
-            </Text> 
           </View>
           <TouchableOpacity
               style={{marginLeft: 10, marginTop: 5}}
-              onPress={()=>{Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);}}>
+              onPress={()=>{
+                navigation.push("Comments", {
+                  postId: post.id,
+                  authorId: authorId
+                });
+              }}>
               <View
                 style={{flexDirection: "row", alignItems: "center"}}>
                   <CommentsButton width={40} height={35} fill="#0ff"/>
