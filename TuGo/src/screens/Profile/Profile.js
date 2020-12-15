@@ -96,7 +96,7 @@ const Profile = (props) => {
   if(id) {
     profileId = id;
   }
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     async function getUserStates() {
       const userState = await by_idsAPI([profileId], userToken)
@@ -113,8 +113,8 @@ const Profile = (props) => {
       setFollowing(userInfo.data.following);
       setPostsLength(userInfo.data.posts);
     }
-    getUserStates();
-    wait(1000).then(() => setRefreshing(false));
+    await getUserStates();
+    setRefreshing(false);
   }, []);
   useEffect(() => {
     onRefresh();

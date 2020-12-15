@@ -38,7 +38,7 @@ const Likes = (props) => {
     const [search, setSearch] = useState('');
     let list = [];
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
         async function getPostStates() {
           const likesRes = await getPostLikesAPI(userToken, postId);
@@ -47,8 +47,8 @@ const Likes = (props) => {
           setFilteredData(res.data);
           setMasterData(res.data);
         }
-        getPostStates();
-        wait(500).then(() => setRefreshing(false));
+        await getPostStates();
+        setRefreshing(false);
       }, []);
       useEffect(() => {
         onRefresh();

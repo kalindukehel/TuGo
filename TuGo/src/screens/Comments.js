@@ -48,7 +48,7 @@ const Comments = (props) => {
 
     let list = [];
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
         setCanSendComment(false);
         async function getPostStates() {
@@ -62,8 +62,8 @@ const Comments = (props) => {
           const authorRes = await getAccountByIdAPI(authorId, userToken);
           setAuthor(authorRes.data);
         }
-        getPostStates();
-        wait(500).then(() => setRefreshing(false));
+        await getPostStates();
+        setRefreshing(false);
         setCanSendComment(true);
       }, []);
       useEffect(() => {

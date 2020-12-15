@@ -63,7 +63,9 @@ const Post = (props) => {
     const [sliderValue,setSliderValue] = useState(0)
     //const { postId } = props.route.params;
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
+      try{
+      setRefreshing(true);
       async function getPostStates() {
         const postRes = await getPostByIdAPI(userToken, postId);
         setPost(postRes.data);
@@ -99,10 +101,13 @@ const Post = (props) => {
           console.log(error)
         }
       }
-      getPostStates();
+      await getPostStates();
+      setRefreshing(false);
+    }catch{
+      console.log("Flag 1")
+    }
     }, []);
     useEffect(() => {
-      onRefresh();
       return()=>{ //When component exits
         try{
           soundObj.unloadAsync()
@@ -113,7 +118,7 @@ const Post = (props) => {
     }, []);
 
     useEffect(() => {
-      !isSeeking && setSliderValue(songPosition)
+      !isSeeking && songPosition && setSliderValue(songPosition)
     },[songPosition])
 
     React.useEffect(() => {
@@ -247,6 +252,7 @@ const Post = (props) => {
                 thumbStyle={{width:15,height:15}}
                 thumbTintColor="white"
                 value={sliderValue}
+                disabled={refreshing?true:false}
               />
               <TouchableOpacity disabled={refreshing?true:false} onPress={doPlay} style={{marginLeft:"auto",paddingRight:20}} >
                 <Text style={{fontWeight:"bold"}}>{isPlaying?"pause":"play"}</Text>
