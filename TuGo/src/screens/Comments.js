@@ -34,10 +34,9 @@ import {
     });
   };
 
-const Likes = (props) => {
+const Comments = (props) => {
     const { navigation } = props;
     const { postId, authorId } = props.route.params
-    console.log(postId);
     const { userToken, self } = useAuthState();
     const [masterData, setMasterData] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
@@ -84,10 +83,7 @@ const Likes = (props) => {
 
     const renderItem = (item) => {
       const getComment = item.item;
-      console.log(getComment + " getComment");
-      console.log(commentAccounts + " commentAccounts");
       const curAccount = commentAccounts.find(item => item.id == getComment.author);
-      console.log(curAccount);
       return(
         <View
             style={styles.comment}>
@@ -238,5 +234,5 @@ const styles = StyleSheet.create({
 });
   
 
-export default Likes;
+export default Comments;
 

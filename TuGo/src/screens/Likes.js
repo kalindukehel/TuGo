@@ -31,7 +31,6 @@ import {
 const Likes = (props) => {
     const { navigation } = props;
     const {postId} = props.route.params
-    console.log(postId);
     const { userToken, self } = useAuthState();
     const [filteredData, setFilteredData] = useState([]);
     const [masterData, setMasterData] = useState([]);
