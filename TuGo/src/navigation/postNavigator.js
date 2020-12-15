@@ -11,7 +11,7 @@ const Stack = createStackNavigator();
 const postNavigator = (props) => {
   const { self } = useAuthState();
   return (
-    <Stack.Navigator initialRouteName="Post" headerMode="screen">
+    <Stack.Navigator initialRouteName="Post" headerMode="none">
       <Stack.Screen name="Post" component={Post} headerMode="screen"/>
       <Stack.Screen name="Likes" component={Likes} headerMode="screen"/>
       <Stack.Screen 
