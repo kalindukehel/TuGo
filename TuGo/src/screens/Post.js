@@ -30,6 +30,9 @@ import ImageModal from 'react-native-image-modal';
 import * as Haptics from 'expo-haptics';
 // import Modal from 'react-native-modal';
 
+import {Audio} from "expo-av"
+import Axios from "axios";
+
 var { width, height } = Dimensions.get("window");
 
 const wait = (timeout) => {
@@ -38,6 +41,7 @@ const wait = (timeout) => {
   });
 };
 
+const soundObj = new Audio.Sound;
 const Post = (props) => {
     const { navigation } = props;
     const { postId, authorId } = props.route.params;
@@ -50,6 +54,7 @@ const Post = (props) => {
     const [author, setAuthor] = useState(null);
     const [maxlimit, setMaxlimit] = useState(95);
     const [isModalVisible, setModalVisible] = useState(false);
+    const [isPlaying, setIsPlaying] = useState(false);
     //const { postId } = props.route.params;
 
     const onRefresh = React.useCallback(() => {
@@ -65,12 +70,26 @@ const Post = (props) => {
         setAuthor(authorRes.data);
         const tilesRes = await getPostTilesAPI(userToken, postId);
         setTiles(tilesRes.data);
+
+        const sound_url = (await Axios.get(postRes.data.soundcloud_audio + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM').then((result)=>result)).data.url
+        try{
+          await soundObj.loadAsync({uri:sound_url})
+        }catch(error){
+          console.log(error)
+        }
+        wait(100).then(() => setRefreshing(false));
       }
       getPostStates();
-      wait(500).then(() => setRefreshing(false));
     }, []);
     useEffect(() => {
       onRefresh();
+      return()=>{ //When component exits
+        try{
+          soundObj.unloadAsync()
+        }catch(error){
+          console.log("Error")
+        }
+      }
     }, []);
 
     React.useEffect(() => {
@@ -104,6 +123,19 @@ const Post = (props) => {
     const toggleModal = () => {
       setModalVisible(!isModalVisible);
     };
+    
+    async function doPlay(){
+    try {
+      if(isPlaying){
+        await soundObj.pauseAsync();
+      }else{
+        await soundObj.playAsync();
+      }
+      setIsPlaying(!isPlaying);
+    } catch(error) {
+      console.log(error)
+    }
+    }
 
     return( 
       post && author &&
@@ -170,6 +202,9 @@ const Post = (props) => {
                   {post.song_name}
                 </Text>
               </View>
+              <TouchableOpacity disabled={refreshing?true:false} onPress={doPlay} style={{marginLeft:"auto",paddingRight:20}} >
+                <Text style={{fontWeight:"bold"}}>{isPlaying?"pause":"play"}</Text>
+              </TouchableOpacity>
             </View>
           </View>
           <View
