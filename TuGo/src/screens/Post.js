@@ -108,9 +108,11 @@ const Post = (props) => {
     }
     }, []);
     useEffect(() => {
+      onRefresh()
       return()=>{ //When component exits
         try{
           soundObj.unloadAsync()
+          setIsPlaying(false)
         }catch(error){
           console.log("Error")
         }
