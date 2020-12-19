@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {
   View,
   Text,
@@ -61,9 +61,11 @@ const Post = (props) => {
     const [songPosition,setSongPosition] = useState(0);
     const [isSeeking,setIsSeeking] = useState(false);
     const [sliderValue,setSliderValue] = useState(0)
+    const stateRef = useRef()
+    stateRef.current = isSeeking;
     //const { postId } = props.route.params;
 
-    const onRefresh = React.useCallback(async () => {
+    const onRefresh = async () => {
       try{
       setRefreshing(true);
       async function getPostStates() {
@@ -92,8 +94,8 @@ const Post = (props) => {
                 setIsPlaying(false)
                 setSongPosition(0)
                 soundObj.stopAsync()
-              }else{
-                setSongPosition(status.positionMillis/status.durationMillis)
+              }else if(status.isLoaded && stateRef.current!= true){
+                setSliderValue(status.positionMillis/status.durationMillis)
               }
             })
         }
@@ -106,7 +108,7 @@ const Post = (props) => {
     }catch{
       console.log("Flag 1")
     }
-    }, []);
+    }
     useEffect(() => {
       onRefresh()
       return()=>{ //When component exits
@@ -118,10 +120,6 @@ const Post = (props) => {
         }
       }
     }, []);
-
-    useEffect(() => {
-      !isSeeking && songPosition && setSliderValue(songPosition)
-    },[songPosition])
 
     React.useEffect(() => {
       const unsubscribe = navigation.addListener('focus', async () => {
@@ -173,8 +171,10 @@ const Post = (props) => {
     }
 
     async function seekComplete(args){
+      setSliderValue(args)
+      const playerStatus = await soundObj.getStatusAsync()
+      await soundObj.setStatusAsync({positionMillis:playerStatus.durationMillis*args});
       setIsSeeking(false);
-      await soundObj.setStatusAsync({positionMillis:(await soundObj.getStatusAsync()).durationMillis*args});
     }
 
     return( 
