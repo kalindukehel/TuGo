@@ -37,11 +37,6 @@ import {Slider} from 'react-native-elements'
 
 var { width, height } = Dimensions.get("window");
 
-const wait = (timeout) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, timeout);
-  });
-};
 
 Audio.setAudioModeAsync({playsInSilentModeIOS:true})
 const soundObj = new Audio.Sound;

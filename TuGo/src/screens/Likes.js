@@ -21,12 +21,7 @@ import {
   var { width, height } = Dimensions.get("window");  
 
   const maxlimit = 20;
-
-  const wait = (timeout) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, timeout);
-    });
-  };
+  
 
 const Likes = (props) => {
     const { navigation } = props;

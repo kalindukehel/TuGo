@@ -28,12 +28,6 @@ import {
 
   const maxlimit = 20;
 
-  const wait = (timeout) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, timeout);
-    });
-  };
-
 const Comments = (props) => {
     const { navigation } = props;
     const { postId, authorId } = props.route.params

@@ -72,11 +72,6 @@ const styles = StyleSheet.create({
   }
 });
 
-const wait = (timeout) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, timeout);
-  });
-};
 
 const Profile = (props) => {
   const { navigation } = props;

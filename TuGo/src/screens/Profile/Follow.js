@@ -21,12 +21,6 @@ const options = {
 
   const maxlimit = 20;
 
-  const wait = (timeout) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, timeout);
-    });
-  };
-
   const styles = StyleSheet.create({
     container: {
       flex: 1,
