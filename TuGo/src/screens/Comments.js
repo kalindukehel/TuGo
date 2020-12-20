@@ -28,16 +28,9 @@ import {
 
   const maxlimit = 20;
 
-  const wait = (timeout) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, timeout);
-    });
-  };
-
-const Likes = (props) => {
+const Comments = (props) => {
     const { navigation } = props;
     const { postId, authorId } = props.route.params
-    console.log(postId);
     const { userToken, self } = useAuthState();
     const [masterData, setMasterData] = useState([]);
     const [refreshing, setRefreshing] = useState(false);
@@ -49,7 +42,7 @@ const Likes = (props) => {
 
     let list = [];
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
         setCanSendComment(false);
         async function getPostStates() {
@@ -63,8 +56,8 @@ const Likes = (props) => {
           const authorRes = await getAccountByIdAPI(authorId, userToken);
           setAuthor(authorRes.data);
         }
-        getPostStates();
-        wait(500).then(() => setRefreshing(false));
+        await getPostStates();
+        setRefreshing(false);
         setCanSendComment(true);
       }, []);
       useEffect(() => {
@@ -84,10 +77,7 @@ const Likes = (props) => {
 
     const renderItem = (item) => {
       const getComment = item.item;
-      console.log(getComment + " getComment");
-      console.log(commentAccounts + " commentAccounts");
       const curAccount = commentAccounts.find(item => item.id == getComment.author);
-      console.log(curAccount);
       return(
         <View
             style={styles.comment}>
@@ -238,5 +228,5 @@ const styles = StyleSheet.create({
 });
   
 
-export default Likes;
+export default Comments;
 

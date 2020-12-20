@@ -21,17 +21,11 @@ import {
   var { width, height } = Dimensions.get("window");  
 
   const maxlimit = 20;
-
-  const wait = (timeout) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, timeout);
-    });
-  };
+  
 
 const Likes = (props) => {
     const { navigation } = props;
     const {postId} = props.route.params
-    console.log(postId);
     const { userToken, self } = useAuthState();
     const [filteredData, setFilteredData] = useState([]);
     const [masterData, setMasterData] = useState([]);
@@ -39,7 +33,7 @@ const Likes = (props) => {
     const [search, setSearch] = useState('');
     let list = [];
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = React.useCallback(async () => {
         setRefreshing(true);
         async function getPostStates() {
           const likesRes = await getPostLikesAPI(userToken, postId);
@@ -48,8 +42,8 @@ const Likes = (props) => {
           setFilteredData(res.data);
           setMasterData(res.data);
         }
-        getPostStates();
-        wait(500).then(() => setRefreshing(false));
+        await getPostStates();
+        setRefreshing(false);
       }, []);
       useEffect(() => {
         onRefresh();

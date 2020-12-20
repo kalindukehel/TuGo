@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from "react";
+import React, {useState, useEffect, useRef} from "react";
 import {
   View,
   Text,
@@ -33,14 +33,12 @@ import * as Haptics from 'expo-haptics';
 import {Audio} from "expo-av"
 import Axios from "axios";
 
+import {Slider} from 'react-native-elements'
+
 var { width, height } = Dimensions.get("window");
 
-const wait = (timeout) => {
-  return new Promise((resolve) => {
-    setTimeout(resolve, timeout);
-  });
-};
 
+Audio.setAudioModeAsync({playsInSilentModeIOS:true})
 const soundObj = new Audio.Sound;
 const Post = (props) => {
     const { navigation } = props;
@@ -55,9 +53,15 @@ const Post = (props) => {
     const [maxlimit, setMaxlimit] = useState(95);
     const [isModalVisible, setModalVisible] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
+    const [songPosition,setSongPosition] = useState(0);
+    const [isSeeking,setIsSeeking] = useState(false);
+    const [sliderValue,setSliderValue] = useState(0)
+    const stateRef = useRef()
+    stateRef.current = isSeeking;
     //const { postId } = props.route.params;
 
-    const onRefresh = React.useCallback(() => {
+    const onRefresh = async () => {
+      try{
       setRefreshing(true);
       async function getPostStates() {
         const postRes = await getPostByIdAPI(userToken, postId);
@@ -71,21 +75,41 @@ const Post = (props) => {
         const tilesRes = await getPostTilesAPI(userToken, postId);
         setTiles(tilesRes.data);
 
-        const sound_url = (await Axios.get(postRes.data.soundcloud_audio + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM').then((result)=>result)).data.url
+        const sound_url = (await Axios.get(postRes.data.soundcloud_audio + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM')
+          .then((result)=>result)
+          .catch(error =>{
+            console.log(error)
+          })).data.url
         try{
-          await soundObj.loadAsync({uri:sound_url})
+          if(!(await soundObj.getStatusAsync()).isLoaded){
+            await soundObj.loadAsync({uri:sound_url})
+            await soundObj.setProgressUpdateIntervalAsync(1000)
+            await soundObj.setOnPlaybackStatusUpdate(async (status)=>{
+              if(status.didJustFinish){
+                setIsPlaying(false)
+                setSongPosition(0)
+                soundObj.stopAsync()
+              }else if(status.isLoaded && stateRef.current!= true){
+                setSliderValue(status.positionMillis/status.durationMillis)
+              }
+            })
+        }
         }catch(error){
           console.log(error)
         }
-        wait(100).then(() => setRefreshing(false));
       }
-      getPostStates();
-    }, []);
+      await getPostStates();
+      setRefreshing(false);
+    }catch{
+      console.log("Flag 1")
+    }
+    }
     useEffect(() => {
-      onRefresh();
+      onRefresh()
       return()=>{ //When component exits
         try{
           soundObj.unloadAsync()
+          setIsPlaying(false)
         }catch(error){
           console.log("Error")
         }
@@ -125,16 +149,27 @@ const Post = (props) => {
     };
     
     async function doPlay(){
-    try {
-      if(isPlaying){
-        await soundObj.pauseAsync();
-      }else{
-        await soundObj.playAsync();
+      try {
+        if (isPlaying) {
+          await soundObj.pauseAsync();
+        } else {
+          await soundObj.playAsync();
+        }
+        setIsPlaying(!isPlaying);
+      } catch (error) {
+        console.log(error)
       }
-      setIsPlaying(!isPlaying);
-    } catch(error) {
-      console.log(error)
     }
+
+    async function seekSliding(){
+      setIsSeeking(true);
+    }
+
+    async function seekComplete(args){
+      setSliderValue(args)
+      const playerStatus = await soundObj.getStatusAsync()
+      await soundObj.setStatusAsync({positionMillis:playerStatus.durationMillis*args});
+      setIsSeeking(false);
     }
 
     return( 
@@ -151,6 +186,7 @@ const Post = (props) => {
             style={{flexDirection: "row", justifyContent: "space-between", marginVertical: 10, alignItems: "center", marginHorizontal: 10}}>
             <TouchableOpacity
               onPress={()=>{
+                isPlaying && doPlay() //if sound is playing toggle it off when going to a profile
                 navigation.push("Profile", {
                   id: author.id,
                 });
@@ -202,6 +238,19 @@ const Post = (props) => {
                   {post.song_name}
                 </Text>
               </View>
+              <Slider
+                style={{ marginLeft:10, width: "35%", height: 40}}
+                minimumValue={0}
+                maximumValue={1}
+                minimumTrackTintColor="#000000"
+                maximumTrackTintColor="#FFFFFF"
+                onSlidingStart={seekSliding}
+                onSlidingComplete={seekComplete}
+                thumbStyle={{width:15,height:15}}
+                thumbTintColor="white"
+                value={sliderValue}
+                disabled={refreshing?true:false}
+              />
               <TouchableOpacity disabled={refreshing?true:false} onPress={doPlay} style={{marginLeft:"auto",paddingRight:20}} >
                 <Text style={{fontWeight:"bold"}}>{isPlaying?"pause":"play"}</Text>
               </TouchableOpacity>

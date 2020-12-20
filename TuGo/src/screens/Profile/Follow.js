@@ -21,12 +21,6 @@ const options = {
 
   const maxlimit = 20;
 
-  const wait = (timeout) => {
-    return new Promise((resolve) => {
-      setTimeout(resolve, timeout);
-    });
-  };
-
   const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -71,7 +65,7 @@ const Followers = (props) => {
   const [filteredData, setFilteredData] = useState([]);
   const [masterData, setMasterData] = useState([]);
   const [search, setSearch] = useState('');
-  const onRefresh = React.useCallback(() => {
+  const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     async function getUserStates() {
       const followStat = type == "followers" ? await getFollowersAPI(userToken, id)
@@ -91,8 +85,8 @@ const Followers = (props) => {
       }
       setFollowingStatus(tempFollowingStatus);
     }
-    getUserStates();
-    wait(500).then(() => setRefreshing(false));
+    await getUserStates();
+    setRefreshing(false);
   }, []);
   useEffect(() => {
     onRefresh();
