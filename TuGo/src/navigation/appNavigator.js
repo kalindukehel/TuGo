@@ -6,6 +6,7 @@ import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { isSignedIn } from "../auth";
 import AuthNavigator from "./authNavigator";
 import MainNavigator from "./mainNavigator";
+import activityNavigator from "./activityNavigator"
 import { getSelf as getSelfAPI } from "../api";
 
 const Stack = createStackNavigator();
@@ -43,6 +44,7 @@ export default AppNavigator = () => {
             ) : (
               <Stack.Screen isSignout={isSignout} name="Main" component={MainNavigator} />
             )}
+            <Stack.Screen name="Activity" component={activityNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

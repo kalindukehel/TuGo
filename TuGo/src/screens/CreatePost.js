@@ -3,7 +3,7 @@ import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, Touchab
 import { TextInput } from "react-native-gesture-handler";
 import PostButton from "../../assets/PostButton.svg"
 
-const Explore = ({ navigation }) => {
+const CreatePost = ({ navigation }) => {
 
   const [search, setSearch] = useState('');
 
@@ -18,7 +18,22 @@ const Explore = ({ navigation }) => {
     <DismissKeyboard>
       <View style={styles.container}>
         <View
-          style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', margin: 8}}>
+          style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', margin: 15}}>
+            <TouchableOpacity
+                onPress={()=>{
+                    navigation.goBack();
+                }}>
+                <Text
+                    style={{color: 'blue'}}>
+                    CANCEL
+                </Text>
+            </TouchableOpacity>
+          <Text>
+              NEXT
+          </Text>
+        </View>
+        <View
+            style={{margin: 8}}>
           <TextInput
               clearButtonMode="always"
               editable={true}
@@ -30,13 +45,6 @@ const Explore = ({ navigation }) => {
               }}
               value={search}
           />
-          <TouchableOpacity
-            style={{}}
-            onPress={()=>{
-              navigation.push("New Post");
-            }}>
-            <PostButton width={40} height={35} style={{}}/>
-          </TouchableOpacity>
         </View>
       </View>
     </DismissKeyboard>
@@ -57,8 +65,8 @@ const styles = StyleSheet.create({
     marginRight: 10,
     borderColor: 'gray',
     backgroundColor: "#E8E8E8",
-    width: '85%'
+    width: '100%'
   }
 });
 
-export default Explore;
+export default CreatePost;

@@ -17,17 +17,35 @@ const profileNavigator = ({username}) => {
       <Stack.Screen
         options={{
           title: self.username,
+          headerBackTitleVisible: false,
+          headerTintColor: 'black',
         }}
         name="Profile"
         component={Profile}
         headerMode="screen"
       />
-      <Stack.Screen name="Settings" component={settingsNavigator} headerMode="screen" />
-      <Stack.Screen name="Post" component={postNavigator} headerMode="screen" />
+      <Stack.Screen name="Settings" 
+        component={settingsNavigator} 
+        headerMode="screen" 
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: 'black'
+        }}
+      />
+      <Stack.Screen name="Post" 
+        component={postNavigator} 
+        headerMode="screen" 
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: 'black'
+        }}
+      />
       <Stack.Screen 
         name="Following" 
         options={{
           title: "Following",
+          headerBackTitleVisible: false,
+          headerTintColor: 'black'
         }}
         component={Following} 
         headerMode="screen" />
@@ -35,6 +53,8 @@ const profileNavigator = ({username}) => {
         name="Followers" 
         options={{
           title: "Followers",
+          headerBackTitleVisible: false,
+          headerTintColor: 'black'
         }}
         component={Followers} 
         headerMode="screen" />
