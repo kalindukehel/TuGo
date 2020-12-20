@@ -17,6 +17,7 @@ import {
   getAccountById as getAccountByIdAPI,
   getPostTiles as getPostTilesAPI,
   likePost as likePostAPI,
+  setSoundCloudAudio as setSoundCloudAudioAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { API_URL } from "../../constants";
@@ -82,11 +83,22 @@ const Post = (props) => {
 
         const sound_url = (await Axios.get(postRes.data.soundcloud_audio + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM')
           .then((result)=>result)
-          .catch(error =>{
-            console.log(error)
+          .catch(error = async () =>{
+            const searchData = (await Axios.get('https://api-v2.soundcloud.com/search?q=' + postRes.data.soundcloud_search_query +'&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en')
+              .then(result=>result.data)).collection[0].media.transcodings[0].url
+            const tempSoundUrl = await Axios.get(searchData + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM')
+              .then(result=>result.data.url)
+            if(tempSoundUrl){
+              setSoundCloudAudioAPI(searchData,userToken,postId)
+            }
+            return({
+              data:{
+                url:tempSoundUrl
+              }
+            })
           })).data.url
         try{
-          if(!(await soundObj.getStatusAsync()).isLoaded){
+          if(!(await soundObj.getStatusAsync()).isLoaded && sound_url){
             await soundObj.loadAsync({uri:sound_url})
             await soundObj.setProgressUpdateIntervalAsync(1000)
             await soundObj.setOnPlaybackStatusUpdate(async (status)=>{
@@ -105,8 +117,8 @@ const Post = (props) => {
       }
       await getPostStates();
       setRefreshing(false);
-    }catch{
-      console.log("Flag 1")
+    }catch (e){
+      console.log(e)
     }
     }
     useEffect(() => {
@@ -352,7 +364,7 @@ const Post = (props) => {
               <View
                 style={{flexDirection: "row", alignItems: "center"}}>
                   <CommentsButton width={40} height={35} fill="#0ff"/>
-                  <Text>{comments ? `+ ${comments.length}` : `loading`}</Text>
+                  <Text>{comments ? `${comments.length}` : `loading`}</Text>
               </View>
             </TouchableOpacity>
         </ScrollView>

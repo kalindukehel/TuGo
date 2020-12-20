@@ -159,3 +159,15 @@ export async function getUserInfo(token, id) {
     },
   });
 }
+
+export async function setSoundCloudAudio(data, token, id){
+  return axios.patch(`${API_URL}/api/posts/${id}/`
+  ,{
+    soundcloud_audio: data
+  }
+  ,{
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
