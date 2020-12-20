@@ -55,8 +55,10 @@ class Follower(models.Model):
 
 class Post(models.Model):
     caption = models.CharField(max_length=200, default='')
+
     soundcloud_art = models.URLField()
     soundcloud_audio = models.URLField()
+    soundcloud_search_query = models.CharField(max_length=100)
 
     author = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='posts')
 
@@ -64,7 +66,7 @@ class Post(models.Model):
     song_artist = models.CharField(max_length=200)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    REQUIRED_FIELDS = ['soundcloud_art', 'soundcloud_audio', 'song_name','song_artist', 'created_at']
+    REQUIRED_FIELDS = ['soundcloud_art', 'soundcloud_audio', 'soundcloud_search_query' 'song_name','song_artist', 'created_at']
 
 class Feed_Item(models.Model):
     user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='feed')
@@ -91,3 +93,4 @@ class Comment(models.Model):
 class Like(models.Model):
     author = models.ForeignKey('Account',on_delete=models.CASCADE, related_name='liked')
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='likes')
+    created_at = models.DateTimeField(auto_now_add=True)
