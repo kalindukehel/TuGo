@@ -62,7 +62,10 @@ const Post = (props) => {
     const [songPosition,setSongPosition] = useState(0);
     const [isSeeking,setIsSeeking] = useState(false);
     const [sliderValue,setSliderValue] = useState(0)
+
     const stateRef = useRef()
+    const isLoaded = useRef(false);
+
     stateRef.current = isSeeking;
     //const { postId } = props.route.params;
 
@@ -89,7 +92,7 @@ const Post = (props) => {
             const tempSoundUrl = await Axios.get(searchData + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM')
               .then(result=>result.data.url)
             if(tempSoundUrl){
-              setSoundCloudAudioAPI(searchData,userToken,postId)
+              setSearchQueryAPI(searchData,userToken,postId)
             }
             return({
               data:{
@@ -100,15 +103,17 @@ const Post = (props) => {
         try{
           if(!(await soundObj.getStatusAsync()).isLoaded && sound_url){
             await soundObj.loadAsync({uri:sound_url})
+            isLoaded.current = true;
             await soundObj.setProgressUpdateIntervalAsync(1000)
             await soundObj.setOnPlaybackStatusUpdate(async (status)=>{
+              if(isLoaded.current){
               if(status.didJustFinish && status.isLoaded){
                 setIsPlaying(false)
                 setSongPosition(0)
                 soundObj.stopAsync()
               }else if(status.isLoaded && stateRef.current!= true){
                 setSliderValue(status.positionMillis/status.durationMillis)
-              }
+              }}
             })
         }
         }catch(error){
@@ -141,6 +146,8 @@ const Post = (props) => {
       // getColor();
       return()=>{ //When component exits
         try{
+          setIsPlaying(false);
+          isLoaded.current = false;
           soundObj.unloadAsync()
           //setIsPlaying(false)
         }catch(error){
