@@ -15,43 +15,6 @@ export default App = () => {
     </AuthProvider>
   );
 };
-// constructor() {
-//   super();
-
-//   this.state = {
-//     signedIn: false,
-//     checkedSignIn: false,
-//   };
-// }
-
-// componentDidMount() {
-//   console.log("hi");
-//   isSignedIn()
-//     .then((res) => this.setState({ signedIn: res, checkedSignIn: true }))
-//     .catch((err) => alert(err));
-// }
-
-// render() {
-//   const { checkedSignIn, signedIn } = this.state;
-
-//   // If we haven't checked AsyncStorage yet, don't render anything (better ways to do this)
-//   if (!checkedSignIn) {
-//     return null;
-//   }
-
-//   if (signedIn) {
-//     return (
-//       <NavigationContainer>
-//         <Tab.Navigator>
-//           <Tab.Screen name="Feed" component={Feed} />
-//           <Tab.Screen name="Profile" component={Profile} />
-//         </Tab.Navigator>
-//       </NavigationContainer>
-//     );
-//   } else {
-//     return <Navigator />;
-//   }
-// }
 
 const styles = StyleSheet.create({
   MainContainer: {

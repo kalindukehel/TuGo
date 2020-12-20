@@ -22,6 +22,8 @@ import { useAuthState } from "../context/authContext";
 import { API_URL } from "../../constants";
 
 import Like from "../../assets/LikeButton.svg"
+import Play from "../../assets/PlayButton.svg"
+import Pause from "../../assets/PauseButton.svg"
 import DMButton from "../../assets/DMButton.svg"
 import CommentsButton from "../../assets/CommentsButton.svg"
 
@@ -34,6 +36,7 @@ import {Audio} from "expo-av"
 import Axios from "axios";
 
 import {Slider} from 'react-native-elements'
+import ImageColors from "react-native-image-colors"
 
 var { width, height } = Dimensions.get("window");
 
@@ -41,6 +44,8 @@ var { width, height } = Dimensions.get("window");
 Audio.setAudioModeAsync({playsInSilentModeIOS:true})
 const soundObj = new Audio.Sound;
 const Post = (props) => {
+    let colors = '';
+    let tileColor="#065581"
     const { navigation } = props;
     const { postId, authorId } = props.route.params;
     const { userToken, self } = useAuthState();
@@ -85,7 +90,7 @@ const Post = (props) => {
             await soundObj.loadAsync({uri:sound_url})
             await soundObj.setProgressUpdateIntervalAsync(1000)
             await soundObj.setOnPlaybackStatusUpdate(async (status)=>{
-              if(status.didJustFinish){
+              if(status.didJustFinish && status.isLoaded){
                 setIsPlaying(false)
                 setSongPosition(0)
                 soundObj.stopAsync()
@@ -105,11 +110,27 @@ const Post = (props) => {
     }
     }
     useEffect(() => {
-      onRefresh()
+      onRefresh();
+      // async function getColor(){
+      //   const img = require(`../../assets/ExploreIcon.png`)
+      //   try{colors = await ImageColors.getColors('https://i.imgur.com/O3XSdU7.png', {
+      //     fallback: "#228B22",
+      //   })}
+      //   catch(e){
+      //     console.log(e)
+      //   }
+      //   console.log(colors);
+      //   if (colors.platform === "android") {
+      //     tileColor = colors.average
+      //   } else {
+      //     tileColor = colors.background
+      //   }
+      // }
+      // getColor();
       return()=>{ //When component exits
         try{
           soundObj.unloadAsync()
-          setIsPlaying(false)
+          //setIsPlaying(false)
         }catch(error){
           console.log("Error")
         }
@@ -117,6 +138,7 @@ const Post = (props) => {
     }, []);
 
     React.useEffect(() => {
+      console.log("ran")
       const unsubscribe = navigation.addListener('focus', async () => {
         const postRes = await getPostByIdAPI(userToken, postId);
         setPost(postRes.data);
@@ -178,6 +200,7 @@ const Post = (props) => {
         style={{flex: 1, backgroundColor: "white"}}>
         <ScrollView
           contentContainerStyle={styles.scrollView}
+          
           refreshControl={
             <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
           }
@@ -212,7 +235,7 @@ const Post = (props) => {
             style={{flexDirection: "row",
             alignItems: "center"}}>
             <View
-              style={{width: width, height: height/9, backgroundColor: "#065581", 
+              style={{width: width, height: height/9, backgroundColor: tileColor, 
               borderTopLeftRadius: 5,
               borderBottomLeftRadius: 5,
               borderBottomRightRadius: 20, 
@@ -222,13 +245,13 @@ const Post = (props) => {
               <ImageModal
                 resizeMode="contain"
                 imageBackgroundColor="#00000000"
-                style={{ width: width/6, height: height/12, margin: 8 }}
+                style={{ width: width/6, height: height/12, margin: 8}}
                 source={{
                   uri: post.soundcloud_art,
                 }}
               />
               <View
-                style={{flexDirection: "column"}}>
+                style={{flexDirection: "column", height: '75%', flex: 1}}>
                 <Text
                   style={{color: "white"}}>
                   {post.song_artist}
@@ -239,20 +262,21 @@ const Post = (props) => {
                 </Text>
               </View>
               <Slider
-                style={{ marginLeft:10, width: "35%", height: 40}}
+                style={{ marginLeft: '20%', width: "55%", alignSelf: "flex-end", position: "absolute", height: 35}}
                 minimumValue={0}
                 maximumValue={1}
-                minimumTrackTintColor="#000000"
-                maximumTrackTintColor="#FFFFFF"
+                minimumTrackTintColor="#C4C4C4"
+                maximumTrackTintColor="white"
                 onSlidingStart={seekSliding}
                 onSlidingComplete={seekComplete}
                 thumbStyle={{width:15,height:15}}
-                thumbTintColor="white"
+                thumbTintColor="#C4C4C4"
                 value={sliderValue}
                 disabled={refreshing?true:false}
               />
-              <TouchableOpacity disabled={refreshing?true:false} onPress={doPlay} style={{marginLeft:"auto",paddingRight:20}} >
-                <Text style={{fontWeight:"bold"}}>{isPlaying?"pause":"play"}</Text>
+              <TouchableOpacity disabled={refreshing?true:false} onPress={doPlay} style={{marginLeft:"auto", marginRight:10}} >
+                {/* <Text style={{fontWeight:"bold"}}>{isPlaying?"pause":"play"}</Text> */}
+                {isPlaying ? <Pause width={40} height={35} style={{marginTop: '30%'}}/> : <Play width={40} height={45} style={{marginTop: '30%'}} /> }
               </TouchableOpacity>
             </View>
           </View>
@@ -328,7 +352,7 @@ const Post = (props) => {
               <View
                 style={{flexDirection: "row", alignItems: "center"}}>
                   <CommentsButton width={40} height={35} fill="#0ff"/>
-                  <Text>{comments ? comments.length : `loading`}</Text>
+                  <Text>{comments ? `+ ${comments.length}` : `loading`}</Text>
               </View>
             </TouchableOpacity>
         </ScrollView>

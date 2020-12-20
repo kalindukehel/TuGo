@@ -1,25 +1,29 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
+import { NavigationContainer } from '@react-navigation/native';
 import { Image } from "react-native";
 import HomeScreen from "../screens/Feed";
+import Activity from "../screens/Activity";
 import profileNavigator from "./profileNavigator";
-import Explore from "../screens/Explore";
+import exploreNavigator from "./exploreNavigator";
+import feedNavigator from "./feedNavigator";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 
 const Tab = createBottomTabNavigator();
+const Stack = createStackNavigator();
 
 const MainNavigator = () => {
   const { userToken, self } = useAuthState();
 
   return (
     <Tab.Navigator
-      initialRouteName="Home"
+      initialRouteName="Feed"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
           let iconName;
-          if (route.name === "Home") {
+          if (route.name === "Feed") {
             iconName = focused ? "md-home" : "md-home";
           } else if (route.name === "Profile") {
             return (
@@ -59,8 +63,8 @@ const MainNavigator = () => {
         backgroundColor: "black",
       }}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Explore" component={Explore} />
+      <Tab.Screen name="Feed" component={feedNavigator} />
+      <Tab.Screen name="Explore" component={exploreNavigator} />
       <Tab.Screen name="Profile" component={profileNavigator} />
     </Tab.Navigator>
   );
