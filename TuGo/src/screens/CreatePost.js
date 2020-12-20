@@ -43,7 +43,6 @@ const CreatePost = ({ navigation }) => {
               }}
               onSubmitEditing={() => {
               }}
-              value={search}
           />
         </View>
       </View>
