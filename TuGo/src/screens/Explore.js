@@ -28,7 +28,6 @@ const Explore = ({ navigation }) => {
               }}
               onSubmitEditing={() => {
               }}
-              value={search}
           />
           <TouchableOpacity
             style={{}}

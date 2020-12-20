@@ -17,6 +17,7 @@ import {
   getAccountById as getAccountByIdAPI,
   getPostTiles as getPostTilesAPI,
   likePost as likePostAPI,
+  setSoundCloudAudio as setSoundCloudAudioAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { API_URL } from "../../constants";
@@ -61,7 +62,10 @@ const Post = (props) => {
     const [songPosition,setSongPosition] = useState(0);
     const [isSeeking,setIsSeeking] = useState(false);
     const [sliderValue,setSliderValue] = useState(0)
+
     const stateRef = useRef()
+    const isLoaded = useRef(false);
+
     stateRef.current = isSeeking;
     //const { postId } = props.route.params;
 
@@ -82,21 +86,34 @@ const Post = (props) => {
 
         const sound_url = (await Axios.get(postRes.data.soundcloud_audio + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM')
           .then((result)=>result)
-          .catch(error =>{
-            console.log(error)
+          .catch(error = async () =>{
+            const searchData = (await Axios.get('https://api-v2.soundcloud.com/search?q=' + postRes.data.soundcloud_search_query +'&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en')
+              .then(result=>result.data)).collection[0].media.transcodings[0].url
+            const tempSoundUrl = await Axios.get(searchData + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM')
+              .then(result=>result.data.url)
+            if(tempSoundUrl){
+              setSearchQueryAPI(searchData,userToken,postId)
+            }
+            return({
+              data:{
+                url:tempSoundUrl
+              }
+            })
           })).data.url
         try{
-          if(!(await soundObj.getStatusAsync()).isLoaded){
+          if(!(await soundObj.getStatusAsync()).isLoaded && sound_url){
             await soundObj.loadAsync({uri:sound_url})
+            isLoaded.current = true;
             await soundObj.setProgressUpdateIntervalAsync(1000)
             await soundObj.setOnPlaybackStatusUpdate(async (status)=>{
+              if(isLoaded.current){
               if(status.didJustFinish && status.isLoaded){
                 setIsPlaying(false)
                 setSongPosition(0)
                 soundObj.stopAsync()
               }else if(status.isLoaded && stateRef.current!= true){
                 setSliderValue(status.positionMillis/status.durationMillis)
-              }
+              }}
             })
         }
         }catch(error){
@@ -105,8 +122,8 @@ const Post = (props) => {
       }
       await getPostStates();
       setRefreshing(false);
-    }catch{
-      console.log("Flag 1")
+    }catch (e){
+      console.log(e)
     }
     }
     useEffect(() => {
@@ -129,6 +146,8 @@ const Post = (props) => {
       // getColor();
       return()=>{ //When component exits
         try{
+          setIsPlaying(false);
+          isLoaded.current = false;
           soundObj.unloadAsync()
           //setIsPlaying(false)
         }catch(error){
@@ -352,7 +371,7 @@ const Post = (props) => {
               <View
                 style={{flexDirection: "row", alignItems: "center"}}>
                   <CommentsButton width={40} height={35} fill="#0ff"/>
-                  <Text>{comments ? `+ ${comments.length}` : `loading`}</Text>
+                  <Text>{comments ? `${comments.length}` : `loading`}</Text>
               </View>
             </TouchableOpacity>
         </ScrollView>
