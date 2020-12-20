@@ -13,7 +13,7 @@ const Stack = createStackNavigator();
 const profileNavigator = ({username}) => {
   const { self } = useAuthState();
   return (
-    <Stack.Navigator initialRouteName="Profile">
+    <Stack.Navigator initialRouteName="Profile" headerMode="screen">
       <Stack.Screen
         options={{
           title: self.username,
@@ -22,11 +22,9 @@ const profileNavigator = ({username}) => {
         }}
         name="Profile"
         component={Profile}
-        headerMode="screen"
       />
       <Stack.Screen name="Settings" 
         component={settingsNavigator} 
-        headerMode="screen" 
         options={{
           headerBackTitleVisible: false,
           headerTintColor: 'black'
@@ -34,8 +32,8 @@ const profileNavigator = ({username}) => {
       />
       <Stack.Screen name="Post" 
         component={postNavigator} 
-        headerMode="screen" 
         options={{
+          headerShown:false,
           headerBackTitleVisible: false,
           headerTintColor: 'black'
         }}
@@ -48,7 +46,7 @@ const profileNavigator = ({username}) => {
           headerTintColor: 'black'
         }}
         component={Following} 
-        headerMode="screen" />
+      />
       <Stack.Screen 
         name="Followers" 
         options={{
@@ -57,7 +55,7 @@ const profileNavigator = ({username}) => {
           headerTintColor: 'black'
         }}
         component={Followers} 
-        headerMode="screen" />
+      />
     </Stack.Navigator>
   );
 };
