@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import Account, Post, Follower, Like, Comment, Tile, Feed_Item
+from accounts.models import Account, Post, Follower, Like, Comment, Tile, Feed_Item, Activity_Item
 from rest_framework.validators import UniqueValidator
 
 
@@ -47,11 +47,17 @@ class FeedSerializer(serializers.ModelSerializer):
         )
 
 class CommentSerializer(serializers.ModelSerializer):
-     class Meta:
+    class Meta:
         model = Comment
         fields = (
             '__all__'
-        )  
+        )
+    def create(self, request, *args, **kwargs):
+        print("CREATED")
+        newComment = super().create(request, *args, **kwargs)
+        activity_item = Activity_item(user=newComment.post.author,activity_type='COMMENT',comment=newComment.value)
+        activity_item.save()
+        return newComment
 
 class LikeSerializer(serializers.ModelSerializer):
      class Meta:
@@ -78,6 +84,13 @@ class FollowingSerializer(serializers.ModelSerializer):
 class TileSerializer(serializers.ModelSerializer):
     class Meta:
         model = Tile
+        fields = (
+            '__all__'
+        )
+
+class ActivitySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Activity_Item
         fields = (
             '__all__'
         )

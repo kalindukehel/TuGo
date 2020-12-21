@@ -94,3 +94,20 @@ class Like(models.Model):
     author = models.ForeignKey('Account',on_delete=models.CASCADE, related_name='liked')
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
+
+class Activity_Item(models.Model):
+    ACTIVITY_CHOICES = [
+        ('FOLLOW','Follow'),
+        ('LIKE', 'Like'),
+        ('COMMENT','Comment'),
+        ('TAG','Tag')
+    ]
+    user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='activity')
+    activity_type = models.CharField(max_length=15,choices=ACTIVITY_CHOICES)
+    action_user =  models.ForeignKey(Account,on_delete=models.CASCADE,related_name='+')
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
+    comment = models.ForeignKey(Comment,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
+    like = models.ForeignKey(Like,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    REQUIRED_FIELDS = ['user','activity_type','action_user']
