@@ -135,7 +135,7 @@ const SignIn = ({ navigation }) => {
               }
               onPress={() => {
                 if (username && password && email && name) {
-                  console.log("new sign up");
+                  //console.log("new sign up");
                   signup();
                 }
               }}

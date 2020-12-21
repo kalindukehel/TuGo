@@ -5,7 +5,7 @@ const useAccounts = () => {
   const [accounts, setAccounts] = useState([]);
   useEffect(() => {
     getAccountsAPI().then((res) => {
-      console.log(res.data);
+      //console.log(res.data);
       setAccounts(res.data);
     });
   }, []);

@@ -157,7 +157,6 @@ const Post = (props) => {
     }, []);
 
     React.useEffect(() => {
-      console.log("ran")
       const unsubscribe = navigation.addListener('focus', async () => {
         const postRes = await getPostByIdAPI(userToken, postId);
         setPost(postRes.data);

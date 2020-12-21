@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { AsyncStorage } from "react-native";
+import AsyncStorage from '@react-native-community/async-storage';
 
 export const onSignIn = (USER_KEY) => {
   AsyncStorage.setItem("USER_KEY", JSON.stringify(USER_KEY));

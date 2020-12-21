@@ -143,7 +143,7 @@ export async function addComment(userToken, id, data) {
       },
     });
   }
-  console.log(token);
+  //console.log(token);
   return axios.post(`${API_URL}/api/posts/${id}/comments/`,data, {
     headers: {
       Authorization: "Token " + token,

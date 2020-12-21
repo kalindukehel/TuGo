@@ -11,9 +11,9 @@ const Home = ({ navigation }) => {
   const [accounts, setAccounts] = useState();
   async function handleChange(text) {
     try {
-      console.log("handlechange before");
+      //console.log("handlechange before");
       const res = await getAccountByIdAPI(text);
-      console.log("handlechange after");
+      //console.log("handlechange after");
       setAccounts(res.data);
       console.log(res.data);
     } catch (error) {

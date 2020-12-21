@@ -16,7 +16,7 @@ const Settings = ({ navigation }) => {
           onSignOut();
           try {
             await signOutAPI(userToken);
-            console.log("logout pressed");
+            //console.log("logout pressed");
             dispatch({ type: "SIGN_OUT" });
           } catch (e) {
             console.log(e);

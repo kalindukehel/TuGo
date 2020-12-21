@@ -134,9 +134,12 @@ const Profile = (props) => {
     return unsubscribe;
   }, [navigation]);
 
-  navigation.setOptions({
-    title: user ? user.username : ""
-  })
+  useEffect(()=>{
+    navigation.setOptions({
+      title: user ? user.username : ""
+    })
+  },[])
+
 
   const renderSection = (post) => {
     let curPost = post.item;
