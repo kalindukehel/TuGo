@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from accounts.models import Account, Post, Like, Comment, Tile
+from accounts.models import Account, Post, Like, Comment, Tile, Activity_Item
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PrivateAccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ActivitySerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
@@ -29,8 +29,8 @@ class AccountViewSet(viewsets.ModelViewSet):
                 return AccountSerializer
             else:
                 return PrivateAccountSerializer
-
-        return AccountSerializer
+        serializer_list = {'followers':FollowerSerializer,'following':FollowingSerializer}
+        return (serializer_list[self.action] if self.action in serializer_list else AccountSerializer)
 
     def get_object(self):
         pk = self.kwargs.get('pk')
@@ -64,6 +64,8 @@ class AccountViewSet(viewsets.ModelViewSet):
                 follower.delete()
             else:
                 follower.save()
+                activity_item = Activity_Item(user=self.get_object(),activity_type='FOLLOW',action_user=request.user)
+                activity_item.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             if(self.get_object().is_private == False or
@@ -91,7 +93,7 @@ class AccountViewSet(viewsets.ModelViewSet):
         if(self.get_object().is_private == False or
         self.get_object().followers.filter(follower=self.request.user).exists() or
         self.get_object() == self.request.user):
-            all_posts = self.get_object().posts.all()
+            all_posts = self.get_object().posts.all().order_by('-id')
             serializer = PostSerializer(all_posts,many=True)
             return Response(serializer.data)
         else:
@@ -101,6 +103,12 @@ class AccountViewSet(viewsets.ModelViewSet):
     def feed(self,request,*args,**kwargs):
         feed_posts = request.user.feed.all()
         serializer = FeedSerializer(feed_posts,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['GET'])
+    def activity(self,request,*args,**kwargs):
+        activity = request.user.activity.all()
+        serializer = ActivitySerializer(activity,many=True)
         return Response(serializer.data)
 
 
@@ -124,6 +132,8 @@ class PostViewSet(viewsets.ModelViewSet):
                 like.delete()
             else:
                 like.save()
+                activity_item = Activity_Item(user=self.get_object().author,activity_type='LIKE',action_user=request.user,post=self.get_object(),like=like)
+                activity_item.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             all_likes = self.get_object().likes.all()
@@ -136,6 +146,8 @@ class PostViewSet(viewsets.ModelViewSet):
             value = request.data.get('value')
             comment = Comment(author=request.user,post=self.get_object(),value=value)
             comment.save()
+            activity_item = Activity_Item(user=self.get_object().author,activity_type='COMMENT',action_user=request.user,comment=comment, post=self.get_object())
+            activity_item.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             all_comments = self.get_object().comments.all()
