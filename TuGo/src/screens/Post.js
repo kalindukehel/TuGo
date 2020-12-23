@@ -36,7 +36,7 @@ import * as Haptics from 'expo-haptics';
 import {Audio} from "expo-av"
 import Axios from "axios";
 
-import {Slider} from 'react-native-elements'
+import Slider from '@react-native-community/slider'
 import ImageColors from "react-native-image-colors"
 
 var { width, height } = Dimensions.get("window");
