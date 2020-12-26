@@ -91,6 +91,25 @@ const Profile = (props) => {
   if (id) {
     profileId = id;
   }
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 20 }}
+          onPress={() => {
+            navigation.navigate("Settings");
+          }}>
+          <Ionicons
+            name="ios-settings"
+            size={25}
+            color={"black"}
+          />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
+
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     async function getUserStates() {
@@ -205,20 +224,6 @@ const Profile = (props) => {
             );
           })}
         </View>
-        {profileId == self.id &&
-          <TouchableOpacity
-            style={styles.settingsIcon}
-          >
-            <Ionicons
-              name="ios-settings"
-              backgroundColor="red"
-              size={25}
-              color={"black"}
-              onPress={async () => {
-                navigation.navigate("Settings");
-              }}
-            />
-          </TouchableOpacity>}
         <Image
           source={{ uri: user ? API_URL + user.profile_picture : API_URL + "/media/default.jpg" }}
           style={styles.profilePicture}
