@@ -10,7 +10,7 @@ import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
 
-const profileNavigator = ({username}) => {
+const profileNavigator = ({ username }) => {
   const { self } = useAuthState();
   return (
     <Stack.Navigator initialRouteName="Profile" headerMode="screen">
@@ -19,42 +19,58 @@ const profileNavigator = ({username}) => {
           title: self.username,
           headerBackTitleVisible: false,
           headerTintColor: 'black',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20
+          },
         }}
         name="Profile"
         component={Profile}
       />
-      <Stack.Screen name="Settings" 
-        component={settingsNavigator} 
+      <Stack.Screen name="Settings"
+        component={settingsNavigator}
         options={{
+          headerBackTitleVisible: false,
+          headerTintColor: 'black',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20
+          },
+        }}
+      />
+      <Stack.Screen name="Post"
+        component={postNavigator}
+        options={{
+          headerShown: false,
           headerBackTitleVisible: false,
           headerTintColor: 'black'
         }}
       />
-      <Stack.Screen name="Post" 
-        component={postNavigator} 
-        options={{
-          headerShown:false,
-          headerBackTitleVisible: false,
-          headerTintColor: 'black'
-        }}
-      />
-      <Stack.Screen 
-        name="Following" 
+      <Stack.Screen
+        name="Following"
         options={{
           title: "Following",
           headerBackTitleVisible: false,
-          headerTintColor: 'black'
+          headerTintColor: 'black',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20
+          },
         }}
-        component={Following} 
+        component={Following}
       />
-      <Stack.Screen 
-        name="Followers" 
+      <Stack.Screen
+        name="Followers"
         options={{
           title: "Followers",
           headerBackTitleVisible: false,
-          headerTintColor: 'black'
+          headerTintColor: 'black',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20
+          },
         }}
-        component={Followers} 
+        component={Followers}
       />
     </Stack.Navigator>
   );

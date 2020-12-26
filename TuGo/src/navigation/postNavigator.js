@@ -15,16 +15,23 @@ const postNavigator = (props) => {
       <Stack.Screen name="Post"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: 'black'
+          headerTintColor: 'black',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20
+          },
         }}
-        component={Post}/>
-      <Stack.Screen name="Likes" component={Likes}/>
-      <Stack.Screen 
+        component={Post} />
+      <Stack.Screen name="Likes" component={Likes} options={{
+        headerBackTitleVisible: false,
+        headerTintColor: 'black'
+      }} />
+      <Stack.Screen
         name="Comments"
         options={{
           headerBackTitleVisible: false,
           headerTintColor: 'black'
-        }} 
+        }}
         component={Comments}
       />
       <Stack.Screen

@@ -1,5 +1,5 @@
 import React from "react";
-import { createStackNavigator, TransitionSpecs  } from "@react-navigation/stack";
+import { createStackNavigator, TransitionSpecs } from "@react-navigation/stack";
 import Activity from "../screens/Activity"
 import { useAuthState } from "../context/authContext";
 
@@ -13,6 +13,14 @@ const activityNavigator = () => {
         name="Activity"
         component={Activity}
         headerMode="screen"
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: 'black',
+          headerTitleStyle: {
+            fontWeight: 'bold',
+            fontSize: 20,
+          },
+        }}
       />
     </Stack.Navigator>
   );

@@ -18,7 +18,8 @@ import {
 import {
   getUserInfo as getUserInfoAPI,
   getPosts as getPostsAPI,
-  by_ids as by_idsAPI
+  by_ids as by_idsAPI,
+  getPostTiles as getPostTilesAPI
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
@@ -87,6 +88,8 @@ const Profile = (props) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(200);
   const [onBack, setOnBack] = useState(false);
+  const [videoCount, setVideoCount] = useState(0);
+
   let profileId = self.id;
   if (id) {
     profileId = id;
