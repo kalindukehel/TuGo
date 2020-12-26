@@ -11,7 +11,7 @@ export async function getAccountById(id, token) {
     headers: {
       Authorization: "Token " + token,
     },
-  });   
+  });
 }
 
 export async function signUp(data) {
@@ -74,19 +74,19 @@ export async function by_ids(data, token) {
   let dic = {
     ids: data ? data : null
   }
-  return axios.post(`${API_URL}/api/accounts/by_ids/`,dic, {
+  return axios.post(`${API_URL}/api/accounts/by_ids/`, dic, {
     headers: {
       Authorization: "Token " + token,
-      'Content-Type':'application/json',
+      'Content-Type': 'application/json',
     },
   });
 }
 
 export async function changeFollow(token, id) {
-  return axios.post(`${API_URL}/api/accounts/${id}/followers/`,null, {
+  return axios.post(`${API_URL}/api/accounts/${id}/followers/`, null, {
     headers: {
       Authorization: "Token " + token,
-      'Content-Type':'application/json',
+      'Content-Type': 'application/json',
     },
   });
 }
@@ -124,7 +124,7 @@ export async function getPostTiles(token, id) {
 }
 
 export async function likePost(token, id) {
-  return axios.post(`${API_URL}/api/posts/${id}/likes/`,null, {
+  return axios.post(`${API_URL}/api/posts/${id}/likes/`, null, {
     headers: {
       Authorization: "Token " + token,
     },
@@ -136,18 +136,18 @@ export async function addComment(userToken, id, data) {
   try {
     token = JSON.parse(token);
   } catch (e) {
-    return axios.post(`${API_URL}/api/posts/${id}/comments/`,data, {
+    return axios.post(`${API_URL}/api/posts/${id}/comments/`, data, {
       headers: {
         Authorization: "Token " + userToken,
-        'Content-Type':'application/json',
+        'Content-Type': 'application/json',
       },
     });
   }
   console.log(token);
-  return axios.post(`${API_URL}/api/posts/${id}/comments/`,data, {
+  return axios.post(`${API_URL}/api/posts/${id}/comments/`, data, {
     headers: {
       Authorization: "Token " + token,
-      'Content-Type':'application/json',
+      'Content-Type': 'application/json',
     },
   });
 }
@@ -160,12 +160,20 @@ export async function getUserInfo(token, id) {
   });
 }
 
-export async function setSoundCloudAudio(data, token, id){
+export async function setSoundCloudAudio(data, token, id) {
   return axios.patch(`${API_URL}/api/posts/${id}/`
-  ,{
-    soundcloud_audio: data
-  }
-  ,{
+    , {
+      soundcloud_audio: data
+    }
+    , {
+      headers: {
+        Authorization: "Token " + token,
+      },
+    });
+}
+
+export async function getFeedPosts(token) {
+  return axios.get(`${API_URL}/api/accounts/feed/`, {
     headers: {
       Authorization: "Token " + token,
     },

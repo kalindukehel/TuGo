@@ -47,8 +47,7 @@ const soundObj = new Audio.Sound;
 
 const PostComponent = (props) => {
   let tileColor = "#065581"
-  const { navigation } = props;
-  const { postId, authorId } = props;
+  const { postId, authorId, navigation } = props;
   const { userToken, self } = useAuthState();
   const [refreshing, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
@@ -77,7 +76,7 @@ const PostComponent = (props) => {
         setLikes(likesRes.data);
         const commentsRes = await getPostCommentsAPI(userToken, postId);
         setComments(commentsRes.data);
-        const authorRes = await getAccountByIdAPI(authorId, userToken);
+        const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
         setAuthor(authorRes.data);
         const tilesRes = await getPostTilesAPI(userToken, postId);
         setTiles(tilesRes.data);
@@ -146,7 +145,7 @@ const PostComponent = (props) => {
       setLikes(likesRes.data);
       const commentsRes = await getPostCommentsAPI(userToken, postId);
       setComments(commentsRes.data);
-      const authorRes = await getAccountByIdAPI(authorId, userToken);
+      const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
       setAuthor(authorRes.data);
       const tilesRes = await getPostTilesAPI(userToken, postId);
       setTiles(tilesRes.data);
@@ -193,7 +192,7 @@ const PostComponent = (props) => {
   return (
     post && author &&
     <View
-      style={{ flex: 1, backgroundColor: "white" }}>
+      style={{ flex: 1 }}>
       <View
         style={{ flexDirection: "row", justifyContent: "space-between", marginVertical: 10, alignItems: "center", marginHorizontal: 10 }}>
         <TouchableOpacity
@@ -345,7 +344,6 @@ const PostComponent = (props) => {
         onPress={() => {
           navigation.push("Comments", {
             postId: post.id,
-            authorId: authorId
           });
         }}>
         <View

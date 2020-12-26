@@ -1,45 +1,11 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState } from "react";
 import {
   View,
-  Text,
-  Dimensions,
-  Image,
-  RefreshControl,
   ScrollView,
   StyleSheet,
-  TouchableOpacity,
-  processColor
 } from "react-native";
-import {
-  getPostById as getPostByIdAPI,
-  getPostLikes as getPostLikesAPI,
-  getPostComments as getPostCommentsAPI,
-  getAccountById as getAccountByIdAPI,
-  getPostTiles as getPostTilesAPI,
-  likePost as likePostAPI,
-  setSoundCloudAudio as setSoundCloudAudioAPI,
-} from "../api";
 import { useAuthState } from "../context/authContext";
-import { API_URL } from "../../constants";
-
-import Like from "../../assets/LikeButton.svg"
-import Play from "../../assets/PlayButton.svg"
-import Pause from "../../assets/PauseButton.svg"
-import DMButton from "../../assets/DMButton.svg"
-import CommentsButton from "../../assets/CommentsButton.svg"
-
-import moment from "moment";
-import ImageModal from 'react-native-image-modal';
-import * as Haptics from 'expo-haptics';
-
-
-import { Audio } from "expo-av"
-import Axios from "axios";
-
-import { Slider } from 'react-native-elements'
 import PostComponent from "../components/PostComponent"
-
-var { width, height } = Dimensions.get("window");
 
 const Post = (props) => {
   let tileColor = "#065581"
@@ -64,7 +30,7 @@ const Post = (props) => {
       //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
       // }
       >
-        <PostComponent postId={postId} authorId={authorId} navigation={navigation} />
+        <PostComponent postId={postId} navigation={navigation} />
       </ScrollView>
     </View>
   )
