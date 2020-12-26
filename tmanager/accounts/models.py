@@ -95,6 +95,11 @@ class Like(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
 
+class Favorite(models.Model):
+    author = models.ForeignKey('Account',on_delete=models.CASCADE, related_name='favorites')
+    post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='+')
+    created_at = models.DateTimeField(auto_now_add=True)    
+
 class Activity_Item(models.Model):
     ACTIVITY_CHOICES = [
         ('FOLLOW','Follow'),
