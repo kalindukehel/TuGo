@@ -92,23 +92,24 @@ const Profile = (props) => {
     profileId = id;
   }
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 20 }}
-          onPress={() => {
-            navigation.navigate("Settings");
-          }}>
-          <Ionicons
-            name="ios-settings"
-            size={25}
-            color={"black"}
-          />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
+  profileId == self.id &&
+    React.useLayoutEffect(() => {
+      navigation.setOptions({
+        headerRight: () => (
+          <TouchableOpacity
+            style={{ marginRight: 20 }}
+            onPress={() => {
+              navigation.navigate("Settings");
+            }}>
+            <Ionicons
+              name="ios-settings"
+              size={25}
+              color={"black"}
+            />
+          </TouchableOpacity>
+        ),
+      });
+    }, [navigation]);
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
