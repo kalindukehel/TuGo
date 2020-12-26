@@ -12,7 +12,7 @@ import {
   ScrollView,
   Dimensions,
   TouchableWithoutFeedback,
-  Animated, 
+  Animated,
   StatusBar,
 } from "react-native";
 import {
@@ -76,7 +76,7 @@ const styles = StyleSheet.create({
 const Profile = (props) => {
   const { navigation } = props;
   let id = null;
-  if(props.route.params) id = props.route.params.id
+  if (props.route.params) id = props.route.params.id
   const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
   const [followers, setFollowers] = useState(0);
@@ -88,7 +88,7 @@ const Profile = (props) => {
   const [error, setError] = useState(200);
   const [onBack, setOnBack] = useState(false);
   let profileId = self.id;
-  if(id) {
+  if (id) {
     profileId = id;
   }
   const onRefresh = React.useCallback(async () => {
@@ -101,7 +101,7 @@ const Profile = (props) => {
         const postsState = await getPostsAPI(userToken, profileId);
         setPosts(postsState.data);
       }
-      catch(err) {
+      catch (err) {
         setError(err.response.status);
       }
       setFollowers(userInfo.data.followers);
@@ -124,7 +124,7 @@ const Profile = (props) => {
         const postsState = await getPostsAPI(userToken, profileId);
         setPosts(postsState.data);
       }
-      catch(err) {
+      catch (err) {
         setError(err.response.status);
       }
       setFollowers(userInfo.data.followers);
@@ -142,10 +142,10 @@ const Profile = (props) => {
     let curPost = post.item;
     return (
       <TouchableOpacity
-        onPress={()=>{
+        onPress={() => {
           navigation.push('Post', {
             screen: 'Post',
-            params: { 
+            params: {
               postId: curPost.id,
               authorId: curPost.author,
             },
@@ -173,9 +173,9 @@ const Profile = (props) => {
 
   renderBackground = () => {
     const topPosts = posts.filter((post, index) => index <= 5);
-    const six = [0,1,2,3,4,5];
+    const six = [0, 1, 2, 3, 4, 5];
     return (
-      <View style={{ width: width, height: height/3.4 }}>
+      <View style={{ width: width, height: 200 }}>
         <View
           style={{
             flexDirection: "row",
@@ -199,26 +199,26 @@ const Profile = (props) => {
               >
                 <Image
                   style={{ flex: 1, width: undefined, height: undefined }}
-                  source={{ uri: topPosts[index] && error != 403 ? topPosts[index].soundcloud_art : blank}}
+                  source={{ uri: topPosts[index] && error != 403 ? topPosts[index].soundcloud_art : blank }}
                 ></Image>
               </View>
             );
           })}
         </View>
-        {profileId == self.id && 
-        <TouchableOpacity
-          style={styles.settingsIcon}
-        >
-          <Ionicons
-            name="ios-settings"
-            backgroundColor="red"
-            size={25}
-            color={"black"}
-            onPress={async () => {
-              navigation.navigate("Settings");
-            }}
-          />
-        </TouchableOpacity>}
+        {profileId == self.id &&
+          <TouchableOpacity
+            style={styles.settingsIcon}
+          >
+            <Ionicons
+              name="ios-settings"
+              backgroundColor="red"
+              size={25}
+              color={"black"}
+              onPress={async () => {
+                navigation.navigate("Settings");
+              }}
+            />
+          </TouchableOpacity>}
         <Image
           source={{ uri: user ? API_URL + user.profile_picture : API_URL + "/media/default.jpg" }}
           style={styles.profilePicture}
@@ -231,7 +231,7 @@ const Profile = (props) => {
       <>
         {renderBackground()}
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
-          <TouchableOpacity 
+          <TouchableOpacity
             disabled={error == 403}
             onPress={() => {
               navigation.push("Following", {
@@ -254,7 +254,7 @@ const Profile = (props) => {
               Songs
             </Text>
           </View>
-          <TouchableOpacity 
+          <TouchableOpacity
             disabled={error == 403}
             onPress={() => {
               navigation.push("Followers", {
@@ -277,10 +277,10 @@ const Profile = (props) => {
   };
 
   const getFooter = () => {
-    return(
+    return (
       error == 403 &&
       <Text
-        style={{fontSize: 20, fontWeight: 'bold', alignSelf: 'center', marginTop: '20%'}}>Forbidden! Follow to see.
+        style={{ fontSize: 20, fontWeight: 'bold', alignSelf: 'center', marginTop: '20%' }}>Forbidden! Follow to see.
       </Text>
     )
   }
@@ -292,7 +292,7 @@ const Profile = (props) => {
       }}
     >
       <FlatList
-        style={{flexDirection: 'column'}}
+        style={{ flexDirection: 'column' }}
         contentContainerStyle={styles.list}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListHeaderComponent={getHeader}
