@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from accounts.models import Account, Post, Like, Comment, Tile, Activity_Item
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PrivateAccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ActivitySerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ActivitySerializer, FavoriteSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
@@ -111,6 +111,12 @@ class AccountViewSet(viewsets.ModelViewSet):
         serializer = ActivitySerializer(activity,many=True)
         return Response(serializer.data)
 
+    @action(detail=False, methods=['GET'])
+    def favorites(self,request,*args,**kwargs):
+        favorites = request.user.favorites.all()
+        serializer = FavoriteSerializer(favorites,many=True)
+        return Response(serializer.data)
+
 
 
 class PostViewSet(viewsets.ModelViewSet):
@@ -170,6 +176,23 @@ class PostViewSet(viewsets.ModelViewSet):
             tiles = self.get_object().tiles.all()
             serializer = TileSerializer(tiles,many=True)
             return Response(serializer.data)
+
+    @action(detail=True, methods=['GET','POST'], serializer_class=FavoriteSerializer)
+    def favorite(self, request, *args, **kwargs):
+        if(request.method == 'POST'):
+            post = self.get_object()
+            favorite, created = request.user.favorites.all().get_or_create(author=request.user,post=self.get_object())
+            #if post was already favorited
+            if not created:
+                favorite.delete()
+            else:
+                favorite.save()
+            return Response(status=status.HTTP_201_CREATED)
+        elif(request.method == 'GET'):
+            if(request.user.favorites.filter(author=request.user,post=self.get_object())):
+                return Response({"favorited":True})
+            else:
+                return Response({"favorited":False})
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])
