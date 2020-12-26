@@ -36,7 +36,7 @@ import * as Haptics from 'expo-haptics';
 import {Audio} from "expo-av"
 import Axios from "axios";
 
-import Slider from '@react-native-community/slider'
+import {Slider} from 'react-native-elements'
 import ImageColors from "react-native-image-colors"
 
 var { width, height } = Dimensions.get("window");
@@ -45,7 +45,6 @@ var { width, height } = Dimensions.get("window");
 Audio.setAudioModeAsync({playsInSilentModeIOS:true})
 const soundObj = new Audio.Sound;
 const Post = (props) => {
-    let colors = '';
     let tileColor="#065581"
     const { navigation } = props;
     const { postId, authorId } = props.route.params;
@@ -59,7 +58,6 @@ const Post = (props) => {
     const [maxlimit, setMaxlimit] = useState(95);
     const [isModalVisible, setModalVisible] = useState(false);
     const [isPlaying, setIsPlaying] = useState(false);
-    const [songPosition,setSongPosition] = useState(0);
     const [isSeeking,setIsSeeking] = useState(false);
     const [sliderValue,setSliderValue] = useState(0)
 
@@ -92,7 +90,7 @@ const Post = (props) => {
             const tempSoundUrl = await Axios.get(searchData + '?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM')
               .then(result=>result.data.url)
             if(tempSoundUrl){
-              setSearchQueryAPI(searchData,userToken,postId)
+              setSoundCloudAudioAPI(searchData,userToken,postId)
             }
             return({
               data:{
@@ -109,7 +107,6 @@ const Post = (props) => {
               if(isLoaded.current){
               if(status.didJustFinish && status.isLoaded){
                 setIsPlaying(false)
-                setSongPosition(0)
                 soundObj.stopAsync()
               }else if(status.isLoaded && stateRef.current!= true){
                 setSliderValue(status.positionMillis/status.durationMillis)
@@ -157,7 +154,6 @@ const Post = (props) => {
     }, []);
 
     React.useEffect(() => {
-      console.log("ran")
       const unsubscribe = navigation.addListener('focus', async () => {
         const postRes = await getPostByIdAPI(userToken, postId);
         setPost(postRes.data);
