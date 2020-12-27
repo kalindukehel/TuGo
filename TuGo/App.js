@@ -5,13 +5,16 @@ import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { isSignedIn, signed } from "./src/auth";
 import AppNavigator from "./src/navigation/appNavigator";
 import { AuthProvider } from "./src/context/authContext";
+import { PlayerProvider } from "./src/context/playerContext";
 
 const Tab = createBottomTabNavigator();
 
 export default App = () => {
   return (
     <AuthProvider>
-      <AppNavigator />
+      <PlayerProvider>
+        <AppNavigator />
+      </PlayerProvider>
     </AuthProvider>
   );
 };

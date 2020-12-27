@@ -20,6 +20,7 @@ import {
   setSoundCloudAudio as setSoundCloudAudioAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
+import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { API_URL } from "../../constants";
 
 import Like from "../../assets/LikeButton.svg";
@@ -48,6 +49,9 @@ const PostComponent = (props) => {
   let tileColor = "#065581";
   const { postId, authorId, navigation } = props;
   const { userToken, self } = useAuthState();
+  const { playingId, stopAll } = usePlayerState();
+  const playerDispatch = usePlayerDispatch();
+
   const [refreshing, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
   const [likes, setLikes] = useState(null);
@@ -62,6 +66,7 @@ const PostComponent = (props) => {
   const stateRef = useRef();
   const isLoaded = useRef(false);
   const postRef = useRef();
+  const playingIdRef = useRef();
 
   stateRef.current = isSeeking;
   //const { postId } = props.route.params;
@@ -126,6 +131,7 @@ const PostComponent = (props) => {
       if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
         await soundObj.loadAsync({ uri: sound_url });
         isLoaded.current = true;
+        playerDispatch({ type: "LOAD_PLAYER", id: postRef.current.id });
         await soundObj.setProgressUpdateIntervalAsync(1000);
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
           if (isLoaded.current) {
@@ -148,15 +154,26 @@ const PostComponent = (props) => {
     return () => {
       //When component exits
       try {
-        setIsPlaying(false);
-        isLoaded.current = false;
-        soundObj.unloadAsync();
-        //setIsPlaying(false)
+        if (postRef.current.id == playingIdRef.current) {
+          //If current playing song is same as current post
+          setIsPlaying(false);
+          isLoaded.current = false;
+          soundObj.unloadAsync();
+          playerDispatch({ type: "UNLOAD_PLAYER" });
+        }
       } catch (error) {
         console.log("Error");
       }
     };
   }, []);
+
+  useEffect(() => {
+    playingIdRef.current = playingId;
+  }, [playingId]);
+
+  useEffect(() => {
+    setIsPlaying(false);
+  }, [stopAll]);
 
   React.useEffect(() => {
     const unsubscribe = navigation.addListener("focus", async () => {
@@ -187,12 +204,22 @@ const PostComponent = (props) => {
 
   async function doPlay() {
     try {
-      if (isPlaying) {
-        await soundObj.pauseAsync();
-      } else {
+      /* if current post is different from current playing */
+      if (postRef.current.id != playingIdRef.current) {
+        playerDispatch({ type: "UNLOAD_PLAYER" });
+        await soundObj.unloadAsync();
         await loadSound();
         await soundObj.playAsync();
+      } else {
+        if (isPlaying) {
+          //if current post is playing
+          await soundObj.pauseAsync();
+        } else {
+          await loadSound();
+          await soundObj.playAsync();
+        }
       }
+
       setIsPlaying(!isPlaying);
     } catch (error) {
       console.log(error);
