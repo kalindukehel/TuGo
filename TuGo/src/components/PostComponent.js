@@ -18,6 +18,8 @@ import {
   getPostTiles as getPostTilesAPI,
   likePost as likePostAPI,
   setSoundCloudAudio as setSoundCloudAudioAPI,
+  getPostFavorite as getPostFavoriteAPI,
+  favoritePost as favoritePostAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
@@ -38,7 +40,7 @@ import { Audio } from "expo-av";
 import Axios from "axios";
 
 import { Slider } from "react-native-elements";
-import ImageColors from "react-native-image-colors";
+import { AntDesign } from "@expo/vector-icons";
 
 var { width, height } = Dimensions.get("window");
 
@@ -62,6 +64,7 @@ const PostComponent = (props) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
+  const [isFavorite, setIsFavorite] = useState(false);
 
   const stateRef = useRef();
   const isLoaded = useRef(false);
@@ -82,13 +85,12 @@ const PostComponent = (props) => {
         setLikes(likesRes.data);
         const commentsRes = await getPostCommentsAPI(userToken, postId);
         setComments(commentsRes.data);
-        const authorRes = await getAccountByIdAPI(
-          postRes.data.author,
-          userToken
-        );
+        const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
         setAuthor(authorRes.data);
         const tilesRes = await getPostTilesAPI(userToken, postId);
         setTiles(tilesRes.data);
+        const favRes = await getPostFavoriteAPI(userToken, postId);
+        setIsFavorite(favRes.data.favorited);
       }
       await getPostStates();
       setRefreshing(false);
@@ -100,8 +102,7 @@ const PostComponent = (props) => {
   const loadSound = async () => {
     const sound_url = (
       await Axios.get(
-        postRef.current.soundcloud_audio +
-          "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
+        postRef.current.soundcloud_audio + "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
       )
         .then((result) => result)
         .catch(
@@ -187,6 +188,8 @@ const PostComponent = (props) => {
       setAuthor(authorRes.data);
       const tilesRes = await getPostTilesAPI(userToken, postId);
       setTiles(tilesRes.data);
+      const favRes = await getPostFavoriteAPI(userToken, postId);
+      setIsFavorite(favRes.data.favorited);
     });
 
     return unsubscribe;
@@ -200,6 +203,16 @@ const PostComponent = (props) => {
   async function likePost() {
     const likeRes = await likePostAPI(userToken, postId);
     getLikesStates();
+  }
+
+  async function getFavoriteStates() {
+    const favRes = await getPostFavoriteAPI(userToken, postId);
+    setIsFavorite(favRes.data.favorited);
+  }
+
+  async function favoritePost() {
+    const likeRes = await favoritePostAPI(userToken, postId);
+    getFavoriteStates();
   }
 
   async function doPlay() {
@@ -263,9 +276,7 @@ const PostComponent = (props) => {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Image
                 source={{
-                  uri: author
-                    ? author.profile_picture
-                    : API_URL + "/media/default.jpg",
+                  uri: author ? author.profile_picture : API_URL + "/media/default.jpg",
                 }}
                 style={{
                   width: 30,
@@ -279,9 +290,7 @@ const PostComponent = (props) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <Text style={{ color: "gray" }}>
-            {post ? moment(post.created_at).fromNow() : ""}
-          </Text>
+          <Text style={{ color: "gray" }}>{post ? moment(post.created_at).fromNow() : ""}</Text>
         </View>
         <View
           style={{
@@ -303,16 +312,8 @@ const PostComponent = (props) => {
               justifyContent: "space-between",
             }}
           >
-            <View
-              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
-            >
-              <View
-                style={
-                  isPlaying
-                    ? styles.imageViewPlaying
-                    : styles.imageViewNotPlaying
-                }
-              >
+            <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+              <View style={isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying}>
                 <ImageModal
                   resizeMode="contain"
                   imageBackgroundColor="#00000000"
@@ -330,9 +331,7 @@ const PostComponent = (props) => {
                 }}
               >
                 <Text style={{ color: "white" }}>{post.song_artist}</Text>
-                <Text style={{ color: "white", fontWeight: "bold" }}>
-                  {post.song_name}
-                </Text>
+                <Text style={{ color: "white", fontWeight: "bold" }}>{post.song_name}</Text>
               </View>
             </View>
             <Slider
@@ -368,16 +367,17 @@ const PostComponent = (props) => {
             </TouchableOpacity>
           </View>
         </View>
+
         <View
           style={{
+            margin: 10,
             flexDirection: "row",
             justifyContent: "space-between",
-            margin: 10,
           }}
         >
           <View style={{ flexDirection: "row" }}>
             <TouchableOpacity
-              style={{ alignSelf: "center" }}
+              style={{}}
               onPress={() => {
                 Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
                 likePost();
@@ -404,6 +404,7 @@ const PostComponent = (props) => {
               </Text>
             </TouchableOpacity>
           </View>
+
           <TouchableOpacity
             style={styles.moreButton}
             onPress={() => {
@@ -412,8 +413,9 @@ const PostComponent = (props) => {
           >
             <Text style={styles.moreButtonText}>More</Text>
           </TouchableOpacity>
+
           <TouchableOpacity
-            style={{ alignSelf: "center" }}
+            style={{}}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               if (maxlimit == 95) setMaxlimit(10000);
@@ -423,6 +425,21 @@ const PostComponent = (props) => {
             <DMButton width={40} height={35} />
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity
+          style={{ alignSelf: "flex-end", marginRight: 25 }}
+          onPress={() => {
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            favoritePost();
+          }}
+        >
+          {isFavorite ? (
+            <AntDesign name="pluscircle" size={25} color="black" />
+          ) : (
+            <AntDesign name="pluscircleo" size={25} color="black" />
+          )}
+        </TouchableOpacity>
+
         <View
           style={{
             flexDirection: "row",
