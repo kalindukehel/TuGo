@@ -427,7 +427,7 @@ const PostComponent = (props) => {
         </View>
 
         <TouchableOpacity
-          style={{ alignSelf: "flex-end", marginRight: 25 }}
+          style={{ alignSelf: "flex-end", marginRight: 22 }}
           onPress={() => {
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             favoritePost();
