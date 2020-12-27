@@ -19,16 +19,16 @@ import {
   getUserInfo as getUserInfoAPI,
   getPosts as getPostsAPI,
   by_ids as by_idsAPI,
-  getPostTiles as getPostTilesAPI
+  getPostTiles as getPostTilesAPI,
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { API_URL } from "../../../constants";
 
-
 var { width, height } = Dimensions.get("window");
-const blank = "https://www.publicdomainpictures.net/pictures/30000/velka/plain-white-background.jpg"
+const blank =
+  "https://www.publicdomainpictures.net/pictures/30000/velka/plain-white-background.jpg";
 
 const styles = StyleSheet.create({
   profilePicture: {
@@ -70,14 +70,13 @@ const styles = StyleSheet.create({
     height: "100%",
     zIndex: 2,
     position: "absolute",
-  }
+  },
 });
-
 
 const Profile = (props) => {
   const { navigation } = props;
   let id = null;
-  if (props.route.params) id = props.route.params.id
+  if (props.route.params) id = props.route.params.id;
   const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
   const [followers, setFollowers] = useState(0);
@@ -91,7 +90,9 @@ const Profile = (props) => {
   const [videoCount, setVideoCount] = useState(0);
 
   let profileId = self.id;
-  if (id) {
+  if (props.id && !id) {
+    profileId = props.id;
+  } else if (id) {
     profileId = id;
   }
 
@@ -103,12 +104,9 @@ const Profile = (props) => {
             style={{ marginRight: 20 }}
             onPress={() => {
               navigation.navigate("Settings");
-            }}>
-            <Ionicons
-              name="ios-settings"
-              size={25}
-              color={"black"}
-            />
+            }}
+          >
+            <Ionicons name="ios-settings" size={25} color={"black"} />
           </TouchableOpacity>
         ),
       });
@@ -117,14 +115,13 @@ const Profile = (props) => {
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     async function getUserStates() {
-      const userState = await by_idsAPI([profileId], userToken)
+      const userState = await by_idsAPI([profileId], userToken);
       setUser(userState.data[0]);
       const userInfo = await getUserInfoAPI(userToken, profileId);
       try {
         const postsState = await getPostsAPI(userToken, profileId);
         setPosts(postsState.data);
-      }
-      catch (err) {
+      } catch (err) {
         setError(err.response.status);
       }
       setFollowers(userInfo.data.followers);
@@ -139,15 +136,14 @@ const Profile = (props) => {
   }, [profileId]);
 
   React.useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', async () => {
-      const userState = await by_idsAPI([profileId], userToken)
+    const unsubscribe = navigation.addListener("focus", async () => {
+      const userState = await by_idsAPI([profileId], userToken);
       setUser(userState.data[0]);
       const userInfo = await getUserInfoAPI(userToken, profileId);
       try {
         const postsState = await getPostsAPI(userToken, profileId);
         setPosts(postsState.data);
-      }
-      catch (err) {
+      } catch (err) {
         setError(err.response.status);
       }
       setFollowers(userInfo.data.followers);
@@ -158,22 +154,23 @@ const Profile = (props) => {
   }, [navigation]);
 
   navigation.setOptions({
-    title: user ? user.username : ""
-  })
+    title: user ? user.username : "",
+  });
 
   const renderSection = (post) => {
     let curPost = post.item;
     return (
       <TouchableOpacity
         onPress={() => {
-          navigation.push('Post', {
-            screen: 'Post',
+          navigation.push("Post", {
+            screen: "Post",
             params: {
               postId: curPost.id,
               authorId: curPost.author,
             },
           });
-        }}>
+        }}
+      >
         <View
           style={{
             flex: 1,
@@ -190,7 +187,6 @@ const Profile = (props) => {
           ></Image>
         </View>
       </TouchableOpacity>
-
     );
   };
 
@@ -222,14 +218,23 @@ const Profile = (props) => {
               >
                 <Image
                   style={{ flex: 1, width: undefined, height: undefined }}
-                  source={{ uri: topPosts[index] && error != 403 ? topPosts[index].soundcloud_art : blank }}
+                  source={{
+                    uri:
+                      topPosts[index] && error != 403
+                        ? topPosts[index].soundcloud_art
+                        : blank,
+                  }}
                 ></Image>
               </View>
             );
           })}
         </View>
         <Image
-          source={{ uri: user ? API_URL + user.profile_picture : API_URL + "/media/default.jpg" }}
+          source={{
+            uri: user
+              ? API_URL + user.profile_picture
+              : API_URL + "/media/default.jpg",
+          }}
           style={styles.profilePicture}
         ></Image>
       </View>
@@ -245,12 +250,13 @@ const Profile = (props) => {
             onPress={() => {
               navigation.push("Following", {
                 id: profileId,
-                type: "following"
+                type: "following",
               });
-            }}>
+            }}
+          >
             <Text style={styles.userStatsNumber}>{following}</Text>
             <Text style={styles.userStatsText}>Following</Text>
-          </TouchableOpacity >
+          </TouchableOpacity>
           <View style={{ marginTop: 25 }}>
             <Text style={styles.userStatsNumber}>{postsLength}</Text>
             <Text
@@ -268,15 +274,21 @@ const Profile = (props) => {
             onPress={() => {
               navigation.push("Followers", {
                 id: profileId,
-                type: "followers"
+                type: "followers",
               });
-            }}>
+            }}
+          >
             <Text style={styles.userStatsNumber}>{followers}</Text>
             <Text style={styles.userStatsText}>Followers</Text>
           </TouchableOpacity>
         </View>
         <View
-          style={{ borderBottom: "solid", borderWidth: 2, marginTop: 10, borderColor: "#EDEDED" }}
+          style={{
+            borderBottom: "solid",
+            borderWidth: 2,
+            marginTop: 10,
+            borderColor: "#EDEDED",
+          }}
         />
         <View style={{}}>
           <Text style={{ fontWeight: "bold", margin: 10 }}>Portfolio</Text>
@@ -287,12 +299,20 @@ const Profile = (props) => {
 
   const getFooter = () => {
     return (
-      error == 403 &&
-      <Text
-        style={{ fontSize: 20, fontWeight: 'bold', alignSelf: 'center', marginTop: '20%' }}>Forbidden! Follow to see.
-      </Text>
-    )
-  }
+      error == 403 && (
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+            alignSelf: "center",
+            marginTop: "20%",
+          }}
+        >
+          Forbidden! Follow to see.
+        </Text>
+      )
+    );
+  };
   return (
     <View
       style={{
@@ -301,9 +321,11 @@ const Profile = (props) => {
       }}
     >
       <FlatList
-        style={{ flexDirection: 'column' }}
+        style={{ flexDirection: "column" }}
         contentContainerStyle={styles.list}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         ListHeaderComponent={getHeader}
         ListFooterComponent={getFooter}
         data={posts}

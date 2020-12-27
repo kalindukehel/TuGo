@@ -8,29 +8,35 @@ import Profile from "../screens/Profile/Profile";
 
 const Stack = createStackNavigator();
 
-const postNavigator = (props) => {
+const PostNavigator = (props) => {
   const { self } = useAuthState();
   return (
     <Stack.Navigator initialRouteName="Post" headerMode="screen">
-      <Stack.Screen name="Post"
+      <Stack.Screen
+        name="Post"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: 'black',
+          headerTintColor: "black",
           headerTitleStyle: {
-            fontWeight: 'bold',
-            fontSize: 20
+            fontWeight: "bold",
+            fontSize: 20,
           },
         }}
-        component={Post} />
-      <Stack.Screen name="Likes" component={Likes} options={{
-        headerBackTitleVisible: false,
-        headerTintColor: 'black'
-      }} />
+        component={Post}
+      />
+      <Stack.Screen
+        name="Likes"
+        component={Likes}
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+        }}
+      />
       <Stack.Screen
         name="Comments"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: 'black'
+          headerTintColor: "black",
         }}
         component={Comments}
       />
@@ -38,7 +44,7 @@ const postNavigator = (props) => {
         name="Profile"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: 'black'
+          headerTintColor: "black",
         }}
         component={Profile}
       />
@@ -46,4 +52,4 @@ const postNavigator = (props) => {
   );
 };
 
-export default postNavigator;
+export default PostNavigator;

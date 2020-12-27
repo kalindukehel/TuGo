@@ -5,7 +5,7 @@ import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
 
-const settingsNavigator = () => {
+const SettingsNavigator = () => {
   const { self } = useAuthState();
   return (
     <Stack.Navigator initialRouteName="Settings" headerMode="none">
@@ -14,4 +14,4 @@ const settingsNavigator = () => {
   );
 };
 
-export default settingsNavigator;
+export default SettingsNavigator;

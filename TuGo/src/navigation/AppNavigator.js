@@ -4,9 +4,9 @@ import { createStackNavigator } from "@react-navigation/stack";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { isSignedIn } from "../auth";
-import AuthNavigator from "./authNavigator";
-import MainNavigator from "./mainNavigator";
-import activityNavigator from "./activityNavigator"
+import AuthNavigator from "./AuthNavigator";
+import MainNavigator from "./MainNavigator";
+import ActivityNavigator from "./ActivityNavigator";
 import { getSelf as getSelfAPI } from "../api";
 
 const Stack = createStackNavigator();
@@ -15,7 +15,7 @@ export default AppNavigator = () => {
   const { isSignout, userToken } = useAuthState();
   const dispatch = useAuthDispatch();
   const [loading, setLoading] = useState(false);
-  
+
   useEffect(() => {
     const getToken = async () => {
       try {
@@ -40,11 +40,19 @@ export default AppNavigator = () => {
         <NavigationContainer>
           <Stack.Navigator headerMode="none">
             {userToken == null ? (
-              <Stack.Screen isSignout={isSignout} name="Auth" component={AuthNavigator} />
+              <Stack.Screen
+                isSignout={isSignout}
+                name="Auth"
+                component={AuthNavigator}
+              />
             ) : (
-              <Stack.Screen isSignout={isSignout} name="Main" component={MainNavigator} />
+              <Stack.Screen
+                isSignout={isSignout}
+                name="Main"
+                component={MainNavigator}
+              />
             )}
-            <Stack.Screen name="Activity" component={activityNavigator} />
+            <Stack.Screen name="Activity" component={ActivityNavigator} />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

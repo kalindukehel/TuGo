@@ -4,15 +4,15 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Feed from "../screens/Feed";
 import Likes from "../screens/Likes";
 import Comments from "../screens/Comments";
-import Profile from "../screens/Profile/Profile";
+import ProfileNavigator from "./ProfileNavigator";
 import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
 
-const feedNavigator = () => {
+const FeedNavigator = () => {
   const { self } = useAuthState();
   return (
-    <Stack.Navigator initialRouteName="Tugo">
+    <Stack.Navigator headerMode="screen" initialRouteName="Tugo">
       <Stack.Screen
         options={{
           headerTransparent: false,
@@ -73,11 +73,15 @@ const feedNavigator = () => {
         options={{
           headerBackTitleVisible: false,
           headerTintColor: "black",
+          headerShown: false,
         }}
-        component={Profile}
-      />
+      >
+        {(props) => {
+          return <ProfileNavigator {...props} id={props.route.params.id} />;
+        }}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };
 
-export default feedNavigator;
+export default FeedNavigator;

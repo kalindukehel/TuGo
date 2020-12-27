@@ -1,11 +1,11 @@
 import React from "react";
 import { createStackNavigator, TransitionSpecs } from "@react-navigation/stack";
-import Activity from "../screens/Activity"
+import Activity from "../screens/Activity";
 import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
 
-const activityNavigator = () => {
+const ActivityNavigator = () => {
   const { self } = useAuthState();
   return (
     <Stack.Navigator initialRouteName="Activity">
@@ -15,9 +15,9 @@ const activityNavigator = () => {
         headerMode="screen"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: 'black',
+          headerTintColor: "black",
           headerTitleStyle: {
-            fontWeight: 'bold',
+            fontWeight: "bold",
             fontSize: 20,
           },
         }}
@@ -26,4 +26,4 @@ const activityNavigator = () => {
   );
 };
 
-export default activityNavigator;
+export default ActivityNavigator;

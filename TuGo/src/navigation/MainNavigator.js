@@ -1,12 +1,12 @@
 import React from "react";
 import { createStackNavigator } from "@react-navigation/stack";
-import { NavigationContainer } from '@react-navigation/native';
+import { NavigationContainer } from "@react-navigation/native";
 import { Image } from "react-native";
 import HomeScreen from "../screens/Feed";
 import Activity from "../screens/Activity";
-import profileNavigator from "./profileNavigator";
-import exploreNavigator from "./exploreNavigator";
-import feedNavigator from "./feedNavigator";
+import ProfileNavigator from "./ProfileNavigator";
+import ExploreNavigator from "./ExploreNavigator";
+import FeedNavigator from "./FeedNavigator";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
@@ -29,7 +29,12 @@ const MainNavigator = () => {
             return (
               <Image
                 source={{ uri: self.profile_picture }}
-                style={{ width: 20, height: 20, borderRadius: 5, borderWidth: focused ? 1 : 0.5 }}
+                style={{
+                  width: 20,
+                  height: 20,
+                  borderRadius: 5,
+                  borderWidth: focused ? 1 : 0.5,
+                }}
               ></Image>
             );
           } else if (route.name === "Explore") {
@@ -63,9 +68,11 @@ const MainNavigator = () => {
         backgroundColor: "black",
       }}
     >
-      <Tab.Screen name="Feed" component={feedNavigator} />
-      <Tab.Screen name="Explore" component={exploreNavigator} />
-      <Tab.Screen name="Profile" component={profileNavigator} />
+      <Tab.Screen name="Feed" component={FeedNavigator} />
+      <Tab.Screen name="Explore" component={ExploreNavigator} />
+      <Tab.Screen name="Profile">
+        {(props) => <ProfileNavigator {...props} id={self.id} />}
+      </Tab.Screen>
     </Tab.Navigator>
   );
 };

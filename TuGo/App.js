@@ -3,7 +3,7 @@ import Navigator from "./routes/homeStack";
 import { StyleSheet } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import { isSignedIn, signed } from "./src/auth";
-import AppNavigator from "./src/navigation/appNavigator";
+import AppNavigator from "./src/navigation/AppNavigator";
 import { AuthProvider } from "./src/context/authContext";
 import { PlayerProvider } from "./src/context/playerContext";
 
