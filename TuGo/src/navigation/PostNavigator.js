@@ -5,6 +5,7 @@ import Likes from "../screens/Likes";
 import Comments from "../screens/Comments";
 import { useAuthState } from "../context/authContext";
 import Profile from "../screens/Profile/Profile";
+import Tile from "../screens/Tile";
 
 const Stack = createStackNavigator();
 
@@ -47,6 +48,14 @@ const PostNavigator = (props) => {
           headerTintColor: "black",
         }}
         component={Profile}
+      />
+      <Stack.Screen
+        name="Tile"
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+        }}
+        component={Tile}
       />
     </Stack.Navigator>
   );

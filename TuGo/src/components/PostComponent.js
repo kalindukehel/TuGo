@@ -9,6 +9,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   processColor,
+  Shape,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -486,6 +487,24 @@ const PostComponent = (props) => {
             <CommentsButton width={40} height={35} fill="#0ff" />
             <Text>{comments ? `${comments.length}` : `loading`}</Text>
           </View>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.push("Tile", {
+              postId: post.id,
+            });
+          }}
+        >
+          <Text
+            style={{
+              backgroundColor: "black",
+              color: "white",
+              width: 40,
+              height: 25,
+            }}
+          >
+            TILE
+          </Text>
         </TouchableOpacity>
       </View>
     )
