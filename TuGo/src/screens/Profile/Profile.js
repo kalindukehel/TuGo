@@ -25,6 +25,7 @@ import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { API_URL } from "../../../constants";
+import { Fontisto } from "@expo/vector-icons";
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -107,6 +108,16 @@ const Profile = (props) => {
             }}
           >
             <Ionicons name="ios-settings" size={25} color={"black"} />
+          </TouchableOpacity>
+        ),
+        headerLeft: () => (
+          <TouchableOpacity
+            style={{ marginLeft: 20 }}
+            onPress={() => {
+              navigation.navigate("Favorites");
+            }}
+          >
+            <Fontisto name="favorite" size={24} color="black" />
           </TouchableOpacity>
         ),
       });
@@ -219,10 +230,7 @@ const Profile = (props) => {
                 <Image
                   style={{ flex: 1, width: undefined, height: undefined }}
                   source={{
-                    uri:
-                      topPosts[index] && error != 403
-                        ? topPosts[index].soundcloud_art
-                        : blank,
+                    uri: topPosts[index] && error != 403 ? topPosts[index].soundcloud_art : blank,
                   }}
                 ></Image>
               </View>
@@ -231,9 +239,7 @@ const Profile = (props) => {
         </View>
         <Image
           source={{
-            uri: user
-              ? API_URL + user.profile_picture
-              : API_URL + "/media/default.jpg",
+            uri: user ? API_URL + user.profile_picture : API_URL + "/media/default.jpg",
           }}
           style={styles.profilePicture}
         ></Image>
@@ -323,9 +329,7 @@ const Profile = (props) => {
       <FlatList
         style={{ flexDirection: "column" }}
         contentContainerStyle={styles.list}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         ListHeaderComponent={getHeader}
         ListFooterComponent={getFooter}
         data={posts}
