@@ -5,38 +5,60 @@ import Likes from "../screens/Likes";
 import Comments from "../screens/Comments";
 import { useAuthState } from "../context/authContext";
 import Profile from "../screens/Profile/Profile";
+import Tile from "../screens/Tile";
 
 const Stack = createStackNavigator();
 
-const postNavigator = (props) => {
+const PostNavigator = (props) => {
   const { self } = useAuthState();
   return (
     <Stack.Navigator initialRouteName="Post" headerMode="screen">
-      <Stack.Screen name="Post"
+      <Stack.Screen
+        name="Post"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: 'black'
+          headerTintColor: "black",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
         }}
-        component={Post}/>
-      <Stack.Screen name="Likes" component={Likes}/>
-      <Stack.Screen 
+        component={Post}
+      />
+      <Stack.Screen
+        name="Likes"
+        component={Likes}
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+        }}
+      />
+      <Stack.Screen
         name="Comments"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: 'black'
-        }} 
+          headerTintColor: "black",
+        }}
         component={Comments}
       />
       <Stack.Screen
         name="Profile"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: 'black'
+          headerTintColor: "black",
         }}
         component={Profile}
+      />
+      <Stack.Screen
+        name="Tile"
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+        }}
+        component={Tile}
       />
     </Stack.Navigator>
   );
 };
 
-export default postNavigator;
+export default PostNavigator;
