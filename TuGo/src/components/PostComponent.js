@@ -46,10 +46,10 @@ import { AntDesign } from "@expo/vector-icons";
 var { width, height } = Dimensions.get("window");
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-const soundObj = new Audio.Sound();
 
 const PostComponent = (props) => {
   let tileColor = "#065581";
+  const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const { postId, authorId, navigation } = props;
   const { userToken, self } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
@@ -73,7 +73,6 @@ const PostComponent = (props) => {
   const playingIdRef = useRef();
 
   stateRef.current = isSeeking;
-  //const { postId } = props.route.params;
 
   const onRefresh = async () => {
     try {

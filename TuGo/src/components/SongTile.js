@@ -46,13 +46,11 @@ import PostComponent from "./PostComponent";
 var { width, height } = Dimensions.get("window");
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
-const soundObj = new Audio.Sound();
 
 const SongTile = (props) => {
-  console.log("hi");
   let tileColor = "#065581";
+  const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const { postId, navigation, list } = props;
-  console.log("postId rendered is " + postId);
   const { userToken } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -70,7 +68,6 @@ const SongTile = (props) => {
   const playingIdRef = useRef();
 
   stateRef.current = isSeeking;
-  //const { postId } = props.route.params;
 
   const onRefresh = async () => {
     try {
@@ -92,7 +89,8 @@ const SongTile = (props) => {
   const loadSound = async () => {
     const sound_url = (
       await Axios.get(
-        postRef.current.soundcloud_audio + "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
+        postRef.current.soundcloud_audio +
+          "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
       )
         .then((result) => result)
         .catch(
@@ -239,8 +237,16 @@ const SongTile = (props) => {
           }}
         >
           <View style={{ ...styles.song, backgroundColor: tileColor }}>
-            <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-              <View style={isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+            >
+              <View
+                style={
+                  isPlaying
+                    ? styles.imageViewPlaying
+                    : styles.imageViewNotPlaying
+                }
+              >
                 <ImageModal
                   resizeMode="contain"
                   imageBackgroundColor="#00000000"
@@ -258,7 +264,9 @@ const SongTile = (props) => {
                 }}
               >
                 <Text style={{ color: "white" }}>{post.song_artist}</Text>
-                <Text style={{ color: "white", fontWeight: "bold" }}>{post.song_name}</Text>
+                <Text style={{ color: "white", fontWeight: "bold" }}>
+                  {post.song_name}
+                </Text>
               </View>
             </View>
             <Slider

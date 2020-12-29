@@ -29,7 +29,6 @@ const Favorites = ({ navigation }) => {
     setRefreshing(true);
     async function getSongsState() {
       const songsState = await getSavedSongsAPI(userToken);
-      console.log(songsState.data);
       setSongs(songsState.data);
     }
     getSongsState();
@@ -42,7 +41,6 @@ const Favorites = ({ navigation }) => {
 
   const renderItem = (component) => {
     const postId = component.item.post;
-    console.log(songs);
     let list = songs.map((song) => song.post);
     return <SongTile postId={postId} navigation={navigation} list={list} />;
   };
@@ -65,7 +63,9 @@ const Favorites = ({ navigation }) => {
         data={songs}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         ItemSeparatorComponent={ItemSeparatorView}
         extraData={songs}
       />
