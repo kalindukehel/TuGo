@@ -11,7 +11,7 @@ import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
 
-const ProfileNavigator = ({ id }) => {
+const ProfileNavigator = ({ id, fromMyProfile }) => {
   const { self } = useAuthState();
   return (
     <Stack.Navigator initialRouteName="Profile" headerMode="screen">
@@ -27,7 +27,9 @@ const ProfileNavigator = ({ id }) => {
         }}
         name="Profile"
       >
-        {(props) => <Profile {...props} id={id} />}
+        {(props) => (
+          <Profile {...props} id={id} fromMyProfile={fromMyProfile} />
+        )}
       </Stack.Screen>
 
       <Stack.Screen
