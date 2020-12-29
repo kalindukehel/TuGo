@@ -4,12 +4,11 @@ import {
   Text,
   Dimensions,
   Image,
-  RefreshControl,
   ScrollView,
   StyleSheet,
   TouchableOpacity,
   processColor,
-  Shape,
+  FlatList,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -35,13 +34,14 @@ import CommentsButton from "../../assets/CommentsButton.svg";
 import moment from "moment";
 import ImageModal from "react-native-image-modal";
 import * as Haptics from "expo-haptics";
-// import Modal from 'react-native-modal';
+import RBSheet from "react-native-raw-bottom-sheet";
 
 import { Audio } from "expo-av";
 import Axios from "axios";
 
 import { Slider } from "react-native-elements";
 import { AntDesign } from "@expo/vector-icons";
+import { WebView } from "react-native-webview";
 
 var { width, height } = Dimensions.get("window");
 
@@ -66,7 +66,10 @@ const PostComponent = (props) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
+  const refRBSheet = useRef();
+  const moreRef = useRef();
   const stateRef = useRef();
   const isLoaded = useRef(false);
   const postRef = useRef();
@@ -86,10 +89,7 @@ const PostComponent = (props) => {
         setLikes(likesRes.data);
         const commentsRes = await getPostCommentsAPI(userToken, postId);
         setComments(commentsRes.data);
-        const authorRes = await getAccountByIdAPI(
-          postRes.data.author,
-          userToken
-        );
+        const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
         setAuthor(authorRes.data);
         const tilesRes = await getPostTilesAPI(userToken, postId);
         setTiles(tilesRes.data);
@@ -106,8 +106,7 @@ const PostComponent = (props) => {
   const loadSound = async () => {
     const sound_url = (
       await Axios.get(
-        postRef.current.soundcloud_audio +
-          "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
+        postRef.current.soundcloud_audio + "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
       )
         .then((result) => result)
         .catch(
@@ -257,6 +256,64 @@ const PostComponent = (props) => {
     setIsSeeking(false);
   }
 
+  const renderTile = (tile) => {
+    const curTile = tile.item;
+    return (
+      <View
+        style={{
+          marginHorizontal: 10,
+          marginVertical: 10,
+        }}
+      >
+        <TouchableOpacity
+          style={{}}
+          onPress={() => {
+            refRBSheet.current.open();
+          }}
+        >
+          <Image
+            style={{
+              width: 100,
+              height: 170,
+              borderWidth: 3,
+              borderColor: curTile.is_youtube ? "red" : "green",
+              borderRadius: 10,
+            }}
+            source={{
+              uri: curTile.image,
+            }}
+          />
+        </TouchableOpacity>
+        <RBSheet
+          height={400}
+          ref={refRBSheet}
+          closeOnDragDown={true}
+          closeOnPressMask={false}
+          customStyles={{
+            wrapper: {
+              backgroundColor: "transparent",
+            },
+            draggableIcon: {
+              backgroundColor: "#000",
+            },
+          }}
+        >
+          <View style={{ flex: 1, maxHeight: "100%" }}>
+            <WebView
+              style={{ flex: 1, borderColor: "black" }}
+              javaScriptEnabled={true}
+              scrollEnabled={false}
+              allowsInlineMediaPlayback={true}
+              source={{
+                uri: curTile.link,
+              }}
+            />
+          </View>
+        </RBSheet>
+      </View>
+    );
+  };
+
   return (
     post &&
     author && (
@@ -281,9 +338,7 @@ const PostComponent = (props) => {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Image
                 source={{
-                  uri: author
-                    ? author.profile_picture
-                    : API_URL + "/media/default.jpg",
+                  uri: author ? author.profile_picture : API_URL + "/media/default.jpg",
                 }}
                 style={{
                   width: 30,
@@ -297,9 +352,7 @@ const PostComponent = (props) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <Text style={{ color: "gray" }}>
-            {post ? moment(post.created_at).fromNow() : ""}
-          </Text>
+          <Text style={{ color: "gray" }}>{post ? moment(post.created_at).fromNow() : ""}</Text>
         </View>
         <View
           style={{
@@ -321,16 +374,8 @@ const PostComponent = (props) => {
               justifyContent: "space-between",
             }}
           >
-            <View
-              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
-            >
-              <View
-                style={
-                  isPlaying
-                    ? styles.imageViewPlaying
-                    : styles.imageViewNotPlaying
-                }
-              >
+            <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
+              <View style={isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying}>
                 <ImageModal
                   resizeMode="contain"
                   imageBackgroundColor="#00000000"
@@ -348,9 +393,7 @@ const PostComponent = (props) => {
                 }}
               >
                 <Text style={{ color: "white" }}>{post.song_artist}</Text>
-                <Text style={{ color: "white", fontWeight: "bold" }}>
-                  {post.song_name}
-                </Text>
+                <Text style={{ color: "white", fontWeight: "bold" }}>{post.song_name}</Text>
               </View>
             </View>
             <Slider
@@ -386,7 +429,14 @@ const PostComponent = (props) => {
             </TouchableOpacity>
           </View>
         </View>
-
+        <View>
+          <FlatList
+            data={tiles}
+            renderItem={renderTile}
+            keyExtractor={(item, index) => index.toString()}
+            horizontal={true}
+          />
+        </View>
         <View
           style={{
             margin: 10,
@@ -406,32 +456,33 @@ const PostComponent = (props) => {
                 <Like width={40} height={35} fill="red" />
               </View>
             </TouchableOpacity>
-            <TouchableOpacity
-              style={{ alignSelf: "center" }}
-              onPress={() => {
-                navigation.push("Likes", {
-                  postId: post.id,
-                });
-              }}
-            >
-              <Text>
-                {likes
-                  ? likes.length == 1
-                    ? likes.length + ` like`
-                    : likes.length + ` likes`
-                  : `loading`}
-              </Text>
-            </TouchableOpacity>
           </View>
 
           <TouchableOpacity
             style={styles.moreButton}
             onPress={() => {
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              moreRef.current.open();
             }}
           >
             <Text style={styles.moreButtonText}>More</Text>
           </TouchableOpacity>
+          <RBSheet
+            height={0.8 * height}
+            ref={moreRef}
+            closeOnDragDown={true}
+            closeOnPressMask={false}
+            customStyles={{
+              wrapper: {
+                backgroundColor: "transparent",
+              },
+              draggableIcon: {
+                backgroundColor: "#000",
+              },
+            }}
+          >
+            <Text>This is where you can find youtube videos</Text>
+          </RBSheet>
 
           <TouchableOpacity
             style={{}}
@@ -444,20 +495,37 @@ const PostComponent = (props) => {
             <DMButton width={40} height={35} />
           </TouchableOpacity>
         </View>
-
-        <TouchableOpacity
-          style={{ alignSelf: "flex-end", marginRight: 22 }}
-          onPress={() => {
-            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            favoritePost();
-          }}
-        >
-          {isFavorite ? (
-            <AntDesign name="pluscircle" size={25} color="black" />
-          ) : (
-            <AntDesign name="pluscircleo" size={25} color="black" />
-          )}
-        </TouchableOpacity>
+        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+          <TouchableOpacity
+            style={{ marginLeft: 10 }}
+            onPress={() => {
+              navigation.push("Likes", {
+                postId: post.id,
+              });
+            }}
+          >
+            <Text>
+              {likes
+                ? likes.length == 1
+                  ? likes.length + ` like`
+                  : likes.length + ` likes`
+                : `loading`}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={{ alignSelf: "flex-end", marginRight: 22 }}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              favoritePost();
+            }}
+          >
+            {isFavorite ? (
+              <AntDesign name="pluscircle" size={25} color="black" />
+            ) : (
+              <AntDesign name="pluscircleo" size={25} color="black" />
+            )}
+          </TouchableOpacity>
+        </View>
 
         <View
           style={{
@@ -487,24 +555,6 @@ const PostComponent = (props) => {
             <CommentsButton width={40} height={35} fill="#0ff" />
             <Text>{comments ? `${comments.length}` : `loading`}</Text>
           </View>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => {
-            navigation.push("Tile", {
-              postId: post.id,
-            });
-          }}
-        >
-          <Text
-            style={{
-              backgroundColor: "black",
-              color: "white",
-              width: 40,
-              height: 25,
-            }}
-          >
-            TILE
-          </Text>
         </TouchableOpacity>
       </View>
     )
