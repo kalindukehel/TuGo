@@ -71,7 +71,9 @@ const MainNavigator = () => {
       <Tab.Screen name="Feed" component={FeedNavigator} />
       <Tab.Screen name="Explore" component={ExploreNavigator} />
       <Tab.Screen name="Profile">
-        {(props) => <ProfileNavigator {...props} id={self.id} />}
+        {(props) => (
+          <ProfileNavigator {...props} id={self.id} fromMyProfile={true} />
+        )}
       </Tab.Screen>
     </Tab.Navigator>
   );

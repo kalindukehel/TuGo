@@ -25,6 +25,7 @@ import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { API_URL } from "../../../constants";
+import { Fontisto } from "@expo/vector-icons";
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -97,6 +98,9 @@ const Profile = (props) => {
   }
 
   profileId == self.id &&
+    props.id &&
+    props.fromMyProfile &&
+    !id &&
     React.useLayoutEffect(() => {
       navigation.setOptions({
         headerRight: () => (
@@ -107,6 +111,16 @@ const Profile = (props) => {
             }}
           >
             <Ionicons name="ios-settings" size={25} color={"black"} />
+          </TouchableOpacity>
+        ),
+        headerLeft: () => (
+          <TouchableOpacity
+            style={{ marginLeft: 20 }}
+            onPress={() => {
+              navigation.navigate("Favorites");
+            }}
+          >
+            <Fontisto name="favorite" size={24} color="black" />
           </TouchableOpacity>
         ),
       });

@@ -9,7 +9,7 @@ import Tile from "../screens/Tile";
 
 const Stack = createStackNavigator();
 
-const PostNavigator = (props) => {
+const PostNavigator = ({ id }) => {
   const { self } = useAuthState();
   return (
     <Stack.Navigator initialRouteName="Post" headerMode="screen">
@@ -23,8 +23,9 @@ const PostNavigator = (props) => {
             fontSize: 20,
           },
         }}
-        component={Post}
-      />
+      >
+        {(props) => <Post {...props} id={id} />}
+      </Stack.Screen>
       <Stack.Screen
         name="Likes"
         component={Likes}
