@@ -1,45 +1,30 @@
 import React, { useState } from "react";
-import {
-  View,
-  ScrollView,
-  StyleSheet,
-} from "react-native";
+import { View, ScrollView, StyleSheet } from "react-native";
 import { useAuthState } from "../context/authContext";
-import PostComponent from "../components/PostComponent"
+import PostComponent from "../components/PostComponent";
 
 const Post = (props) => {
-  let tileColor = "#065581"
+  let tileColor = "#065581";
   const { navigation } = props;
-  const { postId, authorId } = props.route.params;
+  const { postId, authorId } = props.route.params.params
+    ? props.route.params.params //Post ID sent from Push to Post (in Profile)
+    : props.route.params; //Post ID sent from PostNavigator
   const { userToken, self } = useAuthState();
   const [refreshing, setRefreshing] = useState(false);
 
-  // const onRefresh = async () => {
-  //   setRefreshing(true);
-  //   <PostComponent postId={postId} authorId={authorId} navigation={navigation} />
-  //   setRefreshing(false);
-  // }
-
   return (
-    <View
-      style={{ flex: 1, backgroundColor: "white" }}>
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-
-      // refreshControl={
-      //   <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-      // }
-      >
+    <View style={{ flex: 1, backgroundColor: "white" }}>
+      <ScrollView contentContainerStyle={styles.scrollView}>
         <PostComponent postId={postId} navigation={navigation} />
       </ScrollView>
     </View>
-  )
-}
+  );
+};
 
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   moreButton: {
     borderWidth: 1,
@@ -48,11 +33,11 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     backgroundColor: "gray",
-    alignSelf: "center"
+    alignSelf: "center",
   },
   moreButtonText: {
     alignSelf: "center",
-    color: "white"
+    color: "white",
   },
   imageViewNotPlaying: {
     marginLeft: 8,

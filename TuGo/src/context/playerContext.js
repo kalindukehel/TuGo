@@ -1,5 +1,6 @@
 import React from "react";
 import { playerReducer } from "../reducers/playerReducer";
+import { Audio } from "expo-av";
 
 const PlayerStateContext = React.createContext();
 const PlayerDispatchContext = React.createContext();
@@ -9,6 +10,7 @@ const PlayerProvider = ({ children }) => {
     isPlaying: false,
     playingId: null,
     stopAll: false,
+    soundObj: new Audio.Sound(),
   });
   return (
     <PlayerStateContext.Provider value={state}>

@@ -4,13 +4,14 @@ import { createStackNavigator } from "@react-navigation/stack";
 import Profile from "../screens/Profile/Profile";
 import Followers from "../screens/Profile/Follow";
 import Following from "../screens/Profile/Follow";
+import Favorites from "../screens/Favorites";
 import SettingsNavigator from "./SettingsNavigator";
 import PostNavigator from "./PostNavigator";
 import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
 
-const ProfileNavigator = ({ id }) => {
+const ProfileNavigator = ({ id, fromMyProfile }) => {
   const { self } = useAuthState();
   return (
     <Stack.Navigator initialRouteName="Profile" headerMode="screen">
@@ -26,7 +27,9 @@ const ProfileNavigator = ({ id }) => {
         }}
         name="Profile"
       >
-        {(props) => <Profile {...props} id={id} />}
+        {(props) => (
+          <Profile {...props} id={id} fromMyProfile={fromMyProfile} />
+        )}
       </Stack.Screen>
 
       <Stack.Screen
@@ -78,6 +81,19 @@ const ProfileNavigator = ({ id }) => {
           },
         }}
         component={Followers}
+      />
+      <Stack.Screen
+        name="Favorites"
+        options={{
+          title: "Favorites",
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+        }}
+        component={Favorites}
       />
     </Stack.Navigator>
   );

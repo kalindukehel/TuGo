@@ -198,3 +198,11 @@ export async function favoritePost(token, id) {
     },
   });
 }
+
+export async function getSavedSongs(token) {
+  return axios.get(`${API_URL}/api/accounts/favorites/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
