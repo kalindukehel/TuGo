@@ -69,7 +69,7 @@ const PostComponent = (props) => {
   const [isFavorite, setIsFavorite] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const refRBSheet = useRef();
+  const refRBSheet = useRef([]);
   const moreRef = useRef();
   const stateRef = useRef();
   const isLoaded = useRef(false);
@@ -89,7 +89,10 @@ const PostComponent = (props) => {
         setLikes(likesRes.data);
         const commentsRes = await getPostCommentsAPI(userToken, postId);
         setComments(commentsRes.data);
-        const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
+        const authorRes = await getAccountByIdAPI(
+          postRes.data.author,
+          userToken
+        );
         setAuthor(authorRes.data);
         const tilesRes = await getPostTilesAPI(userToken, postId);
         setTiles(tilesRes.data);
@@ -106,7 +109,8 @@ const PostComponent = (props) => {
   const loadSound = async () => {
     const sound_url = (
       await Axios.get(
-        postRef.current.soundcloud_audio + "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
+        postRef.current.soundcloud_audio +
+          "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
       )
         .then((result) => result)
         .catch(
@@ -200,9 +204,13 @@ const PostComponent = (props) => {
   }, [navigation]);
 
   //tab view for more page
-  const FirstRoute = () => <View style={[styles.scene, { backgroundColor: "white" }]} />;
+  const FirstRoute = () => (
+    <View style={[styles.scene, { backgroundColor: "white" }]} />
+  );
 
-  const SecondRoute = () => <View style={[styles.scene, { backgroundColor: "white" }]} />;
+  const SecondRoute = () => (
+    <View style={[styles.scene, { backgroundColor: "white" }]} />
+  );
 
   const initialLayout = { width: Dimensions.get("window").width };
 
@@ -297,7 +305,7 @@ const PostComponent = (props) => {
         <TouchableOpacity
           style={{}}
           onPress={() => {
-            refRBSheet.current.open();
+            refRBSheet.current[tile.index].open();
           }}
         >
           <Image
@@ -315,7 +323,10 @@ const PostComponent = (props) => {
         </TouchableOpacity>
         <RBSheet
           height={400}
-          ref={refRBSheet}
+          ref={(ref) => {
+            //set RBSheet array index equal to this object
+            refRBSheet.current[tile.index] = ref;
+          }}
           closeOnDragDown={true}
           closeOnPressMask={false}
           customStyles={{
@@ -367,7 +378,9 @@ const PostComponent = (props) => {
             <View style={{ flexDirection: "row", alignItems: "center" }}>
               <Image
                 source={{
-                  uri: author ? author.profile_picture : API_URL + "/media/default.jpg",
+                  uri: author
+                    ? author.profile_picture
+                    : API_URL + "/media/default.jpg",
                 }}
                 style={{
                   width: 30,
@@ -381,7 +394,9 @@ const PostComponent = (props) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <Text style={{ color: "gray" }}>{post ? moment(post.created_at).fromNow() : ""}</Text>
+          <Text style={{ color: "gray" }}>
+            {post ? moment(post.created_at).fromNow() : ""}
+          </Text>
         </View>
         <View
           style={{
@@ -403,8 +418,16 @@ const PostComponent = (props) => {
               justifyContent: "space-between",
             }}
           >
-            <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-              <View style={isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying}>
+            <View
+              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
+            >
+              <View
+                style={
+                  isPlaying
+                    ? styles.imageViewPlaying
+                    : styles.imageViewNotPlaying
+                }
+              >
                 <ImageModal
                   resizeMode="contain"
                   imageBackgroundColor="#00000000"
@@ -422,7 +445,9 @@ const PostComponent = (props) => {
                 }}
               >
                 <Text style={{ color: "white" }}>{post.song_artist}</Text>
-                <Text style={{ color: "white", fontWeight: "bold" }}>{post.song_name}</Text>
+                <Text style={{ color: "white", fontWeight: "bold" }}>
+                  {post.song_name}
+                </Text>
               </View>
             </View>
             <Slider
@@ -462,7 +487,7 @@ const PostComponent = (props) => {
           <FlatList
             data={tiles}
             renderItem={renderTile}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(item, index) => item.id.toString()}
             horizontal={true}
           />
         </View>
