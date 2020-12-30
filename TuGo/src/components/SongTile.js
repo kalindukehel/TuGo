@@ -50,7 +50,7 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 const SongTile = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, navigation, list } = props;
+  const { postId, navigation } = props;
   const { userToken } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -157,10 +157,6 @@ const SongTile = (props) => {
   }, []);
 
   useEffect(() => {
-    onRefresh();
-  }, [list]);
-
-  useEffect(() => {
     playingIdRef.current = playingId;
   }, [playingId]);
 
@@ -179,15 +175,10 @@ const SongTile = (props) => {
     return unsubscribe;
   }, [navigation]);
 
-  async function getFavoriteStates() {
-    const favRes = await getPostFavoriteAPI(userToken, postId);
-    setIsFavorite(favRes.data.favorited);
-  }
-
   async function favoritePost() {
     const likeRes = await favoritePostAPI(userToken, postId);
-    console.log("removed " + postId);
-    getFavoriteStates();
+    const favRes = await getPostFavoriteAPI(userToken, postId);
+    setIsFavorite(favRes.data.favorited);
   }
 
   async function doPlay() {

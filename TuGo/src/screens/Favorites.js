@@ -25,12 +25,13 @@ const Favorites = ({ navigation }) => {
     });
   }, [navigation]);
 
+  async function getSongsState() {
+    const songsState = await getSavedSongsAPI(userToken);
+    setSongs(songsState.data);
+  }
+
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    async function getSongsState() {
-      const songsState = await getSavedSongsAPI(userToken);
-      setSongs(songsState.data);
-    }
     getSongsState();
     setRefreshing(false);
   }, []);
@@ -41,8 +42,7 @@ const Favorites = ({ navigation }) => {
 
   const renderItem = (component) => {
     const postId = component.item.post;
-    let list = songs.map((song) => song.post);
-    return <SongTile postId={postId} navigation={navigation} list={list} />;
+    return <SongTile postId={postId} navigation={navigation} />;
   };
 
   const ItemSeparatorView = () => {
@@ -62,12 +62,11 @@ const Favorites = ({ navigation }) => {
       <FlatList
         data={songs}
         renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) => item.id.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
         ItemSeparatorComponent={ItemSeparatorView}
-        extraData={songs}
       />
     </SafeAreaView>
   );
