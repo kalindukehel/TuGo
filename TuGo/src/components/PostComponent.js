@@ -42,6 +42,7 @@ import Axios from "axios";
 import { Slider } from "react-native-elements";
 import { AntDesign } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
+import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
 var { width, height } = Dimensions.get("window");
 
@@ -197,6 +198,35 @@ const PostComponent = (props) => {
 
     return unsubscribe;
   }, [navigation]);
+
+  //tab view for more page
+  const FirstRoute = () => <View style={[styles.scene, { backgroundColor: "white" }]} />;
+
+  const SecondRoute = () => <View style={[styles.scene, { backgroundColor: "white" }]} />;
+
+  const initialLayout = { width: Dimensions.get("window").width };
+
+  const [index, setIndex] = React.useState(0);
+  const [routes] = React.useState([
+    { key: "first", title: "Dance Choreos" },
+    { key: "second", title: "Voice Covers" },
+  ]);
+
+  const renderScene = SceneMap({
+    first: FirstRoute,
+    second: SecondRoute,
+  });
+
+  const renderTabBar = (props) => (
+    <TabBar
+      {...props}
+      indicatorStyle={{ backgroundColor: "black" }}
+      style={{ backgroundColor: "white" }}
+      renderLabel={({ route, focused, color }) => (
+        <Text style={{ color: "black" }}>{route.title}</Text>
+      )}
+    />
+  );
 
   async function getLikesStates() {
     const likesRes = await getPostLikesAPI(userToken, postId);
@@ -480,7 +510,13 @@ const PostComponent = (props) => {
               },
             }}
           >
-            <Text>This is where you can find youtube videos</Text>
+            <TabView
+              navigationState={{ index, routes }}
+              renderScene={renderScene}
+              onIndexChange={setIndex}
+              initialLayout={initialLayout}
+              renderTabBar={renderTabBar}
+            />
           </RBSheet>
 
           <TouchableOpacity
@@ -600,6 +636,9 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     borderTopRightRadius: 10,
+  },
+  scene: {
+    flex: 1,
   },
 });
 
