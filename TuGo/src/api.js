@@ -143,7 +143,6 @@ export async function addComment(userToken, id, data) {
       },
     });
   }
-  console.log(token);
   return axios.post(`${API_URL}/api/posts/${id}/comments/`, data, {
     headers: {
       Authorization: "Token " + token,
@@ -201,6 +200,14 @@ export async function favoritePost(token, id) {
 
 export async function getSavedSongs(token) {
   return axios.get(`${API_URL}/api/accounts/favorites/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function getActivity(token) {
+  return axios.get(`${API_URL}/api/accounts/activity/`, {
     headers: {
       Authorization: "Token " + token,
     },
