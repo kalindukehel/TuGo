@@ -41,9 +41,7 @@ const CreatePost = ({ navigation }) => {
 
     let topData = response.data.collection.slice(
       0,
-      response.data.collection.length >= 5
-        ? 5
-        : response.data.collections.length
+      response.data.collection.length >= 5 ? 5 : response.data.collections.length
     );
 
     //Function to see if result has required attributes
@@ -66,8 +64,7 @@ const CreatePost = ({ navigation }) => {
     //Get name if official publisher metadata exists otherwise get username
     try {
       artist =
-        item.item.publisher_metadata.artist != null &&
-        item.item.publisher_metadata.artist != ""
+        item.item.publisher_metadata.artist != null && item.item.publisher_metadata.artist != ""
           ? item.item.publisher_metadata.artist
           : item.item.user.username;
     } catch {
@@ -98,47 +95,45 @@ const CreatePost = ({ navigation }) => {
   };
 
   return (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      <SafeAreaView style={styles.container}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-            justifyContent: "space-between",
-            margin: 15,
+    <SafeAreaView style={styles.container}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignItems: "center",
+          justifyContent: "space-between",
+          margin: 15,
+        }}
+      >
+        <TouchableOpacity
+          onPress={() => {
+            navigation.goBack();
           }}
         >
-          <TouchableOpacity
-            onPress={() => {
-              navigation.goBack();
-            }}
-          >
-            <Text style={{ color: "blue" }}>CANCEL</Text>
-          </TouchableOpacity>
-          <Text>NEXT</Text>
-        </View>
-        <View style={{ margin: 8 }}>
-          <TextInput
-            clearButtonMode="always"
-            editable={true}
-            style={{ ...styles.searchBar }}
-            placeholder={"Search"}
-            onChangeText={(text) => {
-              handleChange(text);
-            }}
-            onSubmitEditing={handleSubmit}
-          />
-        </View>
-        <FlatList
-          contentContainerStyle={{ flexGrow: 1 }}
-          data={results}
-          keyExtractor={(item, index) => item.id.toString()}
-          ItemSeparatorComponent={ItemSeparatorView}
-          renderItem={renderItem}
-          keyboardDismissMode={"on-drag"}
+          <Text style={{ color: "blue" }}>CANCEL</Text>
+        </TouchableOpacity>
+        <Text>NEXT</Text>
+      </View>
+      <View style={{ margin: 8 }}>
+        <TextInput
+          clearButtonMode="always"
+          editable={true}
+          style={{ ...styles.searchBar }}
+          placeholder={"Search"}
+          onChangeText={(text) => {
+            handleChange(text);
+          }}
+          onSubmitEditing={handleSubmit}
         />
-      </SafeAreaView>
-    </TouchableWithoutFeedback>
+      </View>
+      <FlatList
+        contentContainerStyle={{ flexGrow: 1 }}
+        data={results}
+        keyExtractor={(item, index) => item.id.toString()}
+        ItemSeparatorComponent={ItemSeparatorView}
+        renderItem={renderItem}
+        keyboardDismissMode="on-drag"
+      />
+    </SafeAreaView>
   );
 };
 
