@@ -310,6 +310,7 @@ const SongTile = (props) => {
           <TouchableOpacity
             style={styles.moreButton}
             onPress={() => {
+              isPlaying && doPlay(); //if sound is playing toggle it off when going to a profile
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               navigation.push("Post", {
                 screen: "Post",
