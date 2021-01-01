@@ -1,40 +1,52 @@
-import React, {useState, useEffect} from "react";
-import { View, Text, StyleSheet, TouchableOpacity, KeyboardAvoidingView, TouchableWithoutFeedback, Keyboard } from "react-native";
+import React, { useState, useEffect } from "react";
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  TouchableWithoutFeedback,
+  Keyboard,
+} from "react-native";
 import { TextInput } from "react-native-gesture-handler";
-import PostButton from "../../assets/PostButton.svg"
+import PostButton from "../../assets/PostButton.svg";
 
 const Explore = ({ navigation }) => {
-
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
 
   const DismissKeyboard = ({ children }) => (
-    <TouchableWithoutFeedback 
-      onPress={() => Keyboard.dismiss()}> 
+    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       {children}
     </TouchableWithoutFeedback>
-    );
+  );
 
   return (
     <DismissKeyboard>
       <View style={styles.container}>
         <View
-          style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', margin: 8}}>
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            justifyContent: "space-between",
+            margin: 8,
+          }}
+        >
           <TextInput
-              clearButtonMode="always"
-              editable={true}
-              style={{ ...styles.searchBar }}
-              placeholder={"Search"}
-              onChangeText={value => {
-              }}
-              onSubmitEditing={() => {
-              }}
+            clearButtonMode="always"
+            editable={true}
+            style={{ ...styles.searchBar }}
+            placeholder={"Search"}
+            onChangeText={(text) => searchFilterFunction(text)}
+            value={search}
           />
+
           <TouchableOpacity
             style={{}}
-            onPress={()=>{
+            onPress={() => {
               navigation.push("New Post");
-            }}>
-            <PostButton width={40} height={35} style={{}}/>
+            }}
+          >
+            <PostButton width={40} height={35} style={{}} />
           </TouchableOpacity>
         </View>
       </View>
@@ -45,7 +57,7 @@ const Explore = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: 'white',
+    backgroundColor: "white",
   },
   searchBar: {
     borderRadius: 10,
@@ -54,10 +66,10 @@ const styles = StyleSheet.create({
     height: 40,
     paddingLeft: 20,
     marginRight: 10,
-    borderColor: 'gray',
+    borderColor: "gray",
     backgroundColor: "#E8E8E8",
-    width: '85%'
-  }
+    width: "85%",
+  },
 });
 
 export default Explore;
