@@ -7,6 +7,7 @@ from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from rest_framework import status
 from django.contrib.auth import authenticate
+from django.db.models import Q
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from copy import deepcopy
@@ -44,6 +45,14 @@ class AccountViewSet(viewsets.ModelViewSet):
     def by_ids(self,request,*args,**kwargs):
         id_set = self.request.data.get('ids')
         user_list = Account.objects.filter(id__in=id_set if id_set !=None else [])
+        serialized = PrivateAccountSerializer(user_list,many=True)
+        return Response(serialized.data)
+
+    @action(detail=False, methods=['POST'], serializer_class=AccountSerializer)
+    def search_by_username(self,request,*args,**kwargs):
+        search_query = self.request.data.get('search_query')
+        #Filters users by if their name or username contains search query
+        user_list = Account.objects.filter(Q(username__contains=search_query) | Q(name__contains=search_query))
         serialized = PrivateAccountSerializer(user_list,many=True)
         return Response(serialized.data)
 
