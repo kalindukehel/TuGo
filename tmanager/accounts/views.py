@@ -107,7 +107,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def activity(self,request,*args,**kwargs):
-        activity = request.user.activity.all()
+        activity = request.user.activity.all().order_by('-id')
         serializer = ActivitySerializer(activity,many=True)
         return Response(serializer.data)
 
@@ -138,8 +138,10 @@ class PostViewSet(viewsets.ModelViewSet):
                 like.delete()
             else:
                 like.save()
-                activity_item = Activity_Item(user=self.get_object().author,activity_type='LIKE',action_user=request.user,post=self.get_object(),like=like)
-                activity_item.save()
+                #If user is not liking own post, push activity item to the user receiving the like
+                if(request.user != self.get_object().author):
+                    activity_item = Activity_Item(user=self.get_object().author,activity_type='LIKE',action_user=request.user,post=self.get_object(),like=like)
+                    activity_item.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             all_likes = self.get_object().likes.all()
@@ -152,8 +154,10 @@ class PostViewSet(viewsets.ModelViewSet):
             value = request.data.get('value')
             comment = Comment(author=request.user,post=self.get_object(),value=value)
             comment.save()
-            activity_item = Activity_Item(user=self.get_object().author,activity_type='COMMENT',action_user=request.user,comment=comment, post=self.get_object())
-            activity_item.save()
+            #If user is not commenting on own post, push activity item to the user receiving the comment
+            if(request.user != self.get_object().author):
+                activity_item = Activity_Item(user=self.get_object().author,activity_type='COMMENT',action_user=request.user,comment=comment, post=self.get_object())
+                activity_item.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             all_comments = self.get_object().comments.all()
