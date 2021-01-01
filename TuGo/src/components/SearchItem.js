@@ -99,6 +99,14 @@ const SearchItem = (props) => {
         playerDispatch({ type: "UNLOAD_PLAYER" });
         await soundObj.unloadAsync();
         await loadSound();
+        //If new song is starting and user has pre-set slider value
+        if (sliderValue != 0) {
+          const playerStatus = await soundObj.getStatusAsync();
+          //Start from pre-set slider value
+          await soundObj.setStatusAsync({
+            positionMillis: playerStatus.durationMillis * sliderValue,
+          });
+        }
         await soundObj.playAsync();
       } else {
         if (isPlaying) {
@@ -121,10 +129,13 @@ const SearchItem = (props) => {
 
   async function seekComplete(args) {
     setSliderValue(args);
-    const playerStatus = await soundObj.getStatusAsync();
-    await soundObj.setStatusAsync({
-      positionMillis: playerStatus.durationMillis * args,
-    });
+    //Change song player position only if player is playing the song to which the slider corresponds
+    if (playingIdRef.current == props.index) {
+      const playerStatus = await soundObj.getStatusAsync();
+      await soundObj.setStatusAsync({
+        positionMillis: playerStatus.durationMillis * args,
+      });
+    }
     setIsSeeking(false);
   }
   stateRef.current = isSeeking;
@@ -215,7 +226,6 @@ const SearchItem = (props) => {
           onPress={doPlay}
           style={{ marginLeft: "auto", marginRight: 10 }}
         >
-          {/* <Text style={{fontWeight:"bold"}}>{isPlaying?"pause":"play"}</Text> */}
           {isPlaying ? (
             <Pause width={40} height={35} style={{ marginTop: "30%" }} />
           ) : (

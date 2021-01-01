@@ -185,6 +185,14 @@ const SongTile = (props) => {
         playerDispatch({ type: "UNLOAD_PLAYER" });
         await soundObj.unloadAsync();
         await loadSound();
+        //If new song is starting and user has pre-set slider value
+        if (sliderValue != 0) {
+          const playerStatus = await soundObj.getStatusAsync();
+          //Start from pre-set slider value
+          await soundObj.setStatusAsync({
+            positionMillis: playerStatus.durationMillis * sliderValue,
+          });
+        }
         await soundObj.playAsync();
       } else {
         if (isPlaying) {
@@ -208,10 +216,13 @@ const SongTile = (props) => {
 
   async function seekComplete(args) {
     setSliderValue(args);
-    const playerStatus = await soundObj.getStatusAsync();
-    await soundObj.setStatusAsync({
-      positionMillis: playerStatus.durationMillis * args,
-    });
+    //Change song player position only if player is playing the song to which the slider corresponds
+    if (postRef.current.id == playingIdRef.current) {
+      const playerStatus = await soundObj.getStatusAsync();
+      await soundObj.setStatusAsync({
+        positionMillis: playerStatus.durationMillis * args,
+      });
+    }
     setIsSeeking(false);
   }
 
