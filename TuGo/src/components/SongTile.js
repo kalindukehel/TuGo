@@ -20,6 +20,8 @@ import {
   setSoundCloudAudio as setSoundCloudAudioAPI,
   getPostFavorite as getPostFavoriteAPI,
   favoritePost as favoritePostAPI,
+  getAudioLink as getAudioLinkAPI,
+  getSoundCloudSearch as getSoundCloudSearchAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
@@ -37,7 +39,6 @@ import * as Haptics from "expo-haptics";
 // import Modal from 'react-native-modal';
 
 import { Audio } from "expo-av";
-import Axios from "axios";
 
 import { Slider } from "react-native-elements";
 import { AntDesign } from "@expo/vector-icons";
@@ -47,6 +48,7 @@ var { width, height } = Dimensions.get("window");
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
+//SongTile component for Favorites Screen
 const SongTile = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
@@ -88,23 +90,18 @@ const SongTile = (props) => {
 
   const loadSound = async () => {
     const sound_url = (
-      await Axios.get(
-        postRef.current.soundcloud_audio +
-          "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
-      )
+      await getAudioLinkAPI(postRef.current.soundcloud_audio)
         .then((result) => result)
         .catch(
           (error = async () => {
             const searchData = (
-              await Axios.get(
-                "https://api-v2.soundcloud.com/search?q=" +
-                  postRef.current.soundcloud_search_query +
-                  "&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en"
+              await getSoundCloudSearchAPI(
+                postRef.current.soundcloud_search_query
               ).then((result) => result.data)
             ).collection[0].media.transcodings[0].url;
-            const tempSoundUrl = await Axios.get(
-              searchData + "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
-            ).then((result) => result.data.url);
+            const tempSoundUrl = await getAudioLinkAPI(searchData).then(
+              (result) => result.data.url
+            );
             if (tempSoundUrl) {
               setSoundCloudAudioAPI(searchData, userToken, postId);
             }

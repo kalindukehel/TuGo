@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+} from "react-native";
 import { Slider } from "react-native-elements";
 import ImageModal from "react-native-image-modal";
 var { width, height } = Dimensions.get("window");
@@ -8,10 +14,11 @@ import Pause from "../../assets/PauseButton.svg";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { Audio } from "expo-av";
-import Axios from "axios";
-import axios from "axios";
+import { getAudioLink as getAudioLinkAPI } from "../api";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+
+//SearchItem Component for CreatePost Screen
 const SearchItem = (props) => {
   let tileColor = "#E8E8E8";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
@@ -30,7 +37,7 @@ const SearchItem = (props) => {
 
   const loadSound = async () => {
     const sound_url = (
-      await Axios.get(props.audioLink + "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM")
+      await getAudioLinkAPI(props.audioLink)
         .then((result) => result)
         .catch((e) => {
           console.log(e);
@@ -148,7 +155,11 @@ const SearchItem = (props) => {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-          <View style={isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying}>
+          <View
+            style={
+              isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying
+            }
+          >
             <ImageModal
               resizeMode="contain"
               imageBackgroundColor="#00000000"
@@ -165,9 +176,18 @@ const SearchItem = (props) => {
               marginBottom: 20,
             }}
           >
-            <Text style={{ color: props.selected ? "white" : "black" }}>{props.artist}</Text>
-            <Text style={{ color: props.selected ? "white" : "black", fontWeight: "bold" }}>
-              {props.title.length > 32 ? props.title.substring(0, 32 - 3) + "..." : props.title}
+            <Text style={{ color: props.selected ? "white" : "black" }}>
+              {props.artist}
+            </Text>
+            <Text
+              style={{
+                color: props.selected ? "white" : "black",
+                fontWeight: "bold",
+              }}
+            >
+              {props.title.length > 32
+                ? props.title.substring(0, 32 - 3) + "..."
+                : props.title}
             </Text>
           </View>
         </View>
