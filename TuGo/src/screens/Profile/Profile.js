@@ -20,12 +20,16 @@ import {
   getPosts as getPostsAPI,
   by_ids as by_idsAPI,
   getPostTiles as getPostTilesAPI,
+  getFollowing as getFollowingAPI,
+  changeFollow as changeFollowAPI,
+  getRequested as getRequestedAPI,
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { API_URL } from "../../../constants";
 import { Fontisto } from "@expo/vector-icons";
+import * as Haptics from "expo-haptics";
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -72,6 +76,17 @@ const styles = StyleSheet.create({
     zIndex: 2,
     position: "absolute",
   },
+  followButton: {
+    borderWidth: 1,
+    borderRadius: 5,
+    borderColor: "white",
+    width: 90,
+    paddingVertical: 3,
+    alignSelf: "center",
+  },
+  followButtonText: {
+    alignSelf: "center",
+  },
 });
 
 const Profile = (props) => {
@@ -87,6 +102,7 @@ const Profile = (props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState(null);
   const [error, setError] = useState(200);
+  const [isFollowing, setIsFollowing] = useState(false);
   const [onBack, setOnBack] = useState(false);
   const [videoCount, setVideoCount] = useState(0);
 
@@ -102,6 +118,7 @@ const Profile = (props) => {
     props.fromMyProfile &&
     !id &&
     React.useLayoutEffect(() => {
+      //Display settings and favorites button if it is own profile and from profile navigation
       navigation.setOptions({
         headerRight: () => (
           <TouchableOpacity
@@ -138,6 +155,10 @@ const Profile = (props) => {
       } catch (err) {
         setError(err.response.status);
       }
+      //Update follow status
+      checkFollow();
+
+      //Set target user followers, following and posts values
       setFollowers(userInfo.data.followers);
       setFollowing(userInfo.data.following);
       setPostsLength(userInfo.data.posts);
@@ -145,6 +166,7 @@ const Profile = (props) => {
     await getUserStates();
     setRefreshing(false);
   }, []);
+
   useEffect(() => {
     onRefresh();
   }, [profileId]);
@@ -160,6 +182,11 @@ const Profile = (props) => {
       } catch (err) {
         setError(err.response.status);
       }
+
+      //Update follow status
+      checkFollow();
+
+      //Set target user followers, following and posts values
       setFollowers(userInfo.data.followers);
       setFollowing(userInfo.data.following);
       setPostsLength(userInfo.data.posts);
@@ -254,11 +281,92 @@ const Profile = (props) => {
       </View>
     );
   };
+
+  async function checkFollow() {
+    //Get everyone that user is following
+    const res = await getFollowingAPI(userToken, self.id);
+    const arrayIds = res.data.map((item) => item.following);
+
+    //Get everyone user has requested
+    const requestedRes = await getRequestedAPI(userToken);
+    const idsRequested = requestedRes.data.map((item) => item.to_request);
+
+    //Check if target user is in users's following or requested
+    if (idsRequested.includes(profileId)) {
+      setIsFollowing("requested");
+    } else if (arrayIds.includes(profileId)) {
+      setIsFollowing("true");
+    } else {
+      setIsFollowing("false");
+    }
+  }
+
+  async function changeFollow() {
+    const res = await changeFollowAPI(userToken, profileId);
+    checkFollow();
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+  }
+
   getHeader = () => {
+    const renderFollowingType = () => {
+      if (isFollowing == "true") {
+        return "Following";
+      } else if (isFollowing == "false") {
+        return "Follow";
+      } else if (isFollowing == "requested") {
+        return "Requested";
+      }
+    };
     return (
       <>
         {renderBackground()}
-        <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
+        {user && (
+          <>
+            <Text
+              style={{
+                marginVertical: 10,
+                marginHorizontal: 20,
+                fontSize: 18,
+                fontWeight: "bold",
+              }}
+            >
+              {user.name}
+            </Text>
+            {profileId != self.id && (
+              <View style={{ marginTop: 10 }}>
+                <TouchableOpacity
+                  style={{
+                    ...styles.followButton,
+                    backgroundColor:
+                      isFollowing == "true" || isFollowing == "requested"
+                        ? "#065581"
+                        : "#DCDCDC",
+                  }}
+                  onPress={() => changeFollow()}
+                >
+                  <Text
+                    style={{
+                      ...styles.followButtonText,
+                      color:
+                        isFollowing == "true" || isFollowing == "requested"
+                          ? "white"
+                          : "black",
+                      fontWeight: "bold",
+                    }}
+                  >
+                    {isFollowing != "" && renderFollowingType()}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            )}
+          </>
+        )}
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-around",
+          }}
+        >
           <TouchableOpacity
             disabled={error == 403}
             onPress={() => {

@@ -52,10 +52,8 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderRadius: 5,
     borderColor: "white",
-    width: 80,
-    height: 20,
-    position: "absolute",
-    left: width / 1.4,
+    width: 90,
+    paddingVertical: 3,
     alignSelf: "center",
   },
   followButtonText: {
@@ -122,6 +120,13 @@ const Followers = (props) => {
   useEffect(() => {
     onRefresh();
   }, []);
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener("focus", async () => {
+      onRefresh();
+    });
+    return unsubscribe;
+  }, [navigation]);
 
   const searchFilterFunction = (text) => {
     // Check if searched text is not blank
