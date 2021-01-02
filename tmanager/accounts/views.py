@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from accounts.models import Account, Post, Like, Comment, Tile, Activity_Item
+from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PrivateAccountSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ActivitySerializer, FavoriteSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ActivitySerializer, FavoriteSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
@@ -64,19 +64,61 @@ class AccountViewSet(viewsets.ModelViewSet):
             'following': self.get_object().following.count()
         })
     
+    @action(detail=False, methods=['GET','POST'])
+    def requests(self,request,*args,**kwargs):
+        if(request.method=='POST'): #If user wants to perform action on a request
+            action = self.request.data.get('action')
+            requester = self.request.data.get('requester')
+            if(action == 'confirm'):
+                #Create follower object then delete follower request item, push new activity item to user
+                follow_request = request.user.requests.get(requester=requester)
+                follower = Follower.objects.create(follower=follow_request.requester,following=request.user)
+                follow_request.delete()
+                follower.save()
+                activity_item = Activity_Item(user=request.user,activity_type='FOLLOW',action_user=follow_request.requester, follower=follower)
+                activity_item.save()
+            elif(action == 'delete'):
+                follow_request = request.user.requests.filter(requester=requester)
+                follow_request.delete()
+
+            return Response(status=status.HTTP_201_CREATED)
+        else: #If user is getting a list of requests
+            requests = request.user.requests.all()
+            serialized = FollowRequestSerializer(requests,many=True)
+            return Response(serialized.data)
+    
+    @action(detail=False, methods=['GET'])
+    def requested(self,request,*args,**kwargs):
+        requested = request.user.requested.all()
+        serialized = FollowRequestSerializer(requested,many=True)
+        return Response(serialized.data)
+    
     @action(detail=True, methods=['POST','GET'], serializer_class=FollowerSerializer)
     def followers(self,request,*args,**kwargs):
-        if(request.method=='POST'):
-            follower, created = self.get_object().followers.all().get_or_create(follower=request.user,following=self.get_object())
-            #if follower was not created it already exists
-            if not created:
-                follower.delete()
+        if(request.method=='POST'): #if user wants to follow or unfollow the user
+            if(self.get_object().is_private == True and not self.get_object().followers.filter(follower=request.user).exists()):
+                #create follow request if none so far, otherwise delete existing request
+                follow_request, created = self.get_object().requests.all().get_or_create(requester=request.user,to_request=self.get_object())
+                if not created:
+                    follow_request.delete()
+                    return Response(status=status.HTTP_205_RESET_CONTENT)
+                else:
+                    follow_request.save()
+                    return Response(status=status.HTTP_202_ACCEPTED)
             else:
-                follower.save()
-                activity_item = Activity_Item(user=self.get_object(),activity_type='FOLLOW',action_user=request.user)
-                activity_item.save()
-            return Response(status=status.HTTP_201_CREATED)
-        else:
+                follower, created = self.get_object().followers.all().get_or_create(follower=request.user,following=self.get_object())
+                #if follower already exists (not created) delete existing one
+                if not created:
+                    follower.delete()
+                    return Response(status=status.HTTP_205_RESET_CONTENT)
+
+                #if follower is created, then save the object and push a new activity item to followed user
+                else:
+                    follower.save()
+                    activity_item = Activity_Item(user=self.get_object(),activity_type='FOLLOW',action_user=request.user, follower=follower)
+                    activity_item.save()
+                    return Response(status=status.HTTP_201_CREATED)
+        else: #if user is getting followers list
             if(self.get_object().is_private == False or
             self.get_object().followers.filter(follower=self.request.user).exists() or
             self.get_object() == self.request.user):
@@ -84,7 +126,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 serializer = FollowerSerializer(all_followers,many=True)
                 return Response(serializer.data)
             else:
-                return Response(status=HTTP_403_FORBIDDEN)
+                return Response()
 
     @action(detail=True, methods=['GET'])
     def following(self,request,*args,**kwargs):

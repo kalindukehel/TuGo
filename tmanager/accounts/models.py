@@ -53,6 +53,10 @@ class Follower(models.Model):
     class Meta:
         unique_together = ('follower', 'following')
 
+class Requester(models.Model):
+    requester = models.ForeignKey('Account',on_delete=models.CASCADE ,related_name='requested')
+    to_request = models.ForeignKey('Account',on_delete=models.CASCADE ,related_name='requests')
+
 class Post(models.Model):
     caption = models.CharField(max_length=200, default='')
 
@@ -113,6 +117,7 @@ class Activity_Item(models.Model):
     post = models.ForeignKey(Post,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
     comment = models.ForeignKey(Comment,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
     like = models.ForeignKey(Like,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
+    follower = models.ForeignKey(Follower,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
     created_at = models.DateTimeField(auto_now_add=True)
 
     REQUIRED_FIELDS = ['user','activity_type','action_user']
