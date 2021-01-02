@@ -1,5 +1,11 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, TouchableOpacity, Dimensions, StyleSheet } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  Dimensions,
+  StyleSheet,
+} from "react-native";
 import { Slider } from "react-native-elements";
 import ImageModal from "react-native-image-modal";
 var { width, height } = Dimensions.get("window");
@@ -8,10 +14,11 @@ import Pause from "../../assets/PauseButton.svg";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { Audio } from "expo-av";
-import Axios from "axios";
-import axios from "axios";
+import { getAudioLink as getAudioLinkAPI } from "../api";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+
+//SearchItem Component for CreatePost Screen
 const SearchItem = (props) => {
   let tileColor = "#E8E8E8";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
@@ -30,7 +37,7 @@ const SearchItem = (props) => {
 
   const loadSound = async () => {
     const sound_url = (
-      await Axios.get(props.audioLink + "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM")
+      await getAudioLinkAPI(props.audioLink)
         .then((result) => result)
         .catch((e) => {
           console.log(e);
@@ -92,6 +99,14 @@ const SearchItem = (props) => {
         playerDispatch({ type: "UNLOAD_PLAYER" });
         await soundObj.unloadAsync();
         await loadSound();
+        //If new song is starting and user has pre-set slider value
+        if (sliderValue != 0) {
+          const playerStatus = await soundObj.getStatusAsync();
+          //Start from pre-set slider value
+          await soundObj.setStatusAsync({
+            positionMillis: playerStatus.durationMillis * sliderValue,
+          });
+        }
         await soundObj.playAsync();
       } else {
         if (isPlaying) {
@@ -114,10 +129,13 @@ const SearchItem = (props) => {
 
   async function seekComplete(args) {
     setSliderValue(args);
-    const playerStatus = await soundObj.getStatusAsync();
-    await soundObj.setStatusAsync({
-      positionMillis: playerStatus.durationMillis * args,
-    });
+    //Change song player position only if player is playing the song to which the slider corresponds
+    if (playingIdRef.current == props.index) {
+      const playerStatus = await soundObj.getStatusAsync();
+      await soundObj.setStatusAsync({
+        positionMillis: playerStatus.durationMillis * args,
+      });
+    }
     setIsSeeking(false);
   }
   stateRef.current = isSeeking;
@@ -148,7 +166,11 @@ const SearchItem = (props) => {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
-          <View style={isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying}>
+          <View
+            style={
+              isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying
+            }
+          >
             <ImageModal
               resizeMode="contain"
               imageBackgroundColor="#00000000"
@@ -165,9 +187,18 @@ const SearchItem = (props) => {
               marginBottom: 20,
             }}
           >
-            <Text style={{ color: props.selected ? "white" : "black" }}>{props.artist}</Text>
-            <Text style={{ color: props.selected ? "white" : "black", fontWeight: "bold" }}>
-              {props.title.length > 32 ? props.title.substring(0, 32 - 3) + "..." : props.title}
+            <Text style={{ color: props.selected ? "white" : "black" }}>
+              {props.artist}
+            </Text>
+            <Text
+              style={{
+                color: props.selected ? "white" : "black",
+                fontWeight: "bold",
+              }}
+            >
+              {props.title.length > 32
+                ? props.title.substring(0, 32 - 3) + "..."
+                : props.title}
             </Text>
           </View>
         </View>
@@ -195,7 +226,6 @@ const SearchItem = (props) => {
           onPress={doPlay}
           style={{ marginLeft: "auto", marginRight: 10 }}
         >
-          {/* <Text style={{fontWeight:"bold"}}>{isPlaying?"pause":"play"}</Text> */}
           {isPlaying ? (
             <Pause width={40} height={35} style={{ marginTop: "30%" }} />
           ) : (

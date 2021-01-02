@@ -155,18 +155,7 @@ export async function likePost(token, id) {
   });
 }
 
-export async function addComment(userToken, id, data) {
-  let token = userToken;
-  try {
-    token = JSON.parse(token);
-  } catch (e) {
-    return axios.post(`${API_URL}/api/posts/${id}/comments/`, data, {
-      headers: {
-        Authorization: "Token " + userToken,
-        "Content-Type": "application/json",
-      },
-    });
-  }
+export async function addComment(token, id, data) {
   return axios.post(`${API_URL}/api/posts/${id}/comments/`, data, {
     headers: {
       Authorization: "Token " + token,
@@ -214,7 +203,6 @@ export async function getPostFavorite(token, id) {
 }
 
 export async function favoritePost(token, id) {
-  console.log(token);
   return axios.post(`${API_URL}/api/posts/${id}/favorite/`, null, {
     headers: {
       Authorization: "Token " + token,
@@ -248,4 +236,20 @@ export async function searchUsers(data, token) {
       "Content-Type": "application/json",
     },
   });
+}
+
+/* Non-Django API Functions */
+
+export async function getAudioLink(soundCloudLink) {
+  return axios.get(
+    soundCloudLink + "?client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM"
+  );
+}
+
+export async function getSoundCloudSearch(searchQuery) {
+  return axios.get(
+    "https://api-v2.soundcloud.com/search?q=" +
+      searchQuery +
+      "&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en"
+  );
 }

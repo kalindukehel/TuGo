@@ -9,8 +9,8 @@ import {
   Keyboard,
   SafeAreaView,
 } from "react-native";
+import { getSoundCloudSearch as getSoundCloudSearchAPI } from "../api";
 import { TextInput } from "react-native-gesture-handler";
-import axios from "axios";
 import PostButton from "../../assets/PostButton.svg";
 import SearchItem from "../components/SearchItem";
 import { render } from "react-dom";
@@ -33,15 +33,13 @@ const CreatePost = ({ navigation }) => {
 
   //When user enters their search term, perform search
   const handleSubmit = async () => {
-    let response = await axios.get(
-      "https://api-v2.soundcloud.com/search?q=" +
-        search +
-        "&sc_a_id=f29946ad3d328a8dc178d3d0f95e5722d672a7cd&variant_ids=&facet=model&user_id=638900-381327-695255-95876&client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM&limit=20&offset=0&linked_partitioning=1&app_version=1609333331&app_locale=en"
-    );
+    let response = await getSoundCloudSearchAPI(search);
 
     let topData = response.data.collection.slice(
       0,
-      response.data.collection.length >= 5 ? 5 : response.data.collections.length
+      response.data.collection.length >= 5
+        ? 5
+        : response.data.collections.length
     );
 
     //Function to see if result has required attributes
@@ -64,7 +62,8 @@ const CreatePost = ({ navigation }) => {
     //Get name if official publisher metadata exists otherwise get username
     try {
       artist =
-        item.item.publisher_metadata.artist != null && item.item.publisher_metadata.artist != ""
+        item.item.publisher_metadata.artist != null &&
+        item.item.publisher_metadata.artist != ""
           ? item.item.publisher_metadata.artist
           : item.item.user.username;
     } catch {
