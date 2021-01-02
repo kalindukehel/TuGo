@@ -7,6 +7,7 @@ import PostNavigator from "./PostNavigator";
 import Followers from "../screens/Profile/Follow";
 import Following from "../screens/Profile/Follow";
 import Profile from "../screens/Profile/Profile";
+import FollowRequests from "../screens/FollowRequests";
 
 const Stack = createStackNavigator();
 
@@ -72,6 +73,19 @@ const ActivityNavigator = () => {
           },
         }}
         component={Followers}
+      />
+      <Stack.Screen
+        name="Follow Requests"
+        options={{
+          title: "Follow Requests",
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+        }}
+        component={FollowRequests}
       />
     </Stack.Navigator>
   );

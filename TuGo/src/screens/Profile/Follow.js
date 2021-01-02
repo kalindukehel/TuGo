@@ -16,6 +16,7 @@ import {
   getFollowers as getFollowersAPI,
   getAccountById as getAccountByIdAPI,
   getFollowing as getFollowingAPI,
+  getRequested as getRequestedAPI,
   changeFollow as changeFollowAPI,
   by_ids as by_idsAPI,
 } from "../../api";
@@ -86,7 +87,9 @@ const Followers = (props) => {
         type == "followers"
           ? await getFollowersAPI(userToken, id)
           : await getFollowingAPI(userToken, id);
-      list = followStat.data.map((item) => (type == "followers" ? item.follower : item.following));
+      list = followStat.data.map((item) =>
+        type == "followers" ? item.follower : item.following
+      );
       const res = await by_idsAPI(list, userToken);
       setFilteredData(res.data);
       setMasterData(res.data);
@@ -94,10 +97,20 @@ const Followers = (props) => {
     }
     async function getIsFollowing() {
       const res = await getFollowingAPI(userToken, self.id);
+      const requestedRes = await getRequestedAPI(userToken);
       const ids = res.data.map((item) => item.following);
+      const idsRequested = requestedRes.data.map((item) => item.to_request);
       let tempFollowingStatus = {};
       for (let i = 0; i < list.length; i++) {
-        tempFollowingStatus[list[i]] = ids.includes(list[i]);
+        let followStatus;
+        if (idsRequested.includes(list[i])) {
+          followStatus = "requested";
+        } else if (ids.includes(list[i])) {
+          followStatus = "true";
+        } else {
+          followStatus = "false";
+        }
+        tempFollowingStatus[list[i]] = followStatus;
       }
       setFollowingStatus(tempFollowingStatus);
     }
@@ -117,10 +130,14 @@ const Followers = (props) => {
       // Filter the masterDataSource and update FilteredDataSource
       const newData = masterData.filter(function (item) {
         // Applying filter for the inserted text in search bar
-        const usernameData = item.username ? item.username.toUpperCase() : "".toUpperCase();
+        const usernameData = item.username
+          ? item.username.toUpperCase()
+          : "".toUpperCase();
         const nameData = item.name ? item.name.toUpperCase() : "".toUpperCase();
         const textData = text.toUpperCase();
-        return usernameData.indexOf(textData) > -1 || nameData.indexOf(textData) > -1;
+        return (
+          usernameData.indexOf(textData) > -1 || nameData.indexOf(textData) > -1
+        );
       });
       setFilteredData(newData);
       setSearch(text);
@@ -134,8 +151,16 @@ const Followers = (props) => {
 
   async function changeFollow(id) {
     const res = await changeFollowAPI(userToken, id);
+    let newFollowingStatus;
+    if (res.status == 201) {
+      newFollowingStatus = "true";
+    } else if (res.status == 202) {
+      newFollowingStatus = "requested";
+    } else if (res.status == 205) {
+      newFollowingStatus = "false";
+    }
     let tempFollowingStatus = Object.assign({}, followingStatus);
-    tempFollowingStatus[id] = !followingStatus[id];
+    tempFollowingStatus[id] = newFollowingStatus;
     setFollowingStatus(tempFollowingStatus);
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
@@ -143,6 +168,15 @@ const Followers = (props) => {
   const renderItem = (item) => {
     let follow = item.item;
     const isSelf = follow.id == self.id;
+    const renderFollowingType = () => {
+      if (followingStatus[follow.id] == "true") {
+        return "Following";
+      } else if (followingStatus[follow.id] == "false") {
+        return "Follow";
+      } else if (followingStatus[follow.id] == "requested") {
+        return "Requested";
+      }
+    };
     return (
       <TouchableOpacity
         style={styles.followElement}
@@ -155,7 +189,12 @@ const Followers = (props) => {
         <View style={{ flexDirection: "row", alignContent: "center" }}>
           <Image
             source={{ uri: API_URL + follow.profile_picture }}
-            style={{ width: height / 20, height: height / 20, borderRadius: 5, borderWidth: 1 }}
+            style={{
+              width: height / 20,
+              height: height / 20,
+              borderRadius: 5,
+              borderWidth: 1,
+            }}
           ></Image>
           <View style={{ flexDirection: "column", flex: 1, marginLeft: 10 }}>
             <Text style={{ fontWeight: "bold" }}>
@@ -174,7 +213,7 @@ const Followers = (props) => {
               ...styles.followButton,
               backgroundColor: isSelf
                 ? "black"
-                : followingStatus[follow.id]
+                : followingStatus[follow.id] == "true"
                 ? "#065581"
                 : "#DCDCDC",
             }}
@@ -189,11 +228,15 @@ const Followers = (props) => {
             <Text
               style={{
                 ...styles.followButtonText,
-                color: isSelf ? "white" : followingStatus[follow.id] ? "white" : "black",
+                color: isSelf
+                  ? "white"
+                  : followingStatus[follow.id] == "true"
+                  ? "white"
+                  : "black",
                 fontWeight: "bold",
               }}
             >
-              {isSelf ? `View` : followingStatus[follow.id] ? `Following` : `Follow`}
+              {isSelf ? `View` : renderFollowingType()}
             </Text>
           </TouchableOpacity>
         </View>
@@ -230,7 +273,9 @@ const Followers = (props) => {
         data={filteredData}
         extraData={followingStatus}
         keyExtractor={(item, index) => index.toString()}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode={"on-drag"}

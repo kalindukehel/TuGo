@@ -62,6 +62,30 @@ export async function getFollowing(token, id) {
   });
 }
 
+export async function getRequests(token) {
+  return axios.get(`${API_URL}/api/accounts/requests/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function manageRequest(data, token) {
+  return axios.post(`${API_URL}/api/accounts/requests/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function getRequested(token) {
+  return axios.get(`${API_URL}/api/accounts/requested/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function getPosts(token, id) {
   return axios.get(`${API_URL}/api/accounts/${id}/posts/`, {
     headers: {

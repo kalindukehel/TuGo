@@ -9,6 +9,7 @@ import FollowActivity from "../components/Activity/FollowActivity";
 import TagActivity from "../components/Activity/TagActivity";
 
 import { getActivity as getActivityAPI } from "../api";
+import { TouchableOpacity } from "react-native-gesture-handler";
 
 const Activity = ({ navigation }) => {
   const { userToken } = useAuthState();
@@ -65,11 +66,20 @@ const Activity = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        onPress={() => {
+          navigation.push("Follow Requests");
+        }}
+      >
+        <Text>Follow Requests</Text>
+      </TouchableOpacity>
       <FlatList
         data={activities}
         renderItem={renderActivity}
         keyExtractor={(activity) => activity.id.toString()}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         ItemSeparatorComponent={ItemSeparatorView}
       />
     </View>
