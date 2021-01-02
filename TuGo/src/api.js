@@ -213,3 +213,15 @@ export async function getActivity(token) {
     },
   });
 }
+
+export async function searchUsers(data, token) {
+  let dic = {
+    search_query: data ? data : null,
+  };
+  return axios.post(`${API_URL}/api/accounts/search_by_username/`, dic, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "application/json",
+    },
+  });
+}
