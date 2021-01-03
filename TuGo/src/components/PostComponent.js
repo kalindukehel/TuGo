@@ -209,17 +209,23 @@ const PostComponent = (props) => {
     <View style={[styles.scene, { backgroundColor: "white" }]} />
   );
 
+  const ThirdRoute = () => (
+    <View style={[styles.scene, { backgroundColor: "white" }]} />
+  );
+
   const initialLayout = { width: Dimensions.get("window").width };
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: "first", title: "Dance Choreos" },
     { key: "second", title: "Voice Covers" },
+    { key: "third", title: "Lyrics" },
   ]);
 
   const renderScene = SceneMap({
     first: FirstRoute,
     second: SecondRoute,
+    third: ThirdRoute,
   });
 
   const renderTabBar = (props) => (

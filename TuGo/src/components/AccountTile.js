@@ -13,11 +13,12 @@ var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
 
 const AccountTile = (props) => {
-  const { account, navigation } = props;
+  const { account, navigation, setModalVisible } = props;
   return (
     <TouchableOpacity
       style={styles.followElement}
       onPress={() => {
+        setModalVisible(false);
         navigation.push("Profile", {
           id: account.id,
         });
