@@ -25,17 +25,21 @@ const Explore = ({ navigation }) => {
     </TouchableWithoutFeedback>
   );
 
-  const handleSubmit = async () => {
-    //check if searched text is not empty
-    if (search) {
-      const searchRes = await searchUsersAPI(search, userToken);
-      setAccounts(searchRes.data);
-    }
-  };
+  useEffect(() => {
+    const handleSubmit = async () => {
+      //check if searched text is not empty
+      if (search) {
+        const searchRes = await searchUsersAPI(search, userToken);
+        setAccounts(searchRes.data);
+      } else {
+        setAccounts(null);
+      }
+    };
+    handleSubmit();
+  }, [search]);
 
   const handleChange = (text) => {
     setSearch(text);
-    handleSubmit();
   };
 
   const ItemSeparatorView = () => {
@@ -54,7 +58,6 @@ const Explore = ({ navigation }) => {
 
   const renderItem = (item) => {
     let account = item.item;
-    console.log(account);
     return <AccountTile account={account} navigation={navigation} />;
   };
 
@@ -71,15 +74,14 @@ const Explore = ({ navigation }) => {
         <TextInput
           clearButtonMode="always"
           editable={true}
+          autoCorrect={false}
+          autoCapitalize="none"
           style={{ ...styles.searchBar }}
           placeholder={"Search"}
           onChangeText={(text) => {
-            console.log("hi");
             handleChange(text);
           }}
-          onSubmitEditing={handleSubmit}
         />
-
         <TouchableOpacity
           style={{}}
           onPress={() => {
@@ -90,6 +92,7 @@ const Explore = ({ navigation }) => {
         </TouchableOpacity>
       </View>
       <FlatList
+        keyboardShouldPersistTaps={"handled"}
         contentContainerStyle={{ flexGrow: 1 }}
         data={accounts}
         keyExtractor={(item, index) => item.id.toString()}

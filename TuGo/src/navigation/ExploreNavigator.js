@@ -3,7 +3,7 @@ import { createStackNavigator, TransitionSpecs } from "@react-navigation/stack";
 import Explore from "../screens/Explore";
 import CreatePost from "../screens/CreatePost";
 import { useAuthState } from "../context/authContext";
-
+import ProfileNavigator from "../navigation/ProfileNavigator";
 const Stack = createStackNavigator();
 
 const explorerNavigator = () => {
@@ -26,6 +26,18 @@ const explorerNavigator = () => {
         name="New Post"
         component={CreatePost}
       />
+      <Stack.Screen
+        name="Profile"
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerShown: false,
+        }}
+      >
+        {(props) => {
+          return <ProfileNavigator {...props} id={props.route.params.id} />;
+        }}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };
