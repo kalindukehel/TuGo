@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -105,6 +105,7 @@ const Profile = (props) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const [onBack, setOnBack] = useState(false);
   const [videoCount, setVideoCount] = useState(0);
+  const firstRun = useRef(true);
 
   let profileId = self.id;
   if (props.id && !id) {
@@ -143,26 +144,28 @@ const Profile = (props) => {
       });
     }, [navigation]);
 
+  async function getUserStates() {
+    //Update user data from API
+    const userState = await by_idsAPI([profileId], userToken);
+    setUser(userState.data[0]);
+    const userInfo = await getUserInfoAPI(userToken, profileId);
+    try {
+      const postsState = await getPostsAPI(userToken, profileId);
+      setPosts(postsState.data);
+    } catch (err) {
+      setError(err.response.status);
+    }
+    //Update follow status
+    checkFollow();
+
+    //Set target user followers, following and posts values
+    setFollowers(userInfo.data.followers);
+    setFollowing(userInfo.data.following);
+    setPostsLength(userInfo.data.posts);
+  }
+
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
-    async function getUserStates() {
-      const userState = await by_idsAPI([profileId], userToken);
-      setUser(userState.data[0]);
-      const userInfo = await getUserInfoAPI(userToken, profileId);
-      try {
-        const postsState = await getPostsAPI(userToken, profileId);
-        setPosts(postsState.data);
-      } catch (err) {
-        setError(err.response.status);
-      }
-      //Update follow status
-      checkFollow();
-
-      //Set target user followers, following and posts values
-      setFollowers(userInfo.data.followers);
-      setFollowing(userInfo.data.following);
-      setPostsLength(userInfo.data.posts);
-    }
     await getUserStates();
     setRefreshing(false);
   }, []);
@@ -172,24 +175,13 @@ const Profile = (props) => {
   }, [profileId]);
 
   React.useEffect(() => {
+    //When navigation is changed update the user data
     const unsubscribe = navigation.addListener("focus", async () => {
-      const userState = await by_idsAPI([profileId], userToken);
-      setUser(userState.data[0]);
-      const userInfo = await getUserInfoAPI(userToken, profileId);
-      try {
-        const postsState = await getPostsAPI(userToken, profileId);
-        setPosts(postsState.data);
-      } catch (err) {
-        setError(err.response.status);
+      if (firstRun.current) {
+        firstRun.current = false;
+      } else {
+        await getUserStates();
       }
-
-      //Update follow status
-      checkFollow();
-
-      //Set target user followers, following and posts values
-      setFollowers(userInfo.data.followers);
-      setFollowing(userInfo.data.following);
-      setPostsLength(userInfo.data.posts);
     });
     return unsubscribe;
   }, [navigation]);
@@ -304,6 +296,7 @@ const Profile = (props) => {
   async function changeFollow() {
     const res = await changeFollowAPI(userToken, profileId);
     checkFollow();
+    getUserStates();
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 

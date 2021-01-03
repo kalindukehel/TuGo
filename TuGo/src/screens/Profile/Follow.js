@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Vibration,
@@ -78,6 +78,8 @@ const Followers = (props) => {
   const [search, setSearch] = useState("");
   const [loading, setLoading] = useState(false);
 
+  const firstRun = useRef(true);
+
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     async function getUserStates() {
@@ -117,13 +119,19 @@ const Followers = (props) => {
     setLoading(false);
     setRefreshing(false);
   }, []);
+
   useEffect(() => {
     onRefresh();
   }, []);
 
   React.useEffect(() => {
+    //When navigation is changed update the follow data
     const unsubscribe = navigation.addListener("focus", async () => {
-      onRefresh();
+      if (firstRun.current) {
+        firstRun.current = false;
+      } else {
+        onRefresh();
+      }
     });
     return unsubscribe;
   }, [navigation]);
