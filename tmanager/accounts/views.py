@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item
+from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item
 from rest_framework import viewsets, permissions
 from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ActivitySerializer, FavoriteSerializer
 from rest_framework.decorators import action, api_view, permission_classes
@@ -115,6 +115,10 @@ class AccountViewSet(viewsets.ModelViewSet):
                 #if follower is created, then save the object and push a new activity item to followed user
                 else:
                     follower.save()
+                    #push every post of followed user to feed
+                    for post in self.get_object().posts.all():
+                        feed_item = Feed_Item(user=request.user,post=post,follow_relation=follower)
+                        feed_item.save()
                     activity_item = Activity_Item(user=self.get_object(),activity_type='FOLLOW',action_user=request.user, follower=follower)
                     activity_item.save()
                     return Response(status=status.HTTP_201_CREATED)

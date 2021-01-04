@@ -32,10 +32,12 @@ class PostSerializer(serializers.ModelSerializer):
             '__all__'
         )
     def create(self, request, *args, **kwargs):
-        # request.data.update({"user": request.user.pk})
+        #set author to user making the request
+        request['author'] = self.context['request'].user
         newPost = super().create(request, *args, **kwargs)
-        for followerObject in request['author'].followers.all():
-            feed_item = Feed_Item(user=followerObject.follower,post=newPost)
+        #create a feed item for the new post and push it to all followers
+        for followerObject in self.context['request'].user.followers.all():
+            feed_item = Feed_Item(user=followerObject.follower,post=newPost,follow_relation=followerObject)
             feed_item.save()
         return newPost
 

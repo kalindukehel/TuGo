@@ -74,7 +74,8 @@ class Post(models.Model):
 
 class Feed_Item(models.Model):
     user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='feed')
-    post = models.OneToOneField(Post,on_delete=models.CASCADE, primary_key=True)
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='+')
+    follow_relation = models.ForeignKey(Follower,on_delete=models.CASCADE,related_name='+')
 
 class Tile(models.Model):
     post = models.ForeignKey('Post',on_delete=models.CASCADE,related_name='tiles')
