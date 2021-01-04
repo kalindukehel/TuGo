@@ -1,7 +1,7 @@
 import React from "react";
 import { createStackNavigator, TransitionSpecs } from "@react-navigation/stack";
 import Explore from "../screens/Explore";
-import CreatePost from "../screens/CreatePost";
+import CreatePostNavigator from "../navigation/CreatePostNavigator";
 import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
@@ -18,13 +18,14 @@ const explorerNavigator = () => {
       />
       <Stack.Screen
         options={{
+          headerShown: false,
           headerStyle: {
             height: Expo.Constants.statusBarHeight,
           },
           gestureEnabled: false,
         }}
         name="New Post"
-        component={CreatePost}
+        component={CreatePostNavigator}
       />
     </Stack.Navigator>
   );
