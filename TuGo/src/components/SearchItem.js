@@ -147,7 +147,13 @@ const SearchItem = (props) => {
         alignItems: "center",
       }}
       onPress={() => {
-        props.selectItem(props.index);
+        props.selectItem(
+          props.index,
+          props.artist,
+          props.audioLink,
+          props.title,
+          props.coverArt
+        );
       }}
       activeOpacity={0.75}
     >

@@ -19,7 +19,7 @@ import { FlatList } from "react-native-gesture-handler";
 const CreatePost = ({ navigation }) => {
   const [search, setSearch] = useState();
   const [results, setResults] = useState([]);
-  const [selectedItem, setSelectedItem] = useState();
+  const [selectedItem, setSelectedItem] = useState({});
 
   //Update current text state when user types
   const handleChange = (text) => {
@@ -27,8 +27,28 @@ const CreatePost = ({ navigation }) => {
   };
 
   //Function passed into SearchItem as a propr to select that item
-  const selectItem = (id) => {
-    setSelectedItem(selectedItem == id ? null : id);
+  const selectItem = (id, artist, audioLink, title, coverArt) => {
+    //If item is already selected, deselect it
+    if (selectedItem.id == id) {
+      setSelectedItem({
+        ...selectedItem,
+        id: null,
+        artist: null,
+        audioLink: null,
+        title: null,
+        coverArt: null,
+      });
+    } else {
+      //If different item or no item is selected, then set item as selected
+      setSelectedItem({
+        ...selectedItem,
+        id: id,
+        artist: artist,
+        audioLink: audioLink,
+        title: title,
+        coverArt: coverArt,
+      });
+    }
   };
 
   //When user enters their search term, perform search
@@ -73,7 +93,7 @@ const CreatePost = ({ navigation }) => {
       <SearchItem
         index={item.item.id + "Soundcloud"}
         coverArt={item.item.artwork_url.replace("large", "t500x500")}
-        selected={item.item.id + "Soundcloud" == selectedItem}
+        selected={item.item.id + "Soundcloud" == selectedItem.id}
         selectItem={selectItem}
         artist={artist}
         title={item.item.title}
