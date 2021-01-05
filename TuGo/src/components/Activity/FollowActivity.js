@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { useAuthState } from "../../context/authContext";
 import {
   getPostById as getPostByIdAPI,
@@ -18,7 +25,10 @@ const FollowActivity = (props) => {
 
   useEffect(() => {
     async function getLikeStates() {
-      const followerRes = await getAccountByIdAPI(activity.action_user, userToken);
+      const followerRes = await getAccountByIdAPI(
+        activity.action_user,
+        userToken
+      );
       setFollower(followerRes.data);
     }
     getLikeStates();
@@ -37,10 +47,22 @@ const FollowActivity = (props) => {
           >
             <Image
               source={{ uri: follower.profile_picture }}
-              style={{ width: 45, height: 45, borderRadius: 45 / 2, borderWidth: 1 }}
+              style={{
+                width: 45,
+                height: 45,
+                borderRadius: 45 / 2,
+                borderWidth: 1,
+              }}
             ></Image>
           </TouchableOpacity>
-          <Text style={{ flexWrap: "wrap", flex: 1, marginHorizontal: 10, alignSelf: "center" }}>
+          <Text
+            style={{
+              flexWrap: "wrap",
+              flex: 1,
+              marginHorizontal: 10,
+              alignSelf: "center",
+            }}
+          >
             <Text style={{ fontWeight: "bold" }}>{follower.username}</Text>
             <Text style={{}}>{` started following you. `}</Text>
             <Text style={{ fontSize: 12, color: "#7D7D7D" }}>

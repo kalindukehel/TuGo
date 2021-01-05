@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { useAuthState } from "../../context/authContext";
 import {
   getPostById as getPostByIdAPI,
@@ -23,9 +30,14 @@ const CommentActivity = (props) => {
       const postRes = await getPostByIdAPI(userToken, activity.post);
       setPost(postRes.data);
       const commentRes = await getPostCommentsAPI(userToken, activity.post);
-      const commentFound = commentRes.data.find((comment) => comment.id == activity.comment);
+      const commentFound = commentRes.data.find(
+        (comment) => comment.id == activity.comment
+      );
       setComment(commentFound.value);
-      const commenterRes = await getAccountByIdAPI(activity.action_user, userToken);
+      const commenterRes = await getAccountByIdAPI(
+        activity.action_user,
+        userToken
+      );
       setCommenter(commenterRes.data);
     }
     getCommentStates();
@@ -45,10 +57,22 @@ const CommentActivity = (props) => {
           >
             <Image
               source={{ uri: commenter.profile_picture }}
-              style={{ width: 45, height: 45, borderRadius: 45 / 2, borderWidth: 1 }}
+              style={{
+                width: 45,
+                height: 45,
+                borderRadius: 45 / 2,
+                borderWidth: 1,
+              }}
             ></Image>
           </TouchableOpacity>
-          <Text style={{ flexWrap: "wrap", flex: 1, marginHorizontal: 10, alignSelf: "center" }}>
+          <Text
+            style={{
+              flexWrap: "wrap",
+              flex: 1,
+              marginHorizontal: 10,
+              alignSelf: "center",
+            }}
+          >
             <Text style={{ fontWeight: "bold" }}>{commenter.username}</Text>
             <Text style={{}}>{` commented on your post: `}</Text>
             <Text style={{}}>{comment + " "}</Text>
@@ -70,7 +94,12 @@ const CommentActivity = (props) => {
           >
             <Image
               source={{ uri: post.soundcloud_art }}
-              style={{ width: 45, height: 45, borderRadius: 5, borderWidth: 1 }}
+              style={{
+                width: 45,
+                height: 45,
+                borderRadius: 5,
+                borderWidth: 0.5,
+              }}
             ></Image>
           </TouchableOpacity>
         </View>
