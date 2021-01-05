@@ -156,7 +156,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def feed(self,request,*args,**kwargs):
-        feed_posts = request.user.feed.all()
+        feed_posts = request.user.feed.all().order_by('-id')
         serializer = FeedSerializer(feed_posts,many=True)
         return Response(serializer.data)
 
