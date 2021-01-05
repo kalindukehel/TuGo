@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, RefreshControl, FlatList } from "react-native";
 import { useAuthDispatch } from "../context/authContext";
 import { useAuthState } from "../context/authContext";
@@ -16,6 +16,7 @@ const Activity = ({ navigation }) => {
   const dispatch = useAuthDispatch();
   const [activities, setActivities] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const firstRun = useRef(true);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -26,9 +27,23 @@ const Activity = ({ navigation }) => {
     getActivityStates();
     setRefreshing(false);
   }, []);
+
   useEffect(() => {
     onRefresh();
   }, []);
+
+  React.useEffect(() => {
+    //When navigation is changed update the activity item states
+    const unsubscribe = navigation.addListener("focus", async () => {
+      if (firstRun.current) {
+        firstRun.current = false;
+      } else {
+        onRefresh();
+      }
+    });
+
+    return unsubscribe;
+  }, [navigation]);
 
   const renderActivity = (activity) => {
     const curActivity = activity.item;
@@ -64,18 +79,30 @@ const Activity = ({ navigation }) => {
     );
   };
 
-  return (
-    <View style={styles.container}>
+  const getHeader = () => {
+    return (
       <TouchableOpacity
         onPress={() => {
           navigation.push("Follow Requests");
         }}
+        style={{
+          paddingTop: 10,
+          paddingBottom: 10,
+          paddingLeft: 5,
+          borderBottomWidth: 0.3,
+        }}
       >
         <Text>Follow Requests</Text>
       </TouchableOpacity>
+    );
+  };
+
+  return (
+    <View style={styles.container}>
       <FlatList
         data={activities}
         renderItem={renderActivity}
+        ListHeaderComponent={getHeader}
         keyExtractor={(activity) => activity.id.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
