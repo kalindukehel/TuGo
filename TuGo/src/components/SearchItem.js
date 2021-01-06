@@ -146,14 +146,14 @@ const SearchItem = (props) => {
         flexDirection: "row",
         alignItems: "center",
       }}
-      onPress={() => {
+      onPress={() => {props.selectItem ?
         props.selectItem(
           props.index,
           props.artist,
           props.audioLink,
           props.title,
           props.coverArt
-        );
+        ) : {}
       }}
       activeOpacity={0.75}
     >
