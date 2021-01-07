@@ -16,7 +16,9 @@ import PostButton from "../../assets/PostButton.svg";
 import { searchUsers as searchUsersAPI } from "../api";
 import AccountTile from "../components/AccountTile";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-
+import AccountsTabView from "../components/TabViews/AccountsTabView";
+import PostsTabView from "../components/TabViews/PostsTabView";
+import SongsTabView from "../components/TabViews/SongsTabView";
 const Explore = ({ navigation }) => {
   const { userToken } = useAuthState();
   const [search, setSearch] = useState("");
@@ -30,17 +32,10 @@ const Explore = ({ navigation }) => {
   );
 
   useEffect(() => {
-    const handleSubmit = async () => {
-      //check if searched text is not empty
-      if (search) {
-        const searchRes = await searchUsersAPI(search, userToken);
-        setAccounts(searchRes.data);
-      } else {
-        setAccounts(null);
-      }
-    };
-    handleSubmit();
-  }, [search]);
+    if (modalVisible == false) {
+      setSearch("");
+    }
+  }, [modalVisible]);
 
   const handleChange = (text) => {
     setSearch(text);
@@ -72,27 +67,34 @@ const Explore = ({ navigation }) => {
   };
 
   //Tab Views
-  const FirstRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]}>
-      <FlatList
-        keyboardShouldPersistTaps={"handled"}
-        contentContainerStyle={{ flexGrow: 1 }}
-        data={accounts}
-        keyExtractor={(item, index) => item.id.toString()}
-        ItemSeparatorComponent={ItemSeparatorView}
-        renderItem={renderItem}
-        keyboardDismissMode={"on-drag"}
-      />
-    </View>
-  );
+  const FirstRoute = () => {
+    if (index == 0) {
+      return (
+        <AccountsTabView
+          setModalVisible={setModalVisible}
+          searchQuery={search}
+          navigation={navigation}
+        />
+      );
+    } else {
+      return <View></View>;
+    }
+  };
+  const SecondRoute = () => {
+    if (index == 1) {
+      return <PostsTabView searchQuery={search} navigation={navigation} />;
+    } else {
+      return <View></View>;
+    }
+  };
 
-  const SecondRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
-  );
-
-  const ThirdRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
-  );
+  const ThirdRoute = () => {
+    if (index == 2) {
+      return <SongsTabView searchQuery={search} navigation={navigation} />;
+    } else {
+      return <View></View>;
+    }
+  };
 
   const initialLayout = { width: Dimensions.get("window").width };
 
@@ -149,39 +151,40 @@ const Explore = ({ navigation }) => {
             Alert.alert("Modal has been closed.");
           }}
         >
-          <View
-            style={{
-              marginTop: 50,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-              marginHorizontal: 10,
-              height: Expo.Constants.statusBarHeight,
-            }}
-          >
-            <TextInput
-              clearButtonMode="always"
-              editable={true}
-              autoFocus={true}
-              autoCorrect={false}
-              autoCapitalize="none"
-              style={{ ...styles.searchBar }}
-              placeholder={"Search"}
-              onChangeText={(text) => {
-                handleChange(text);
+          <View style={styles.containertwo}>
+            <View
+              style={{
+                marginTop: 25,
+                flexDirection: "row",
+                alignItems: "center",
+                justifyContent: "space-between",
+                marginHorizontal: 10,
               }}
+            >
+              <TextInput
+                clearButtonMode="always"
+                editable={true}
+                autoFocus={true}
+                autoCorrect={false}
+                autoCapitalize="none"
+                style={{ ...styles.searchBar }}
+                placeholder={"Search"}
+                onChangeText={(text) => {
+                  handleChange(text);
+                }}
+              />
+              <TouchableOpacity onPress={() => setModalVisible(false)}>
+                <Text>Cancel</Text>
+              </TouchableOpacity>
+            </View>
+            <TabView
+              navigationState={{ index, routes }}
+              renderScene={renderScene}
+              onIndexChange={setIndex}
+              initialLayout={initialLayout}
+              renderTabBar={renderTabBar}
             />
-            <TouchableOpacity onPress={() => setModalVisible(false)}>
-              <Text>Cancel</Text>
-            </TouchableOpacity>
           </View>
-          <TabView
-            navigationState={{ index, routes }}
-            renderScene={renderScene}
-            onIndexChange={setIndex}
-            initialLayout={initialLayout}
-            renderTabBar={renderTabBar}
-          />
         </Modal>
 
         <TouchableOpacity
@@ -218,13 +221,11 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     paddingLeft: 20,
-    margin: 5,
-    borderColor: "gray",
     backgroundColor: "#065581",
     borderRadius: 10,
     color: "white",
-    flex: 1,
   },
+  containertwo: { flex: 1, flexDirection: "column" },
   scene: {
     flex: 1,
   },
