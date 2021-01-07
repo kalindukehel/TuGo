@@ -13,8 +13,6 @@ import {
 import { useAuthState } from "../context/authContext";
 import { TextInput } from "react-native-gesture-handler";
 import PostButton from "../../assets/PostButton.svg";
-import { searchUsers as searchUsersAPI } from "../api";
-import AccountTile from "../components/AccountTile";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import AccountsTabView from "../components/TabViews/AccountsTabView";
 import PostsTabView from "../components/TabViews/PostsTabView";
@@ -22,8 +20,8 @@ import SongsTabView from "../components/TabViews/SongsTabView";
 const Explore = ({ navigation }) => {
   const { userToken } = useAuthState();
   const [search, setSearch] = useState("");
-  const [accounts, setAccounts] = useState(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isEditing, setIsEditing] = useState(true);
 
   const DismissKeyboard = ({ children }) => (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -32,6 +30,7 @@ const Explore = ({ navigation }) => {
   );
 
   useEffect(() => {
+    //If modal is dismissed, set search value to ""
     if (modalVisible == false) {
       setSearch("");
     }
@@ -39,6 +38,10 @@ const Explore = ({ navigation }) => {
 
   const handleChange = (text) => {
     setSearch(text);
+  };
+
+  const handleEditing = (status) => {
+    setIsEditing(status);
   };
 
   const ItemSeparatorView = () => {
@@ -51,17 +54,6 @@ const Explore = ({ navigation }) => {
           backgroundColor: "#C8C8C8",
           alignSelf: "center",
         }}
-      />
-    );
-  };
-
-  const renderItem = (item) => {
-    let account = item.item;
-    return (
-      <AccountTile
-        account={account}
-        navigation={navigation}
-        setModalVisible={setModalVisible}
       />
     );
   };
@@ -90,7 +82,15 @@ const Explore = ({ navigation }) => {
 
   const ThirdRoute = () => {
     if (index == 2) {
-      return <SongsTabView searchQuery={search} navigation={navigation} />;
+      return (
+        <SongsTabView
+          searchQuery={search}
+          navigation={navigation}
+          isEditing={isEditing}
+          handleEditing={handleEditing}
+          handleChange={handleChange}
+        />
+      );
     } else {
       return <View></View>;
     }
@@ -169,8 +169,15 @@ const Explore = ({ navigation }) => {
                 autoCapitalize="none"
                 style={{ ...styles.searchBar }}
                 placeholder={"Search"}
+                value={search}
                 onChangeText={(text) => {
+                  if (!isEditing) {
+                    handleEditing(true);
+                  }
                   handleChange(text);
+                }}
+                onSubmitEditing={() => {
+                  handleEditing(false);
                 }}
               />
               <TouchableOpacity onPress={() => setModalVisible(false)}>

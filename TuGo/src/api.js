@@ -253,3 +253,11 @@ export async function getSoundCloudSearch(searchQuery) {
       "&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en"
   );
 }
+
+export async function getSoundCloudSuggestions(searchQuery) {
+  return axios.get(
+    "https://api-v2.soundcloud.com/search/queries?q=" +
+      searchQuery +
+      "&client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM&limit=10&offset=0&linked_partitioning=1&app_version=1609942767&app_locale=en"
+  );
+}
