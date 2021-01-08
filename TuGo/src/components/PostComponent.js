@@ -157,11 +157,12 @@ const PostComponent = (props) => {
   };
 
   useEffect(() => {
-    onRefresh();
+    let isMounted = true;
+    if (isMounted) onRefresh();
     return () => {
       //When component exits
       try {
-        if (postRef.current.id == playingIdRef.current) {
+        if (postRef.current.id == playingIdRef.current && isMounted) {
           //If current playing song is same as current post
           setIsPlaying(false);
           isLoaded.current = false;
