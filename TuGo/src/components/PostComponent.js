@@ -78,29 +78,30 @@ const PostComponent = (props) => {
   const postRef = useRef();
   const playingIdRef = useRef();
 
+  const firstRun = useRef(true);
+
   stateRef.current = isSeeking;
+
+  async function getPostStates() {
+    //Update post data from API
+    const postRes = await getPostByIdAPI(userToken, postId);
+    setPost(postRes.data);
+    postRef.current = postRes.data;
+    const likesRes = await getPostLikesAPI(userToken, postId);
+    setLikes(likesRes.data);
+    const commentsRes = await getPostCommentsAPI(userToken, postId);
+    setComments(commentsRes.data);
+    const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
+    setAuthor(authorRes.data);
+    const tilesRes = await getPostTilesAPI(userToken, postId);
+    setTiles(tilesRes.data);
+    const favRes = await getPostFavoriteAPI(userToken, postId);
+    setIsFavorite(favRes.data.favorited);
+  }
 
   const onRefresh = async () => {
     try {
       setRefreshing(true);
-      async function getPostStates() {
-        const postRes = await getPostByIdAPI(userToken, postId);
-        setPost(postRes.data);
-        postRef.current = postRes.data;
-        const likesRes = await getPostLikesAPI(userToken, postId);
-        setLikes(likesRes.data);
-        const commentsRes = await getPostCommentsAPI(userToken, postId);
-        setComments(commentsRes.data);
-        const authorRes = await getAccountByIdAPI(
-          postRes.data.author,
-          userToken
-        );
-        setAuthor(authorRes.data);
-        const tilesRes = await getPostTilesAPI(userToken, postId);
-        setTiles(tilesRes.data);
-        const favRes = await getPostFavoriteAPI(userToken, postId);
-        setIsFavorite(favRes.data.favorited);
-      }
       await getPostStates();
       setRefreshing(false);
     } catch (e) {
@@ -182,19 +183,13 @@ const PostComponent = (props) => {
   }, [stopAll]);
 
   React.useEffect(() => {
+    //When navigation is changed update the post states
     const unsubscribe = navigation.addListener("focus", async () => {
-      const postRes = await getPostByIdAPI(userToken, postId);
-      setPost(postRes.data);
-      const likesRes = await getPostLikesAPI(userToken, postId);
-      setLikes(likesRes.data);
-      const commentsRes = await getPostCommentsAPI(userToken, postId);
-      setComments(commentsRes.data);
-      const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
-      setAuthor(authorRes.data);
-      const tilesRes = await getPostTilesAPI(userToken, postId);
-      setTiles(tilesRes.data);
-      const favRes = await getPostFavoriteAPI(userToken, postId);
-      setIsFavorite(favRes.data.favorited);
+      if (firstRun.current) {
+        firstRun.current = false;
+      } else {
+        await getPostStates();
+      }
     });
 
     return unsubscribe;

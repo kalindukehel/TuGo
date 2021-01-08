@@ -1,12 +1,20 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, SafeAreaView, FlatList } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  SafeAreaView,
+  FlatList,
+  RefreshControl,
+} from "react-native";
 import { onSignOut } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
 import { signOut as signOutAPI } from "../api";
 import { useAuthState } from "../context/authContext";
-import { Entypo } from '@expo/vector-icons';
-import { getFeedPosts as getFeedPostsAPI } from "../api"
-import PostComponent from "../components/PostComponent"
+import { Entypo } from "@expo/vector-icons";
+import { getFeedPosts as getFeedPostsAPI } from "../api";
+import PostComponent from "../components/PostComponent";
 
 const Feed = ({ navigation }) => {
   const { userToken } = useAuthState();
@@ -21,7 +29,8 @@ const Feed = ({ navigation }) => {
           style={{ marginLeft: 20 }}
           onPress={() => {
             navigation.navigate("Activity");
-          }}>
+          }}
+        >
           <Entypo name="notification" size={24} color="black" />
         </TouchableOpacity>
       ),
@@ -44,10 +53,8 @@ const Feed = ({ navigation }) => {
 
   const renderItem = (component) => {
     const postId = component.item.post;
-    return (
-      <PostComponent postId={postId} navigation={navigation} />
-    )
-  }
+    return <PostComponent postId={postId} navigation={navigation} />;
+  };
 
   const ItemSeparatorView = () => {
     return (
@@ -55,7 +62,7 @@ const Feed = ({ navigation }) => {
       <View
         style={{
           height: 50,
-          alignSelf: "center"
+          alignSelf: "center",
         }}
       />
     );
@@ -67,6 +74,9 @@ const Feed = ({ navigation }) => {
         data={feed}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
         onRefresh={refreshing}
         ItemSeparatorComponent={ItemSeparatorView}
       />
