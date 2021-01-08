@@ -1,5 +1,12 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, Image, Dimensions, TouchableOpacity } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Image,
+  Dimensions,
+  TouchableOpacity,
+} from "react-native";
 import { useAuthState } from "../../context/authContext";
 import {
   getPostById as getPostByIdAPI,
@@ -41,10 +48,22 @@ const LikeActivity = (props) => {
           >
             <Image
               source={{ uri: liker.profile_picture }}
-              style={{ width: 45, height: 45, borderRadius: 45 / 2, borderWidth: 1 }}
+              style={{
+                width: 45,
+                height: 45,
+                borderRadius: 45 / 2,
+                borderWidth: 1,
+              }}
             ></Image>
           </TouchableOpacity>
-          <Text style={{ flexWrap: "wrap", flex: 1, marginHorizontal: 10, alignSelf: "center" }}>
+          <Text
+            style={{
+              flexWrap: "wrap",
+              flex: 1,
+              marginHorizontal: 10,
+              alignSelf: "center",
+            }}
+          >
             <Text style={{ fontWeight: "bold" }}>{liker.username}</Text>
             <Text style={{}}>{` liked your post. `}</Text>
             <Text style={{ fontSize: 12, color: "#7D7D7D" }}>
@@ -65,7 +84,12 @@ const LikeActivity = (props) => {
           >
             <Image
               source={{ uri: post.soundcloud_art }}
-              style={{ width: 45, height: 45, borderRadius: 5, borderWidth: 1 }}
+              style={{
+                width: 45,
+                height: 45,
+                borderRadius: 5,
+                borderWidth: 0.5,
+              }}
             ></Image>
           </TouchableOpacity>
         </View>

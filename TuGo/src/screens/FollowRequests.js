@@ -34,11 +34,26 @@ const FollowRequests = ({ navigation }) => {
     );
   };
 
+  const ItemSeparatorView = () => {
+    return (
+      // Flat List Item Separator
+      <View
+        style={{
+          height: 20,
+          width: "90%",
+          alignSelf: "center",
+        }}
+      />
+    );
+  };
+
   return (
-    <View style={{ height: 100 }}>
+    <View style={{ height: "100%" }}>
       <FlatList
+        style={{ paddingTop: 10 }}
         data={requests}
         renderItem={renderItem}
+        ItemSeparatorComponent={ItemSeparatorView}
         keyExtractor={(item) => item.id.toString()}
       />
     </View>
