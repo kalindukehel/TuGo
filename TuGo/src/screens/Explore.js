@@ -17,6 +17,8 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import AccountsTabView from "../components/TabViews/AccountsTabView";
 import PostsTabView from "../components/TabViews/PostsTabView";
 import SongsTabView from "../components/TabViews/SongsTabView";
+import { SafeAreaView } from "react-native-safe-area-context";
+
 const Explore = ({ navigation }) => {
   const { userToken } = useAuthState();
   const [search, setSearch] = useState("");
@@ -123,13 +125,13 @@ const Explore = ({ navigation }) => {
   );
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View
         style={{
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          margin: 8,
+          marginHorizontal: 8,
         }}
       >
         <TouchableOpacity
@@ -144,6 +146,7 @@ const Explore = ({ navigation }) => {
         </TouchableOpacity>
 
         {/* Search results modal */}
+
         <Modal
           visible={modalVisible}
           animationType="fade"
@@ -151,10 +154,9 @@ const Explore = ({ navigation }) => {
             Alert.alert("Modal has been closed.");
           }}
         >
-          <View style={styles.containertwo}>
+          <SafeAreaView style={styles.containertwo}>
             <View
               style={{
-                marginTop: 25,
                 flexDirection: "row",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -191,7 +193,7 @@ const Explore = ({ navigation }) => {
               initialLayout={initialLayout}
               renderTabBar={renderTabBar}
             />
-          </View>
+          </SafeAreaView>
         </Modal>
 
         <TouchableOpacity
@@ -204,7 +206,7 @@ const Explore = ({ navigation }) => {
           <PostButton width={40} height={35} style={{}} />
         </TouchableOpacity>
       </View>
-    </View>
+    </SafeAreaView>
   );
 };
 

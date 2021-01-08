@@ -11,9 +11,6 @@ const CreatePostNavigator = () => {
     <Stack.Navigator initialRouteName="SongSelection" mode="modal">
       <Stack.Screen
         options={{
-          headerStyle: {
-            height: Expo.Constants.statusBarHeight,
-          },
           headerShown: false,
           headerBackTitleVisible: false,
           headerTintColor: "black",
@@ -28,10 +25,7 @@ const CreatePostNavigator = () => {
       />
       <Stack.Screen
         options={{
-          headerStyle: {
-            height: Expo.Constants.statusBarHeight,
-          },
-          headerShown: true,
+          headerShown: false,
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerTitleStyle: {
@@ -43,12 +37,9 @@ const CreatePostNavigator = () => {
         name="Video Selection"
         component={VideoSelection}
       />
-            <Stack.Screen
+      <Stack.Screen
         options={{
-          headerStyle: {
-            height: Expo.Constants.statusBarHeight,
-          },
-          headerShown: true,
+          headerShown: false,
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerTitleStyle: {

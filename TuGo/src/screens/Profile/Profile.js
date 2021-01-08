@@ -331,19 +331,14 @@ const Profile = (props) => {
                   style={{
                     ...styles.followButton,
                     backgroundColor:
-                      isFollowing == "true" || isFollowing == "requested"
-                        ? "#065581"
-                        : "#DCDCDC",
+                      isFollowing == "true" ? "#065581" : "#DCDCDC",
                   }}
                   onPress={() => changeFollow()}
                 >
                   <Text
                     style={{
                       ...styles.followButtonText,
-                      color:
-                        isFollowing == "true" || isFollowing == "requested"
-                          ? "white"
-                          : "black",
+                      color: isFollowing == "true" ? "white" : "black",
                       fontWeight: "bold",
                     }}
                   >

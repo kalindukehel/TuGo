@@ -6,6 +6,7 @@ import {
   TouchableOpacity,
   Dimensions,
   TextInput,
+  SafeAreaView,
 } from "react-native";
 import SearchItem from "../../components/SearchItem";
 
@@ -17,13 +18,14 @@ const CaptionSelection = (props) => {
   const [caption, setCaption] = useState("");
 
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View
         style={{
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          margin: 15,
+          marginHorizontal: 15,
+          marginBottom: 10,
         }}
       >
         <TouchableOpacity
@@ -65,7 +67,7 @@ const CaptionSelection = (props) => {
         }}
         value={caption}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 

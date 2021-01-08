@@ -29,9 +29,7 @@ const SongsTabView = (props) => {
         let response = await getSoundCloudSearchAPI(searchQuery);
         let topData = response.data.collection.slice(
           0,
-          response.data.collection.length >= 5
-            ? 5
-            : response.data.collections.length
+          response.data.collection.length
         );
 
         //Function to see if result has required attributes
@@ -109,7 +107,7 @@ const SongsTabView = (props) => {
   return (
     <View style={[{ flex: 1, backgroundColor: "white" }]}>
       <FlatList
-        style={{ paddingTop: 10, paddingLeft: 10 }}
+        style={{}}
         data={results}
         renderItem={renderSuggestion}
         ItemSeparatorComponent={ItemSeparatorView}

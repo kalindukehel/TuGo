@@ -57,9 +57,7 @@ const CreatePost = ({ navigation }) => {
 
     let topData = response.data.collection.slice(
       0,
-      response.data.collection.length >= 5
-        ? 5
-        : response.data.collections.length
+      response.data.collection.length
     );
 
     //Function to see if result has required attributes
@@ -120,7 +118,8 @@ const CreatePost = ({ navigation }) => {
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          margin: 15,
+          marginHorizontal: 15,
+          marginBottom: 10,
         }}
       >
         <TouchableOpacity

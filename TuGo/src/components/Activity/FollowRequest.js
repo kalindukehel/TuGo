@@ -10,26 +10,19 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
 const styles = StyleSheet.create({
   acceptButton: {
-    borderWidth: 1,
     borderRadius: 5,
     padding: 3,
     width: 70,
     alignItems: "center",
-    borderColor: "black",
     backgroundColor: "#065581",
-    marginHorizontal: 20,
-    marginBottom: 40,
   },
   deleteButton: {
-    borderWidth: 1,
     borderRadius: 5,
     padding: 3,
     width: 70,
     alignItems: "center",
-    borderColor: "black",
     backgroundColor: "#DCDCDC",
-    marginHorizontal: 10,
-    marginBottom: 40,
+    marginHorizontal: 15,
   },
   acceptButtonText: {
     color: "white",
@@ -82,7 +75,6 @@ const FollowRequest = (props) => {
     <View
       style={{
         flex: 1,
-        paddingTop: 10,
         flexDirection: "row",
         alignItems: "center",
       }}
@@ -94,10 +86,7 @@ const FollowRequest = (props) => {
           });
         }}
         style={{
-          flexDirection: "column",
-          alignItems: "center",
-          justifyContent: "center",
-          width: 100,
+          marginHorizontal: 15,
         }}
       >
         <Image
@@ -108,17 +97,36 @@ const FollowRequest = (props) => {
               : { uri: API_URL + "/media/default.jpg" }
           }
         />
-        <Text style={styles.username}>
-          {requester ? requester.username : null}
-        </Text>
+      </TouchableOpacity>
+      <View>
+        <TouchableOpacity
+          onPress={() => {
+            navigation.push("Profile", {
+              id: requester.id,
+            });
+          }}
+          style={{}}
+        >
+          <Text style={styles.username}>
+            {requester ? requester.username : null}
+          </Text>
+        </TouchableOpacity>
         <Text style={styles.name}>{requester ? requester.name : null}</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={acceptRequest} style={styles.acceptButton}>
-        <Text style={styles.acceptButtonText}>Accept</Text>
-      </TouchableOpacity>
-      <TouchableOpacity onPress={deleteRequest} style={styles.deleteButton}>
-        <Text style={styles.deleteButtonText}>Delete</Text>
-      </TouchableOpacity>
+      </View>
+      <View style={{ alignItems: "flex-end", flex: 1, alignContent: "center" }}>
+        <View
+          style={{
+            flexDirection: "row",
+          }}
+        >
+          <TouchableOpacity onPress={acceptRequest} style={styles.acceptButton}>
+            <Text style={styles.acceptButtonText}>Accept</Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={deleteRequest} style={styles.deleteButton}>
+            <Text style={styles.deleteButtonText}>Delete</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
     </View>
   );
 };

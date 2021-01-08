@@ -86,13 +86,12 @@ const Activity = ({ navigation }) => {
           navigation.push("Follow Requests");
         }}
         style={{
-          paddingTop: 10,
-          paddingBottom: 10,
-          paddingLeft: 5,
+          paddingVertical: 20,
+          paddingLeft: 15,
           borderBottomWidth: 0.3,
         }}
       >
-        <Text>Follow Requests</Text>
+        <Text style={{ fontWeight: "bold" }}>Follow Requests +</Text>
       </TouchableOpacity>
     );
   };

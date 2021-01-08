@@ -11,7 +11,10 @@ const explorerNavigator = () => {
   return (
     <Stack.Navigator initialRouteName="Explore" mode="modal">
       <Stack.Screen
-        options={{ headerStyle: { height: Expo.Constants.statusBarHeight } }}
+        options={{
+          headerShown: false,
+          //headerStyle: { height: Expo.Constants.statusBarHeight }
+        }}
         name="Explore"
         component={Explore}
         mode={"modal"}

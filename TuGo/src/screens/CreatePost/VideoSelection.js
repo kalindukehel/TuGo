@@ -1,5 +1,12 @@
 import React from "react";
-import { StyleSheet, Text, View, TouchableOpacity, Dimensions } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  SafeAreaView,
+} from "react-native";
 import SearchItem from "../../components/SearchItem";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 
@@ -42,13 +49,14 @@ const VideoSelection = (props) => {
     />
   );
   return (
-    <View style={styles.container}>
+    <SafeAreaView style={styles.container}>
       <View
         style={{
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
-          margin: 15,
+          marginHorizontal: 15,
+          marginBottom: 10,
         }}
       >
         <TouchableOpacity
@@ -82,13 +90,13 @@ const VideoSelection = (props) => {
         audioLink={song.audioLink}
       />
       <TabView
-          navigationState={{ index, routes }}
-          renderScene={renderScene}
-          onIndexChange={setIndex}
-          initialLayout={initialLayout}
-          renderTabBar={renderTabBar}
+        navigationState={{ index, routes }}
+        renderScene={renderScene}
+        onIndexChange={setIndex}
+        initialLayout={initialLayout}
+        renderTabBar={renderTabBar}
       />
-    </View>
+    </SafeAreaView>
   );
 };
 
