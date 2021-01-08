@@ -9,10 +9,10 @@ import {
   Keyboard,
   SafeAreaView,
 } from "react-native";
-import { getSoundCloudSearch as getSoundCloudSearchAPI } from "../api";
+import { getSoundCloudSearch as getSoundCloudSearchAPI } from "../../api";
 import { TextInput } from "react-native-gesture-handler";
-import PostButton from "../../assets/PostButton.svg";
-import SearchItem from "../components/SearchItem";
+import PostButton from "../../../assets/PostButton.svg";
+import SearchItem from "../../components/SearchItem";
 import { render } from "react-dom";
 import { FlatList } from "react-native-gesture-handler";
 
@@ -130,7 +130,28 @@ const CreatePost = ({ navigation }) => {
         >
           <Text style={{ color: "blue" }}>CANCEL</Text>
         </TouchableOpacity>
-        <Text>NEXT</Text>
+        <TouchableOpacity
+          disabled={
+            Object.keys(selectedItem).length === 0 || !selectedItem.audioLink
+          }
+          onPress={() => {
+            navigation.navigate("Video Selection", {
+              song: selectedItem,
+            });
+          }}
+        >
+          <Text
+            style={{
+              color:
+                Object.keys(selectedItem).length === 0 ||
+                !selectedItem.audioLink
+                  ? "gray"
+                  : "blue",
+            }}
+          >
+            NEXT
+          </Text>
+        </TouchableOpacity>
       </View>
       <View style={{ margin: 8 }}>
         <TextInput
