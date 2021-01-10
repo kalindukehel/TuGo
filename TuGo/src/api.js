@@ -261,3 +261,11 @@ export async function getSoundCloudSuggestions(searchQuery) {
       "&client_id=HpnNV7hjv2C95uvBE55HuKBUOQGzNDQM&limit=10&offset=0&linked_partitioning=1&app_version=1609942767&app_locale=en"
   );
 }
+
+export async function getYoutubeSearch(searchQuery) {
+  return axios.get(
+    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" +
+      searchQuery +
+      "&key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"
+  );
+}
