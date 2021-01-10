@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,8 @@ import {
 } from "react-native";
 import SearchItem from "../../components/SearchItem";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import { FlatList } from "react-native-gesture-handler";
+import DanceChoreosTabView from "../../components/TabViews/DanceChoreosTabView";
 
 var { width, height } = Dimensions.get("window");
 
@@ -16,10 +18,20 @@ const VideoSelection = (props) => {
   const { song } = props.route.params;
   const { navigation } = props;
 
-  //tab view for more page
-  const FirstRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
-  );
+  //Use finalVideos variable to keep track of which videos are selected within child components
+  const finalVideos = useRef([]);
+
+  const selectFinalVideo = (newSet) => {
+    //Function to send into child components to set finalVideos, set is taken as a parameter
+    finalVideos.current = Array.from(newSet);
+  };
+
+  //Tab view for Dance Choreos
+  const FirstRoute = () => {
+    return (
+      <DanceChoreosTabView selectFinalVideo={selectFinalVideo} song={song} />
+    );
+  };
 
   const SecondRoute = () => (
     <View style={[styles.scene, { backgroundColor: "white" }]} />
@@ -70,6 +82,7 @@ const VideoSelection = (props) => {
           onPress={() => {
             navigation.navigate("Caption Selection", {
               song: song,
+              danceChoreos: finalVideos.current,
             });
           }}
         >

@@ -7,15 +7,24 @@ import {
   Dimensions,
   TextInput,
   SafeAreaView,
+  Image,
 } from "react-native";
+import { FlatList } from "react-native-gesture-handler";
+import RBSheet from "react-native-raw-bottom-sheet";
 import SearchItem from "../../components/SearchItem";
+import VideoTile from "../../components/VideoTile";
 
 var { width, height } = Dimensions.get("window");
 
 const CaptionSelection = (props) => {
-  const { song } = props.route.params;
+  const { song, danceChoreos, voiceCovers } = props.route.params;
   const { navigation } = props;
   const [caption, setCaption] = useState("");
+
+  const renderTile = (tile) => {
+    const videoId = tile.item;
+    return <VideoTile videoId={videoId} />;
+  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -59,9 +68,22 @@ const CaptionSelection = (props) => {
         title={song.title}
         audioLink={song.audioLink}
       />
+      {danceChoreos.length != 0 && (
+        <FlatList
+          data={danceChoreos}
+          renderItem={renderTile}
+          keyExtractor={(item, index) => index.toString()}
+          style={{
+            maxHeight: 170,
+            marginTop: 15,
+          }}
+          horizontal={true}
+        />
+      )}
       <TextInput
         style={{ ...styles.commentBar }}
         placeholder={"Add caption..."}
+        multiline={true}
         onChangeText={(value) => {
           setCaption(value);
         }}
@@ -91,10 +113,13 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     color: "black",
     borderRadius: 10,
-    height: 40,
-    paddingLeft: 20,
-    margin: 5,
+    height: 60,
+    paddingLeft: 10,
+    paddingTop: 10,
+    margin: 10,
+    textAlignVertical: "top",
     marginRight: 10,
+    backgroundColor: "#E8E8E8",
     borderColor: "gray",
     marginTop: 20,
   },
