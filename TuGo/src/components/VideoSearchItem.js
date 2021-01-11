@@ -31,7 +31,7 @@ const VideoSearchItem = (props) => {
             height: 90,
             borderWidth: selected ? 5 : 2,
             borderRadius: 10,
-            borderColor: selected ? "yellow" : "black",
+            borderColor: selected ? "turquoise" : "black",
             marginEnd: 10,
           }}
           source={{ uri: thumbnail }}

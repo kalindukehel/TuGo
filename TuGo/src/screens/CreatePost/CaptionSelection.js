@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import {
   StyleSheet,
   Text,
@@ -13,17 +13,25 @@ import { FlatList } from "react-native-gesture-handler";
 import RBSheet from "react-native-raw-bottom-sheet";
 import SearchItem from "../../components/SearchItem";
 import VideoTile from "../../components/VideoTile";
+import { createPost as createPostAPI } from "../../api";
+import { useAuthState } from "../../context/authContext";
 
 var { width, height } = Dimensions.get("window");
 
 const CaptionSelection = (props) => {
   const { song, danceChoreos, voiceCovers } = props.route.params;
   const { navigation } = props;
+  const { userToken } = useAuthState();
   const [caption, setCaption] = useState("");
 
   const renderTile = (tile) => {
     const videoId = tile.item;
     return <VideoTile videoId={videoId} />;
+  };
+
+  const makePost = () => {
+    //Call createPostAPI to create a new post
+    createPostAPI(caption, song, danceChoreos, userToken);
   };
 
   return (
@@ -45,16 +53,15 @@ const CaptionSelection = (props) => {
           <Text style={{ color: "blue" }}>CANCEL</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          disabled={true}
+          disabled={caption == ""}
           onPress={() => {
-            navigation.navigate("Video Selection", {
-              song: selectedItem,
-            });
+            makePost();
+            navigation.navigate("Explore");
           }}
         >
           <Text
             style={{
-              color: "blue",
+              color: caption == "" ? "grey" : "blue",
             }}
           >
             POST
