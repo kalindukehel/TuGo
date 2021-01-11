@@ -7401,6 +7401,16 @@ react-native-iphone-x-helper@^1.3.0:
   resolved "https://registry.yarnpkg.com/react-native-iphone-x-helper/-/react-native-iphone-x-helper-1.3.0.tgz#84fd13e6b89cc3aa4daa80ec514bf15cb724d86d"
   integrity sha512-+/bcZWFeZt0xSS/+3CHM5K7qPL4vDO/3ARLIowzFpUPGZiPsv9+NET+XNqqseRYwFJwYMmtX+Q4TZKxAVy09ew==
 
+react-native-mentions-editor@^1.0.11:
+  version "1.0.11"
+  resolved "https://registry.yarnpkg.com/react-native-mentions-editor/-/react-native-mentions-editor-1.0.11.tgz#dcab355b3e08bd2c9e0573848afd0f6c171bf0ea"
+  integrity sha512-yrBRX4pd2o4ZV2uuZxc/Kp+WsSKDKJhB7B6K9VlomsHh2TNRRKvgpmvQqY9sESyQ0NxiZH0MkVRChiN3IHLlqA==
+
+react-native-mentions@^1.1.4:
+  version "1.1.4"
+  resolved "https://registry.yarnpkg.com/react-native-mentions/-/react-native-mentions-1.1.4.tgz#dc50ef2f096a2ebf8819a44794f6b3046bc69308"
+  integrity sha1-3FDvLwlqLr+IGaRHlPazBGvGkwg=
+
 react-native-modal@^11.5.6:
   version "11.5.6"
   resolved "https://registry.yarnpkg.com/react-native-modal/-/react-native-modal-11.5.6.tgz#bb25a78c35a5e24f45de060e5f64284397d38a87"

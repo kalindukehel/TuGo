@@ -2,8 +2,12 @@ import axios from "axios";
 import { API_URL } from "../constants";
 import { useAuthState } from "./context/authContext";
 
-export async function getAccounts() {
-  return axios.get(`${API_URL}/api/accounts`);
+export async function getAccounts(token) {
+  return axios.get(`${API_URL}/api/accounts/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
 }
 
 export async function getAccountById(id, token) {
@@ -227,6 +231,7 @@ export async function getActivity(token) {
 }
 
 export async function searchUsers(data, token) {
+  console.log(data);
   let dic = {
     search_query: data ? data : null,
   };
