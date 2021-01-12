@@ -16,19 +16,19 @@ import { Video } from "expo-av";
 import VideoSearchItem from "../VideoSearchItem";
 
 //TabView to display YouTube items in VideoSelection in CreatePost
-const DanceChoreosTabView = (props) => {
-  const [danceChoreos, setDanceChoreos] = useState([]);
+const VoiceCoversTabView = (props) => {
+  const [voiceCovers, setVoiceCovers] = useState([]);
   const [selectedVideos, setSelectedVideos] = useState(new Set());
 
-  const { song, selectFinalChoreo } = props;
+  const { song, selectFinalCover } = props;
 
   useEffect(() => {
     let isLoaded = true;
 
-    const loadDanceChoreos = async () => {
-      //Get top 10 choreo results from youtube for user's selected song and store in danceChoreos
+    const loadVoiceCovers = async () => {
+      //Get top 10 cover results from youtube for user's selected song and store in voiceCovers
       const res = (
-        await getYoutubeSearch(song.title + " " + song.artist + " choreo")
+        await getYoutubeSearch(song.title + "  cover")
       ).data.items.map((item) => {
         return {
           videoId: item.id.videoId,
@@ -36,9 +36,9 @@ const DanceChoreosTabView = (props) => {
           thumbnail: item.snippet.thumbnails.high.url,
         };
       });
-      if (isLoaded) setDanceChoreos(res);
+      if (isLoaded) setVoiceCovers(res);
     };
-    loadDanceChoreos();
+    loadVoiceCovers();
 
     return () => {
       isLoaded = false;
@@ -50,13 +50,13 @@ const DanceChoreosTabView = (props) => {
       //If video is not currently selected, add it to selectedVideos
       const temp = selectedVideos.add(id);
       setSelectedVideos(new Set(temp));
-      selectFinalChoreo(new Set(temp));
+      selectFinalCover(new Set(temp));
     } else {
       //If video is current selected, deselect it
       selectedVideos.delete(id);
       const temp = new Set(selectedVideos);
       setSelectedVideos(new Set(selectedVideos));
-      selectFinalChoreo(temp);
+      selectFinalCover(temp);
     }
   };
 
@@ -89,7 +89,7 @@ const DanceChoreosTabView = (props) => {
     <View>
       <FlatList
         style={{ paddingTop: 10 }}
-        data={danceChoreos}
+        data={voiceCovers}
         renderItem={renderItem}
         keyExtractor={(item, index) => {
           return item.videoId.toString();
@@ -100,4 +100,4 @@ const DanceChoreosTabView = (props) => {
   );
 };
 
-export default DanceChoreosTabView;
+export default VoiceCoversTabView;

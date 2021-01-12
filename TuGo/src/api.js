@@ -267,6 +267,7 @@ export async function getYoutubeSearch(searchQuery) {
     "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" +
       searchQuery +
       "&key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"
+    //"&key=AIzaSyCP3Rb3_s9kW4MN1Huw_6j5NJ1QTHVyl54"
   );
 }
 

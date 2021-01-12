@@ -11,6 +11,7 @@ import SearchItem from "../../components/SearchItem";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { FlatList } from "react-native-gesture-handler";
 import DanceChoreosTabView from "../../components/TabViews/DanceChoreosTabView";
+import VoiceCoversTabView from "../../components/TabViews/VoiceCoversTabView";
 
 var { width, height } = Dimensions.get("window");
 
@@ -18,24 +19,45 @@ const VideoSelection = (props) => {
   const { song } = props.route.params;
   const { navigation } = props;
 
-  //Use finalVideos variable to keep track of which videos are selected within child components
-  const finalVideos = useRef([]);
+  //Use finalChoreos variable to keep track of which videos are selected within child components
+  const finalChoreos = useRef([]);
 
-  const selectFinalVideo = (newSet) => {
-    //Function to send into child components to set finalVideos, set is taken as a parameter
-    finalVideos.current = Array.from(newSet);
+  const finalCovers = useRef([]);
+
+  const selectFinalChoreo = (newSet) => {
+    //Function to send into child components to set finalChoreos, set is taken as a parameter
+    finalChoreos.current = Array.from(newSet);
+  };
+
+  const selectFinalCover = (newSet) => {
+    //Function to send into child components to set finalChoreos, set is taken as a parameter
+    finalCovers.current = Array.from(newSet);
   };
 
   //Tab view for Dance Choreos
   const FirstRoute = () => {
-    return (
-      <DanceChoreosTabView selectFinalVideo={selectFinalVideo} song={song} />
-    );
+    if (index == 0) {
+      return (
+        <DanceChoreosTabView
+          selectFinalChoreo={selectFinalChoreo}
+          song={song}
+        />
+      );
+    } else {
+      return null;
+    }
   };
 
-  const SecondRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
-  );
+  //Tab view for Voice Covers
+  const SecondRoute = () => {
+    if (index == 1) {
+      return (
+        <VoiceCoversTabView selectFinalCover={selectFinalCover} song={song} />
+      );
+    } else {
+      return null;
+    }
+  };
 
   const initialLayout = { width: Dimensions.get("window").width };
 
@@ -82,7 +104,8 @@ const VideoSelection = (props) => {
           onPress={() => {
             navigation.navigate("Caption Selection", {
               song: song,
-              danceChoreos: finalVideos.current,
+              danceChoreos: finalChoreos.current,
+              voiceCovers: finalCovers.current,
             });
           }}
         >

@@ -20,6 +20,7 @@ var { width, height } = Dimensions.get("window");
 
 const CaptionSelection = (props) => {
   const { song, danceChoreos, voiceCovers } = props.route.params;
+  const choreosAndCovers = [...danceChoreos, ...voiceCovers];
   const { navigation } = props;
   const { userToken } = useAuthState();
   const [caption, setCaption] = useState("");
@@ -75,9 +76,9 @@ const CaptionSelection = (props) => {
         title={song.title}
         audioLink={song.audioLink}
       />
-      {danceChoreos.length != 0 && (
+      {choreosAndCovers.length != 0 && (
         <FlatList
-          data={danceChoreos}
+          data={choreosAndCovers}
           renderItem={renderTile}
           keyExtractor={(item, index) => index.toString()}
           style={{
