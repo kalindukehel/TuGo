@@ -54,7 +54,6 @@ const CaptionSelection = (props) => {
           <Text style={{ color: "blue" }}>CANCEL</Text>
         </TouchableOpacity>
         <TouchableOpacity
-          disabled={caption == ""}
           onPress={() => {
             makePost();
             navigation.navigate("Explore");
@@ -62,7 +61,7 @@ const CaptionSelection = (props) => {
         >
           <Text
             style={{
-              color: caption == "" ? "grey" : "blue",
+              color: "blue",
             }}
           >
             POST
