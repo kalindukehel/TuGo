@@ -2,6 +2,7 @@ import { Image, View, TouchableOpacity } from "react-native";
 import React, { useRef } from "react";
 import RBSheet from "react-native-raw-bottom-sheet";
 import WebView from "react-native-webview";
+import YoutubePlayer from "react-native-yt-player";
 
 //Video Tile to display YouTube video linked to a post, or in CreatePost
 const VideoTile = (props) => {
@@ -46,7 +47,7 @@ const VideoTile = (props) => {
         }}
       >
         <View style={{ flex: 1, maxHeight: "100%" }}>
-          <WebView
+          {/* <WebView
             style={{ flex: 1, borderColor: "black" }}
             javaScriptEnabled={true}
             scrollEnabled={false}
@@ -54,6 +55,12 @@ const VideoTile = (props) => {
             source={{
               uri: url,
             }}
+          /> */}
+          <YoutubePlayer
+            loop
+            videoId={videoId}
+            onStart={() => console.log("onStart")}
+            onEnd={() => alert("on End")}
           />
         </View>
       </RBSheet>

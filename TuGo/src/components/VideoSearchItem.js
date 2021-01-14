@@ -12,6 +12,7 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { Image } from "react-native";
 import WebView from "react-native-webview";
 import RBSheet from "react-native-raw-bottom-sheet";
+import YoutubePlayer from "react-native-yt-player";
 
 //Component used in DanceChoreoTabView to display YouTube video results
 const VideoSearchItem = (props) => {
@@ -67,7 +68,7 @@ const VideoSearchItem = (props) => {
         }}
       >
         <View style={{ flex: 1, maxHeight: "100%" }}>
-          <WebView
+          {/* <WebView
             style={{ flex: 1, borderColor: "black" }}
             javaScriptEnabled={true}
             scrollEnabled={false}
@@ -75,6 +76,12 @@ const VideoSearchItem = (props) => {
             source={{
               uri: "https://www.youtube.com/watch?v=" + videoId,
             }}
+          /> */}
+          <YoutubePlayer
+            loop
+            videoId={videoId}
+            onStart={() => console.log("onStart")}
+            onEnd={() => alert("on End")}
           />
         </View>
       </RBSheet>

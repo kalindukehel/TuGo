@@ -316,3 +316,9 @@ export async function createPost(caption, postDetails, tiles, token) {
     });
   }
 }
+
+//Song lyrics api
+// export async function getSongLyrics(lyricsQuery) {
+//   console.log(lyricsQuery);
+//   return axios.get(`https://api.lyrics.ovh/v1/${lyricsQuery}`);
+// }
