@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -9,6 +9,9 @@ import {
 } from "react-native";
 import SearchItem from "../../components/SearchItem";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import { FlatList } from "react-native-gesture-handler";
+import DanceChoreosTabView from "../../components/TabViews/DanceChoreosTabView";
+import VoiceCoversTabView from "../../components/TabViews/VoiceCoversTabView";
 
 var { width, height } = Dimensions.get("window");
 
@@ -16,14 +19,45 @@ const VideoSelection = (props) => {
   const { song } = props.route.params;
   const { navigation } = props;
 
-  //tab view for more page
-  const FirstRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
-  );
+  //Use finalChoreos variable to keep track of which videos are selected within child components
+  const finalChoreos = useRef([]);
 
-  const SecondRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
-  );
+  const finalCovers = useRef([]);
+
+  const selectFinalChoreo = (newSet) => {
+    //Function to send into child components to set finalChoreos, set is taken as a parameter
+    finalChoreos.current = Array.from(newSet);
+  };
+
+  const selectFinalCover = (newSet) => {
+    //Function to send into child components to set finalChoreos, set is taken as a parameter
+    finalCovers.current = Array.from(newSet);
+  };
+
+  //Tab view for Dance Choreos
+  const FirstRoute = () => {
+    if (index == 0) {
+      return (
+        <DanceChoreosTabView
+          selectFinalChoreo={selectFinalChoreo}
+          song={song}
+        />
+      );
+    } else {
+      return null;
+    }
+  };
+
+  //Tab view for Voice Covers
+  const SecondRoute = () => {
+    if (index == 1) {
+      return (
+        <VoiceCoversTabView selectFinalCover={selectFinalCover} song={song} />
+      );
+    } else {
+      return null;
+    }
+  };
 
   const initialLayout = { width: Dimensions.get("window").width };
 
@@ -70,6 +104,8 @@ const VideoSelection = (props) => {
           onPress={() => {
             navigation.navigate("Caption Selection", {
               song: song,
+              danceChoreos: finalChoreos.current,
+              voiceCovers: finalCovers.current,
             });
           }}
         >

@@ -261,3 +261,64 @@ export async function getSoundCloudSuggestions(searchQuery) {
       "&client_id=dwEyLDp7xWIqlUI1M2YxPnIXGtBhtsia&limit=10&offset=0&linked_partitioning=1&app_version=1609942767&app_locale=en"
   );
 }
+
+export async function getYoutubeSearch(searchQuery) {
+  return axios.get(
+    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" +
+      searchQuery +
+      "&key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"
+    //"&key=AIzaSyCP3Rb3_s9kW4MN1Huw_6j5NJ1QTHVyl54"
+  );
+}
+
+export async function createPost(caption, postDetails, tiles, token) {
+  //Convert postDetails into an object to send as a request to api
+  let postData = {
+    caption: caption,
+    soundcloud_art: postDetails.coverArt,
+    soundcloud_audio: postDetails.audioLink,
+    soundcloud_search_query: postDetails.title + " " + postDetails.artist,
+    song_name: postDetails.title,
+    song_artist: postDetails.artist,
+    author: 2,
+  };
+
+  //Create post using postdata and store created object as res
+  const res = await axios.post(`${API_URL}/api/posts/`, postData, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "application/json",
+    },
+  });
+
+  //For every string (YouTube ID) sent in as tiles, create a tile under created object
+  for (let i = 0; i < tiles.length; i++) {
+    const tileUrl = "https://www.youtube.com/watch?v=" + tiles[i];
+    const tileThumbnail =
+      "https://i.ytimg.com/vi/" + tiles[i] + "/mqdefault.jpg";
+
+    //Parse tileData from tile index
+    const tileData = {
+      tile_type: "posted_choreo",
+      is_youtube: true,
+      link: tileUrl,
+      image: tileThumbnail,
+      view_count: 0,
+      post: 0,
+    };
+
+    //Create tile object under created post
+    await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, tileData, {
+      headers: {
+        Authorization: "Token " + token,
+        "Content-Type": "application/json",
+      },
+    });
+  }
+}
+
+//Song lyrics api
+// export async function getSongLyrics(lyricsQuery) {
+//   console.log(lyricsQuery);
+//   return axios.get(`https://api.lyrics.ovh/v1/${lyricsQuery}`);
+// }

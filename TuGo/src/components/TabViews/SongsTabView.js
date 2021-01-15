@@ -14,6 +14,7 @@ const SongsTabView = (props) => {
   const [results, setResults] = useState([]);
 
   useEffect(() => {
+    let isMounted = true;
     const loadSuggestions = async () => {
       if (isEditing && searchQuery != "") {
         //If user is still typing, get suggested song names as results
@@ -22,8 +23,7 @@ const SongsTabView = (props) => {
         ).data.collection.map((item) => {
           return item.output;
         });
-
-        setResults(tempSuggestions);
+        if (isMounted) setResults(tempSuggestions);
       } else if (searchQuery != "") {
         //If editing is finished and searchQuery is valid, get song items as results
         let response = await getSoundCloudSearchAPI(searchQuery);
@@ -44,10 +44,13 @@ const SongsTabView = (props) => {
 
         //Filter results with filter and keep only valid
         let tempResults = topData.filter((item) => checkValidPost(item));
-        setResults(tempResults);
+        if (isMounted) setResults(tempResults);
       }
     };
     loadSuggestions();
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   const ItemSeparatorView = () => {

@@ -30,6 +30,7 @@ import Ionicons from "react-native-vector-icons/Ionicons";
 import { API_URL } from "../../../constants";
 import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import { useScrollToTop } from "@react-navigation/native";
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -106,6 +107,10 @@ const Profile = (props) => {
   const [onBack, setOnBack] = useState(false);
   const [videoCount, setVideoCount] = useState(0);
   const firstRun = useRef(true);
+
+  //tap active tab to scroll to the top
+  const ref = React.useRef(null);
+  useScrollToTop(ref);
 
   let profileId = self.id;
   if (props.id && !id) {
@@ -325,7 +330,7 @@ const Profile = (props) => {
             >
               {user.name}
             </Text>
-            {profileId != self.id && (
+            {profileId != self.id ? (
               <View style={{ marginTop: 10 }}>
                 <TouchableOpacity
                   style={{
@@ -343,6 +348,25 @@ const Profile = (props) => {
                     }}
                   >
                     {isFollowing != "" && renderFollowingType()}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            ) : (
+              <View style={{ marginTop: 10 }}>
+                <TouchableOpacity
+                  style={{
+                    ...styles.followButton,
+                    backgroundColor: "#DCDCDC",
+                  }}
+                  onPress={() => {}}
+                >
+                  <Text
+                    style={{
+                      ...styles.followButtonText,
+                      fontWeight: "bold",
+                    }}
+                  >
+                    Edit Profile
                   </Text>
                 </TouchableOpacity>
               </View>
@@ -431,6 +455,7 @@ const Profile = (props) => {
       }}
     >
       <FlatList
+        ref={ref}
         style={{ flexDirection: "column" }}
         contentContainerStyle={styles.list}
         refreshControl={

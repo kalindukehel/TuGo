@@ -58,7 +58,7 @@ class Requester(models.Model):
     to_request = models.ForeignKey('Account',on_delete=models.CASCADE ,related_name='requests')
 
 class Post(models.Model):
-    caption = models.CharField(max_length=200, default='')
+    caption = models.CharField(max_length=200, default='', blank=True)
 
     soundcloud_art = models.URLField()
     soundcloud_audio = models.URLField()

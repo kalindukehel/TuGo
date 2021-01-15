@@ -4,7 +4,7 @@ import {
   Text,
   Dimensions,
   Image,
-  ScrollView,
+  Button,
   StyleSheet,
   TouchableOpacity,
   processColor,
@@ -44,6 +44,9 @@ import { Slider } from "react-native-elements";
 import { AntDesign } from "@expo/vector-icons";
 import { WebView } from "react-native-webview";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
+import YoutubePlayer from "react-native-yt-player";
+import Orientation from "react-native-orientation";
+import TextTicker from "react-native-text-ticker";
 
 var { width, height } = Dimensions.get("window");
 
@@ -157,11 +160,12 @@ const PostComponent = (props) => {
   };
 
   useEffect(() => {
-    onRefresh();
+    let isMounted = true;
+    if (isMounted) onRefresh();
     return () => {
       //When component exits
       try {
-        if (postRef.current.id == playingIdRef.current) {
+        if (postRef.current.id == playingIdRef.current && isMounted) {
           //If current playing song is same as current post
           setIsPlaying(false);
           isLoaded.current = false;
@@ -195,6 +199,12 @@ const PostComponent = (props) => {
     return unsubscribe;
   }, [navigation]);
 
+  const onFullScreen = (fullScreen) => {
+    if (fullScreen) {
+      Orientation.lockToLandscape();
+    }
+  };
+
   //tab view for more page
   const FirstRoute = () => (
     <View style={[styles.scene, { backgroundColor: "white" }]} />
@@ -204,9 +214,9 @@ const PostComponent = (props) => {
     <View style={[styles.scene, { backgroundColor: "white" }]} />
   );
 
-  const ThirdRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
-  );
+  const ThirdRoute = () => {
+    <View style={[styles.scene, { backgroundColor: "white" }]} />;
+  };
 
   const initialLayout = { width: Dimensions.get("window").width };
 
@@ -304,6 +314,7 @@ const PostComponent = (props) => {
 
   const renderTile = (tile) => {
     const curTile = tile.item;
+    let vidLink = curTile.link.substr(curTile.link.length - 11);
     return (
       <View
         style={{
@@ -331,7 +342,7 @@ const PostComponent = (props) => {
           />
         </TouchableOpacity>
         <RBSheet
-          height={400}
+          height={300}
           ref={(ref) => {
             //set RBSheet array index equal to this object
             refRBSheet.current[tile.index] = ref;
@@ -348,7 +359,7 @@ const PostComponent = (props) => {
           }}
         >
           <View style={{ flex: 1, maxHeight: "100%" }}>
-            <WebView
+            {/* <WebView
               style={{ flex: 1, borderColor: "black" }}
               javaScriptEnabled={true}
               scrollEnabled={false}
@@ -356,6 +367,13 @@ const PostComponent = (props) => {
               source={{
                 uri: curTile.link,
               }}
+            /> */}
+            <YoutubePlayer
+              loop
+              videoId={vidLink}
+              onStart={() => console.log("onStart")}
+              onEnd={() => alert("on End")}
+              onFullScreen={onFullScreen}
             />
           </View>
         </RBSheet>
@@ -450,13 +468,24 @@ const PostComponent = (props) => {
                 style={{
                   flexDirection: "column",
                   marginLeft: 20,
-                  marginBottom: 20,
+                  marginTop: 15,
+                  width: 220,
                 }}
               >
                 <Text style={{ color: "white" }}>{post.song_artist}</Text>
-                <Text style={{ color: "white", fontWeight: "bold" }}>
+                <TextTicker
+                  style={{
+                    color: "white",
+                    fontWeight: "bold",
+                  }}
+                  duration={7000}
+                  bounce
+                  repeatSpacer={50}
+                  marqueeDelay={1000}
+                  shouldAnimateTreshold={40}
+                >
                   {post.song_name}
-                </Text>
+                </TextTicker>
               </View>
             </View>
             <Slider

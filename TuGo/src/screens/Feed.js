@@ -15,12 +15,17 @@ import { useAuthState } from "../context/authContext";
 import { Entypo } from "@expo/vector-icons";
 import { getFeedPosts as getFeedPostsAPI } from "../api";
 import PostComponent from "../components/PostComponent";
+import { useScrollToTop } from "@react-navigation/native";
 
 const Feed = ({ navigation }) => {
   const { userToken } = useAuthState();
   const dispatch = useAuthDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [feed, setFeed] = useState(null);
+
+  //tap active tab to scroll to the top
+  const ref = React.useRef(null);
+  useScrollToTop(ref);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -61,7 +66,7 @@ const Feed = ({ navigation }) => {
       // Flat List Item Separator
       <View
         style={{
-          height: 50,
+          height: 30,
           alignSelf: "center",
         }}
       />
@@ -71,6 +76,7 @@ const Feed = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+        ref={ref}
         data={feed}
         renderItem={renderItem}
         keyExtractor={(item, index) => index.toString()}
