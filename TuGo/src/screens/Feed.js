@@ -79,7 +79,7 @@ const Feed = ({ navigation }) => {
         ref={ref}
         data={feed}
         renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) => item.id}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
