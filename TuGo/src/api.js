@@ -238,6 +238,18 @@ export async function searchUsers(data, token) {
   });
 }
 
+export async function toggleAccountVisilibity(isPrivate, token) {
+  let data = {
+    is_private: isPrivate,
+  };
+  return axios.patch(`${API_URL}/api/accounts/self/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
 /* Non-Django API Functions */
 
 export async function getAudioLink(soundCloudLink) {
