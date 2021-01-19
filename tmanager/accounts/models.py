@@ -36,6 +36,8 @@ class Account(AbstractBaseUser, PermissionsMixin):
     profile_picture = models.ImageField(upload_to='profilePictures/', default='/default.jpg')
     is_private = models.BooleanField(default=False)
 
+    notification_token = models.CharField(max_length=50, unique=True, null=True, error_messages={'unique':'Token is already assigned.'})
+
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
