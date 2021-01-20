@@ -7,6 +7,7 @@ import Activity from "../screens/Activity";
 import ProfileNavigator from "./ProfileNavigator";
 import ExploreNavigator from "./ExploreNavigator";
 import FeedNavigator from "./FeedNavigator";
+import NotificationExample from "../screens/NotificationExample";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { useAuthState, useAuthDispatch } from "../context/authContext";

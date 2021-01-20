@@ -22,10 +22,12 @@ import {
   favoritePost as favoritePostAPI,
   getAudioLink as getAudioLinkAPI,
   getSoundCloudSearch as getSoundCloudSearchAPI,
+  pushNotification as pushNotificationAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { API_URL } from "../../constants";
+import * as Notifications from "expo-notifications";
 
 import Like from "../../assets/LikeButton.svg";
 import Play from "../../assets/PlayButton.svg";
@@ -73,6 +75,10 @@ const PostComponent = (props) => {
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  //push notifications expo
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
   const refRBSheet = useRef([]);
   const moreRef = useRef();
@@ -186,6 +192,27 @@ const PostComponent = (props) => {
     setIsPlaying(false);
   }, [stopAll]);
 
+  //Push Notification
+  useEffect(() => {
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    notificationListener.current = Notifications.addNotificationReceivedListener(
+      (notification) => {}
+    );
+
+    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        console.log(response);
+        navigation.navigate("Activity");
+      }
+    );
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
+
   React.useEffect(() => {
     //When navigation is changed update the post states
     const unsubscribe = navigation.addListener("focus", async () => {
@@ -252,6 +279,11 @@ const PostComponent = (props) => {
   async function likePost() {
     const likeRes = await likePostAPI(userToken, postId);
     getLikesStates();
+    const notifRes = await pushNotificationAPI(
+      author.notification_token,
+      self.username,
+      "like"
+    );
   }
 
   async function getFavoriteStates() {

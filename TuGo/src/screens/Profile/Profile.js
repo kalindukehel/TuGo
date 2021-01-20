@@ -18,11 +18,12 @@ import {
 import {
   getUserInfo as getUserInfoAPI,
   getPosts as getPostsAPI,
-  by_ids as by_idsAPI,
+  getAccountById as getAccountByIdAPI,
   getPostTiles as getPostTilesAPI,
   getFollowing as getFollowingAPI,
   changeFollow as changeFollowAPI,
   getRequested as getRequestedAPI,
+  pushNotification as pushNotificationAPI,
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
@@ -31,6 +32,7 @@ import { API_URL } from "../../../constants";
 import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useScrollToTop } from "@react-navigation/native";
+import * as Notifications from "expo-notifications";
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -108,6 +110,10 @@ const Profile = (props) => {
   const [videoCount, setVideoCount] = useState(0);
   const firstRun = useRef(true);
 
+  //push notifications expo
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
   useScrollToTop(ref);
@@ -151,8 +157,8 @@ const Profile = (props) => {
 
   async function getUserStates() {
     //Update user data from API
-    const userState = await by_idsAPI([profileId], userToken);
-    setUser(userState.data[0]);
+    const userState = await getAccountByIdAPI(profileId, userToken);
+    setUser(userState.data);
     const userInfo = await getUserInfoAPI(userToken, profileId);
     try {
       const postsState = await getPostsAPI(userToken, profileId);
@@ -178,6 +184,26 @@ const Profile = (props) => {
   useEffect(() => {
     onRefresh();
   }, [profileId]);
+
+  //Push Notification
+  useEffect(() => {
+    // This listener is fired whenever a notification is received while the app is foregrounded
+    notificationListener.current = Notifications.addNotificationReceivedListener(
+      (notification) => {}
+    );
+
+    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
+    responseListener.current = Notifications.addNotificationResponseReceivedListener(
+      (response) => {
+        navigation.navigate("Follow Requests");
+      }
+    );
+
+    return () => {
+      Notifications.removeNotificationSubscription(notificationListener);
+      Notifications.removeNotificationSubscription(responseListener);
+    };
+  }, []);
 
   React.useEffect(() => {
     //When navigation is changed update the user data
@@ -269,9 +295,7 @@ const Profile = (props) => {
         </View>
         <Image
           source={{
-            uri: user
-              ? API_URL + user.profile_picture
-              : API_URL + "/media/default.jpg",
+            uri: user ? user.profile_picture : API_URL + "/media/default.jpg",
           }}
           style={styles.profilePicture}
         ></Image>
@@ -302,6 +326,11 @@ const Profile = (props) => {
     const res = await changeFollowAPI(userToken, profileId);
     checkFollow();
     getUserStates();
+    const notifRes = await pushNotificationAPI(
+      user.notification_token,
+      self.username,
+      "follow"
+    );
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 

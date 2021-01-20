@@ -238,6 +238,51 @@ export async function searchUsers(data, token) {
   });
 }
 
+export async function postNotificationToken(data, token, id) {
+  return axios.patch(
+    `${API_URL}/api/accounts/${id}/`,
+    {
+      notification_token: data,
+    },
+    {
+      headers: {
+        Authorization: "Token " + token,
+      },
+    }
+  );
+}
+
+/* Push Notification functions */
+
+export async function pushNotification(expoPushToken, creator, type) {
+  let message;
+  if (type == "like") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      body: `${creator} liked your post`,
+      data: { data: "goes here" },
+    };
+  } else if (type == "follow") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "New Follower",
+      body: `${creator} is now Following you.`,
+      data: { data: "goes here" },
+    };
+  }
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
+  });
+}
+
 /* Non-Django API Functions */
 
 export async function getAudioLink(soundCloudLink) {
