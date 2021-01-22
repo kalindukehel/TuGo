@@ -191,13 +191,14 @@ class PostViewSet(viewsets.ModelViewSet):
             #if like was not created it already exists
             if not created:
                 like.delete()
+                return Response(status=status.HTTP_204_NO_CONTENT)
             else:
                 like.save()
                 #If user is not liking own post, push activity item to the user receiving the like
                 if(request.user != self.get_object().author):
                     activity_item = Activity_Item(user=self.get_object().author,activity_type='LIKE',action_user=request.user,post=self.get_object(),like=like)
                     activity_item.save()
-            return Response(status=status.HTTP_201_CREATED)
+                return Response(status=status.HTTP_201_CREATED)
         else:
             all_likes = self.get_object().likes.all()
             serializer = LikeSerializer(all_likes,many=True)
