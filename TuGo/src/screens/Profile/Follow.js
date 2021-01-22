@@ -169,7 +169,7 @@ const Followers = (props) => {
       newFollowingStatus = "true";
     } else if (res.status == 202) {
       newFollowingStatus = "requested";
-    } else if (res.status == 205) {
+    } else if (res.status == 204) {
       newFollowingStatus = "false";
     }
     let tempFollowingStatus = Object.assign({}, followingStatus);

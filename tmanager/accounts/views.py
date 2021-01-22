@@ -101,7 +101,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 follow_request, created = self.get_object().requests.all().get_or_create(requester=request.user,to_request=self.get_object())
                 if not created:
                     follow_request.delete()
-                    return Response(status=status.HTTP_205_RESET_CONTENT)
+                    return Response(status=status.HTTP_204_NO_CONTENT)
                 else:
                     follow_request.save()
                     return Response(status=status.HTTP_202_ACCEPTED)
@@ -110,7 +110,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                 #if follower already exists (not created) delete existing one
                 if not created:
                     follower.delete()
-                    return Response(status=status.HTTP_205_RESET_CONTENT)
+                    return Response(status=status.HTTP_204_NO_CONTENT)
 
                 #if follower is created, then save the object and push a new activity item to followed user
                 else:
