@@ -185,26 +185,6 @@ const Profile = (props) => {
     onRefresh();
   }, [profileId]);
 
-  //Push Notification
-  useEffect(() => {
-    // This listener is fired whenever a notification is received while the app is foregrounded
-    notificationListener.current = Notifications.addNotificationReceivedListener(
-      (notification) => {}
-    );
-
-    // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
-    responseListener.current = Notifications.addNotificationResponseReceivedListener(
-      (response) => {
-        navigation.navigate("Follow Requests");
-      }
-    );
-
-    return () => {
-      Notifications.removeNotificationSubscription(notificationListener);
-      Notifications.removeNotificationSubscription(responseListener);
-    };
-  }, []);
-
   React.useEffect(() => {
     //When navigation is changed update the user data
     const unsubscribe = navigation.addListener("focus", async () => {
@@ -326,11 +306,20 @@ const Profile = (props) => {
     const res = await changeFollowAPI(userToken, profileId);
     checkFollow();
     getUserStates();
-    const notifRes = await pushNotificationAPI(
-      user.notification_token,
-      self.username,
-      "follow"
-    );
+    if (res.status == 201) {
+      await pushNotificationAPI(
+        user.notification_token,
+        self.username,
+        "follow"
+      );
+    } else if (res.status == 202) {
+      await pushNotificationAPI(
+        user.notification_token,
+        self.username,
+        "request"
+      );
+    } else if (res.status == 205) {
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 

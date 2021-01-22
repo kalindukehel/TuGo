@@ -6,6 +6,7 @@ import { isSignedIn, signed } from "./src/auth";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { AuthProvider } from "./src/context/authContext";
 import { PlayerProvider } from "./src/context/playerContext";
+import { NotificationProvider } from "./src/context/notificationContext";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 
 const Tab = createBottomTabNavigator();
@@ -15,7 +16,9 @@ export default App = () => {
     <SafeAreaProvider>
       <AuthProvider>
         <PlayerProvider>
-          <AppNavigator />
+          <NotificationProvider>
+            <AppNavigator />
+          </NotificationProvider>
         </PlayerProvider>
       </AuthProvider>
     </SafeAreaProvider>

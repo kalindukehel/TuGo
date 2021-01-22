@@ -2,6 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { View, Text, StyleSheet, RefreshControl, FlatList } from "react-native";
 import { useAuthDispatch } from "../context/authContext";
 import { useAuthState } from "../context/authContext";
+import { useNotificationDispatch } from "../context/notificationContext";
 
 import LikeActivity from "../components/Activity/LikeActivity";
 import CommentActivity from "../components/Activity/CommentActivity";
@@ -14,6 +15,7 @@ import { TouchableOpacity } from "react-native-gesture-handler";
 const Activity = ({ navigation }) => {
   const { userToken } = useAuthState();
   const dispatch = useAuthDispatch();
+  const notificationDispatch = useNotificationDispatch();
   const [activities, setActivities] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const firstRun = useRef(true);
@@ -29,6 +31,7 @@ const Activity = ({ navigation }) => {
   }, []);
 
   useEffect(() => {
+    notificationDispatch({ type: "ADD_NOTIFICATION", unread: false });
     onRefresh();
   }, []);
 

@@ -19,6 +19,7 @@ import {
   getRequested as getRequestedAPI,
   changeFollow as changeFollowAPI,
   by_ids as by_idsAPI,
+  pushNotification as pushNotificationAPI,
 } from "../../api";
 import { FlatList } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
@@ -162,13 +163,16 @@ const Followers = (props) => {
     }
   };
 
-  async function changeFollow(id) {
+  async function changeFollow(id, notification_token) {
     const res = await changeFollowAPI(userToken, id);
     let newFollowingStatus;
+    console.log(res.status);
     if (res.status == 201) {
       newFollowingStatus = "true";
+      await pushNotificationAPI(notification_token, self.username, "follow");
     } else if (res.status == 202) {
       newFollowingStatus = "requested";
+      await pushNotificationAPI(notification_token, self.username, "request");
     } else if (res.status == 204) {
       newFollowingStatus = "false";
     }
@@ -180,6 +184,7 @@ const Followers = (props) => {
 
   const renderItem = (item) => {
     let follow = item.item;
+    console.log(follow);
     const isSelf = follow.id == self.id;
     const renderFollowingType = () => {
       if (followingStatus[follow.id] == "true") {
@@ -232,7 +237,7 @@ const Followers = (props) => {
             }}
             onPress={() =>
               !isSelf
-                ? changeFollow(follow.id)
+                ? changeFollow(follow.id, follow.notification_token)
                 : navigation.push("Profile", {
                     id: follow.id,
                   })
