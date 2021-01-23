@@ -32,7 +32,7 @@ const CaptionSelection = (props) => {
 
   const makePost = () => {
     //Call createPostAPI to create a new post
-    createPostAPI(caption, song, danceChoreos, userToken);
+    createPostAPI(caption, song, choreosAndCovers, userToken);
   };
 
   return (
