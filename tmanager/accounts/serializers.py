@@ -21,7 +21,8 @@ class PrivateAccountSerializer(serializers.ModelSerializer):
             'id',
             'username',
             'profile_picture',
-            'name'
+            'name',
+            'notification_token'
             )
 
 class PostSerializer(serializers.ModelSerializer):

@@ -5,6 +5,7 @@ import Feed from "../screens/Feed";
 import Likes from "../screens/Likes";
 import Comments from "../screens/Comments";
 import ProfileNavigator from "./ProfileNavigator";
+import FollowRequests from "../screens/FollowRequests";
 import { useAuthState } from "../context/authContext";
 
 const Stack = createStackNavigator();
@@ -64,6 +65,19 @@ const FeedNavigator = () => {
           return <ProfileNavigator {...props} id={props.route.params.id} />;
         }}
       </Stack.Screen>
+      <Stack.Screen
+        name="Follow Requests"
+        options={{
+          title: "Follow Requests",
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+        }}
+        component={FollowRequests}
+      />
     </Stack.Navigator>
   );
 };

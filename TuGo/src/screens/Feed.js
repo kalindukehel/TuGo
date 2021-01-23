@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -7,27 +7,40 @@ import {
   SafeAreaView,
   FlatList,
   RefreshControl,
+  Button,
 } from "react-native";
 import { onSignOut } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
-import { signOut as signOutAPI } from "../api";
+import { sendPushNotification as sendPushNotificationAPI } from "../api";
 import { useAuthState } from "../context/authContext";
+import {
+  useNotificationState,
+  useNotificationDispatch,
+} from "../context/notificationContext";
 import { Entypo } from "@expo/vector-icons";
 import { getFeedPosts as getFeedPostsAPI } from "../api";
 import PostComponent from "../components/PostComponent";
 import { useScrollToTop } from "@react-navigation/native";
+import { Avatar, Badge, Icon, withBadge } from "react-native-elements";
 
 const Feed = ({ navigation }) => {
-  const { userToken } = useAuthState();
+  const { userToken, self } = useAuthState();
+  const { unread } = useNotificationState();
   const dispatch = useAuthDispatch();
+  const notificationDispatch = useNotificationDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [feed, setFeed] = useState(null);
+  //push notifications expo
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
+  console.log("unread is: " + unread);
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
   useScrollToTop(ref);
 
   React.useLayoutEffect(() => {
+    const BadgedIcon = withBadge()(Icon);
     navigation.setOptions({
       headerLeft: () => (
         <TouchableOpacity
@@ -36,11 +49,16 @@ const Feed = ({ navigation }) => {
             navigation.navigate("Activity");
           }}
         >
-          <Entypo name="notification" size={24} color="black" />
+          {/* <BadgedIcon type="entypo" name="notification" size={30} style={{}} /> */}
+          {unread ? (
+            <Entypo name="notification" size={24} color="red" />
+          ) : (
+            <Entypo name="notification" size={24} color="black" />
+          )}
         </TouchableOpacity>
       ),
     });
-  }, [navigation]);
+  }, [navigation, unread]);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);

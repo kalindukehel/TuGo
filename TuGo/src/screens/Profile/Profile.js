@@ -18,11 +18,12 @@ import {
 import {
   getUserInfo as getUserInfoAPI,
   getPosts as getPostsAPI,
-  by_ids as by_idsAPI,
+  getAccountById as getAccountByIdAPI,
   getPostTiles as getPostTilesAPI,
   getFollowing as getFollowingAPI,
   changeFollow as changeFollowAPI,
   getRequested as getRequestedAPI,
+  pushNotification as pushNotificationAPI,
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
@@ -31,6 +32,7 @@ import { API_URL } from "../../../constants";
 import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useScrollToTop } from "@react-navigation/native";
+import * as Notifications from "expo-notifications";
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -108,6 +110,10 @@ const Profile = (props) => {
   const [videoCount, setVideoCount] = useState(0);
   const firstRun = useRef(true);
 
+  //push notifications expo
+  const notificationListener = useRef();
+  const responseListener = useRef();
+
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
   useScrollToTop(ref);
@@ -151,8 +157,8 @@ const Profile = (props) => {
 
   async function getUserStates() {
     //Update user data from API
-    const userState = await by_idsAPI([profileId], userToken);
-    setUser(userState.data[0]);
+    const userState = await getAccountByIdAPI(profileId, userToken);
+    setUser(userState.data);
     const userInfo = await getUserInfoAPI(userToken, profileId);
     try {
       const postsState = await getPostsAPI(userToken, profileId);
@@ -269,9 +275,7 @@ const Profile = (props) => {
         </View>
         <Image
           source={{
-            uri: user
-              ? API_URL + user.profile_picture
-              : API_URL + "/media/default.jpg",
+            uri: user ? user.profile_picture : API_URL + "/media/default.jpg",
           }}
           style={styles.profilePicture}
         ></Image>
@@ -302,6 +306,20 @@ const Profile = (props) => {
     const res = await changeFollowAPI(userToken, profileId);
     checkFollow();
     getUserStates();
+    if (res.status == 201) {
+      await pushNotificationAPI(
+        user.notification_token,
+        self.username,
+        "follow"
+      );
+    } else if (res.status == 202) {
+      await pushNotificationAPI(
+        user.notification_token,
+        self.username,
+        "request"
+      );
+    } else if (res.status == 205) {
+    }
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 

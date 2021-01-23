@@ -1,6 +1,7 @@
 import axios from "axios";
 import { API_URL } from "../constants";
 import { useAuthState } from "./context/authContext";
+import * as Notifications from "expo-notifications";
 
 export async function getAccounts() {
   return axios.get(`${API_URL}/api/accounts`);
@@ -235,6 +236,67 @@ export async function searchUsers(data, token) {
       Authorization: "Token " + token,
       "Content-Type": "application/json",
     },
+  });
+}
+
+export async function postNotificationToken(data, token, id) {
+  return axios.patch(
+    `${API_URL}/api/accounts/${id}/`,
+    {
+      notification_token: data,
+    },
+    {
+      headers: {
+        Authorization: "Token " + token,
+      },
+    }
+  );
+}
+
+/* Push Notification functions */
+
+export async function pushNotification(expoPushToken, creator, type) {
+  let message;
+  if (type == "like") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      body: `${creator} liked your post`,
+      data: { type: "like" },
+    };
+  } else if (type == "follow") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "New Follower",
+      body: `${creator} started following you`,
+      data: { type: "follow" },
+    };
+  } else if (type == "request") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "New Follower",
+      body: `${creator} requested to following you`,
+      data: { type: "request" },
+    };
+  } else if (type == "comment") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "New Comment",
+      body: `${creator} commented on your post`,
+      data: { type: "comment" },
+    };
+  }
+  await fetch("https://exp.host/--/api/v2/push/send", {
+    method: "POST",
+    headers: {
+      Accept: "application/json",
+      "Accept-encoding": "gzip, deflate",
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(message),
   });
 }
 

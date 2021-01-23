@@ -22,6 +22,7 @@ import {
   favoritePost as favoritePostAPI,
   getAudioLink as getAudioLinkAPI,
   getSoundCloudSearch as getSoundCloudSearchAPI,
+  pushNotification as pushNotificationAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
@@ -73,6 +74,10 @@ const PostComponent = (props) => {
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+
+  //push notifications expo
+  const notificationListener = useRef();
+  const responseListener = useRef();
 
   const refRBSheet = useRef([]);
   const moreRef = useRef();
@@ -252,6 +257,17 @@ const PostComponent = (props) => {
   async function likePost() {
     const likeRes = await likePostAPI(userToken, postId);
     getLikesStates();
+    console.log(likeRes.status);
+    if (
+      likeRes.status == 201 &&
+      author.notification_token != self.notification_token
+    ) {
+      const notifRes = await pushNotificationAPI(
+        author.notification_token,
+        self.username,
+        "like"
+      );
+    }
   }
 
   async function getFavoriteStates() {
