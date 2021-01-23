@@ -96,7 +96,7 @@ const Feed = ({ navigation }) => {
         ref={ref}
         data={feed}
         renderItem={renderItem}
-        keyExtractor={(item, index) => item.id}
+        keyExtractor={(item, index) => item.id.toString()}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
