@@ -7,7 +7,7 @@ import {
   Button,
   StyleSheet,
   TouchableOpacity,
-  processColor,
+  Alert,
   FlatList,
 } from "react-native";
 import {
@@ -23,10 +23,13 @@ import {
   getAudioLink as getAudioLinkAPI,
   getSoundCloudSearch as getSoundCloudSearchAPI,
   pushNotification as pushNotificationAPI,
+  getPosts as getPostsAPI,
+  deletePost as deletePostAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { API_URL } from "../../constants";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Like from "../../assets/LikeButton.svg";
 import Play from "../../assets/PlayButton.svg";
@@ -40,9 +43,12 @@ import * as Haptics from "expo-haptics";
 import RBSheet from "react-native-raw-bottom-sheet";
 
 import { Audio } from "expo-av";
-
 import { Slider } from "react-native-elements";
+
+//icons
+import { Octicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
+
 import { WebView } from "react-native-webview";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import YoutubePlayer from "react-native-yt-player";
@@ -52,6 +58,9 @@ import TextTicker from "react-native-text-ticker";
 var { width, height } = Dimensions.get("window");
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
+
+//the height of each options tile (hamburger options)
+const optionHeight = 60;
 
 //PostComponent is a post by a user
 const PostComponent = (props) => {
@@ -64,6 +73,7 @@ const PostComponent = (props) => {
 
   const [refreshing, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
+  const [allPost, setAllPost] = useState(null);
   const [likes, setLikes] = useState(null);
   const [comments, setComments] = useState(null);
   const [tiles, setTiles] = useState(null);
@@ -74,6 +84,9 @@ const PostComponent = (props) => {
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [modalVisible, setModalVisible] = useState(false);
+  const [isSelf, setIsSelf] = useState(false);
+
+  const insets = useSafeAreaInsets();
 
   //push notifications expo
   const notificationListener = useRef();
@@ -81,6 +94,7 @@ const PostComponent = (props) => {
 
   const refRBSheet = useRef([]);
   const moreRef = useRef();
+  const optionsRef = useRef();
   const stateRef = useRef();
   const isLoaded = useRef(false);
   const postRef = useRef();
@@ -105,6 +119,9 @@ const PostComponent = (props) => {
     setTiles(tilesRes.data);
     const favRes = await getPostFavoriteAPI(userToken, postId);
     setIsFavorite(favRes.data.favorited);
+    const postsState = await getPostsAPI(userToken, self.id);
+    const postIds = postsState.data.map((item) => item.id);
+    setIsSelf(postIds.includes(postRes.data.id));
   }
 
   const onRefresh = async () => {
@@ -219,9 +236,9 @@ const PostComponent = (props) => {
     <View style={[styles.scene, { backgroundColor: "white" }]} />
   );
 
-  const ThirdRoute = () => {
-    <View style={[styles.scene, { backgroundColor: "white" }]} />;
-  };
+  const ThirdRoute = () => (
+    <View style={[styles.scene, { backgroundColor: "white" }]} />
+  );
 
   const initialLayout = { width: Dimensions.get("window").width };
 
@@ -328,6 +345,34 @@ const PostComponent = (props) => {
     setIsSeeking(false);
   }
 
+  //delete confirmation alert function
+  const deleteConfirmation = () =>
+    Alert.alert(
+      "Confirmation",
+      "Are you sure?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            deletePost();
+            optionsRef.current.close();
+            if (navigation.canGoBack()) navigation.goBack();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+
+  //delete post async function
+  const deletePost = async () => {
+    const res = await deletePostAPI(postId, userToken);
+  };
+
   const renderTile = (tile) => {
     const curTile = tile.item;
     let vidLink = curTile.link.substr(curTile.link.length - 11);
@@ -358,24 +403,29 @@ const PostComponent = (props) => {
           />
         </TouchableOpacity>
         <RBSheet
-          height={300}
           ref={(ref) => {
             //set RBSheet array index equal to this object
             refRBSheet.current[tile.index] = ref;
           }}
           closeOnDragDown={true}
-          closeOnPressMask={false}
+          closeOnPressMask={true}
           customStyles={{
             wrapper: {
-              backgroundColor: "transparent",
+              backgroundColor: "rgba(0,0,0,0.5)",
             },
             draggableIcon: {
               backgroundColor: "#000",
             },
+            container: {
+              marginBottom: insets.bottom,
+              backgroundColor: "#DCDCDC",
+              borderTopLeftRadius: 10,
+              borderTopRightRadius: 10,
+            },
           }}
         >
-          <View style={{ flex: 1, maxHeight: "100%" }}>
-            {/* <WebView
+          {/* <View style={{ flex: 1, maxHeight: "100%", backgroundColor: "red" }}> */}
+          {/* <WebView
               style={{ flex: 1, borderColor: "black" }}
               javaScriptEnabled={true}
               scrollEnabled={false}
@@ -384,14 +434,14 @@ const PostComponent = (props) => {
                 uri: curTile.link,
               }}
             /> */}
-            <YoutubePlayer
-              loop
-              videoId={vidLink}
-              onStart={() => console.log("onStart")}
-              onEnd={() => alert("on End")}
-              onFullScreen={onFullScreen}
-            />
-          </View>
+          <YoutubePlayer
+            loop
+            videoId={vidLink}
+            onStart={() => console.log("onStart")}
+            onEnd={() => alert("on End")}
+            onFullScreen={onFullScreen}
+          />
+          {/* </View> */}
         </RBSheet>
       </View>
     );
@@ -437,9 +487,109 @@ const PostComponent = (props) => {
               </Text>
             </View>
           </TouchableOpacity>
-          <Text style={{ color: "gray" }}>
-            {post ? moment(post.created_at).fromNow() : ""}
-          </Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <Text style={{ color: "gray" }}>
+              {post ? moment(post.created_at).fromNow() : ""}
+            </Text>
+            <TouchableOpacity
+              style={{
+                paddingRight: 15,
+                paddingLeft: 5,
+                marginLeft: 10,
+              }}
+              onPress={() => {
+                optionsRef.current.open();
+              }}
+            >
+              <Octicons name="kebab-horizontal" size={24} color="black" />
+            </TouchableOpacity>
+          </View>
+          <RBSheet
+            height={isSelf ? optionHeight * 2 : optionHeight * 2}
+            ref={optionsRef}
+            closeOnDragDown={false}
+            closeOnPressMask={true}
+            customStyles={{
+              wrapper: {
+                backgroundColor: "rgba(0,0,0,0.5)",
+              },
+              draggableIcon: {
+                backgroundColor: "transparent",
+              },
+              container: {
+                borderRadius: 20,
+                marginBottom: insets.bottom || 20,
+                width: 0.9 * width,
+                alignSelf: "center",
+              },
+            }}
+          >
+            {isSelf ? (
+              <TouchableOpacity
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flex: 1,
+                  backgroundColor: "#DCDCDC",
+                }}
+                onPress={deleteConfirmation}
+              >
+                <Text
+                  style={{
+                    fontSize: 15,
+                    color: "red",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Delete
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  flex: 1,
+                  backgroundColor: "#DCDCDC",
+                }}
+                onPress={() => {}}
+              >
+                <Text
+                  style={{
+                    fontSize: 15,
+                    color: "red",
+                    fontWeight: "bold",
+                  }}
+                >
+                  Report
+                </Text>
+              </TouchableOpacity>
+            )}
+            <TouchableOpacity
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                flex: 1,
+              }}
+              onPress={() => {
+                optionsRef.current.close();
+              }}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: "bold",
+                }}
+              >
+                Cancel
+              </Text>
+            </TouchableOpacity>
+          </RBSheet>
         </View>
         <View
           style={{

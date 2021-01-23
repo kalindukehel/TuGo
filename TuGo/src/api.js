@@ -300,6 +300,14 @@ export async function pushNotification(expoPushToken, creator, type) {
   });
 }
 
+export async function deletePost(postId, token) {
+  return axios.delete(`${API_URL}/api/posts/${postId}/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 /* Non-Django API Functions */
 
 export async function getAudioLink(soundCloudLink) {

@@ -34,7 +34,6 @@ const Feed = ({ navigation }) => {
   const notificationListener = useRef();
   const responseListener = useRef();
 
-  console.log("unread is: " + unread);
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
   useScrollToTop(ref);
@@ -97,7 +96,7 @@ const Feed = ({ navigation }) => {
         ref={ref}
         data={feed}
         renderItem={renderItem}
-        keyExtractor={(item, index) => index.toString()}
+        keyExtractor={(item, index) => item.id}
         refreshControl={
           <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
         }
