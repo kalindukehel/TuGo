@@ -32,6 +32,7 @@ import { API_URL } from "../../constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Like from "../../assets/LikeButton.svg";
+import LikeRed from "../../assets/LikeButtonRed.svg";
 import Play from "../../assets/PlayButton.svg";
 import Pause from "../../assets/PauseButton.svg";
 import DMButton from "../../assets/DMButton.svg";
@@ -367,6 +368,12 @@ const PostComponent = (props) => {
       ],
       { cancelable: false }
     );
+
+  //determine of self liked the post
+  const isLiked = () => {
+    const likes_ids = likes.map((item) => item.author);
+    return likes_ids.includes(self.id);
+  };
 
   //delete post async function
   const deletePost = async () => {
@@ -710,7 +717,11 @@ const PostComponent = (props) => {
               }}
             >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Like width={40} height={35} fill="red" />
+                {isLiked() ? (
+                  <LikeRed width={40} height={35} />
+                ) : (
+                  <Like width={40} height={35} />
+                )}
               </View>
             </TouchableOpacity>
           </View>
