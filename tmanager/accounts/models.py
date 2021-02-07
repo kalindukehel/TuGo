@@ -41,6 +41,10 @@ class Account(AbstractBaseUser, PermissionsMixin):
     is_staff = models.BooleanField(default=False)
     is_superuser = models.BooleanField(default=False)
 
+    soundcloud_account = models.CharField(max_length=100, null=True)
+    youtube_account = models.CharField(max_length=100, null=True)
+    spotify_account = models.CharField(max_length=100, null=True)
+
     # following = models.ManyToManyField('Account', related_name='followers')
 
     created_at = models.DateTimeField(auto_now_add=True)
@@ -64,7 +68,7 @@ class Post(models.Model):
 
     soundcloud_art = models.URLField()
     soundcloud_audio = models.URLField()
-    soundcloud_search_query = models.CharField(max_length=100)
+    soundcloud_search_query = models.CharField(max_length=200)
 
     author = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='posts')
 
