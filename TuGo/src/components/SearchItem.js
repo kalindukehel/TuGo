@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Dimensions,
   StyleSheet,
+  TouchableWithoutFeedback,
 } from "react-native";
 import { Slider } from "react-native-elements";
 import ImageModal from "react-native-image-modal";
@@ -15,6 +16,8 @@ import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { Audio } from "expo-av";
 import { getAudioLink as getAudioLinkAPI } from "../api";
+import TextTicker from "react-native-text-ticker";
+import { Entypo } from "@expo/vector-icons";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -141,19 +144,21 @@ const SearchItem = (props) => {
   stateRef.current = isSeeking;
 
   return (
-    <TouchableOpacity
+    <TouchableWithoutFeedback
       style={{
         flexDirection: "row",
         alignItems: "center",
       }}
-      onPress={() => {props.selectItem ?
-        props.selectItem(
-          props.index,
-          props.artist,
-          props.audioLink,
-          props.title,
-          props.coverArt
-        ) : {}
+      onPress={() => {
+        props.selectItem
+          ? props.selectItem(
+              props.index,
+              props.artist,
+              props.audioLink,
+              props.title,
+              props.coverArt
+            )
+          : {};
       }}
       activeOpacity={0.75}
     >
@@ -190,22 +195,40 @@ const SearchItem = (props) => {
             style={{
               flexDirection: "column",
               marginLeft: 20,
-              marginBottom: 20,
+              marginTop: 15,
+              width: 220,
+              marginBottom: 30,
             }}
           >
-            <Text style={{ color: props.selected ? "white" : "black" }}>
+            <TextTicker
+              style={{
+                color: props.selected ? "white" : "black",
+                height: 20,
+              }}
+              duration={7000}
+              bounce
+              repeatSpacer={50}
+              marqueeDelay={1000}
+              shouldAnimateTreshold={40}
+            >
               {props.artist}
-            </Text>
-            <Text
+            </TextTicker>
+            <TextTicker
               style={{
                 color: props.selected ? "white" : "black",
                 fontWeight: "bold",
+                height: 20,
               }}
+              duration={7000}
+              bounce
+              repeatSpacer={50}
+              marqueeDelay={1000}
+              shouldAnimateTreshold={40}
             >
               {props.title.length > 32
                 ? props.title.substring(0, 32 - 3) + "..."
                 : props.title}
-            </Text>
+            </TextTicker>
           </View>
         </View>
         <Slider
@@ -233,13 +256,13 @@ const SearchItem = (props) => {
           style={{ marginLeft: "auto", marginRight: 10 }}
         >
           {isPlaying ? (
-            <Pause width={40} height={35} style={{ marginTop: "30%" }} />
+            <Entypo name="controller-paus" size={35} color="black" />
           ) : (
-            <Play width={40} height={45} style={{ marginTop: "30%" }} />
+            <Entypo name="controller-play" size={35} color="black" />
           )}
         </TouchableOpacity>
       </View>
-    </TouchableOpacity>
+    </TouchableWithoutFeedback>
   );
 };
 

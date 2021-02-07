@@ -13,12 +13,11 @@ var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
 
 const AccountTile = (props) => {
-  const { account, navigation, setModalVisible } = props;
+  const { account, navigation } = props;
   return (
     <TouchableOpacity
       style={styles.followElement}
       onPress={() => {
-        setModalVisible(false);
         navigation.push("Profile", {
           id: account.id,
         });
@@ -30,7 +29,7 @@ const AccountTile = (props) => {
           style={{
             width: height / 20,
             height: height / 20,
-            borderRadius: 5,
+            borderRadius: "50%",
             borderWidth: 1,
           }}
         ></Image>
@@ -82,9 +81,7 @@ const styles = StyleSheet.create({
   },
   followElement: {
     flex: 1,
-    paddingHorizontal: 15,
-    paddingVertical: 20,
-    borderRadius: 20,
+    padding: 10,
   },
 });
 

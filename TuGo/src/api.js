@@ -253,6 +253,20 @@ export async function postNotificationToken(data, token, id) {
   );
 }
 
+export async function postProfilePicture(data, token, id) {
+  return axios.patch(
+    `${API_URL}/api/accounts/${id}/`,
+    {
+      profile_picture: data,
+    },
+    {
+      headers: {
+        Authorization: "Token " + token,
+      },
+    }
+  );
+}
+
 /* Push Notification functions */
 
 export async function pushNotification(expoPushToken, creator, type) {
@@ -364,7 +378,7 @@ export async function createPost(caption, postDetails, tiles, token) {
     song_artist: postDetails.artist,
     author: 2,
   };
-
+  console.log(postData);
   //Create post using postdata and store created object as res
   const res = await axios.post(`${API_URL}/api/posts/`, postData, {
     headers: {

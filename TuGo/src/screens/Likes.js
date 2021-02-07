@@ -82,7 +82,7 @@ const Likes = (props) => {
       // Flat List Item Separator
       <View
         style={{
-          height: 5,
+          height: 0.8,
           width: "90%",
           backgroundColor: "#C8C8C8",
           alignSelf: "center",
@@ -91,16 +91,19 @@ const Likes = (props) => {
     );
   };
 
+  const header = () => (
+    <TextInput
+      style={styles.textInputStyle}
+      onChangeText={(text) => searchFilterFunction(text)}
+      value={search}
+      placeholder="Search"
+      placeholderTextColor="white"
+      clearButtonMode="always"
+    />
+  );
+
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.textInputStyle}
-        onChangeText={(text) => searchFilterFunction(text)}
-        value={search}
-        placeholder="Search"
-        placeholderTextColor="white"
-        clearButtonMode="always"
-      />
       <FlatList
         contentContainerStyle={{ flexGrow: 1 }}
         data={filteredData}
@@ -111,6 +114,8 @@ const Likes = (props) => {
         ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode={"on-drag"}
+        ListHeaderComponent={header}
+        ListHeaderComponentStyle={{ margin: 10 }}
       />
     </View>
   );
@@ -124,9 +129,8 @@ const styles = StyleSheet.create({
   textInputStyle: {
     height: 40,
     paddingLeft: 20,
-    margin: 5,
     backgroundColor: "#065581",
-    borderRadius: 10,
+    borderRadius: 20,
     color: "white",
   },
   followButton: {

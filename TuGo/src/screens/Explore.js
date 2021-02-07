@@ -192,6 +192,7 @@ const Explore = ({ navigation }) => {
               onIndexChange={setIndex}
               initialLayout={initialLayout}
               renderTabBar={renderTabBar}
+              swipeEnabled={index == 2 ? false : true}
             />
           </SafeAreaView>
         </Modal>

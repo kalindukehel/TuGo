@@ -5,6 +5,7 @@ import Profile from "../screens/Profile/Profile";
 import Followers from "../screens/Profile/Follow";
 import Following from "../screens/Profile/Follow";
 import Favorites from "../screens/Favorites";
+import EditProfile from "../screens/EditProfile";
 import SettingsNavigator from "./SettingsNavigator";
 import PostNavigator from "./PostNavigator";
 import { useAuthState } from "../context/authContext";
@@ -94,6 +95,19 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
           },
         }}
         component={Favorites}
+      />
+      <Stack.Screen
+        name="Edit Profile"
+        options={{
+          title: "Edit Profile",
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+        }}
+        component={EditProfile}
       />
     </Stack.Navigator>
   );
