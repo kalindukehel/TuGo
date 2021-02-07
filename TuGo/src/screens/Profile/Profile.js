@@ -12,8 +12,8 @@ import {
   ScrollView,
   Dimensions,
   TouchableWithoutFeedback,
-  Animated,
-  StatusBar,
+  Linking,
+  Button,
 } from "react-native";
 import {
   getUserInfo as getUserInfoAPI,
@@ -33,6 +33,11 @@ import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useScrollToTop } from "@react-navigation/native";
 import * as Notifications from "expo-notifications";
+
+//images
+import SoundcloudIcon from "../../../assets/soundcloud.svg";
+import SpotifyIcon from "../../../assets/spotify.svg";
+import YoutubeIcon from "../../../assets/youtube.svg";
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -302,6 +307,25 @@ const Profile = (props) => {
     }
   }
 
+  const OpenURLButton = ({ url, children }) => {
+    const handlePress = React.useCallback(async () => {
+      // Checking if the link is supported for links with custom URL scheme.
+      const supported = await Linking.canOpenURL(url);
+
+      if (supported) {
+        // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+        // by some browser in the mobile
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(`Don't know how to open this URL: ${url}`);
+      }
+    }, [url]);
+
+    return (
+      <TouchableOpacity onPress={handlePress}>{children}</TouchableOpacity>
+    );
+  };
+
   async function changeFollow() {
     const res = await changeFollowAPI(userToken, profileId);
     checkFollow();
@@ -376,7 +400,9 @@ const Profile = (props) => {
                     ...styles.followButton,
                     backgroundColor: "#DCDCDC",
                   }}
-                  onPress={() => {}}
+                  onPress={() => {
+                    navigation.push("Edit Profile");
+                  }}
                 >
                   <Text
                     style={{
@@ -442,8 +468,33 @@ const Profile = (props) => {
             borderColor: "#EDEDED",
           }}
         />
-        <View style={{}}>
-          <Text style={{ fontWeight: "bold", margin: 10 }}>Portfolio</Text>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            margin: 10,
+            alignItems: "center",
+          }}
+        >
+          <Text style={{ fontWeight: "bold" }}>Portfolio</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              flex: 1,
+              marginLeft: 20,
+              justifyContent: "space-evenly",
+            }}
+          >
+            <OpenURLButton url={"https://soundcloud.com/discover"}>
+              <SoundcloudIcon width={40} height={40} />
+            </OpenURLButton>
+            <OpenURLButton url={"https://open.spotify.com/user/kush_p567"}>
+              <SpotifyIcon width={40} height={40} />
+            </OpenURLButton>
+            <OpenURLButton url={"https://www.youtube.com/"}>
+              <YoutubeIcon width={40} height={40} />
+            </OpenURLButton>
+          </View>
         </View>
       </>
     );

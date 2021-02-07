@@ -43,10 +43,8 @@ const styles = StyleSheet.create({
     height: 40,
     borderWidth: 1,
     paddingLeft: 20,
-    margin: 5,
-    borderColor: "gray",
     backgroundColor: "#065581",
-    borderRadius: 10,
+    borderRadius: 20,
     color: "white",
   },
   followButton: {
@@ -62,8 +60,7 @@ const styles = StyleSheet.create({
   },
   followElement: {
     flex: 1,
-    paddingHorizontal: 15,
-    paddingVertical: 20,
+    padding: 15,
   },
 });
 
@@ -204,13 +201,13 @@ const Followers = (props) => {
           });
         }}
       >
-        <View style={{ flexDirection: "row", alignContent: "center" }}>
+        <View style={{ flexDirection: "row", alignItems: "center" }}>
           <Image
             source={{ uri: API_URL + follow.profile_picture }}
             style={{
               width: height / 20,
               height: height / 20,
-              borderRadius: 5,
+              borderRadius: "50%",
               borderWidth: 1,
             }}
           ></Image>
@@ -267,7 +264,7 @@ const Followers = (props) => {
       // Flat List Item Separator
       <View
         style={{
-          height: 2,
+          height: 0.8,
           width: "90%",
           backgroundColor: "#C8C8C8",
           alignSelf: "center",
@@ -276,16 +273,19 @@ const Followers = (props) => {
     );
   };
 
+  const header = () => (
+    <TextInput
+      style={styles.textInputStyle}
+      onChangeText={(text) => searchFilterFunction(text)}
+      value={search}
+      placeholder="Search"
+      placeholderTextColor="white"
+      clearButtonMode="always"
+    />
+  );
+
   return (
     <View style={styles.container}>
-      <TextInput
-        style={styles.textInputStyle}
-        onChangeText={(text) => searchFilterFunction(text)}
-        value={search}
-        placeholder="Search"
-        placeholderTextColor="white"
-        clearButtonMode="always"
-      />
       <FlatList
         contentContainerStyle={{ flexGrow: 1 }}
         data={filteredData}
@@ -297,6 +297,8 @@ const Followers = (props) => {
         ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode={"on-drag"}
+        ListHeaderComponent={header}
+        ListHeaderComponentStyle={{ margin: 10 }}
       />
     </View>
   );

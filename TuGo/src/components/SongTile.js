@@ -8,7 +8,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  processColor,
+  ImageBackground,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -27,22 +27,19 @@ import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { API_URL } from "../../constants";
 
-import Like from "../../assets/LikeButton.svg";
-import Play from "../../assets/PlayButton.svg";
-import Pause from "../../assets/PauseButton.svg";
-import DMButton from "../../assets/DMButton.svg";
-import CommentsButton from "../../assets/CommentsButton.svg";
-
-import moment from "moment";
 import ImageModal from "react-native-image-modal";
 import * as Haptics from "expo-haptics";
+import TextTicker from "react-native-text-ticker";
 // import Modal from 'react-native-modal';
 
 import { Audio } from "expo-av";
 
 import { Slider } from "react-native-elements";
-import { AntDesign } from "@expo/vector-icons";
 import PostComponent from "./PostComponent";
+
+//icons
+import { AntDesign } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 
 var { width, height } = Dimensions.get("window");
 
@@ -235,7 +232,25 @@ const SongTile = (props) => {
             alignItems: "center",
           }}
         >
-          <View style={{ ...styles.song, backgroundColor: tileColor }}>
+          <ImageBackground
+            source={{
+              uri: post.soundcloud_art,
+            }}
+            imageStyle={{
+              opacity: 0.3,
+            }}
+            style={{
+              width: width,
+              height: 80,
+              borderTopLeftRadius: 5,
+              borderBottomLeftRadius: 5,
+              borderBottomRightRadius: 20,
+              borderTopRightRadius: 20,
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
             <View
               style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
             >
@@ -259,32 +274,56 @@ const SongTile = (props) => {
                 style={{
                   flexDirection: "column",
                   marginLeft: 20,
-                  marginBottom: 20,
+                  marginTop: 15,
+                  width: 220,
+                  marginBottom: 30,
                 }}
               >
-                <Text style={{ color: "white" }}>{post.song_artist}</Text>
-                <Text style={{ color: "white", fontWeight: "bold" }}>
+                <TextTicker
+                  style={{
+                    color: "black",
+                    height: 20,
+                  }}
+                  duration={7000}
+                  bounce
+                  repeatSpacer={50}
+                  marqueeDelay={1000}
+                  shouldAnimateTreshold={40}
+                >
+                  {post.song_artist}
+                </TextTicker>
+                <TextTicker
+                  style={{
+                    color: "black",
+                    fontWeight: "bold",
+                    height: 20,
+                  }}
+                  duration={7000}
+                  bounce
+                  repeatSpacer={50}
+                  marqueeDelay={1000}
+                  shouldAnimateTreshold={40}
+                >
                   {post.song_name}
-                </Text>
+                </TextTicker>
               </View>
             </View>
             <Slider
               style={{
                 marginLeft: "20%",
-                width: "50%",
+                width: "55%",
                 alignSelf: "flex-end",
                 position: "absolute",
                 height: 35,
-                left: 20,
               }}
               minimumValue={0}
               maximumValue={1}
-              minimumTrackTintColor="#C4C4C4"
-              maximumTrackTintColor="white"
+              minimumTrackTintColor="black"
+              maximumTrackTintColor="#C4C4C4"
               onSlidingStart={seekSliding}
               onSlidingComplete={seekComplete}
               thumbStyle={{ width: 15, height: 15 }}
-              thumbTintColor="#C4C4C4"
+              thumbTintColor="black"
               value={sliderValue}
               disabled={refreshing ? true : false}
             />
@@ -294,12 +333,12 @@ const SongTile = (props) => {
               style={{ marginLeft: "auto", marginRight: 10 }}
             >
               {isPlaying ? (
-                <Pause width={40} height={35} style={{ marginTop: "30%" }} />
+                <Entypo name="controller-paus" size={35} color="black" />
               ) : (
-                <Play width={40} height={45} style={{ marginTop: "30%" }} />
+                <Entypo name="controller-play" size={35} color="black" />
               )}
             </TouchableOpacity>
-          </View>
+          </ImageBackground>
         </View>
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <TouchableOpacity
@@ -316,7 +355,7 @@ const SongTile = (props) => {
             )}
           </TouchableOpacity>
           <TouchableOpacity
-            style={styles.moreButton}
+            style={styles.viewPostButton}
             onPress={() => {
               isPlaying && doPlay(); //if sound is playing toggle it off when going to a profile
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -328,7 +367,7 @@ const SongTile = (props) => {
               });
             }}
           >
-            <Text style={styles.moreButtonText}>View Post</Text>
+            <Text style={styles.viewPostButtonText}>View Post</Text>
           </TouchableOpacity>
         </View>
       </View>
@@ -341,19 +380,17 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "white",
   },
-  moreButton: {
-    borderWidth: 1,
+  viewPostButton: {
     borderRadius: 5,
-    borderColor: "white",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "gray",
+    backgroundColor: "#CDCDCD",
     alignSelf: "center",
     marginTop: 10,
   },
-  moreButtonText: {
+  viewPostButtonText: {
     alignSelf: "center",
-    color: "white",
+    color: "black",
   },
   imageViewNotPlaying: {
     marginLeft: 8,

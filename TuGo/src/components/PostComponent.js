@@ -9,6 +9,8 @@ import {
   TouchableOpacity,
   Alert,
   FlatList,
+  ImageBackground,
+  Share,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -32,8 +34,6 @@ import { API_URL } from "../../constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 import Like from "../../assets/LikeButton.svg";
-import Play from "../../assets/PlayButton.svg";
-import Pause from "../../assets/PauseButton.svg";
 import DMButton from "../../assets/DMButton.svg";
 import CommentsButton from "../../assets/CommentsButton.svg";
 
@@ -48,6 +48,7 @@ import { Slider } from "react-native-elements";
 //icons
 import { Octicons } from "@expo/vector-icons";
 import { AntDesign } from "@expo/vector-icons";
+import { Entypo } from "@expo/vector-icons";
 
 import { WebView } from "react-native-webview";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
@@ -224,6 +225,26 @@ const PostComponent = (props) => {
   const onFullScreen = (fullScreen) => {
     if (fullScreen) {
       Orientation.lockToLandscape();
+    }
+  };
+
+  //share button function to share posts cross-platforms
+  const onShare = async () => {
+    try {
+      const result = await Share.share({
+        message: `TuGo | ${self.username} shared ${author.username}'s Post`,
+      });
+      if (result.action === Share.sharedAction) {
+        if (result.activityType) {
+          // shared with activity type of result.activityType
+        } else {
+          // shared
+        }
+      } else if (result.action === Share.dismissedAction) {
+        optionsRef.current.close();
+      }
+    } catch (error) {
+      alert(error.message);
     }
   };
 
@@ -529,6 +550,23 @@ const PostComponent = (props) => {
               },
             }}
           >
+            <TouchableOpacity
+              style={{
+                justifyContent: "center",
+                alignItems: "center",
+                flex: 1,
+              }}
+              onPress={onShare}
+            >
+              <Text
+                style={{
+                  fontSize: 15,
+                  fontWeight: "bold",
+                }}
+              >
+                Share
+              </Text>
+            </TouchableOpacity>
             {isSelf ? (
               <TouchableOpacity
                 style={{
@@ -597,11 +635,17 @@ const PostComponent = (props) => {
             alignItems: "center",
           }}
         >
-          <View
+          <ImageBackground
+            source={{
+              uri: post.soundcloud_art,
+            }}
+            imageStyle={{
+              opacity: 0.3,
+            }}
             style={{
               width: width,
               height: 80,
-              backgroundColor: tileColor,
+              // backgroundColor: tileColor,
               borderTopLeftRadius: 5,
               borderBottomLeftRadius: 5,
               borderBottomRightRadius: 20,
@@ -636,13 +680,27 @@ const PostComponent = (props) => {
                   marginLeft: 20,
                   marginTop: 15,
                   width: 220,
+                  marginBottom: 30,
                 }}
               >
-                <Text style={{ color: "white" }}>{post.song_artist}</Text>
                 <TextTicker
                   style={{
-                    color: "white",
+                    color: "black",
+                    height: 20,
+                  }}
+                  duration={7000}
+                  bounce
+                  repeatSpacer={50}
+                  marqueeDelay={1000}
+                  shouldAnimateTreshold={40}
+                >
+                  {post.song_artist}
+                </TextTicker>
+                <TextTicker
+                  style={{
+                    color: "black",
                     fontWeight: "bold",
+                    height: 20,
                   }}
                   duration={7000}
                   bounce
@@ -664,12 +722,12 @@ const PostComponent = (props) => {
               }}
               minimumValue={0}
               maximumValue={1}
-              minimumTrackTintColor="#C4C4C4"
-              maximumTrackTintColor="white"
+              minimumTrackTintColor="black"
+              maximumTrackTintColor="#C4C4C4"
               onSlidingStart={seekSliding}
               onSlidingComplete={seekComplete}
               thumbStyle={{ width: 15, height: 15 }}
-              thumbTintColor="#C4C4C4"
+              thumbTintColor="black"
               value={sliderValue}
               disabled={refreshing ? true : false}
             />
@@ -679,12 +737,12 @@ const PostComponent = (props) => {
               style={{ marginLeft: "auto", marginRight: 10 }}
             >
               {isPlaying ? (
-                <Pause width={40} height={35} style={{ marginTop: "30%" }} />
+                <Entypo name="controller-paus" size={35} color="black" />
               ) : (
-                <Play width={40} height={45} style={{ marginTop: "30%" }} />
+                <Entypo name="controller-play" size={35} color="black" />
               )}
             </TouchableOpacity>
-          </View>
+          </ImageBackground>
         </View>
         <View>
           <FlatList
@@ -758,9 +816,15 @@ const PostComponent = (props) => {
             <DMButton width={40} height={35} />
           </TouchableOpacity>
         </View>
-        <View style={{ flexDirection: "row", justifyContent: "space-between" }}>
+        <View
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            alignItems: "center",
+          }}
+        >
           <TouchableOpacity
-            style={{ marginLeft: 10 }}
+            style={{ marginLeft: 20 }}
             onPress={() => {
               navigation.push("Likes", {
                 postId: post.id,
@@ -830,17 +894,15 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
   },
   moreButton: {
-    borderWidth: 1,
     borderRadius: 5,
-    borderColor: "white",
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "gray",
+    backgroundColor: "#CDCDCD",
     alignSelf: "center",
   },
   moreButtonText: {
     alignSelf: "center",
-    color: "white",
+    color: "black",
   },
   imageViewNotPlaying: {
     marginLeft: 8,
