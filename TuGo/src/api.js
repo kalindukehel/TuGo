@@ -253,6 +253,20 @@ export async function postNotificationToken(data, token, id) {
   );
 }
 
+export async function deleteNotificationToken(token, id) {
+  return axios.patch(
+    `${API_URL}/api/accounts/${id}/`,
+    {
+      notification_token: null,
+    },
+    {
+      headers: {
+        Authorization: "Token " + token,
+      },
+    }
+  );
+}
+
 /* Push Notification functions */
 
 export async function pushNotification(expoPushToken, creator, type) {

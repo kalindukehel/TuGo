@@ -4,12 +4,13 @@ import {
   getSelf as getSelfAPI,
   signOut as signOutAPI,
   toggleAccountVisilibity as toggleAccountVisilibityAPI,
+  deleteNotificationToken as deleteNotificationTokenAPI,
 } from "../api";
 import { onSignOut } from "../auth";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 
 const Settings = ({ navigation }) => {
-  const { userToken } = useAuthState();
+  const { userToken, self } = useAuthState();
   const [isPrivate, setIsPrivate] = useState();
   const dispatch = useAuthDispatch();
 
@@ -34,6 +35,7 @@ const Settings = ({ navigation }) => {
         onPress={async () => {
           onSignOut();
           try {
+            await deleteNotificationTokenAPI(userToken, self.id);
             await signOutAPI(userToken);
             console.log("logout pressed");
             dispatch({ type: "SIGN_OUT" });
