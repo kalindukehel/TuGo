@@ -254,17 +254,18 @@ export async function postNotificationToken(data, token, id) {
 }
 
 export async function postProfilePicture(data, token, id) {
-  return axios.patch(
-    `${API_URL}/api/accounts/${id}/`,
-    {
-      profile_picture: data,
+  const fData = new FormData();
+  fData.append("profile_picture", {
+    uri: data.uri,
+    name: data.uri,
+    type: data.type,
+  });
+  return axios.patch(`${API_URL}/api/accounts/${id}/`, fData, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "multipart/form-data",
     },
-    {
-      headers: {
-        Authorization: "Token " + token,
-      },
-    }
-  );
+  });
 }
 
 export async function deleteNotificationToken(token, id) {
@@ -279,6 +280,14 @@ export async function deleteNotificationToken(token, id) {
       },
     }
   );
+}
+
+export async function editUserAccount(data, token, id) {
+  return axios.patch(`${API_URL}/api/accounts/${id}/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
 }
 
 /* Push Notification functions */

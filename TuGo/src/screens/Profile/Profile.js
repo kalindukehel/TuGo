@@ -11,9 +11,8 @@ import {
   RefreshControl,
   ScrollView,
   Dimensions,
-  TouchableWithoutFeedback,
+  Alert,
   Linking,
-  Button,
 } from "react-native";
 import {
   getUserInfo as getUserInfoAPI,
@@ -114,10 +113,9 @@ const Profile = (props) => {
   const [onBack, setOnBack] = useState(false);
   const [videoCount, setVideoCount] = useState(0);
   const firstRun = useRef(true);
-
-  //push notifications expo
-  const notificationListener = useRef();
-  const responseListener = useRef();
+  const [soundcloud, setSoundcloud] = useState(false);
+  const [youtube, setYoutube] = useState(false);
+  const [spotify, setSpotify] = useState(false);
 
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
@@ -164,6 +162,9 @@ const Profile = (props) => {
     //Update user data from API
     const userState = await getAccountByIdAPI(profileId, userToken);
     setUser(userState.data);
+    if (userState.data.soundcloud_account) setSoundcloud(true);
+    if (userState.data.youtube_account) setYoutube(true);
+    if (userState.data.spotify_account) setSpotify(true);
     const userInfo = await getUserInfoAPI(userToken, profileId);
     try {
       const postsState = await getPostsAPI(userToken, profileId);
@@ -474,6 +475,7 @@ const Profile = (props) => {
             justifyContent: "space-between",
             margin: 10,
             alignItems: "center",
+            height: 40,
           }}
         >
           <Text style={{ fontWeight: "bold" }}>Portfolio</Text>
@@ -485,15 +487,51 @@ const Profile = (props) => {
               justifyContent: "space-evenly",
             }}
           >
-            <OpenURLButton url={"https://soundcloud.com/discover"}>
-              <SoundcloudIcon width={40} height={40} />
-            </OpenURLButton>
-            <OpenURLButton url={"https://open.spotify.com/user/kush_p567"}>
-              <SpotifyIcon width={40} height={40} />
-            </OpenURLButton>
-            <OpenURLButton url={"https://www.youtube.com/"}>
-              <YoutubeIcon width={40} height={40} />
-            </OpenURLButton>
+            {(profileId == self.id || soundcloud) &&
+              (soundcloud ? (
+                <OpenURLButton url={"https://soundcloud.com/discover"}>
+                  <SoundcloudIcon width={40} height={40} />
+                </OpenURLButton>
+              ) : (
+                <TouchableOpacity
+                  style={{ opacity: 0.2 }}
+                  onPress={() => {
+                    navigation.push("Edit Profile");
+                  }}
+                >
+                  <SoundcloudIcon width={40} height={40} />
+                </TouchableOpacity>
+              ))}
+            {(profileId == self.id || spotify) &&
+              (spotify ? (
+                <OpenURLButton url={"https://open.spotify.com/user/kush_p567"}>
+                  <SpotifyIcon width={40} height={40} />
+                </OpenURLButton>
+              ) : (
+                <TouchableOpacity
+                  style={{ opacity: 0.2 }}
+                  onPress={() => {
+                    navigation.push("Edit Profile");
+                  }}
+                >
+                  <SpotifyIcon width={40} height={40} />
+                </TouchableOpacity>
+              ))}
+            {(profileId == self.id || youtube) &&
+              (youtube ? (
+                <OpenURLButton url={user.youtube_account}>
+                  <YoutubeIcon width={40} height={40} />
+                </OpenURLButton>
+              ) : (
+                <TouchableOpacity
+                  style={{ opacity: 0.2 }}
+                  onPress={() => {
+                    navigation.push("Edit Profile");
+                  }}
+                >
+                  <YoutubeIcon width={40} height={40} />
+                </TouchableOpacity>
+              ))}
           </View>
         </View>
       </>
