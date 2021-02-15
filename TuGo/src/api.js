@@ -352,7 +352,7 @@ export async function toggleAccountVisilibity(isPrivate, token) {
 
 export async function getAudioLink(soundCloudLink) {
   return axios.get(
-    soundCloudLink + "?client_id=dwEyLDp7xWIqlUI1M2YxPnIXGtBhtsia"
+    soundCloudLink + "?client_id=3DLVBKZxoYMm5gFm9YjFxJTNFL0VECz7"
   );
 }
 
@@ -360,7 +360,7 @@ export async function getSoundCloudSearch(searchQuery) {
   return axios.get(
     "https://api-v2.soundcloud.com/search?q=" +
       searchQuery +
-      "&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=dwEyLDp7xWIqlUI1M2YxPnIXGtBhtsia&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en"
+      "&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=3DLVBKZxoYMm5gFm9YjFxJTNFL0VECz7&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en"
   );
 }
 
@@ -368,7 +368,7 @@ export async function getSoundCloudSuggestions(searchQuery) {
   return axios.get(
     "https://api-v2.soundcloud.com/search/queries?q=" +
       searchQuery +
-      "&client_id=dwEyLDp7xWIqlUI1M2YxPnIXGtBhtsia&limit=10&offset=0&linked_partitioning=1&app_version=1609942767&app_locale=en"
+      "&client_id=3DLVBKZxoYMm5gFm9YjFxJTNFL0VECz7&limit=10&offset=0&linked_partitioning=1&app_version=1609942767&app_locale=en"
   );
 }
 
