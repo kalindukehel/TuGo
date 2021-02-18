@@ -11,7 +11,6 @@ import {
 } from "react-native";
 import { onSignOut } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
-import { sendPushNotification as sendPushNotificationAPI } from "../api";
 import { useAuthState } from "../context/authContext";
 import {
   useNotificationState,

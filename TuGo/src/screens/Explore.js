@@ -5,7 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   FlatList,
-  TouchableWithoutFeedback,
+  RefreshControl,
   Keyboard,
   Modal,
   Dimensions,
@@ -18,18 +18,35 @@ import AccountsTabView from "../components/TabViews/AccountsTabView";
 import PostsTabView from "../components/TabViews/PostsTabView";
 import SongsTabView from "../components/TabViews/SongsTabView";
 import { SafeAreaView } from "react-native-safe-area-context";
+import { useScrollToTop } from "@react-navigation/native";
+import { getFeedPosts as getFeedPostsAPI } from "../api";
+import SongBlock from "../components/Explore/SongBlock";
 
 const Explore = ({ navigation }) => {
   const { userToken } = useAuthState();
   const [search, setSearch] = useState("");
   const [modalVisible, setModalVisible] = useState(false);
   const [isEditing, setIsEditing] = useState(true);
+  const [explore, setExplore] = useState(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-  const DismissKeyboard = ({ children }) => (
-    <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-      {children}
-    </TouchableWithoutFeedback>
-  );
+  //scroll to top
+  const ref = React.useRef(null);
+  useScrollToTop(ref);
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
+    async function getFeedState() {
+      const feedState = await getFeedPostsAPI(userToken);
+      setExplore(feedState.data);
+    }
+    getFeedState();
+    setRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    onRefresh();
+  }, []);
 
   useEffect(() => {
     //If modal is dismissed, set search value to ""
@@ -44,20 +61,6 @@ const Explore = ({ navigation }) => {
 
   const handleEditing = (status) => {
     setIsEditing(status);
-  };
-
-  const ItemSeparatorView = () => {
-    return (
-      // Flat List Item Separator
-      <View
-        style={{
-          height: 2,
-          width: "90%",
-          backgroundColor: "#C8C8C8",
-          alignSelf: "center",
-        }}
-      />
-    );
   };
 
   //Tab Views
@@ -124,6 +127,11 @@ const Explore = ({ navigation }) => {
     />
   );
 
+  const renderItem = (component) => {
+    const postId = component.item.post;
+    return <SongBlock postId={postId} navigation={navigation} />;
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View
@@ -132,6 +140,7 @@ const Explore = ({ navigation }) => {
           alignItems: "center",
           justifyContent: "space-between",
           marginHorizontal: 8,
+          paddingVertical: 5,
         }}
       >
         <TouchableOpacity
@@ -207,6 +216,18 @@ const Explore = ({ navigation }) => {
           <PostButton width={40} height={35} style={{}} />
         </TouchableOpacity>
       </View>
+      <FlatList
+        ref={ref}
+        style={{ flexDirection: "column" }}
+        data={explore}
+        renderItem={renderItem}
+        keyExtractor={(item, index) => item.id.toString()}
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+        onRefresh={refreshing}
+        numColumns={2}
+      />
     </SafeAreaView>
   );
 };

@@ -4,6 +4,7 @@ import Explore from "../screens/Explore";
 import CreatePostNavigator from "../navigation/CreatePostNavigator";
 import { useAuthState } from "../context/authContext";
 import ProfileNavigator from "../navigation/ProfileNavigator";
+import PostNavigator from "../navigation/PostNavigator";
 const Stack = createStackNavigator();
 
 const explorerNavigator = () => {
@@ -42,6 +43,15 @@ const explorerNavigator = () => {
           return <ProfileNavigator {...props} id={props.route.params.id} />;
         }}
       </Stack.Screen>
+      <Stack.Screen
+        name="Post"
+        component={PostNavigator}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+        }}
+      />
     </Stack.Navigator>
   );
 };
