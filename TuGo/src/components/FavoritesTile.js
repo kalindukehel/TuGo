@@ -46,7 +46,7 @@ var { width, height } = Dimensions.get("window");
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
 //SongTile component for Favorites Screen
-const SongTile = (props) => {
+const FavoritesTile = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const { postId, navigation } = props;
@@ -429,4 +429,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SongTile;
+export default FavoritesTile;
