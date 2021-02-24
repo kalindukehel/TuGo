@@ -9,6 +9,9 @@ verify_ssl = true
 django = "==3.0.8"
 djangorestframework = "==3.11.0"
 django-rest-knox = "==4.1.0"
+django-pandas = "*"
+pandas = "*"
+sklearn = "*"
 
 [requires]
 python_version = "3.8"
