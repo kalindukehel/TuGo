@@ -156,7 +156,9 @@ const SearchItem = (props) => {
               props.artist,
               props.audioLink,
               props.title,
-              props.coverArt
+              props.coverArt,
+              props.genre,
+              props.labelName
             )
           : {};
       }}

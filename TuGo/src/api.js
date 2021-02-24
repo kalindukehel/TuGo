@@ -383,6 +383,7 @@ export async function getYoutubeSearch(searchQuery) {
 
 export async function createPost(caption, postDetails, tiles, token) {
   //Convert postDetails into an object to send as a request to api
+  console.log(postDetails);
   let postData = {
     caption: caption,
     soundcloud_art: postDetails.coverArt,
@@ -390,6 +391,11 @@ export async function createPost(caption, postDetails, tiles, token) {
     soundcloud_search_query: postDetails.title + " " + postDetails.artist,
     song_name: postDetails.title,
     song_artist: postDetails.artist,
+    song_genre:
+      postDetails.genre == null || postDetails.genre == ""
+        ? postDetails.artist
+        : postDetails.genre,
+    song_label_name: postDetails.labelName == null ? "" : postDetails.labelName,
     author: 2,
   };
   console.log(postData);

@@ -27,7 +27,15 @@ const CreatePost = ({ navigation }) => {
   };
 
   //Function passed into SearchItem as a propr to select that item
-  const selectItem = (id, artist, audioLink, title, coverArt) => {
+  const selectItem = (
+    id,
+    artist,
+    audioLink,
+    title,
+    coverArt,
+    genre,
+    labelName
+  ) => {
     //If item is already selected, deselect it
     if (selectedItem.id == id) {
       setSelectedItem({
@@ -37,6 +45,8 @@ const CreatePost = ({ navigation }) => {
         audioLink: null,
         title: null,
         coverArt: null,
+        genre: "",
+        labelName: "",
       });
     } else {
       //If different item or no item is selected, then set item as selected
@@ -47,6 +57,8 @@ const CreatePost = ({ navigation }) => {
         audioLink: audioLink,
         title: title,
         coverArt: coverArt,
+        genre: genre,
+        labelName: labelName,
       });
     }
   };
@@ -96,6 +108,8 @@ const CreatePost = ({ navigation }) => {
         artist={artist}
         title={item.item.title}
         audioLink={item.item.media.transcodings[0].url}
+        genre={item.item.genre}
+        labelName={item.item.label_name}
       />
     );
   };
