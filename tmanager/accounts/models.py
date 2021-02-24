@@ -74,12 +74,19 @@ class Post(models.Model):
 
     song_name = models.CharField(max_length=200)
     song_artist = models.CharField(max_length=200)
+    song_genre = models.CharField(max_length=200, default='', null=True, blank=True)
+    song_label_name = models.CharField(max_length=200, default='', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['soundcloud_art', 'soundcloud_audio', 'soundcloud_search_query' 'song_name','song_artist', 'created_at']
 
 class Feed_Item(models.Model):
     user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='feed')
+    post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='+')
+    follow_relation = models.ForeignKey(Follower,on_delete=models.CASCADE,related_name='+')
+
+class Explore_Item(models.Model):
+    user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='explore')
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='+')
     follow_relation = models.ForeignKey(Follower,on_delete=models.CASCADE,related_name='+')
 

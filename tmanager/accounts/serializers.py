@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import Account, Post, Follower, Requester, Like, Comment, Tile, Feed_Item, Activity_Item, Favorite
+from accounts.models import Account, Post, Follower, Requester, Like, Comment, Tile, Explore_Item, Feed_Item, Activity_Item, Favorite
 from rest_framework.validators import UniqueValidator
 
 
@@ -45,6 +45,13 @@ class PostSerializer(serializers.ModelSerializer):
 class FeedSerializer(serializers.ModelSerializer):
     class Meta:
         model = Feed_Item
+        fields = (
+            '__all__'
+        )
+
+class ExploreSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Explore_Item
         fields = (
             '__all__'
         )

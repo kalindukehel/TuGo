@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item
+from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ActivitySerializer, FavoriteSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
@@ -11,6 +11,10 @@ from django.db.models import Q
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from copy import deepcopy
+from django_pandas.io import read_frame
+import numpy as np
+from sklearn.metrics.pairwise import cosine_similarity
+from sklearn.feature_extraction.text import CountVectorizer
 
 
 class AccountViewSet(viewsets.ModelViewSet):
@@ -158,6 +162,82 @@ class AccountViewSet(viewsets.ModelViewSet):
     def feed(self,request,*args,**kwargs):
         feed_posts = request.user.feed.all().order_by('-post')
         serializer = FeedSerializer(feed_posts,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['GET'])
+    def explore(self,request,*args,**kwargs):
+        #store the data
+        # print(Account.objects.filter(id = 19))
+        # user_posts = request.user.posts.all()
+
+        user_posts = Account.objects.filter(id = 19)[0].posts.all()
+        id_list = list(map(lambda x: x.id, user_posts))
+
+        qs = Post.objects.all()
+        df = read_frame(qs)
+
+        def add_index(data):
+            index = []
+            for i in range(0, data.shape[0]):
+                index.append(i)
+            return index
+
+        df['index'] = add_index(df)
+        #create a list of select columns for the recommendation engine
+        columns=['song_artist', 'song_genre', 'song_label_name']
+        #check for any missing values in the select columns
+        df[columns].isnull().values.any()
+        #create functions to combine values of the select columns into single string
+        def get_important_features(data):
+            important_features = []
+            for i in range(0, data.shape[0]):
+                important_features.append(data['song_artist'][i]+' '+data['song_genre'][i]+' '+data['song_label_name'][i])
+            return important_features
+
+        def get_index_from_id(id):
+            return df[df.id == id]["index"].values[0]
+
+        def get_id_from_index(index):
+            return df[df.index == index]["id"].values[0]
+
+        #create a column to hold the combined strings
+        df['important_features'] = get_important_features(df)
+        #convert the text into a Matrix of token counts
+        cm = CountVectorizer().fit_transform(df['important_features'])
+        cs = cosine_similarity(cm)
+
+        #create a list of lists of (index, similarity_score) tuples
+        total = []
+        user_posts_index = []
+        for i in id_list:
+            index = get_index_from_id(i)
+            user_posts_index.append(index)
+            similar_posts = list(enumerate(cs[index]))
+            total.append(similar_posts)
+        
+        #create a list of the added similarity_scores
+        final = []
+        for i in range(df.shape[0]):
+            score = 0
+            for j in range(len(total)):
+                score+=total[j][i][1]
+            final.append((i, score))
+
+        #filter out user posts from final
+        def is_valid_post(item):
+            if(item[0] in user_posts_index):
+                return False
+            if(item[1] == 0):
+                return False
+            return True
+
+        filtered_index_list = list(filter(is_valid_post, final))
+
+        filtered_id_list = list(map(get_id_from_index, filtered_index_list))
+        print(filtered_id_list)
+
+        explore_posts = request.user.explore.all().order_by('-post')
+        serializer = ExploreSerializer(explore_posts,many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['GET'])
