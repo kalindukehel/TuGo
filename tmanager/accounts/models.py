@@ -88,7 +88,6 @@ class Feed_Item(models.Model):
 class Explore_Item(models.Model):
     user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='explore')
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='+')
-    follow_relation = models.ForeignKey(Follower,on_delete=models.CASCADE,related_name='+')
 
 class Tile(models.Model):
     post = models.ForeignKey('Post',on_delete=models.CASCADE,related_name='tiles')

@@ -167,10 +167,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def explore(self,request,*args,**kwargs):
         #store the data
-        # print(Account.objects.filter(id = 19))
-        # user_posts = request.user.posts.all()
-
-        user_posts = Account.objects.filter(id = 19)[0].posts.all()
+        user_posts = request.user.posts.all()
         id_list = list(map(lambda x: x.id, user_posts))
 
         qs = Post.objects.all()
@@ -232,12 +229,15 @@ class AccountViewSet(viewsets.ModelViewSet):
             return True
 
         filtered_index_list = list(filter(is_valid_post, final))
+        filtered_index_list.sort(key=lambda x:x[1],reverse=True)
+        filtered_id_list = list(map(get_id_from_index, [x[0] for x in filtered_index_list]))
 
-        filtered_id_list = list(map(get_id_from_index, filtered_index_list))
-        print(filtered_id_list)
-
-        explore_posts = request.user.explore.all().order_by('-post')
-        serializer = ExploreSerializer(explore_posts,many=True)
+        #for every post in filtered ids, create an explore item
+        for post in Post.objects.filter(id__in=filtered_id_list):
+            ExploreItem,created = request.user.explore.all().get_or_create(user=request.user,post=post)
+            if(created):
+                ExploreItem.save()
+        serializer = ExploreSerializer(request.user.explore.all().order_by('-post'),many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['GET'])
