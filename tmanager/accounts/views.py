@@ -167,11 +167,20 @@ class AccountViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def explore(self,request,*args,**kwargs):
         #store the data
-        user_posts = request.user.posts.all()
-        id_list = list(map(lambda x: x.id, user_posts))
-
         qs = Post.objects.all()
         df = read_frame(qs)
+
+        #get user following
+        user_following = request.user.following.all()
+        user_following_list = list(map(lambda x: x.following.id, user_following))
+        #get user post ids
+        user_posts = request.user.posts.all()
+        user_id_list = list(map(lambda x: x.id, user_posts))
+        #get user favorites post ids
+        user_favorites = request.user.favorites.all()
+        favorites_id_list = list(map(lambda x: x.post.id, user_favorites))
+        #combine user post ids and favorites post ids
+        id_list = user_id_list + favorites_id_list
 
         def add_index(data):
             index = []
@@ -208,7 +217,8 @@ class AccountViewSet(viewsets.ModelViewSet):
         user_posts_index = []
         for i in id_list:
             index = get_index_from_id(i)
-            user_posts_index.append(index)
+            if(i in user_id_list):
+                user_posts_index.append(index)
             similar_posts = list(enumerate(cs[index]))
             total.append(similar_posts)
         
@@ -234,9 +244,10 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         #for every post in filtered ids, create an explore item
         for post in Post.objects.filter(id__in=filtered_id_list):
-            ExploreItem,created = request.user.explore.all().get_or_create(user=request.user,post=post)
-            if(created):
-                ExploreItem.save()
+            if(post.author.id not in user_following_list):
+                ExploreItem,created = request.user.explore.all().get_or_create(user=request.user,post=post)
+                if(created):
+                    ExploreItem.save()
         serializer = ExploreSerializer(request.user.explore.all().order_by('-post'),many=True)
         return Response(serializer.data)
 

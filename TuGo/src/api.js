@@ -195,6 +195,14 @@ export async function getFeedPosts(token) {
   });
 }
 
+export async function getExplorePosts(token) {
+  return axios.get(`${API_URL}/api/accounts/explore/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function getPostFavorite(token, id) {
   return axios.get(`${API_URL}/api/posts/${id}/favorite/`, {
     headers: {
@@ -357,6 +365,11 @@ export async function getAudioLink(soundCloudLink) {
 }
 
 export async function getSoundCloudSearch(searchQuery) {
+  console.log(
+    "https://api-v2.soundcloud.com/search?q=" +
+      searchQuery +
+      "&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=3DLVBKZxoYMm5gFm9YjFxJTNFL0VECz7&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en"
+  );
   return axios.get(
     "https://api-v2.soundcloud.com/search?q=" +
       searchQuery +
@@ -383,7 +396,6 @@ export async function getYoutubeSearch(searchQuery) {
 
 export async function createPost(caption, postDetails, tiles, token) {
   //Convert postDetails into an object to send as a request to api
-  console.log(postDetails);
   let postData = {
     caption: caption,
     soundcloud_art: postDetails.coverArt,
@@ -398,7 +410,6 @@ export async function createPost(caption, postDetails, tiles, token) {
     song_label_name: postDetails.labelName == null ? "" : postDetails.labelName,
     author: 2,
   };
-  console.log(postData);
   //Create post using postdata and store created object as res
   const res = await axios.post(`${API_URL}/api/posts/`, postData, {
     headers: {

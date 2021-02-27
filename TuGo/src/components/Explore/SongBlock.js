@@ -307,7 +307,7 @@ export default SongBlock = (props) => {
               uri: post.soundcloud_art,
             }}
             imageStyle={{
-              opacity: isPlaying ? 0.4 : 0.9,
+              opacity: isPlaying ? 0.2 : 0.9,
               borderRadius: 20,
               flex: 1,
               paddingRight: 2,
@@ -317,10 +317,47 @@ export default SongBlock = (props) => {
             style={{
               width: width / 2,
               height: width / 2,
-              alignItems: "flex-end",
               justifyContent: "flex-end",
             }}
-          ></ImageBackground>
+          >
+            <View
+              style={{
+                backgroundColor: "white",
+                opacity: 0.8,
+                height: 40,
+                flexDirection: "column",
+                paddingHorizontal: 10,
+              }}
+            >
+              <TextTicker
+                style={{
+                  color: "black",
+                  height: 20,
+                }}
+                duration={7000}
+                bounce
+                repeatSpacer={50}
+                marqueeDelay={1000}
+                shouldAnimateTreshold={40}
+              >
+                {post.song_artist}
+              </TextTicker>
+              <TextTicker
+                style={{
+                  color: "black",
+                  fontWeight: "bold",
+                  height: 20,
+                }}
+                duration={7000}
+                bounce
+                repeatSpacer={50}
+                marqueeDelay={1000}
+                shouldAnimateTreshold={40}
+              >
+                {post.song_name}
+              </TextTicker>
+            </View>
+          </ImageBackground>
         </TouchableWithoutFeedback>
       </View>
     )

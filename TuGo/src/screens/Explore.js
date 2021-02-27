@@ -19,8 +19,12 @@ import PostsTabView from "../components/TabViews/PostsTabView";
 import SongsTabView from "../components/TabViews/SongsTabView";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { useScrollToTop } from "@react-navigation/native";
-import { getFeedPosts as getFeedPostsAPI } from "../api";
+import { getExplorePosts as getExplorePostsAPI } from "../api";
 import SongBlock from "../components/Explore/SongBlock";
+import { AntDesign } from "@expo/vector-icons";
+import YoutubePlayer from "react-native-yt-player";
+
+const leftSpacing = 20;
 
 const Explore = ({ navigation }) => {
   const { userToken } = useAuthState();
@@ -36,11 +40,11 @@ const Explore = ({ navigation }) => {
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    async function getFeedState() {
-      const feedState = await getFeedPostsAPI(userToken);
-      setExplore(feedState.data);
+    async function getExploreState() {
+      const exploreState = await getExplorePostsAPI(userToken);
+      setExplore(exploreState.data);
     }
-    getFeedState();
+    getExploreState();
     setRefreshing(false);
   }, []);
 
@@ -132,80 +136,26 @@ const Explore = ({ navigation }) => {
     return <SongBlock postId={postId} navigation={navigation} />;
   };
 
+  const ItemSeparatorComponent = () => <View style={{ width: 10 }} />;
+
   return (
     <SafeAreaView style={styles.container}>
       <View
         style={{
           flexDirection: "row",
-          alignItems: "center",
           justifyContent: "space-between",
-          marginHorizontal: 8,
-          paddingVertical: 5,
+          marginBottom: 50,
+          marginHorizontal: leftSpacing,
         }}
       >
         <TouchableOpacity
           style={{
-            ...styles.searchBar,
             flexDirection: "row",
-            alignItems: "center",
           }}
           onPress={() => setModalVisible(true)}
         >
-          <Text style={{ color: "gray" }}>Search</Text>
+          <AntDesign name="search1" size={30} color="black" />
         </TouchableOpacity>
-
-        {/* Search results modal */}
-
-        <Modal
-          visible={modalVisible}
-          animationType="fade"
-          onRequestClose={() => {
-            Alert.alert("Modal has been closed.");
-          }}
-        >
-          <SafeAreaView style={styles.containertwo}>
-            <View
-              style={{
-                flexDirection: "row",
-                alignItems: "center",
-                justifyContent: "space-between",
-                marginHorizontal: 10,
-              }}
-            >
-              <TextInput
-                clearButtonMode="always"
-                editable={true}
-                autoFocus={true}
-                autoCorrect={false}
-                autoCapitalize="none"
-                style={{ ...styles.searchBar }}
-                placeholder={"Search"}
-                value={search}
-                onChangeText={(text) => {
-                  if (!isEditing) {
-                    handleEditing(true);
-                  }
-                  handleChange(text);
-                }}
-                onSubmitEditing={() => {
-                  handleEditing(false);
-                }}
-              />
-              <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Text>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-            <TabView
-              navigationState={{ index, routes }}
-              renderScene={renderScene}
-              onIndexChange={setIndex}
-              initialLayout={initialLayout}
-              renderTabBar={renderTabBar}
-              swipeEnabled={index == 2 ? false : true}
-            />
-          </SafeAreaView>
-        </Modal>
-
         <TouchableOpacity
           style={{}}
           onPress={() => {
@@ -216,18 +166,79 @@ const Explore = ({ navigation }) => {
           <PostButton width={40} height={35} style={{}} />
         </TouchableOpacity>
       </View>
-      <FlatList
-        ref={ref}
-        style={{ flexDirection: "column" }}
-        data={explore}
-        renderItem={renderItem}
-        keyExtractor={(item, index) => item.id.toString()}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-        onRefresh={refreshing}
-        numColumns={2}
-      />
+
+      {/* Search results modal */}
+
+      <Modal
+        visible={modalVisible}
+        animationType="fade"
+        onRequestClose={() => {
+          Alert.alert("Modal has been closed.");
+        }}
+      >
+        <SafeAreaView style={styles.containertwo}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              justifyContent: "space-between",
+              marginHorizontal: 10,
+            }}
+          >
+            <TextInput
+              clearButtonMode="always"
+              editable={true}
+              autoFocus={true}
+              autoCorrect={false}
+              autoCapitalize="none"
+              style={{ ...styles.searchBar }}
+              placeholder={"Search"}
+              value={search}
+              onChangeText={(text) => {
+                if (!isEditing) {
+                  handleEditing(true);
+                }
+                handleChange(text);
+              }}
+              onSubmitEditing={() => {
+                handleEditing(false);
+              }}
+            />
+            <TouchableOpacity onPress={() => setModalVisible(false)}>
+              <Text>Cancel</Text>
+            </TouchableOpacity>
+          </View>
+          <TabView
+            navigationState={{ index, routes }}
+            renderScene={renderScene}
+            onIndexChange={setIndex}
+            initialLayout={initialLayout}
+            renderTabBar={renderTabBar}
+            swipeEnabled={index == 2 ? false : true}
+          />
+        </SafeAreaView>
+      </Modal>
+      <Text style={{ marginLeft: leftSpacing, fontSize: 35, marginBottom: 20 }}>
+        Browse
+      </Text>
+      <View>
+        <FlatList
+          ItemSeparatorComponent={ItemSeparatorComponent}
+          horizontal={true}
+          ref={ref}
+          style={{}}
+          data={explore}
+          renderItem={renderItem}
+          keyExtractor={(item, index) => item.id.toString()}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+          onRefresh={refreshing}
+        />
+        <Text style={{ marginLeft: leftSpacing, fontSize: 25, marginTop: 20 }}>
+          Artists
+        </Text>
+      </View>
     </SafeAreaView>
   );
 };
@@ -235,7 +246,7 @@ const Explore = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "#F4F4F4",
+    backgroundColor: "white",
   },
   searchBar: {
     borderRadius: 10,
