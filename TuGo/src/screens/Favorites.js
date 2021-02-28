@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import { getSavedSongs as getSavedSongsAPI } from "../api";
 import { useAuthState } from "../context/authContext";
-import SongTile from "../components/SongTile";
+import FavoritesTile from "../components/FavoritesTile";
 
 var { width, height } = Dimensions.get("window");
 
@@ -42,7 +42,7 @@ const Favorites = ({ navigation }) => {
 
   const renderItem = (component) => {
     const postId = component.item.post;
-    return <SongTile postId={postId} navigation={navigation} />;
+    return <FavoritesTile postId={postId} navigation={navigation} />;
   };
 
   const ItemSeparatorView = () => {

@@ -55,6 +55,7 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import YoutubePlayer from "react-native-yt-player";
 import Orientation from "react-native-orientation";
 import TextTicker from "react-native-text-ticker";
+import Player from "./Player";
 
 var { width, height } = Dimensions.get("window");
 
@@ -74,7 +75,7 @@ const PostComponent = (props) => {
 
   const [refreshing, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
-  const [allPost, setAllPost] = useState(null);
+
   const [likes, setLikes] = useState(null);
   const [comments, setComments] = useState(null);
   const [tiles, setTiles] = useState(null);
@@ -84,14 +85,10 @@ const PostComponent = (props) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
+
   const [isSelf, setIsSelf] = useState(false);
 
   const insets = useSafeAreaInsets();
-
-  //push notifications expo
-  const notificationListener = useRef();
-  const responseListener = useRef();
 
   const refRBSheet = useRef([]);
   const moreRef = useRef();
@@ -132,53 +129,6 @@ const PostComponent = (props) => {
       setRefreshing(false);
     } catch (e) {
       console.log(e);
-    }
-  };
-
-  const loadSound = async () => {
-    const sound_url = (
-      await getAudioLinkAPI(postRef.current.soundcloud_audio)
-        .then((result) => result)
-        .catch(
-          (error = async () => {
-            const searchData = (
-              await getSoundCloudSearchAPI(
-                postRef.current.soundcloud_search_query
-              ).then((result) => result.data)
-            ).collection[0].media.transcodings[0].url;
-            const tempSoundUrl = await getAudioLinkAPI(searchData).then(
-              (result) => result.data.url
-            );
-            if (tempSoundUrl) {
-              setSoundCloudAudioAPI(searchData, userToken, postId);
-            }
-            return {
-              data: {
-                url: tempSoundUrl,
-              },
-            };
-          })
-        )
-    ).data.url;
-    try {
-      if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
-        await soundObj.loadAsync({ uri: sound_url });
-        isLoaded.current = true;
-        playerDispatch({ type: "LOAD_PLAYER", id: postRef.current.id });
-        await soundObj.setProgressUpdateIntervalAsync(1000);
-        await soundObj.setOnPlaybackStatusUpdate(async (status) => {
-          if (isLoaded.current) {
-            if (status.didJustFinish && status.isLoaded) {
-              setIsPlaying(false);
-              soundObj.stopAsync();
-            } else if (status.isLoaded && stateRef.current != true) {
-              setSliderValue(status.positionMillis / status.durationMillis);
-            }
-          }
-        });
-      }
-    } catch (error) {
-      console.log(error);
     }
   };
 
@@ -295,7 +245,6 @@ const PostComponent = (props) => {
   async function likePost() {
     const likeRes = await likePostAPI(userToken, postId);
     getLikesStates();
-    console.log(likeRes.status);
     if (
       likeRes.status == 201 &&
       author.notification_token != self.notification_token
@@ -316,54 +265,6 @@ const PostComponent = (props) => {
   async function favoritePost() {
     const likeRes = await favoritePostAPI(userToken, postId);
     getFavoriteStates();
-  }
-
-  async function doPlay() {
-    try {
-      /* if current post is different from current playing */
-      if (postRef.current.id != playingIdRef.current) {
-        playerDispatch({ type: "UNLOAD_PLAYER" });
-        await soundObj.unloadAsync();
-        await loadSound();
-        //If new song is starting and user has pre-set slider value
-        if (sliderValue != 0) {
-          const playerStatus = await soundObj.getStatusAsync();
-          //Start from pre-set slider value
-          await soundObj.setStatusAsync({
-            positionMillis: playerStatus.durationMillis * sliderValue,
-          });
-        }
-        await soundObj.playAsync();
-      } else {
-        if (isPlaying) {
-          //if current post is playing
-          await soundObj.pauseAsync();
-        } else {
-          await loadSound();
-          await soundObj.playAsync();
-        }
-      }
-
-      setIsPlaying(!isPlaying);
-    } catch (error) {
-      console.log(error);
-    }
-  }
-
-  async function seekSliding() {
-    setIsSeeking(true);
-  }
-
-  async function seekComplete(args) {
-    setSliderValue(args);
-    //Change song player position only if player is playing the song to which the slider corresponds
-    if (postRef.current.id == playingIdRef.current) {
-      const playerStatus = await soundObj.getStatusAsync();
-      await soundObj.setStatusAsync({
-        positionMillis: playerStatus.durationMillis * args,
-      });
-    }
-    setIsSeeking(false);
   }
 
   //delete confirmation alert function
@@ -483,7 +384,7 @@ const PostComponent = (props) => {
         >
           <TouchableOpacity
             onPress={() => {
-              isPlaying && doPlay(); //if sound is playing toggle it off when going to a profile
+              isPlaying && playerDispatch({ type: "UNLOAD_PLAYER" }); //if sound is playing toggle it off when going to a profile
               navigation.push("Profile", {
                 id: author.id,
               });
@@ -629,121 +530,16 @@ const PostComponent = (props) => {
             </TouchableOpacity>
           </RBSheet>
         </View>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <ImageBackground
-            source={{
-              uri: post.soundcloud_art,
-            }}
-            imageStyle={{
-              opacity: 0.3,
-            }}
-            style={{
-              width: width,
-              height: 80,
-              // backgroundColor: tileColor,
-              borderTopLeftRadius: 5,
-              borderBottomLeftRadius: 5,
-              borderBottomRightRadius: 20,
-              borderTopRightRadius: 20,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View
-              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
-            >
-              <View
-                style={
-                  isPlaying
-                    ? styles.imageViewPlaying
-                    : styles.imageViewNotPlaying
-                }
-              >
-                <ImageModal
-                  resizeMode="contain"
-                  imageBackgroundColor="#00000000"
-                  style={styles.image}
-                  source={{
-                    uri: post.soundcloud_art,
-                  }}
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: "column",
-                  marginLeft: 20,
-                  marginTop: 15,
-                  width: 220,
-                  marginBottom: 30,
-                }}
-              >
-                <TextTicker
-                  style={{
-                    color: "black",
-                    height: 20,
-                  }}
-                  duration={7000}
-                  bounce
-                  repeatSpacer={50}
-                  marqueeDelay={1000}
-                  shouldAnimateTreshold={40}
-                >
-                  {post.song_artist}
-                </TextTicker>
-                <TextTicker
-                  style={{
-                    color: "black",
-                    fontWeight: "bold",
-                    height: 20,
-                  }}
-                  duration={7000}
-                  bounce
-                  repeatSpacer={50}
-                  marqueeDelay={1000}
-                  shouldAnimateTreshold={40}
-                >
-                  {post.song_name}
-                </TextTicker>
-              </View>
-            </View>
-            <Slider
-              style={{
-                marginLeft: "20%",
-                width: "55%",
-                alignSelf: "flex-end",
-                position: "absolute",
-                height: 35,
-              }}
-              minimumValue={0}
-              maximumValue={1}
-              minimumTrackTintColor="black"
-              maximumTrackTintColor="#C4C4C4"
-              onSlidingStart={seekSliding}
-              onSlidingComplete={seekComplete}
-              thumbStyle={{ width: 15, height: 15 }}
-              thumbTintColor="black"
-              value={sliderValue}
-              disabled={refreshing ? true : false}
-            />
-            <TouchableOpacity
-              disabled={refreshing ? true : false}
-              onPress={doPlay}
-              style={{ marginLeft: "auto", marginRight: 10 }}
-            >
-              {isPlaying ? (
-                <Entypo name="controller-paus" size={35} color="black" />
-              ) : (
-                <Entypo name="controller-play" size={35} color="black" />
-              )}
-            </TouchableOpacity>
-          </ImageBackground>
-        </View>
+        <Player
+          id={post.id}
+          soundCloudArt={post.soundcloud_art}
+          artist={post.song_artist}
+          songName={post.song_name}
+          url={post.soundcloud_audio}
+          soundCloudSearchQuery={post.soundcloud_search_query}
+          isPlaying={isPlaying}
+          setIsPlaying={setIsPlaying}
+        />
         <View>
           <FlatList
             data={tiles}

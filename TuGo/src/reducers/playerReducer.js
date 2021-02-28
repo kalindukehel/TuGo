@@ -8,6 +8,9 @@ export const playerReducer = (prevState, action) => {
         stopAll: false,
       };
     case "UNLOAD_PLAYER":
+      //Unloads the current soundObj
+      const tempSoundObj = prevState.soundObj;
+      tempSoundObj.unloadAsync();
       return {
         ...prevState,
         isPlaying: false,
