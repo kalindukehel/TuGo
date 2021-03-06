@@ -1,6 +1,7 @@
 from rest_framework import routers
 from .views import AccountViewSet
 from .views import PostViewSet
+from .views import SongViewSet
 from .views import login, logout, signup
 from django.contrib import admin
 from django.urls import re_path, path, include
@@ -8,6 +9,7 @@ from django.conf.urls import url
 router = routers.DefaultRouter()
 router.register('accounts',AccountViewSet,'accounts')
 router.register('posts', PostViewSet, 'posts')
+router.register('songs', SongViewSet, 'songs')
 
 
 urlpatterns = [

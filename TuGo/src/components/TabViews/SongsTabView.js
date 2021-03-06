@@ -1,20 +1,45 @@
 import React, { useState, useEffect } from "react";
-import { FlatList, View, Modal, Text } from "react-native";
+import {
+  FlatList,
+  View,
+  StyleSheet,
+  Text,
+  ActivityIndicator,
+} from "react-native";
 import {
   searchUsers as searchUsersAPI,
   getSoundCloudSuggestions as getSoundCloudSuggestionsAPI,
   getSoundCloudSearch as getSoundCloudSearchAPI,
+  songSearch as songSearchAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SearchItem from "../SearchItem";
 
+const styles = StyleSheet.create({
+  activityIndicator: {
+    justifyContent: "center",
+    alignItems: "center",
+  },
+});
+
 const SongsTabView = (props) => {
+  const { userToken } = useAuthState();
   const { searchQuery, isEditing, handleChange, handleEditing } = props;
   const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     let isMounted = true;
+    const loadsongs = async () => {
+      if (isEditing && searchQuery != "") {
+      } else if (searchQuery != "") {
+        setLoading(true);
+        const res = await songSearchAPI(searchQuery, userToken);
+        setResults(res.data);
+        setLoading(false);
+      }
+    };
     const loadSuggestions = async () => {
       if (isEditing && searchQuery != "") {
         //If user is still typing, get suggested song names as results
@@ -47,7 +72,7 @@ const SongsTabView = (props) => {
         if (isMounted) setResults(tempResults);
       }
     };
-    loadSuggestions();
+    loadsongs();
     return () => {
       isMounted = false;
     };
@@ -58,7 +83,6 @@ const SongsTabView = (props) => {
       // Flat List Item Separator
       <View
         style={{
-          height: 15,
           alignSelf: "center",
         }}
       />
@@ -66,42 +90,18 @@ const SongsTabView = (props) => {
   };
 
   const renderSuggestion = (suggestion) => {
+    console.log(suggestion.item);
     if (isEditing) {
-      //If user is still typing, render suggested items
-      return (
-        <TouchableOpacity
-          onPress={() => {
-            handleChange(suggestion.item);
-            handleEditing(false);
-          }}
-        >
-          <Text style={{ fontWeight: "bold", fontSize: 20 }}>
-            {suggestion.item}
-          </Text>
-        </TouchableOpacity>
-      );
     } else {
-      //If user is finished typing, render song items
-      let artist;
-      //Get name if official publisher metadata exists otherwise get username
-      try {
-        artist =
-          suggestion.item.publisher_metadata.artist != null &&
-          suggestion.item.publisher_metadata.artist != ""
-            ? suggestion.item.publisher_metadata.artist
-            : suggestion.item.user.username;
-      } catch {
-        artist = suggestion.item.user.username;
-      }
       return (
         <SearchItem
-          index={suggestion.item.id + "Soundcloud"}
-          coverArt={suggestion.item.artwork_url.replace("large", "t500x500")}
+          index={suggestion.item.video_id}
+          coverArt={suggestion.item.thumbnail.replace("large", "t500x500")}
           selected={false}
           selectItem={null}
-          artist={artist}
+          artist={suggestion.item.artist}
           title={suggestion.item.title}
-          audioLink={suggestion.item.media.transcodings[0].url}
+          audioLink={suggestion.item.audio_url}
         />
       );
     }
@@ -109,15 +109,21 @@ const SongsTabView = (props) => {
 
   return (
     <View style={[{ flex: 1, backgroundColor: "white" }]}>
-      <FlatList
-        style={{}}
-        data={results}
-        renderItem={renderSuggestion}
-        ItemSeparatorComponent={ItemSeparatorView}
-        keyExtractor={(item, index) => {
-          return index.toString();
-        }}
-      />
+      {loading ? (
+        <View style={styles.activityIndicator}>
+          <ActivityIndicator size="large" />
+        </View>
+      ) : (
+        <FlatList
+          style={{}}
+          data={results}
+          renderItem={renderSuggestion}
+          ItemSeparatorComponent={ItemSeparatorView}
+          keyExtractor={(item, index) => {
+            return index.toString();
+          }}
+        />
+      )}
     </View>
   );
 };

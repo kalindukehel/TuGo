@@ -96,6 +96,8 @@ class Tile(models.Model):
     link = models.URLField()
     image = models.URLField()
     view_count = models.IntegerField(default='0')
+    video_id = models.CharField(max_length=11, default='')
+    video_created = models.DateTimeField(default=None, null=True, blank=True)
 
     REQUIRED_FIELDS = ['is_youtube','image','link','view_count']
 
@@ -134,3 +136,11 @@ class Activity_Item(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     REQUIRED_FIELDS = ['user','activity_type','action_user']
+
+class Song(models.Model):
+    video_id = models.CharField(max_length=11, default='')
+    audio_url = models.CharField(max_length=2000, default='')
+    song_created = models.DateTimeField(default=None, null=True, blank=True)
+    title = models.CharField(max_length=100, default='')
+    thumbnail = models.CharField(max_length=100, default='')
+    artist = models.CharField(max_length=100, default='')

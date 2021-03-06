@@ -312,11 +312,10 @@ export default SongBlock = (props) => {
               flex: 1,
               paddingRight: 2,
               paddingLeft: 2,
-              paddingBottom: 4,
             }}
             style={{
-              width: width / 2,
-              height: width / 2,
+              width: 200,
+              height: 200,
               justifyContent: "flex-end",
             }}
           >
@@ -326,7 +325,8 @@ export default SongBlock = (props) => {
                 opacity: 0.8,
                 height: 40,
                 flexDirection: "column",
-                paddingHorizontal: 10,
+                paddingHorizontal: 15,
+                borderRadius: 20,
               }}
             >
               <TextTicker

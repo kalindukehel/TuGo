@@ -113,17 +113,6 @@ const CreatePost = ({ navigation }) => {
       />
     );
   };
-  const ItemSeparatorView = () => {
-    return (
-      // Flat List Item Separator
-      <View
-        style={{
-          height: 15,
-          alignSelf: "center",
-        }}
-      />
-    );
-  };
 
   return (
     <SafeAreaView style={styles.container}>
@@ -182,7 +171,6 @@ const CreatePost = ({ navigation }) => {
         contentContainerStyle={{ flexGrow: 1 }}
         data={results}
         keyExtractor={(item, index) => item.id.toString()}
-        ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode="on-drag"
       />

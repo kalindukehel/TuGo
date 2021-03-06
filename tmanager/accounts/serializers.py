@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from accounts.models import Account, Post, Follower, Requester, Like, Comment, Tile, Explore_Item, Feed_Item, Activity_Item, Favorite
+from accounts.models import Account, Post, Follower, Requester, Like, Comment, Tile, Explore_Item, Feed_Item, Activity_Item, Favorite, Song
 from rest_framework.validators import UniqueValidator
 
 
@@ -117,4 +117,11 @@ class FavoriteSerializer(serializers.ModelSerializer):
         model = Favorite
         fields = (
             '__all__'
-        )   
+        ) 
+
+class SongSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Song
+        fields = (
+            '__all__'
+        )  

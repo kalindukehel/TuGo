@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item
+from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
@@ -15,7 +15,12 @@ from django_pandas.io import read_frame
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
+import pafy
+from datetime import datetime, date
+import requests
+import json
 
+five_hours = 21600
 
 class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
@@ -320,11 +325,37 @@ class PostViewSet(viewsets.ModelViewSet):
             is_youtube = request.data.get('is_youtube')
             link = request.data.get('link')
             image = request.data.get('image')
-            tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,link=link,image=image)
+            
+            #get video url
+            video_id = None
+            if(is_youtube):
+                video = pafy.new(link)
+                best = video.getbest()
+                playurl = best.url  
+                video_id = playurl
+            tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,link=link,image=image,video_id=video_id)
             tile.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             tiles = self.get_object().tiles.all()
+            for i in tiles:
+                if(i.is_youtube):
+                    if(i.video_created is None):
+                        i.video_created = datetime.now()
+                        i.video_created = datetime.now()
+                        video = pafy.new(i.link)
+                        best = video.getbest()
+                        playurl = best.url
+                        i.video_id = playurl
+                    else:
+                        difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(i.video_created, i.video_created.time())           
+                        if(difference.seconds > five_hours):
+                            i.video_created = datetime.now()
+                            video = pafy.new(i.link)
+                            best = video.getbest()
+                            playurl = best.url
+                            i.video_id = playurl
+                i.save()
             serializer = TileSerializer(tiles,many=True)
             return Response(serializer.data)
 
@@ -372,3 +403,58 @@ def signup(request, *args, **kwargs):
     serializer.save()
 
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+class SongViewSet(viewsets.ModelViewSet):
+    queryset = Song.objects.all()
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+    serializer_class = SongSerializer
+
+    @action(detail=False, methods=['GET','POST'], serializer_class=SongSerializer)
+    def songsearch(self, request,*args,**kwargs):
+        response = []
+        search_query = self.request.data.get('search_query')
+        search_response = requests.get("https://www.googleapis.com/youtube/v3/search?key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg&type=video&part=snippet&maxResults=10&q="+ search_query +"&videoCategoryId=10").json()
+        #each song from youtube response
+        for song in search_response['items']:
+            video_id = song['id']['videoId']
+            url = "https://www.youtube.com/watch?v=" + video_id
+            playurl = ''
+            #check if song exists in database
+            matching = Song.objects.filter(video_id=video_id)
+            #if song does not exist generate a url and save song to the database
+            if not matching:
+                video = pafy.new(url)
+                streams = video.audiostreams
+                for s in streams:
+                    if (s.extension == "m4a"):
+                        playurl = s.url
+                        song_created = datetime.now()
+                        title=song['snippet']['title']
+                        thumbnail=song['snippet']['thumbnails']['high']['url']
+                        artist=song['snippet']['channelTitle']
+                        break
+                newSong = Song(video_id=video_id, audio_url=playurl, song_created=song_created, title=title, thumbnail=thumbnail, artist=artist)
+                response.append(newSong)
+                newSong.save()
+            #if song exists, check if audio link is expired or not
+            else:
+                saved = matching[0]
+                difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(saved.song_created, saved.song_created.time())          
+                if(difference.seconds > five_hours):
+                    video = pafy.new(url)
+                    streams = video.audiostreams
+                    for s in streams:
+                        if (s.extension == "m4a"):
+                            saved.audio_url = s.url
+                            playurl = s.url
+                            saved.song_created = datetime.now()
+                            saved.save()
+                            response.append(saved)
+                            break
+                else:
+                    playurl = saved.audio_url
+                    response.append(saved)
+        serializer = SongSerializer(response, many=True)
+        return Response(serializer.data)

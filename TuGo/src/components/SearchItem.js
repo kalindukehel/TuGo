@@ -25,7 +25,15 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 const SearchItem = (props) => {
   let tileColor = "#E8E8E8";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, authorId, navigation } = props;
+  const {
+    index,
+    coverArt,
+    selected,
+    selectItem,
+    artist,
+    title,
+    audioLink,
+  } = props;
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
@@ -39,20 +47,17 @@ const SearchItem = (props) => {
   const playingIdRef = useRef();
 
   const loadSound = async () => {
-    const sound_url = (
-      await getAudioLinkAPI(props.audioLink)
-        .then((result) => result)
-        .catch((e) => {
-          console.log(e);
-        })
-    ).data.url;
+    const sound_url = audioLink;
     try {
       if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
-        await soundObj.loadAsync({ uri: sound_url });
+        await soundObj.loadAsync({
+          uri: sound_url,
+        });
         isLoaded.current = true;
-        playerDispatch({ type: "LOAD_PLAYER", id: props.index });
+        playerDispatch({ type: "LOAD_PLAYER", id: index });
         await soundObj.setProgressUpdateIntervalAsync(1000);
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
+          status.durationMillis = status.durationMillis / 2;
           if (isLoaded.current) {
             if (status.didJustFinish && status.isLoaded) {
               setIsPlaying(false);
@@ -64,7 +69,7 @@ const SearchItem = (props) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.log("error");
     }
   };
 
@@ -72,7 +77,7 @@ const SearchItem = (props) => {
     return () => {
       //When component exits
       try {
-        if (props.index == playingIdRef.current) {
+        if (index == playingIdRef.current) {
           //If current playing song is same as current post
           setIsPlaying(false);
           isLoaded.current = false;
@@ -98,7 +103,7 @@ const SearchItem = (props) => {
   async function doPlay() {
     try {
       //If current post is different from current playing, unload player and load new
-      if (props.index != playingIdRef.current) {
+      if (index != playingIdRef.current) {
         playerDispatch({ type: "UNLOAD_PLAYER" });
         await soundObj.unloadAsync();
         await loadSound();
@@ -133,7 +138,7 @@ const SearchItem = (props) => {
   async function seekComplete(args) {
     setSliderValue(args);
     //Change song player position only if player is playing the song to which the slider corresponds
-    if (playingIdRef.current == props.index) {
+    if (playingIdRef.current == index) {
       const playerStatus = await soundObj.getStatusAsync();
       await soundObj.setStatusAsync({
         positionMillis: playerStatus.durationMillis * args,
@@ -150,15 +155,15 @@ const SearchItem = (props) => {
         alignItems: "center",
       }}
       onPress={() => {
-        props.selectItem
-          ? props.selectItem(
-              props.index,
-              props.artist,
-              props.audioLink,
-              props.title,
-              props.coverArt,
-              props.genre,
-              props.labelName
+        selectItem
+          ? selectItem(
+              index,
+              artist,
+              audioLink,
+              title,
+              coverArt,
+              genre,
+              labelName
             )
           : {};
       }}
@@ -168,11 +173,7 @@ const SearchItem = (props) => {
         style={{
           width: width,
           height: 80,
-          backgroundColor: props.selected ? "purple" : tileColor,
-          borderTopLeftRadius: 5,
-          borderBottomLeftRadius: 5,
-          borderBottomRightRadius: 20,
-          borderTopRightRadius: 20,
+          backgroundColor: selected ? "purple" : tileColor,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
@@ -189,7 +190,7 @@ const SearchItem = (props) => {
               imageBackgroundColor="#00000000"
               style={styles.image}
               source={{
-                uri: props.coverArt,
+                uri: coverArt,
               }}
             />
           </View>
@@ -204,7 +205,7 @@ const SearchItem = (props) => {
           >
             <TextTicker
               style={{
-                color: props.selected ? "white" : "black",
+                color: selected ? "white" : "black",
                 height: 20,
               }}
               duration={7000}
@@ -213,11 +214,11 @@ const SearchItem = (props) => {
               marqueeDelay={1000}
               shouldAnimateTreshold={40}
             >
-              {props.artist}
+              {artist}
             </TextTicker>
             <TextTicker
               style={{
-                color: props.selected ? "white" : "black",
+                color: selected ? "white" : "black",
                 fontWeight: "bold",
                 height: 20,
               }}
@@ -227,9 +228,7 @@ const SearchItem = (props) => {
               marqueeDelay={1000}
               shouldAnimateTreshold={40}
             >
-              {props.title.length > 32
-                ? props.title.substring(0, 32 - 3) + "..."
-                : props.title}
+              {title.length > 32 ? title.substring(0, 32 - 3) + "..." : title}
             </TextTicker>
           </View>
         </View>
@@ -244,7 +243,7 @@ const SearchItem = (props) => {
           minimumValue={0}
           maximumValue={1}
           minimumTrackTintColor="#C4C4C4"
-          maximumTrackTintColor={props.selected ? "white" : "black"}
+          maximumTrackTintColor={selected ? "white" : "black"}
           onSlidingStart={seekSliding}
           onSlidingComplete={seekComplete}
           thumbStyle={{ width: 15, height: 15 }}

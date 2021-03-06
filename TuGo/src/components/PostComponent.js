@@ -9,7 +9,6 @@ import {
   TouchableOpacity,
   Alert,
   FlatList,
-  ImageBackground,
   Share,
 } from "react-native";
 import {
@@ -42,7 +41,7 @@ import ImageModal from "react-native-image-modal";
 import * as Haptics from "expo-haptics";
 import RBSheet from "react-native-raw-bottom-sheet";
 
-import { Audio } from "expo-av";
+import { Audio, Video, AVPlaybackStatus } from "expo-av";
 import { Slider } from "react-native-elements";
 
 //icons
@@ -85,6 +84,7 @@ const PostComponent = (props) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [status, setStatus] = useState({});
 
   const [isSelf, setIsSelf] = useState(false);
 
@@ -305,66 +305,16 @@ const PostComponent = (props) => {
           marginVertical: 10,
         }}
       >
-        <TouchableOpacity
-          style={{}}
-          onPress={() => {
-            refRBSheet.current[tile.index].open();
-          }}
-        >
-          <Image
-            style={{
-              width: 100,
-              height: 170,
-              borderWidth: 3,
-              borderColor: curTile.is_youtube ? "red" : "green",
-              borderRadius: 10,
-            }}
-            source={{
-              uri: curTile.image,
-            }}
-          />
-        </TouchableOpacity>
-        <RBSheet
-          ref={(ref) => {
-            //set RBSheet array index equal to this object
-            refRBSheet.current[tile.index] = ref;
-          }}
-          closeOnDragDown={true}
-          closeOnPressMask={true}
-          customStyles={{
-            wrapper: {
-              backgroundColor: "rgba(0,0,0,0.5)",
-            },
-            draggableIcon: {
-              backgroundColor: "#000",
-            },
-            container: {
-              marginBottom: insets.bottom,
-              backgroundColor: "#DCDCDC",
-              borderTopLeftRadius: 10,
-              borderTopRightRadius: 10,
-            },
-          }}
-        >
-          {/* <View style={{ flex: 1, maxHeight: "100%", backgroundColor: "red" }}> */}
-          {/* <WebView
-              style={{ flex: 1, borderColor: "black" }}
-              javaScriptEnabled={true}
-              scrollEnabled={false}
-              allowsInlineMediaPlayback={true}
-              source={{
-                uri: curTile.link,
-              }}
-            /> */}
-          <YoutubePlayer
-            loop
-            videoId={vidLink}
-            onStart={() => console.log("onStart")}
-            onEnd={() => alert("on End")}
-            onFullScreen={onFullScreen}
-          />
-          {/* </View> */}
-        </RBSheet>
+        <Video
+          ref={refRBSheet.current[tile.index]}
+          style={styles.video}
+          source={{
+            uri: curTile.video_id,
+          }} // Can be a URL or a local file.
+          useNativeControls
+          resizeMode="contain"
+          onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+        ></Video>
       </View>
     );
   };
@@ -722,6 +672,11 @@ const styles = StyleSheet.create({
     borderBottomLeftRadius: 10,
     borderBottomRightRadius: 10,
     borderTopRightRadius: 10,
+  },
+  video: {
+    alignSelf: "center",
+    width: 300,
+    height: 200,
   },
   scene: {
     flex: 1,

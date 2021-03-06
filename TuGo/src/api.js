@@ -385,13 +385,17 @@ export async function getSoundCloudSuggestions(searchQuery) {
   );
 }
 
-export async function getYoutubeSearch(searchQuery) {
-  return axios.get(
-    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" +
-      searchQuery +
-      "&key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"
-    //"&key=AIzaSyCP3Rb3_s9kW4MN1Huw_6j5NJ1QTHVyl54"
-  );
+export async function songSearch(searchQuery, token) {
+  console.log(token);
+  let data = {
+    search_query: searchQuery,
+  };
+  return axios.post(`${API_URL}/api/songs/songsearch/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "application/json",
+    },
+  });
 }
 
 export async function createPost(caption, postDetails, tiles, token) {
@@ -424,6 +428,7 @@ export async function createPost(caption, postDetails, tiles, token) {
     const tileThumbnail =
       "https://i.ytimg.com/vi/" + tiles[i] + "/mqdefault.jpg";
 
+    const videoId = tiles[i];
     //Parse tileData from tile index
     const tileData = {
       tile_type: "posted_choreo",
@@ -432,6 +437,7 @@ export async function createPost(caption, postDetails, tiles, token) {
       image: tileThumbnail,
       view_count: 0,
       post: 0,
+      video_id: videoId,
     };
 
     //Create tile object under created post

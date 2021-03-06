@@ -6,9 +6,11 @@ import {
   TouchableOpacity,
   FlatList,
   RefreshControl,
-  Keyboard,
+  ScrollView,
   Modal,
   Dimensions,
+  ImageBackground,
+  Button,
 } from "react-native";
 import { useAuthState } from "../context/authContext";
 import { TextInput } from "react-native-gesture-handler";
@@ -22,7 +24,8 @@ import { useScrollToTop } from "@react-navigation/native";
 import { getExplorePosts as getExplorePostsAPI } from "../api";
 import SongBlock from "../components/Explore/SongBlock";
 import { AntDesign } from "@expo/vector-icons";
-import YoutubePlayer from "react-native-yt-player";
+
+var { width, height } = Dimensions.get("window");
 
 const leftSpacing = 20;
 
@@ -33,8 +36,10 @@ const Explore = ({ navigation }) => {
   const [isEditing, setIsEditing] = useState(true);
   const [explore, setExplore] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [status, setStatus] = useState({});
 
   //scroll to top
+  const video = React.useRef(null);
   const ref = React.useRef(null);
   useScrollToTop(ref);
 
@@ -138,6 +143,25 @@ const Explore = ({ navigation }) => {
 
   const ItemSeparatorComponent = () => <View style={{ width: 10 }} />;
 
+  const ListEmptyComponent = () => {
+    return (
+      <ImageBackground
+        style={{
+          width: width,
+          justifyContent: "center",
+          alignItems: "center",
+          height: 200,
+          borderRadius: 20,
+          backgroundColor: "#DFDFDF",
+        }}
+      >
+        <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+          No new posts...
+        </Text>
+      </ImageBackground>
+    );
+  };
+
   return (
     <SafeAreaView style={styles.container}>
       <View
@@ -218,27 +242,36 @@ const Explore = ({ navigation }) => {
           />
         </SafeAreaView>
       </Modal>
-      <Text style={{ marginLeft: leftSpacing, fontSize: 35, marginBottom: 20 }}>
-        Browse
-      </Text>
-      <View>
-        <FlatList
-          ItemSeparatorComponent={ItemSeparatorComponent}
-          horizontal={true}
-          ref={ref}
-          style={{}}
-          data={explore}
-          renderItem={renderItem}
-          keyExtractor={(item, index) => item.id.toString()}
-          refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-          }
-          onRefresh={refreshing}
-        />
+      <ScrollView
+        refreshControl={
+          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+        }
+      >
+        <View>
+          <Text
+            style={{ marginLeft: leftSpacing, fontSize: 35, marginBottom: 20 }}
+          >
+            Browse
+          </Text>
+          <FlatList
+            ItemSeparatorComponent={ItemSeparatorComponent}
+            horizontal={true}
+            ref={ref}
+            style={{}}
+            data={explore}
+            renderItem={renderItem}
+            keyExtractor={(item, index) => item.id.toString()}
+            onRefresh={refreshing}
+            ListEmptyComponent={ListEmptyComponent}
+          />
+        </View>
         <Text style={{ marginLeft: leftSpacing, fontSize: 25, marginTop: 20 }}>
           Artists
         </Text>
-      </View>
+        <Text style={{ marginLeft: leftSpacing, fontSize: 25, marginTop: 20 }}>
+          Charts
+        </Text>
+      </ScrollView>
     </SafeAreaView>
   );
 };
@@ -270,6 +303,11 @@ const styles = StyleSheet.create({
   containertwo: { flex: 1, flexDirection: "column" },
   scene: {
     flex: 1,
+  },
+  video: {
+    alignSelf: "center",
+    width: 320,
+    height: 200,
   },
 });
 
