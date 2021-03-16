@@ -51,7 +51,6 @@ import { Entypo } from "@expo/vector-icons";
 
 import { WebView } from "react-native-webview";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
-import YoutubePlayer from "react-native-yt-player";
 import Orientation from "react-native-orientation";
 import TextTicker from "react-native-text-ticker";
 import Player from "./Player";

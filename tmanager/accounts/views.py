@@ -404,6 +404,38 @@ def signup(request, *args, **kwargs):
 
     return Response(serializer.data, status=status.HTTP_201_CREATED)
 
+@api_view(['POST'])
+@permission_classes([permissions.IsAuthenticated])
+def songcharts(request,*args,**kwargs):
+    #get id from body
+    playlist_id = request.data.get('playlist_id')
+    #get playlist name and image
+    playlistRes = requests.get("http://api.napster.com/v2.2/playlists/" + playlist_id + "?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3").json()
+    name = playlistRes['playlists'][0]['name']
+    playlist_image = playlistRes['playlists'][0]['images'][0]['url']
+    #get playlist tracks
+    tracksRes = requests.get("https://api.napster.com/v2.2/playlists/" + playlist_id + "/tracks?limit=100&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3").json()
+    songs = tracksRes['tracks']
+    tracks = []
+    for song in songs:
+        songObj = {
+            'id': song['id'],
+            'audio_url': song['previewURL'],
+            'artist': song['artistName'],
+            'title': song['name'],
+            'album': song['albumName'],
+            'albumCover': "https://api.napster.com/imageserver/v2/albums/" + song['albumId'] + "/images/500x500.jpg"
+        }
+        tracks.append(songObj)
+    #create response object
+    response = {
+        'name': name,
+        'playlist_image': playlist_image,
+        'tracks': tracks,
+        'playlist_id': playlist_id
+    }
+    return Response({'data': response},status=status.HTTP_200_OK)
+
 class SongViewSet(viewsets.ModelViewSet):
     queryset = Song.objects.all()
     permission_classes = [

@@ -386,7 +386,6 @@ export async function getSoundCloudSuggestions(searchQuery) {
 }
 
 export async function songSearch(searchQuery, token) {
-  console.log(token);
   let data = {
     search_query: searchQuery,
   };
@@ -396,6 +395,49 @@ export async function songSearch(searchQuery, token) {
       "Content-Type": "application/json",
     },
   });
+}
+
+//napster api
+export async function songcharts(playlist_id, token) {
+  let data = {
+    playlist_id: playlist_id,
+  };
+  return axios.post(`${API_URL}/songcharts/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function fullTextSearch(searchQuery) {
+  return axios.get(
+    `http://api.napster.com/v2.2/search/verbose?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&per_type_limit=4&query=${searchQuery}`
+  );
+}
+
+export async function topArtists() {
+  return axios.get(
+    `http://api.napster.com/v2.2/artists/top?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=5`
+  );
+}
+
+export async function artistSongs(id) {
+  return axios.get(
+    `http://api.napster.com/v2.2/artists/${id}/tracks/top?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=50`
+  );
+}
+
+export async function getSimilarArtists(id) {
+  return axios.get(
+    `http://api.napster.com/v2.2/artists/${id}/similar?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=5&offset=10`
+  );
+}
+
+export async function getArtistInfo(id) {
+  return axios.get(
+    `http://api.napster.com/v2.2/artists/${id}?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
 }
 
 export async function createPost(caption, postDetails, tiles, token) {

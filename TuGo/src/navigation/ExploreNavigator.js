@@ -5,12 +5,16 @@ import CreatePostNavigator from "../navigation/CreatePostNavigator";
 import { useAuthState } from "../context/authContext";
 import ProfileNavigator from "../navigation/ProfileNavigator";
 import PostNavigator from "../navigation/PostNavigator";
+import Chart from "../screens/Chart.js";
+import Artist from "../screens/Artist.js";
+import RelatedArtists from "../screens/RelatedArtists.js";
+import ArtistInfo from "../screens/ArtistInfo.js";
 const Stack = createStackNavigator();
 
 const explorerNavigator = () => {
   const { self } = useAuthState();
   return (
-    <Stack.Navigator initialRouteName="Explore" mode="modal">
+    <Stack.Navigator initialRouteName="Explore">
       <Stack.Screen
         options={{
           headerShown: false,
@@ -50,6 +54,70 @@ const explorerNavigator = () => {
           headerShown: false,
           headerBackTitleVisible: false,
           headerTintColor: "black",
+        }}
+      />
+      <Stack.Screen
+        name="Chart"
+        component={Chart}
+        options={{
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: "#E3FBFF",
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Artist"
+        component={Artist}
+        options={{
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: "#E3FBFF",
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+      />
+      <Stack.Screen
+        name="ArtistInfo"
+        component={ArtistInfo}
+        options={{
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: "#E3FBFF",
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Related Artists"
+        component={RelatedArtists}
+        options={{
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: "#E3FBFF",
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
         }}
       />
     </Stack.Navigator>

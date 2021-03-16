@@ -5,16 +5,21 @@ import {
   StyleSheet,
   Text,
   ActivityIndicator,
+  TouchableWithoutFeedback,
+  ImageBackground,
 } from "react-native";
 import {
   searchUsers as searchUsersAPI,
   getSoundCloudSuggestions as getSoundCloudSuggestionsAPI,
   getSoundCloudSearch as getSoundCloudSearchAPI,
   songSearch as songSearchAPI,
+  searchSongs as searchSongsAPI,
+  fullTextSearch as fullTextSearchAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SearchItem from "../SearchItem";
+import TextTicker from "react-native-text-ticker";
 
 const styles = StyleSheet.create({
   activityIndicator: {
@@ -25,7 +30,14 @@ const styles = StyleSheet.create({
 
 const SongsTabView = (props) => {
   const { userToken } = useAuthState();
-  const { searchQuery, isEditing, handleChange, handleEditing } = props;
+  const {
+    searchQuery,
+    isEditing,
+    handleChange,
+    handleEditing,
+    navigation,
+    setModalVisible,
+  } = props;
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -35,8 +47,14 @@ const SongsTabView = (props) => {
       if (isEditing && searchQuery != "") {
       } else if (searchQuery != "") {
         setLoading(true);
-        const res = await songSearchAPI(searchQuery, userToken);
-        setResults(res.data);
+        //const res = await songSearchAPI(searchQuery, userToken);
+        const res = await fullTextSearchAPI(searchQuery);
+        const resArray = [
+          ...res.data.search.data.artists,
+          ...res.data.search.data.albums,
+          ...res.data.search.data.tracks,
+        ];
+        setResults(resArray);
         setLoading(false);
       }
     };
@@ -89,22 +107,83 @@ const SongsTabView = (props) => {
     );
   };
 
-  const renderSuggestion = (suggestion) => {
-    console.log(suggestion.item);
-    if (isEditing) {
-    } else {
-      return (
-        <SearchItem
-          index={suggestion.item.video_id}
-          coverArt={suggestion.item.thumbnail.replace("large", "t500x500")}
-          selected={false}
-          selectItem={null}
-          artist={suggestion.item.artist}
-          title={suggestion.item.title}
-          audioLink={suggestion.item.audio_url}
-        />
-      );
-    }
+  const getImage = (albumId) => {
+    return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
+  };
+
+  const getArtistImage = (artistId) => {
+    return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
+  };
+
+  const renderSuggestion = (item) => {
+    const suggestion = item.item;
+    return (
+      <>
+        {suggestion.type === "track" && (
+          <SearchItem
+            index={suggestion.id}
+            coverArt={getImage(suggestion.albumId)}
+            selected={false}
+            selectItem={null}
+            artist={suggestion.artistName}
+            title={suggestion.name}
+            audioLink={suggestion.previewURL}
+          />
+        )}
+        {suggestion.type === "artist" && (
+          <TouchableWithoutFeedback
+            onPress={() => {
+              setModalVisible(false);
+              navigation.push("Artist", {
+                artist: suggestion.id,
+              });
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginLeft: 8,
+              }}
+            >
+              <ImageBackground
+                imageStyle={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 999,
+                }}
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 999,
+                  alignItems: "center",
+                }}
+                source={{
+                  uri: getArtistImage(suggestion.id),
+                }}
+              ></ImageBackground>
+              <TextTicker
+                style={{
+                  marginLeft: 20,
+                  color: "black",
+                  fontWeight: "bold",
+                  height: 20,
+                }}
+                duration={7000}
+                bounce
+                repeatSpacer={50}
+                marqueeDelay={1000}
+                shouldAnimateTreshold={40}
+              >
+                {suggestion.name.length > 32
+                  ? suggestion.name.substring(0, 32 - 3) + "..."
+                  : suggestion.name}
+              </TextTicker>
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+      </>
+    );
   };
 
   return (

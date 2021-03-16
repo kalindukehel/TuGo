@@ -6,6 +6,7 @@ import {
   Dimensions,
   StyleSheet,
   TouchableWithoutFeedback,
+  ActivityIndicator,
 } from "react-native";
 import { Slider } from "react-native-elements";
 import ImageModal from "react-native-image-modal";
@@ -23,7 +24,6 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
 //SearchItem Component for CreatePost Screen
 const SearchItem = (props) => {
-  let tileColor = "#E8E8E8";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const {
     index,
@@ -33,7 +33,9 @@ const SearchItem = (props) => {
     artist,
     title,
     audioLink,
+    color,
   } = props;
+  let tileColor = color ? color : "#ffffff00";
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
@@ -41,23 +43,30 @@ const SearchItem = (props) => {
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
+  const [loadingPlayer, setLoadingPlayer] = useState(false);
 
   const stateRef = useRef();
   const isLoaded = useRef(false);
   const playingIdRef = useRef();
 
   const loadSound = async () => {
+    // const sound_url = (
+    //   await getAudioLinkAPI(props.audioLink)
+    //     .then((result) => result)
+    //     .catch((e) => {
+    //       console.log(e);
+    //     })
+    // ).data.url;
     const sound_url = audioLink;
     try {
       if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
-        await soundObj.loadAsync({
+        const res = await soundObj.loadAsync({
           uri: sound_url,
         });
         isLoaded.current = true;
         playerDispatch({ type: "LOAD_PLAYER", id: index });
         await soundObj.setProgressUpdateIntervalAsync(1000);
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
-          status.durationMillis = status.durationMillis / 2;
           if (isLoaded.current) {
             if (status.didJustFinish && status.isLoaded) {
               setIsPlaying(false);
@@ -106,7 +115,9 @@ const SearchItem = (props) => {
       if (index != playingIdRef.current) {
         playerDispatch({ type: "UNLOAD_PLAYER" });
         await soundObj.unloadAsync();
+        setLoadingPlayer(true);
         await loadSound();
+        setLoadingPlayer(false);
         //If new song is starting and user has pre-set slider value
         if (sliderValue != 0) {
           const playerStatus = await soundObj.getStatusAsync();
@@ -121,7 +132,9 @@ const SearchItem = (props) => {
           //if current post is playing
           await soundObj.pauseAsync();
         } else {
+          setLoadingPlayer(true);
           await loadSound();
+          setLoadingPlayer(false);
           await soundObj.playAsync();
         }
       }
@@ -251,17 +264,23 @@ const SearchItem = (props) => {
           value={sliderValue}
           disabled={refreshing ? true : false}
         />
-        <TouchableOpacity
-          disabled={refreshing ? true : false}
-          onPress={doPlay}
-          style={{ marginLeft: "auto", marginRight: 10 }}
-        >
-          {isPlaying ? (
-            <Entypo name="controller-paus" size={35} color="black" />
-          ) : (
-            <Entypo name="controller-play" size={35} color="black" />
-          )}
-        </TouchableOpacity>
+        {loadingPlayer ? (
+          <View style={{ marginLeft: "auto", marginRight: 10 }}>
+            <ActivityIndicator animating={true} size="large" color="black" />
+          </View>
+        ) : (
+          <TouchableOpacity
+            disabled={refreshing ? true : false}
+            onPress={doPlay}
+            style={{ marginLeft: "auto", marginRight: 10 }}
+          >
+            {isPlaying ? (
+              <Entypo name="controller-paus" size={35} color="black" />
+            ) : (
+              <Entypo name="controller-play" size={35} color="black" />
+            )}
+          </TouchableOpacity>
+        )}
       </View>
     </TouchableWithoutFeedback>
   );
@@ -271,19 +290,6 @@ const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
     backgroundColor: "white",
-  },
-  moreButton: {
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: "white",
-    paddingHorizontal: 10,
-    paddingVertical: 5,
-    backgroundColor: "gray",
-    alignSelf: "center",
-  },
-  moreButtonText: {
-    alignSelf: "center",
-    color: "white",
   },
   imageViewNotPlaying: {
     marginLeft: 8,
@@ -303,10 +309,7 @@ const styles = StyleSheet.create({
   image: {
     width: 60,
     height: 60,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    borderTopRightRadius: 10,
+    borderRadius: 999,
   },
   scene: {
     flex: 1,
