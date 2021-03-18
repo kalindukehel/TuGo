@@ -25,21 +25,15 @@ import {
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
-import { API_URL } from "../../constants";
 
-import ImageModal from "react-native-image-modal";
+//components
+import Player from "../components/Player";
 import * as Haptics from "expo-haptics";
-import TextTicker from "react-native-text-ticker";
-// import Modal from 'react-native-modal';
 
 import { Audio } from "expo-av";
 
-import { Slider } from "react-native-elements";
-import PostComponent from "./PostComponent";
-
 //icons
 import { AntDesign } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
 
 var { width, height } = Dimensions.get("window");
 
@@ -47,7 +41,6 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
 //SongTile component for Favorites Screen
 const FavoritesTile = (props) => {
-  let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const { postId, navigation } = props;
   const { userToken } = useAuthState();
@@ -226,120 +219,13 @@ const FavoritesTile = (props) => {
   return (
     post && (
       <View style={{ flex: 1 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            alignItems: "center",
-          }}
-        >
-          <ImageBackground
-            source={{
-              uri: post.soundcloud_art,
-            }}
-            imageStyle={{
-              opacity: 0.3,
-            }}
-            style={{
-              width: width,
-              height: 80,
-              borderTopLeftRadius: 5,
-              borderBottomLeftRadius: 5,
-              borderBottomRightRadius: 20,
-              borderTopRightRadius: 20,
-              flexDirection: "row",
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <View
-              style={{ flexDirection: "row", alignItems: "center", flex: 1 }}
-            >
-              <View
-                style={
-                  isPlaying
-                    ? styles.imageViewPlaying
-                    : styles.imageViewNotPlaying
-                }
-              >
-                <ImageModal
-                  resizeMode="contain"
-                  imageBackgroundColor="#00000000"
-                  style={styles.image}
-                  source={{
-                    uri: post.soundcloud_art,
-                  }}
-                />
-              </View>
-              <View
-                style={{
-                  flexDirection: "column",
-                  marginLeft: 20,
-                  marginTop: 15,
-                  width: 220,
-                  marginBottom: 30,
-                }}
-              >
-                <TextTicker
-                  style={{
-                    color: "black",
-                    height: 20,
-                  }}
-                  duration={7000}
-                  bounce
-                  repeatSpacer={50}
-                  marqueeDelay={1000}
-                  shouldAnimateTreshold={40}
-                >
-                  {post.song_artist}
-                </TextTicker>
-                <TextTicker
-                  style={{
-                    color: "black",
-                    fontWeight: "bold",
-                    height: 20,
-                  }}
-                  duration={7000}
-                  bounce
-                  repeatSpacer={50}
-                  marqueeDelay={1000}
-                  shouldAnimateTreshold={40}
-                >
-                  {post.song_name}
-                </TextTicker>
-              </View>
-            </View>
-            <Slider
-              style={{
-                marginLeft: "20%",
-                width: "55%",
-                alignSelf: "flex-end",
-                position: "absolute",
-                height: 35,
-              }}
-              minimumValue={0}
-              maximumValue={1}
-              minimumTrackTintColor="black"
-              maximumTrackTintColor="#C4C4C4"
-              onSlidingStart={seekSliding}
-              onSlidingComplete={seekComplete}
-              thumbStyle={{ width: 15, height: 15 }}
-              thumbTintColor="black"
-              value={sliderValue}
-              disabled={refreshing ? true : false}
-            />
-            <TouchableOpacity
-              disabled={refreshing ? true : false}
-              onPress={doPlay}
-              style={{ marginLeft: "auto", marginRight: 10 }}
-            >
-              {isPlaying ? (
-                <Entypo name="controller-paus" size={35} color="black" />
-              ) : (
-                <Entypo name="controller-play" size={35} color="black" />
-              )}
-            </TouchableOpacity>
-          </ImageBackground>
-        </View>
+        <Player
+          index={post.id}
+          coverArt={post.album_cover}
+          artist={post.song_artist}
+          title={post.song_name}
+          audioLink={post.audio_url}
+        />
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <TouchableOpacity
             style={{ alignSelf: "center", marginTop: 10 }}

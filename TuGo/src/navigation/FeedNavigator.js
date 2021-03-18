@@ -19,15 +19,6 @@ const FeedNavigator = () => {
           headerTransparent: false,
           headerStyle: {
             backgroundColor: "rgba(232, 232, 232, 0.8)",
-            shadowColor: "#000",
-            shadowOffset: {
-              width: 0,
-              height: 5,
-            },
-            shadowOpacity: 0.36,
-            shadowRadius: 6.68,
-
-            elevation: 11,
           },
           headerTitleStyle: {
             fontWeight: "bold",
@@ -41,6 +32,9 @@ const FeedNavigator = () => {
         name="Likes"
         component={Likes}
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerBackTitleVisible: false,
           headerTintColor: "black",
         }}
@@ -48,6 +42,9 @@ const FeedNavigator = () => {
       <Stack.Screen
         name="Comments"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerBackTitleVisible: false,
           headerTintColor: "black",
         }}
@@ -56,6 +53,9 @@ const FeedNavigator = () => {
       <Stack.Screen
         name="Profile"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerShown: false,
@@ -68,6 +68,9 @@ const FeedNavigator = () => {
       <Stack.Screen
         name="Follow Requests"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           title: "Follow Requests",
           headerBackTitleVisible: false,
           headerTintColor: "black",

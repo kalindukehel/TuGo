@@ -10,8 +10,8 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
 } from "react-native";
-import { getSimilarArtists as getSimilarArtistsAPI } from "../api";
-import ArtistBlock from "../components/Explore/ArtistBlock";
+import { getSimilarArtists as getSimilarArtistsAPI } from "../../api";
+import ArtistBlock from "../../components/Explore/ArtistBlock";
 
 var { width, height } = Dimensions.get("window");
 

@@ -66,19 +66,18 @@ class Requester(models.Model):
 class Post(models.Model):
     caption = models.CharField(max_length=200, default='', blank=True)
 
-    soundcloud_art = models.URLField()
-    soundcloud_audio = models.URLField()
-    soundcloud_search_query = models.CharField(max_length=200)
+    album_cover = models.URLField()
+    audio_url = models.URLField()
 
     author = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='posts')
 
     song_name = models.CharField(max_length=200)
     song_artist = models.CharField(max_length=200)
-    song_genre = models.CharField(max_length=200, default='', null=True, blank=True)
-    song_label_name = models.CharField(max_length=200, default='', null=True, blank=True)
+    song_tags = models.CharField(max_length=200, default='', null=True, blank=True)
+    song_id = models.CharField(max_length=200)
 
     created_at = models.DateTimeField(auto_now_add=True)
-    REQUIRED_FIELDS = ['soundcloud_art', 'soundcloud_audio', 'soundcloud_search_query' 'song_name','song_artist', 'created_at']
+    REQUIRED_FIELDS = ['album_cover', 'audio_url', 'song_name','song_artist', 'song_id', 'created_at']
 
 class Feed_Item(models.Model):
     user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='feed')

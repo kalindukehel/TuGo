@@ -40,11 +40,27 @@ export default AppNavigator = () => {
         <NavigationContainer>
           <Stack.Navigator headerMode="none">
             {userToken == null ? (
-              <Stack.Screen isSignout={isSignout} name="Auth" component={AuthNavigator} />
+              <Stack.Screen
+                isSignout={isSignout}
+                name="Auth"
+                component={AuthNavigator}
+              />
             ) : (
-              <Stack.Screen isSignout={isSignout} name="Main" component={MainNavigator} />
+              <Stack.Screen
+                isSignout={isSignout}
+                name="Main"
+                component={MainNavigator}
+              />
             )}
-            <Stack.Screen name="Activity" component={ActivityNavigator} />
+            <Stack.Screen
+              name="Activity"
+              options={{
+                gestureResponseDistance: {
+                  horizontal: 300,
+                },
+              }}
+              component={ActivityNavigator}
+            />
           </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>

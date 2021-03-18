@@ -8,7 +8,7 @@ import {
   ScrollView,
   useWindowDimensions,
 } from "react-native";
-import { getArtistInfo as getArtistInfoAPI } from "../api";
+import { getArtistInfo as getArtistInfoAPI } from "../../api";
 import HTML from "react-native-render-html";
 
 var { width, height } = Dimensions.get("window");

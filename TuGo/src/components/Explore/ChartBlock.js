@@ -1,10 +1,5 @@
 import React from "react";
-import {
-  ImageBackground,
-  TouchableWithoutFeedback,
-  StyleSheet,
-  Text,
-} from "react-native";
+import { View, TouchableWithoutFeedback, StyleSheet, Text } from "react-native";
 const ChartBlock = (props) => {
   const { type, navigation, image, text } = props;
   return (
@@ -15,36 +10,27 @@ const ChartBlock = (props) => {
         });
       }}
     >
-      <ImageBackground
-        imageStyle={styles.chartImage}
-        style={styles.chartLabel}
-        source={{
-          uri: image,
-        }}
-      >
+      <View style={styles.chartLabel}>
         <Text style={styles.chartName}>{text}</Text>
-      </ImageBackground>
+      </View>
     </TouchableWithoutFeedback>
   );
 };
 
 const styles = StyleSheet.create({
-  chartImage: {
-    width: 150,
-    height: 150,
-    borderRadius: 10,
-    opacity: 0.4,
-  },
   chartLabel: {
     width: 150,
     height: 150,
     justifyContent: "center",
     alignItems: "center",
+    borderRadius: 10,
+    backgroundColor: "black",
   },
   chartName: {
     fontWeight: "bold",
     fontSize: 20,
     textAlign: "center",
+    color: "white",
   },
 });
 

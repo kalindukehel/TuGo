@@ -358,6 +358,15 @@ export async function toggleAccountVisilibity(isPrivate, token) {
 
 /* Non-Django API Functions */
 
+export async function getYoutubeSearch(searchQuery) {
+  return axios.get(
+    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" +
+      searchQuery +
+      "&key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"
+    //"&key=AIzaSyCP3Rb3_s9kW4MN1Huw_6j5NJ1QTHVyl54"
+  );
+}
+
 export async function getAudioLink(soundCloudLink) {
   return axios.get(
     soundCloudLink + "?client_id=3DLVBKZxoYMm5gFm9YjFxJTNFL0VECz7"
@@ -410,6 +419,24 @@ export async function songcharts(playlist_id, token) {
   });
 }
 
+export async function typeSongAheadSearch(searchQuery) {
+  return axios.get(
+    `http://api.napster.com/v2.2/search?type=track&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}`
+  );
+}
+
+export async function searchArtist(searchQuery) {
+  return axios.get(
+    `http://api.napster.com/v2.2/search?type=artist&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}&per_type_limit=1`
+  );
+}
+
+export async function fullTextSongSearch(searchQuery) {
+  return axios.get(
+    `http://api.napster.com/v2.2/search/verbose?type=track&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}`
+  );
+}
+
 export async function fullTextSearch(searchQuery) {
   return axios.get(
     `http://api.napster.com/v2.2/search/verbose?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&per_type_limit=4&query=${searchQuery}`
@@ -444,16 +471,12 @@ export async function createPost(caption, postDetails, tiles, token) {
   //Convert postDetails into an object to send as a request to api
   let postData = {
     caption: caption,
-    soundcloud_art: postDetails.coverArt,
-    soundcloud_audio: postDetails.audioLink,
-    soundcloud_search_query: postDetails.title + " " + postDetails.artist,
+    album_cover: postDetails.coverArt,
+    audio_url: postDetails.audioLink,
     song_name: postDetails.title,
     song_artist: postDetails.artist,
-    song_genre:
-      postDetails.genre == null || postDetails.genre == ""
-        ? postDetails.artist
-        : postDetails.genre,
-    song_label_name: postDetails.labelName == null ? "" : postDetails.labelName,
+    song_tags: postDetails.genre.join(", "),
+    song_id: postDetails.trackId,
     author: 2,
   };
   //Create post using postdata and store created object as res

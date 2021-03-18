@@ -12,8 +12,8 @@ import {
   searchUsers as searchUsersAPI,
   getSoundCloudSuggestions as getSoundCloudSuggestionsAPI,
   getSoundCloudSearch as getSoundCloudSearchAPI,
-  songSearch as songSearchAPI,
-  searchSongs as searchSongsAPI,
+  typeSongAheadSearch as typeSongAheadSearchAPI,
+  searchArtist as searchArtistAPI,
   fullTextSearch as fullTextSearchAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
@@ -36,7 +36,6 @@ const SongsTabView = (props) => {
     handleChange,
     handleEditing,
     navigation,
-    setModalVisible,
   } = props;
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -45,6 +44,14 @@ const SongsTabView = (props) => {
     let isMounted = true;
     const loadsongs = async () => {
       if (isEditing && searchQuery != "") {
+        setLoading(true);
+        const resArtist = await searchArtistAPI(searchQuery);
+        const resTracks = await typeSongAheadSearchAPI(searchQuery);
+        setResults([
+          ...resArtist.data.search.data.artists,
+          ...resTracks.data.search.data.tracks,
+        ]);
+        setLoading(false);
       } else if (searchQuery != "") {
         setLoading(true);
         //const res = await songSearchAPI(searchQuery, userToken);
@@ -133,7 +140,6 @@ const SongsTabView = (props) => {
         {suggestion.type === "artist" && (
           <TouchableWithoutFeedback
             onPress={() => {
-              setModalVisible(false);
               navigation.push("Artist", {
                 artist: suggestion.id,
               });
@@ -144,6 +150,7 @@ const SongsTabView = (props) => {
                 flexDirection: "row",
                 alignItems: "center",
                 marginLeft: 8,
+                marginTop: 8,
               }}
             >
               <ImageBackground
@@ -194,10 +201,10 @@ const SongsTabView = (props) => {
         </View>
       ) : (
         <FlatList
+          keyboardDismissMode="on-drag"
           style={{}}
           data={results}
           renderItem={renderSuggestion}
-          ItemSeparatorComponent={ItemSeparatorView}
           keyExtractor={(item, index) => {
             return index.toString();
           }}

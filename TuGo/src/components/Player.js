@@ -1,91 +1,61 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
+  Text,
+  TouchableOpacity,
   Dimensions,
   StyleSheet,
-  TouchableOpacity,
   ImageBackground,
+  ActivityIndicator,
 } from "react-native";
-import {
-  setSoundCloudAudio as setSoundCloudAudioAPI,
-  getAudioLink as getAudioLinkAPI,
-  getSoundCloudSearch as getSoundCloudSearchAPI,
-} from "../api";
+import { Slider } from "react-native-elements";
+import ImageModal from "react-native-image-modal";
+var { width, height } = Dimensions.get("window");
+import Play from "../../assets/PlayButton.svg";
+import Pause from "../../assets/PauseButton.svg";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
-
-import ImageModal from "react-native-image-modal";
-
 import { Audio } from "expo-av";
-import { Slider } from "react-native-elements";
-
-//icons
-
+import { getAudioLink as getAudioLinkAPI } from "../api";
+import TextTicker from "react-native-text-ticker";
 import { Entypo } from "@expo/vector-icons";
 
-import TextTicker from "react-native-text-ticker";
-var { width } = Dimensions.get("window");
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
-//Player Component used by PostComponent and Search Results
+//SearchItem Component for CreatePost Screen
 const Player = (props) => {
-  const { soundObj, playingId, stopAll } = usePlayerState(); //Use global soundObj from Redux state
+  const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
+  const { index, coverArt, artist, title, audioLink, color } = props;
+  let tileColor = color ? color : "#ffffff00";
+  const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
-  const {
-    id,
-    soundCloudArt,
-    artist,
-    songName,
-    url,
-    refreshing,
-    soundCloudSearchQuery,
-    isPlaying,
-    setIsPlaying,
-  } = props;
 
+  const [refreshing, setRefreshing] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
+  const [loadingPlayer, setLoadingPlayer] = useState(false);
 
   const stateRef = useRef();
-
-  const playingIdRef = useRef();
   const isLoaded = useRef(false);
-  const { userToken } = useAuthState();
-
-  stateRef.current = isSeeking;
+  const playingIdRef = useRef();
 
   const loadSound = async () => {
-    const sound_url = (
-      await getAudioLinkAPI(url)
-        .then((result) => {
-          return result;
-        })
-        .catch(
-          (error = async () => {
-            const searchData = (
-              await getSoundCloudSearchAPI(
-                soundCloudSearchQuery ? soundCloudSearchQuery : "Popstar Drake"
-              ).then((result) => result.data)
-            ).collection[0].media.transcodings[0].url;
-            const tempSoundUrl = await getAudioLinkAPI(searchData).then(
-              (result) => result.data.url
-            );
-            if (tempSoundUrl) {
-              setSoundCloudAudioAPI(searchData, userToken, id);
-            }
-            return {
-              data: {
-                url: tempSoundUrl,
-              },
-            };
-          })
-        )
-    ).data.url;
+    // const sound_url = (
+    //   await getAudioLinkAPI(props.audioLink)
+    //     .then((result) => result)
+    //     .catch((e) => {
+    //       console.log(e);
+    //     })
+    // ).data.url;
+    const sound_url = audioLink;
     try {
       if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
-        await soundObj.loadAsync({ uri: sound_url });
+        const res = await soundObj.loadAsync({
+          uri: sound_url,
+        });
         isLoaded.current = true;
-        playerDispatch({ type: "LOAD_PLAYER", id: id });
+        playerDispatch({ type: "LOAD_PLAYER", id: index });
         await soundObj.setProgressUpdateIntervalAsync(1000);
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
           if (isLoaded.current) {
@@ -99,16 +69,15 @@ const Player = (props) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.log("error");
     }
   };
 
   useEffect(() => {
-    let isMounted = true;
     return () => {
       //When component exits
       try {
-        if (id == playingIdRef.current && isMounted) {
+        if (index == playingIdRef.current) {
           //If current playing song is same as current post
           setIsPlaying(false);
           isLoaded.current = false;
@@ -121,20 +90,25 @@ const Player = (props) => {
     };
   }, []);
 
-  useEffect(() => {
-    playingIdRef.current = playingId;
-  }, [playingId]);
-
+  //Stop playing if redux global state is set to false
   useEffect(() => {
     setIsPlaying(false);
   }, [stopAll]);
 
+  //Change local ref state when playingId redux state changes
+  useEffect(() => {
+    playingIdRef.current = playingId;
+  }, [playingId]);
+
   async function doPlay() {
     try {
-      /* if current post is different from current playing */
-      if (id != playingIdRef.current) {
+      //If current post is different from current playing, unload player and load new
+      if (index != playingIdRef.current) {
         playerDispatch({ type: "UNLOAD_PLAYER" });
+        await soundObj.unloadAsync();
+        setLoadingPlayer(true);
         await loadSound();
+        setLoadingPlayer(false);
         //If new song is starting and user has pre-set slider value
         if (sliderValue != 0) {
           const playerStatus = await soundObj.getStatusAsync();
@@ -149,7 +123,9 @@ const Player = (props) => {
           //if current post is playing
           await soundObj.pauseAsync();
         } else {
+          setLoadingPlayer(true);
           await loadSound();
+          setLoadingPlayer(false);
           await soundObj.playAsync();
         }
       }
@@ -159,7 +135,6 @@ const Player = (props) => {
       console.log(error);
     }
   }
-
   async function seekSliding() {
     setIsSeeking(true);
   }
@@ -167,7 +142,7 @@ const Player = (props) => {
   async function seekComplete(args) {
     setSliderValue(args);
     //Change song player position only if player is playing the song to which the slider corresponds
-    if (id == playingIdRef.current) {
+    if (playingIdRef.current == index) {
       const playerStatus = await soundObj.getStatusAsync();
       await soundObj.setStatusAsync({
         positionMillis: playerStatus.durationMillis * args,
@@ -175,17 +150,19 @@ const Player = (props) => {
     }
     setIsSeeking(false);
   }
+  stateRef.current = isSeeking;
 
   return (
     <View
       style={{
         flexDirection: "row",
         alignItems: "center",
+        opacity: 0.75,
       }}
     >
       <ImageBackground
         source={{
-          uri: soundCloudArt,
+          uri: coverArt,
         }}
         imageStyle={{
           opacity: 0.3,
@@ -193,11 +170,6 @@ const Player = (props) => {
         style={{
           width: width,
           height: 80,
-          // backgroundColor: tileColor,
-          borderTopLeftRadius: 5,
-          borderBottomLeftRadius: 5,
-          borderBottomRightRadius: 20,
-          borderTopRightRadius: 20,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
@@ -214,7 +186,7 @@ const Player = (props) => {
               imageBackgroundColor="#00000000"
               style={styles.image}
               source={{
-                uri: soundCloudArt,
+                uri: coverArt,
               }}
             />
           </View>
@@ -252,7 +224,7 @@ const Player = (props) => {
               marqueeDelay={1000}
               shouldAnimateTreshold={40}
             >
-              {songName}
+              {title.length > 32 ? title.substring(0, 32 - 3) + "..." : title}
             </TextTicker>
           </View>
         </View>
@@ -266,34 +238,42 @@ const Player = (props) => {
           }}
           minimumValue={0}
           maximumValue={1}
-          minimumTrackTintColor="black"
-          maximumTrackTintColor="#C4C4C4"
+          minimumTrackTintColor="#C4C4C4"
+          maximumTrackTintColor={"black"}
           onSlidingStart={seekSliding}
           onSlidingComplete={seekComplete}
           thumbStyle={{ width: 15, height: 15 }}
-          thumbTintColor="black"
+          thumbTintColor="#C4C4C4"
           value={sliderValue}
           disabled={refreshing ? true : false}
         />
-        <TouchableOpacity
-          disabled={refreshing ? true : false}
-          onPress={() => {
-            doPlay(id);
-          }}
-          style={{ marginLeft: "auto", marginRight: 10 }}
-        >
-          {isPlaying ? (
-            <Entypo name="controller-paus" size={35} color="black" />
-          ) : (
-            <Entypo name="controller-play" size={35} color="black" />
-          )}
-        </TouchableOpacity>
+        {loadingPlayer ? (
+          <View style={{ marginLeft: "auto", marginRight: 10 }}>
+            <ActivityIndicator animating={true} size="large" color="black" />
+          </View>
+        ) : (
+          <TouchableOpacity
+            disabled={refreshing ? true : false}
+            onPress={doPlay}
+            style={{ marginLeft: "auto", marginRight: 10 }}
+          >
+            {isPlaying ? (
+              <Entypo name="controller-paus" size={35} color="black" />
+            ) : (
+              <Entypo name="controller-play" size={35} color="black" />
+            )}
+          </TouchableOpacity>
+        )}
       </ImageBackground>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    backgroundColor: "white",
+  },
   imageViewNotPlaying: {
     marginLeft: 8,
   },
@@ -312,10 +292,10 @@ const styles = StyleSheet.create({
   image: {
     width: 60,
     height: 60,
-    borderTopLeftRadius: 10,
-    borderBottomLeftRadius: 10,
-    borderBottomRightRadius: 10,
-    borderTopRightRadius: 10,
+    borderRadius: 999,
+  },
+  scene: {
+    flex: 1,
   },
 });
 

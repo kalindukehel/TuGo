@@ -13,18 +13,22 @@ var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
 
 const AccountTile = (props) => {
-  const { account, navigation, setModalVisible } = props;
+  const { account, navigation } = props;
   return (
     <TouchableOpacity
       style={styles.followElement}
       onPress={() => {
-        setModalVisible(false);
         navigation.push("Profile", {
           id: account.id,
         });
       }}
     >
-      <View style={{ flexDirection: "row", alignContent: "center" }}>
+      <View
+        style={{
+          flexDirection: "row",
+          alignContent: "center",
+        }}
+      >
         <Image
           source={{ uri: API_URL + account.profile_picture }}
           style={{
@@ -38,7 +42,6 @@ const AccountTile = (props) => {
           style={{
             flexDirection: "column",
             flex: 1,
-            alignItems: "flex-start",
             marginLeft: 15,
           }}
         >

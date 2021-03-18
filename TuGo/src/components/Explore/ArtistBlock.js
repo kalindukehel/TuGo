@@ -7,7 +7,7 @@ import {
   View,
 } from "react-native";
 const ArtistBlock = (props) => {
-  const { artist, navigation, image, id, similarArtist } = props;
+  const { artist, navigation, image, id, similarArtist, index } = props;
   return (
     <TouchableWithoutFeedback
       onPress={() => {
@@ -21,18 +21,18 @@ const ArtistBlock = (props) => {
         <ImageBackground
           imageStyle={{
             ...styles.chartImage,
-            width: similarArtist ? 180 : 120,
-            height: similarArtist ? 180 : 120,
+            width: similarArtist ? 180 : 180,
+            height: similarArtist ? 180 : 180,
           }}
           style={{
-            width: similarArtist ? 180 : 120,
-            height: similarArtist ? 180 : 120,
+            width: similarArtist ? 180 : 180,
+            height: similarArtist ? 180 : 180,
           }}
           source={{
             uri: image,
           }}
         ></ImageBackground>
-        <Text style={styles.chartName}>{artist}</Text>
+        <Text style={styles.chartName}>{similarArtist ? `${artist}` : `${index} ${artist}`}</Text>
       </View>
     </TouchableWithoutFeedback>
   );

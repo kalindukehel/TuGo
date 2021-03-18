@@ -232,7 +232,7 @@ const Profile = (props) => {
         >
           <Image
             style={{ flex: 1, width: undefined, height: undefined }}
-            source={{ uri: curPost.soundcloud_art }}
+            source={{ uri: curPost.album_cover }}
           ></Image>
         </View>
       </TouchableOpacity>
@@ -270,7 +270,7 @@ const Profile = (props) => {
                   source={{
                     uri:
                       topPosts[index] && error != 403
-                        ? topPosts[index].soundcloud_art
+                        ? topPosts[index].album_cover
                         : blank,
                   }}
                 ></Image>

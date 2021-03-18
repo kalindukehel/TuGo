@@ -480,14 +480,11 @@ const PostComponent = (props) => {
           </RBSheet>
         </View>
         <Player
-          id={post.id}
-          soundCloudArt={post.soundcloud_art}
+          index={post.id}
+          coverArt={post.album_cover}
           artist={post.song_artist}
-          songName={post.song_name}
-          url={post.soundcloud_audio}
-          soundCloudSearchQuery={post.soundcloud_search_query}
-          isPlaying={isPlaying}
-          setIsPlaying={setIsPlaying}
+          title={post.song_name}
+          audioLink={post.audio_url}
         />
         <View>
           <FlatList

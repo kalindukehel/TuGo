@@ -195,14 +195,14 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         df['index'] = add_index(df)
         #create a list of select columns for the recommendation engine
-        columns=['song_artist', 'song_genre', 'song_label_name']
+        columns=['song_artist', 'song_tags']
         #check for any missing values in the select columns
         df[columns].isnull().values.any()
         #create functions to combine values of the select columns into single string
         def get_important_features(data):
             important_features = []
             for i in range(0, data.shape[0]):
-                important_features.append(data['song_artist'][i]+' '+data['song_genre'][i]+' '+data['song_label_name'][i])
+                important_features.append(data['song_artist'][i]+' '+data['song_tags'][i])
             return important_features
 
         def get_index_from_id(id):

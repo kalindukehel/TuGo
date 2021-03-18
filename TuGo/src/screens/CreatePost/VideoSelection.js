@@ -17,6 +17,7 @@ var { width, height } = Dimensions.get("window");
 
 const VideoSelection = (props) => {
   const { song } = props.route.params;
+  console.log(song);
   const { navigation } = props;
 
   //Use finalChoreos variable to keep track of which videos are selected within child components
@@ -120,7 +121,7 @@ const VideoSelection = (props) => {
       </View>
       <SearchItem
         index={song.id}
-        coverArt={song.coverArt.replace("large", "t500x500")}
+        coverArt={song.coverArt}
         artist={song.artist}
         title={song.title}
         audioLink={song.audioLink}

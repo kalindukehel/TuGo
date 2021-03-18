@@ -1,48 +1,23 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
-  Text,
-  Dimensions,
-  Image,
-  Button,
   StyleSheet,
-  TouchableOpacity,
   ImageBackground,
   TouchableWithoutFeedback,
+  ActivityIndicator,
+  TouchableOpacity,
 } from "react-native";
-import {
-  getPostById as getPostByIdAPI,
-  getPostLikes as getPostLikesAPI,
-  getPostComments as getPostCommentsAPI,
-  getAccountById as getAccountByIdAPI,
-  getPostTiles as getPostTilesAPI,
-  likePost as likePostAPI,
-  setSoundCloudAudio as setSoundCloudAudioAPI,
-  getPostFavorite as getPostFavoriteAPI,
-  favoritePost as favoritePostAPI,
-  getAudioLink as getAudioLinkAPI,
-  getSoundCloudSearch as getSoundCloudSearchAPI,
-  pushNotification as pushNotificationAPI,
-  getPosts as getPostsAPI,
-  deletePost as deletePostAPI,
-} from "../../api";
+import { getPostById as getPostByIdAPI } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
-import { API_URL } from "../../../constants";
-import { useSafeAreaInsets } from "react-native-safe-area-context";
-
-import moment from "moment";
-import ImageModal from "react-native-image-modal";
 import * as Haptics from "expo-haptics";
-import RBSheet from "react-native-raw-bottom-sheet";
 
 import { Audio } from "expo-av";
-import { Slider } from "react-native-elements";
 
-//icons
 import TextTicker from "react-native-text-ticker";
 
-var { width, height } = Dimensions.get("window");
+//icons
+import { Entypo } from "@expo/vector-icons";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -53,35 +28,17 @@ const optionHeight = 60;
 export default SongBlock = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, authorId, navigation } = props;
-  const { userToken, self } = useAuthState();
+  const { postId, navigation } = props;
+  const { userToken } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
-  const [allPost, setAllPost] = useState(null);
-  const [likes, setLikes] = useState(null);
-  const [comments, setComments] = useState(null);
-  const [tiles, setTiles] = useState(null);
-  const [author, setAuthor] = useState(null);
-  const [maxlimit, setMaxlimit] = useState(95);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
-  const [isFavorite, setIsFavorite] = useState(false);
-  const [modalVisible, setModalVisible] = useState(false);
-  const [isSelf, setIsSelf] = useState(false);
-
-  const insets = useSafeAreaInsets();
-
-  //push notifications expo
-  const notificationListener = useRef();
-  const responseListener = useRef();
-
-  const refRBSheet = useRef([]);
-  const moreRef = useRef();
-  const optionsRef = useRef();
+  const [loadingPlayer, setLoadingPlayer] = useState(false);
   const stateRef = useRef();
   const isLoaded = useRef(false);
   const postRef = useRef();
@@ -93,22 +50,12 @@ export default SongBlock = (props) => {
 
   async function getPostStates() {
     //Update post data from API
+    setRefreshing(true);
     const postRes = await getPostByIdAPI(userToken, postId);
+    console.log(postRes.data);
     setPost(postRes.data);
     postRef.current = postRes.data;
-    const likesRes = await getPostLikesAPI(userToken, postId);
-    setLikes(likesRes.data);
-    const commentsRes = await getPostCommentsAPI(userToken, postId);
-    setComments(commentsRes.data);
-    const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
-    setAuthor(authorRes.data);
-    const tilesRes = await getPostTilesAPI(userToken, postId);
-    setTiles(tilesRes.data);
-    const favRes = await getPostFavoriteAPI(userToken, postId);
-    setIsFavorite(favRes.data.favorited);
-    const postsState = await getPostsAPI(userToken, self.id);
-    const postIds = postsState.data.map((item) => item.id);
-    setIsSelf(postIds.includes(postRes.data.id));
+    setRefreshing(false);
   }
 
   const onRefresh = async () => {
@@ -122,33 +69,12 @@ export default SongBlock = (props) => {
   };
 
   const loadSound = async () => {
-    const sound_url = (
-      await getAudioLinkAPI(postRef.current.soundcloud_audio)
-        .then((result) => result)
-        .catch(
-          (error = async () => {
-            const searchData = (
-              await getSoundCloudSearchAPI(
-                postRef.current.soundcloud_search_query
-              ).then((result) => result.data)
-            ).collection[0].media.transcodings[0].url;
-            const tempSoundUrl = await getAudioLinkAPI(searchData).then(
-              (result) => result.data.url
-            );
-            if (tempSoundUrl) {
-              setSoundCloudAudioAPI(searchData, userToken, postId);
-            }
-            return {
-              data: {
-                url: tempSoundUrl,
-              },
-            };
-          })
-        )
-    ).data.url;
+    const sound_url = postRef.current.audio_url;
     try {
       if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
-        await soundObj.loadAsync({ uri: sound_url });
+        const res = await soundObj.loadAsync({
+          uri: sound_url,
+        });
         isLoaded.current = true;
         playerDispatch({ type: "LOAD_PLAYER", id: postRef.current.id });
         await soundObj.setProgressUpdateIntervalAsync(1000);
@@ -164,7 +90,7 @@ export default SongBlock = (props) => {
         });
       }
     } catch (error) {
-      console.log(error);
+      console.log("error");
     }
   };
 
@@ -208,34 +134,15 @@ export default SongBlock = (props) => {
     return unsubscribe;
   }, [navigation]);
 
-  async function getLikesStates() {
-    const likesRes = await getPostLikesAPI(userToken, postId);
-    setLikes(likesRes.data);
-  }
-
-  async function likePost() {
-    const likeRes = await likePostAPI(userToken, postId);
-    getLikesStates();
-    console.log(likeRes.status);
-    if (
-      likeRes.status == 201 &&
-      author.notification_token != self.notification_token
-    ) {
-      const notifRes = await pushNotificationAPI(
-        author.notification_token,
-        self.username,
-        "like"
-      );
-    }
-  }
-
   async function doPlay() {
     try {
-      /* if current post is different from current playing */
+      //If current post is different from current playing, unload player and load new
       if (postRef.current.id != playingIdRef.current) {
         playerDispatch({ type: "UNLOAD_PLAYER" });
         await soundObj.unloadAsync();
+        setLoadingPlayer(true);
         await loadSound();
+        setLoadingPlayer(false);
         //If new song is starting and user has pre-set slider value
         if (sliderValue != 0) {
           const playerStatus = await soundObj.getStatusAsync();
@@ -250,7 +157,9 @@ export default SongBlock = (props) => {
           //if current post is playing
           await soundObj.pauseAsync();
         } else {
+          setLoadingPlayer(true);
           await loadSound();
+          setLoadingPlayer(false);
           await soundObj.playAsync();
         }
       }
@@ -261,29 +170,11 @@ export default SongBlock = (props) => {
     }
   }
 
-  async function seekSliding() {
-    setIsSeeking(true);
-  }
-
-  async function seekComplete(args) {
-    setSliderValue(args);
-    //Change song player position only if player is playing the song to which the slider corresponds
-    if (postRef.current.id == playingIdRef.current) {
-      const playerStatus = await soundObj.getStatusAsync();
-      await soundObj.setStatusAsync({
-        positionMillis: playerStatus.durationMillis * args,
-      });
-    }
-    setIsSeeking(false);
-  }
-
   return (
-    post &&
-    author && (
+    post && (
       <View style={{ flex: 1, marginVertical: 5 }}>
         <TouchableWithoutFeedback
-          onPress={doPlay}
-          onLongPress={() => {
+          onPress={() => {
             isPlaying && doPlay(); //if sound is playing toggle it off when going to a profile
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.push("Post", {
@@ -296,7 +187,7 @@ export default SongBlock = (props) => {
         >
           <ImageBackground
             source={{
-              uri: post.soundcloud_art,
+              uri: post.album_cover,
             }}
             imageStyle={{
               opacity: isPlaying ? 0.2 : 0.9,
@@ -316,38 +207,59 @@ export default SongBlock = (props) => {
                 backgroundColor: "white",
                 opacity: 0.8,
                 height: 40,
-                flexDirection: "column",
-                paddingHorizontal: 15,
+                flexDirection: "row",
+                paddingLeft: 15,
                 borderRadius: 20,
+                justifyContent: "space-between",
+                alignItems: "center",
               }}
             >
-              <TextTicker
-                style={{
-                  color: "black",
-                  height: 20,
-                }}
-                duration={7000}
-                bounce
-                repeatSpacer={50}
-                marqueeDelay={1000}
-                shouldAnimateTreshold={40}
-              >
-                {post.song_artist}
-              </TextTicker>
-              <TextTicker
-                style={{
-                  color: "black",
-                  fontWeight: "bold",
-                  height: 20,
-                }}
-                duration={7000}
-                bounce
-                repeatSpacer={50}
-                marqueeDelay={1000}
-                shouldAnimateTreshold={40}
-              >
-                {post.song_name}
-              </TextTicker>
+              <View style={{ flex: 1 }}>
+                <TextTicker
+                  style={{
+                    color: "black",
+                    height: 20,
+                  }}
+                  duration={7000}
+                  bounce
+                  repeatSpacer={50}
+                  marqueeDelay={1000}
+                  shouldAnimateTreshold={40}
+                >
+                  {post.song_artist}
+                </TextTicker>
+                <TextTicker
+                  style={{
+                    color: "black",
+                    fontWeight: "bold",
+                    height: 20,
+                  }}
+                  duration={7000}
+                  bounce
+                  repeatSpacer={50}
+                  marqueeDelay={1000}
+                  shouldAnimateTreshold={40}
+                >
+                  {post.song_name}
+                </TextTicker>
+              </View>
+              {loadingPlayer ? (
+                <View style={{ marginLeft: "auto", marginRight: 10 }}>
+                  <ActivityIndicator animating={true} color="black" />
+                </View>
+              ) : (
+                <TouchableOpacity
+                  disabled={refreshing ? true : false}
+                  onPress={doPlay}
+                  style={{ marginLeft: "auto", marginRight: 10 }}
+                >
+                  {isPlaying ? (
+                    <Entypo name="controller-paus" size={25} color="black" />
+                  ) : (
+                    <Entypo name="controller-play" size={25} color="black" />
+                  )}
+                </TouchableOpacity>
+              )}
             </View>
           </ImageBackground>
         </TouchableWithoutFeedback>

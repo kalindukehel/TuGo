@@ -5,7 +5,7 @@ import { useAuthState } from "../../context/authContext";
 import AccountTile from "../../components/AccountTile";
 
 const AccountsTabView = (props) => {
-  const { searchQuery, navigation, setModalVisible } = props;
+  const { searchQuery, navigation } = props;
   const [accounts, setAccounts] = useState([]);
   const { userToken } = useAuthState();
   useEffect(() => {
@@ -23,13 +23,7 @@ const AccountsTabView = (props) => {
 
   const renderItem = (item) => {
     let account = item.item;
-    return (
-      <AccountTile
-        setModalVisible={setModalVisible}
-        account={account}
-        navigation={navigation}
-      />
-    );
+    return <AccountTile account={account} navigation={navigation} />;
   };
 
   return (
@@ -39,7 +33,6 @@ const AccountsTabView = (props) => {
         contentContainerStyle={{ flexGrow: 1 }}
         data={accounts}
         keyExtractor={(item, index) => item.id.toString()}
-        //ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode={"on-drag"}
       />

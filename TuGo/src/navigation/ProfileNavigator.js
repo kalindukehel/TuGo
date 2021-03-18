@@ -37,6 +37,9 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
         name="Settings"
         component={SettingsNavigator}
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerTitleStyle: {
@@ -59,6 +62,9 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
       <Stack.Screen
         name="Following"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           title: "Following",
           headerBackTitleVisible: false,
           headerTintColor: "black",
@@ -73,6 +79,9 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
       <Stack.Screen
         name="Followers"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           title: "Followers",
           headerBackTitleVisible: false,
           headerTintColor: "black",
@@ -99,6 +108,9 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
       <Stack.Screen
         name="Edit Profile"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           title: "Edit Profile",
           headerBackTitleVisible: false,
           headerTintColor: "black",

@@ -34,6 +34,8 @@ const SearchItem = (props) => {
     title,
     audioLink,
     color,
+    genre,
+    trackId,
   } = props;
   let tileColor = color ? color : "#ffffff00";
   const { playingId, stopAll } = usePlayerState();
@@ -176,7 +178,7 @@ const SearchItem = (props) => {
               title,
               coverArt,
               genre,
-              labelName
+              trackId
             )
           : {};
       }}

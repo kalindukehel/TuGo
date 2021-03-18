@@ -19,6 +19,9 @@ const ActivityNavigator = () => {
         name="Activity"
         component={Activity}
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerTitleStyle: {
@@ -31,6 +34,9 @@ const ActivityNavigator = () => {
       <Stack.Screen
         name="Profile"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerBackTitleVisible: false,
           headerTintColor: "black",
         }}
@@ -41,6 +47,9 @@ const ActivityNavigator = () => {
         name="Post"
         component={PostNavigator}
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerShown: false,
           headerBackTitleVisible: false,
           headerTintColor: "black",
@@ -50,6 +59,9 @@ const ActivityNavigator = () => {
       <Stack.Screen
         name="Following"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           title: "Following",
           headerBackTitleVisible: false,
           headerTintColor: "black",
@@ -64,6 +76,9 @@ const ActivityNavigator = () => {
       <Stack.Screen
         name="Followers"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           title: "Followers",
           headerBackTitleVisible: false,
           headerTintColor: "black",
@@ -77,6 +92,9 @@ const ActivityNavigator = () => {
       <Stack.Screen
         name="Follow Requests"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           title: "Follow Requests",
           headerBackTitleVisible: false,
           headerTintColor: "black",

@@ -14,11 +14,11 @@ import {
 import {
   getExplorePosts as getExplorePostsAPI,
   artistSongs as artistSongsAPI,
-} from "../api";
-import { useAuthState } from "../context/authContext";
+} from "../../api";
+import { useAuthState } from "../../context/authContext";
 
 //Components
-import SearchItem from "../components/SearchItem";
+import SearchItem from "../../components/SearchItem";
 import { TouchableHighlight } from "react-native-gesture-handler";
 
 var { width, height } = Dimensions.get("window");
@@ -88,7 +88,7 @@ const Artist = (props) => {
         <AnimatedFlatList
           ref={flatListRef}
           style={{ flexGrow: 1 }}
-          contentContainerStyle={{ marginTop: 270 }}
+          contentContainerStyle={{ marginTop: 270, paddingBottom: 270 }}
           scrollEventThrottle={16} // <-- Use 1 here to make sure no events are ever missed
           onScroll={Animated.event(
             [
