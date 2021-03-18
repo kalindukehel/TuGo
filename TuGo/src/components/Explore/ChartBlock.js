@@ -1,5 +1,7 @@
 import React from "react";
 import { View, TouchableWithoutFeedback, StyleSheet, Text } from "react-native";
+import { Colors } from "../../../constants";
+
 const ChartBlock = (props) => {
   const { type, navigation, image, text } = props;
   return (
@@ -24,13 +26,13 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
-    backgroundColor: "black",
+    backgroundColor: Colors.FG,
   },
   chartName: {
     fontWeight: "bold",
     fontSize: 20,
     textAlign: "center",
-    color: "white",
+    color: Colors.complimentText,
   },
 });
 

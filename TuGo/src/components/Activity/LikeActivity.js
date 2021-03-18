@@ -15,6 +15,7 @@ import {
 } from "../../api";
 
 import moment from "moment";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -62,6 +63,7 @@ const LikeActivity = (props) => {
               flex: 1,
               marginHorizontal: 10,
               alignSelf: "center",
+              color: Colors.FG,
             }}
           >
             <Text style={{ fontWeight: "bold" }}>{liker.username}</Text>
@@ -100,7 +102,7 @@ const LikeActivity = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   likeElement: {
     flex: 1,

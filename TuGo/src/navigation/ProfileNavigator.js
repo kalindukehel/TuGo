@@ -9,6 +9,7 @@ import EditProfile from "../screens/EditProfile";
 import SettingsNavigator from "./SettingsNavigator";
 import PostNavigator from "./PostNavigator";
 import { useAuthState } from "../context/authContext";
+import { Colors } from "../../constants";
 
 const Stack = createStackNavigator();
 
@@ -20,10 +21,13 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
         options={{
           title: self.username,
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
+          },
+          headerStyle: {
+            backgroundColor: Colors.BG,
           },
         }}
         name="Profile"
@@ -40,8 +44,11 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
           gestureResponseDistance: {
             horizontal: 300,
           },
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
@@ -55,7 +62,7 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
         options={{
           headerShown: false,
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
       />
 
@@ -67,10 +74,13 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
           },
           title: "Following",
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
+          },
+          headerStyle: {
+            backgroundColor: Colors.BG,
           },
         }}
         component={Following}
@@ -84,10 +94,13 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
           },
           title: "Followers",
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
+          },
+          headerStyle: {
+            backgroundColor: Colors.BG,
           },
         }}
         component={Followers}
@@ -97,10 +110,13 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
         options={{
           title: "Favorites",
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
+          },
+          headerStyle: {
+            backgroundColor: Colors.BG,
           },
         }}
         component={Favorites}
@@ -113,10 +129,13 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
           },
           title: "Edit Profile",
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
+          },
+          headerStyle: {
+            backgroundColor: Colors.BG,
           },
         }}
         component={EditProfile}

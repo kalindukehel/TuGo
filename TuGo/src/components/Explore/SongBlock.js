@@ -11,7 +11,7 @@ import { getPostById as getPostByIdAPI } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
 import * as Haptics from "expo-haptics";
-
+import { Colors } from "../../../constants";
 import { Audio } from "expo-av";
 
 import TextTicker from "react-native-text-ticker";
@@ -204,7 +204,7 @@ export default SongBlock = (props) => {
           >
             <View
               style={{
-                backgroundColor: "white",
+                backgroundColor: Colors.BG,
                 opacity: 0.8,
                 height: 40,
                 flexDirection: "row",
@@ -217,7 +217,7 @@ export default SongBlock = (props) => {
               <View style={{ flex: 1 }}>
                 <TextTicker
                   style={{
-                    color: "black",
+                    color: Colors.text,
                     height: 20,
                   }}
                   duration={7000}
@@ -230,7 +230,7 @@ export default SongBlock = (props) => {
                 </TextTicker>
                 <TextTicker
                   style={{
-                    color: "black",
+                    color: Colors.text,
                     fontWeight: "bold",
                     height: 20,
                   }}
@@ -245,7 +245,7 @@ export default SongBlock = (props) => {
               </View>
               {loadingPlayer ? (
                 <View style={{ marginLeft: "auto", marginRight: 10 }}>
-                  <ActivityIndicator animating={true} color="black" />
+                  <ActivityIndicator animating={true} color={Colors.FG} />
                 </View>
               ) : (
                 <TouchableOpacity
@@ -254,9 +254,17 @@ export default SongBlock = (props) => {
                   style={{ marginLeft: "auto", marginRight: 10 }}
                 >
                   {isPlaying ? (
-                    <Entypo name="controller-paus" size={25} color="black" />
+                    <Entypo
+                      name="controller-paus"
+                      size={25}
+                      color={Colors.FG}
+                    />
                   ) : (
-                    <Entypo name="controller-play" size={25} color="black" />
+                    <Entypo
+                      name="controller-play"
+                      size={25}
+                      color={Colors.FG}
+                    />
                   )}
                 </TouchableOpacity>
               )}
@@ -271,7 +279,7 @@ export default SongBlock = (props) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   moreButton: {
     borderRadius: 5,
@@ -282,7 +290,7 @@ const styles = StyleSheet.create({
   },
   moreButtonText: {
     alignSelf: "center",
-    color: "black",
+    color: Colors.text,
   },
   imageViewNotPlaying: {
     marginLeft: 8,

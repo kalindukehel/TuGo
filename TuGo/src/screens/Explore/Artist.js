@@ -20,6 +20,7 @@ import { useAuthState } from "../../context/authContext";
 //Components
 import SearchItem from "../../components/SearchItem";
 import { TouchableHighlight } from "react-native-gesture-handler";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -156,7 +157,7 @@ const Artist = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   chartImageView: {
     flexDirection: "row",

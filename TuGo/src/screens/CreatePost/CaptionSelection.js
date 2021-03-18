@@ -15,6 +15,7 @@ import SearchItem from "../../components/SearchItem";
 import VideoTile from "../../components/VideoTile";
 import { createPost as createPostAPI } from "../../api";
 import { useAuthState } from "../../context/authContext";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -103,11 +104,11 @@ const CaptionSelection = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   searchBar: {
     borderRadius: 10,
-    color: "black",
+    color: Colors.text,
     borderRadius: 10,
     height: 40,
     paddingLeft: 20,
@@ -118,7 +119,7 @@ const styles = StyleSheet.create({
   },
   commentBar: {
     borderRadius: 10,
-    color: "black",
+    color: Colors.text,
     borderRadius: 10,
     height: 60,
     paddingLeft: 10,

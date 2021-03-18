@@ -7,6 +7,7 @@ import Comments from "../screens/Comments";
 import ProfileNavigator from "./ProfileNavigator";
 import FollowRequests from "../screens/FollowRequests";
 import { useAuthState } from "../context/authContext";
+import { Colors } from "../../constants";
 
 const Stack = createStackNavigator();
 
@@ -18,11 +19,12 @@ const FeedNavigator = () => {
         options={{
           headerTransparent: false,
           headerStyle: {
-            backgroundColor: "rgba(232, 232, 232, 0.8)",
+            backgroundColor: Colors.BG,
           },
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
+            color: Colors.text,
           },
         }}
         name="Tugo"
@@ -32,21 +34,27 @@ const FeedNavigator = () => {
         name="Likes"
         component={Likes}
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           gestureResponseDistance: {
             horizontal: 300,
           },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
       />
       <Stack.Screen
         name="Comments"
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           gestureResponseDistance: {
             horizontal: 300,
           },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
         component={Comments}
       />
@@ -57,7 +65,7 @@ const FeedNavigator = () => {
             horizontal: 300,
           },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerShown: false,
         }}
       >
@@ -71,12 +79,16 @@ const FeedNavigator = () => {
           gestureResponseDistance: {
             horizontal: 300,
           },
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           title: "Follow Requests",
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.FG,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
+            color: Colors.text,
           },
         }}
         component={FollowRequests}

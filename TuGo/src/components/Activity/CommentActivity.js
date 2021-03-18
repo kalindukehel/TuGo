@@ -15,6 +15,7 @@ import {
 } from "../../api";
 
 import moment from "moment";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -110,7 +111,7 @@ const CommentActivity = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   commentElement: {
     flex: 1,

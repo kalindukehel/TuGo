@@ -7,7 +7,7 @@ import {
   StyleSheet,
   Dimensions,
 } from "react-native";
-import { API_URL } from "../../constants";
+import { API_URL, Colors } from "../../constants";
 
 var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
@@ -45,12 +45,12 @@ const AccountTile = (props) => {
             marginLeft: 15,
           }}
         >
-          <Text style={{ fontWeight: "bold" }}>
+          <Text style={{ fontWeight: "bold", color: Colors.text }}>
             {account.username.length > maxlimit
               ? account.username.substring(0, maxlimit - 3) + "..."
               : account.username}
           </Text>
-          <Text style={{}} account>
+          <Text style={{ color: Colors.text }}>
             {account.username.length > maxlimit
               ? account.name.substring(0, maxlimit - 3) + "..."
               : account.name}
@@ -64,20 +64,20 @@ const AccountTile = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   textInputStyle: {
     height: 40,
     paddingLeft: 20,
     margin: 5,
-    backgroundColor: "#065581",
+    backgroundColor: Colors.primary,
     borderRadius: 10,
-    color: "white",
+    color: Colors.complimentText,
   },
   followButton: {
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: "white",
+    borderColor: Colors.complimentText,
     padding: 3,
   },
   followButtonText: {

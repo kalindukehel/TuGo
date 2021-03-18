@@ -12,6 +12,7 @@ import {
 } from "react-native";
 import { getSimilarArtists as getSimilarArtistsAPI } from "../../api";
 import ArtistBlock from "../../components/Explore/ArtistBlock";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -101,7 +102,7 @@ const RelatedArtists = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   chartImageView: {
     flexDirection: "row",

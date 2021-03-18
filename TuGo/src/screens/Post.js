@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { View, ScrollView, StyleSheet } from "react-native";
 import { useAuthState } from "../context/authContext";
 import PostComponent from "../components/PostComponent";
+import { Colors } from "../../constants";
 
 const Post = (props) => {
   let tileColor = "#065581";
@@ -13,7 +14,7 @@ const Post = (props) => {
   const [refreshing, setRefreshing] = useState(false);
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: Colors.BG }}>
       <ScrollView contentContainerStyle={styles.scrollView}>
         <PostComponent postId={postId} navigation={navigation} />
       </ScrollView>
@@ -24,12 +25,12 @@ const Post = (props) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   moreButton: {
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: "white",
+    borderColor: Colors.complimentText,
     paddingHorizontal: 10,
     paddingVertical: 5,
     backgroundColor: "gray",
@@ -37,7 +38,7 @@ const styles = StyleSheet.create({
   },
   moreButtonText: {
     alignSelf: "center",
-    color: "white",
+    color: Colors.complimentText,
   },
   imageViewNotPlaying: {
     marginLeft: 8,

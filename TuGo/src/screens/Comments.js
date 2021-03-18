@@ -24,6 +24,8 @@ import { useAuthState } from "../context/authContext";
 import { API_URL } from "../../constants";
 import { FlatList } from "react-native-gesture-handler";
 import Send from "../../assets/sendButton.svg";
+import { Colors } from "../../constants";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 var { width, height } = Dimensions.get("window");
 
@@ -66,20 +68,22 @@ const Comments = (props) => {
   }, []);
 
   async function sendComment() {
-    const res = await addCommentAPI(userToken, post.id, { value: message });
-    if (author.notification_token != self.notification_token) {
-      const notifRes = await pushNotificationAPI(
-        author.notification_token,
-        self.username,
-        "comment"
-      );
+    if (message != "") {
+      const res = await addCommentAPI(userToken, post.id, { value: message });
+      if (author.notification_token != self.notification_token) {
+        const notifRes = await pushNotificationAPI(
+          author.notification_token,
+          self.username,
+          "comment"
+        );
+      }
+      const commentsRes = await getPostCommentsAPI(userToken, postId);
+      list = commentsRes.data.map((item) => item.author);
+      const commentAuthorsRes = await by_idsAPI(list, userToken);
+      setCommentAccounts(commentAuthorsRes.data);
+      setMasterData(commentsRes.data);
+      setMessage("");
     }
-    const commentsRes = await getPostCommentsAPI(userToken, postId);
-    list = commentsRes.data.map((item) => item.author);
-    const commentAuthorsRes = await by_idsAPI(list, userToken);
-    setCommentAccounts(commentAuthorsRes.data);
-    setMasterData(commentsRes.data);
-    setMessage("");
     Keyboard.dismiss();
   }
 
@@ -103,9 +107,16 @@ const Comments = (props) => {
             style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
           ></Image>
         </TouchableOpacity>
-        <Text style={{ flexWrap: "wrap", marginRight: 20, marginLeft: 10 }}>
+        <Text
+          style={{
+            flexWrap: "wrap",
+            marginRight: 20,
+            marginLeft: 10,
+            color: Colors.text,
+          }}
+        >
           <Text style={styles.authorName}>{curAccount.username + `: `}</Text>
-          <Text>{getComment.value}</Text>
+          <Text style={{ color: Colors.text }}>{getComment.value}</Text>
         </Text>
       </View>
     );
@@ -133,7 +144,7 @@ const Comments = (props) => {
         </TouchableOpacity>
         <Text style={{ flexWrap: "wrap", marginRight: 20, marginLeft: 10 }}>
           <Text style={styles.authorName}>{author.username + `: `}</Text>
-          <Text>{post.caption}</Text>
+          <Text style={{ color: Colors.text }}>{post.caption}</Text>
         </Text>
       </View>
     );
@@ -164,6 +175,7 @@ const Comments = (props) => {
               editable={canSendComment}
               style={{ ...styles.commentBar }}
               placeholder={"Add comment"}
+              placeholderTextColor={Colors.text}
               onChangeText={(value) => {
                 setMessage(value);
               }}
@@ -178,7 +190,11 @@ const Comments = (props) => {
               onPress={sendComment}
             >
               <View style={{ marginRight: 10 }}>
-                <Send width={20} height={35} />
+                <MaterialCommunityIcons
+                  name="send-circle"
+                  size={35}
+                  color={Colors.FG}
+                />
               </View>
             </TouchableOpacity>
           </View>
@@ -191,19 +207,20 @@ const Comments = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   caption: {
     borderColor: "#C8C8C8",
     flexDirection: "row",
     alignItems: "center",
-    borderWidth: 1,
+    borderBottomWidth: 1,
     paddingHorizontal: 15,
     paddingVertical: 15,
     borderRadius: 0,
   },
   authorName: {
     fontWeight: "bold",
+    color: Colors.text,
   },
   comment: {
     borderColor: "#C8C8C8",
@@ -216,14 +233,15 @@ const styles = StyleSheet.create({
   commentBar: {
     flex: 1,
     borderRadius: 10,
-    color: "black",
+    color: Colors.text,
     borderRadius: 10,
     height: 40,
     paddingLeft: 20,
     margin: 5,
     marginRight: 10,
-    borderColor: "gray",
-    backgroundColor: "#DCDCDC",
+    color: Colors.text,
+    borderColor: Colors.FG,
+    borderWidth: 1,
   },
   commentBarBackground: {
     flexDirection: "row",

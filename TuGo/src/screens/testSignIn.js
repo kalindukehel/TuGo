@@ -14,6 +14,7 @@ import {
 import { signUp as signUpAPI, signIn as SignInApi } from "../api";
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
+import { Colors } from "../../constants";
 
 const styles = StyleSheet.create({
   container: {
@@ -48,12 +49,12 @@ const styles = StyleSheet.create({
   },
   inputStyle: {
     flex: 1,
-    color: "black",
+    color: Colors.text,
     paddingLeft: 15,
     paddingRight: 15,
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: "black",
+    borderColor: Colors.text,
     backgroundColor: "#D3D3D3",
   },
   registerTextStyle: {
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
   button: {
     alignItems: "center",
     marginTop: 30,
-    backgroundColor: "black",
+    backgroundColor: Colors.FG,
     marginHorizontal: 60,
     padding: 10,
     borderRadius: 30,
@@ -91,7 +92,10 @@ const SignUp = ({ navigation }) => {
         name: name,
       };
       const signUpRes = await signUpAPI(data);
-      const signInRes = await SignInApi({ username: data.username, password: data.password });
+      const signInRes = await SignInApi({
+        username: data.username,
+        password: data.password,
+      });
       onSignIn(signInRes.data.token);
       console.log(signInRes.data.token);
       dispatch({ type: "SIGN_IN", token: signInRes.data.token });
@@ -102,7 +106,9 @@ const SignUp = ({ navigation }) => {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <KeyboardAvoidingView enabled>
-        <Text style={{ marginBottom: 40, fontSize: 50, textAlign: "center" }}>SignUp</Text>
+        <Text style={{ marginBottom: 40, fontSize: 50, textAlign: "center" }}>
+          SignUp
+        </Text>
         <View style={styles.SectionStyle}>
           <TextInput
             style={styles.inputStyle}
@@ -167,7 +173,7 @@ const SignUp = ({ navigation }) => {
             }
           }}
         >
-          <Text style={{ color: "white" }}>Sign Up</Text>
+          <Text style={{ color: Colors.complimentText }}>Sign Up</Text>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </View>

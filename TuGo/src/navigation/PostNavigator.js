@@ -6,6 +6,8 @@ import Comments from "../screens/Comments";
 import { useAuthState } from "../context/authContext";
 import Profile from "../screens/Profile/Profile";
 import Tile from "../screens/Tile";
+import Artist from "../screens/Explore/Artist.js";
+import { Colors } from "../../constants";
 
 const Stack = createStackNavigator();
 
@@ -16,8 +18,11 @@ const PostNavigator = ({ id }) => {
       <Stack.Screen
         name="Post"
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
@@ -30,23 +35,32 @@ const PostNavigator = ({ id }) => {
         name="Likes"
         component={Likes}
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
       />
       <Stack.Screen
         name="Comments"
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
         component={Comments}
       />
       <Stack.Screen
         name="Profile"
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
         component={Profile}
       />
@@ -54,9 +68,25 @@ const PostNavigator = ({ id }) => {
         name="Tile"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
         component={Tile}
+      />
+      <Stack.Screen
+        name="Artist"
+        component={Artist}
+        options={{
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
       />
     </Stack.Navigator>
   );

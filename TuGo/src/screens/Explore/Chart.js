@@ -20,6 +20,7 @@ import { useAuthState } from "../../context/authContext";
 //Components
 import SearchItem from "../../components/SearchItem";
 import { TouchableHighlight } from "react-native-gesture-handler";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -138,7 +139,7 @@ const Chart = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   chartImageView: {
     marginTop: 10,
@@ -165,10 +166,11 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   chartNameView: {
+    marginTop: 20,
+    alignSelf: "center",
     borderRadius: 10,
     backgroundColor: "#E8E8E8",
     padding: 10,
-    marginTop: 20,
   },
 });
 

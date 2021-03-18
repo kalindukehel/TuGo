@@ -1,11 +1,22 @@
 //To Make HTTP API call in React Native using Axios https://aboutreact.com
 import React, { useState, useEffect } from "react";
 //import React in our code.
-import { StyleSheet, View, TouchableOpacity, Text, Button, TextInput } from "react-native";
+import {
+  StyleSheet,
+  View,
+  TouchableOpacity,
+  Text,
+  Button,
+  TextInput,
+} from "react-native";
 //import all the components we are going to use.
-import { getAccountById as getAccountByIdAPI, createAccount as createAccountAPI } from "../api";
+import {
+  getAccountById as getAccountByIdAPI,
+  createAccount as createAccountAPI,
+} from "../api";
 import { NavigationContainer } from "@react-navigation/native";
 // import "react-native-gesture-handler";
+import { Colors } from "../../constants";
 
 const Home = ({ navigation }) => {
   const [accounts, setAccounts] = useState();
@@ -37,13 +48,15 @@ const Home = ({ navigation }) => {
   return (
     <>
       <View style={styles.MainContainer}>
-        <Text style={{ fontSize: 50, textAlign: "center", marginBottom: 40 }}>TuGo</Text>
+        <Text style={{ fontSize: 50, textAlign: "center", marginBottom: 40 }}>
+          TuGo
+        </Text>
 
         {/* <Text>{accounts ? accounts.username : null}</Text>
         <Button title="click me" onPress={createAccount}></Button>
         <TextInput
           onChangeText={handleChange}
-          style={{ borderColor: "black", borderWidth: 5 }}
+          style={{ borderColor: Colors.text, borderWidth: 5 }}
         ></TextInput> */}
         <TouchableOpacity
           style={styles.sectionStyle}
@@ -61,7 +74,13 @@ const Home = ({ navigation }) => {
           marginBottom: 40,
         }}
       />
-      <View style={{ flexDirection: "row", justifyContent: "center", marginBottom: 40 }}>
+      <View
+        style={{
+          flexDirection: "row",
+          justifyContent: "center",
+          marginBottom: 40,
+        }}
+      >
         <Text>Already have an account?</Text>
         <TouchableOpacity
           onPress={() => {
@@ -91,7 +110,7 @@ const styles = StyleSheet.create({
   sectionStyle: {
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: "black",
+    borderColor: Colors.text,
     flexDirection: "row",
     marginTop: 40,
     marginHorizontal: 80,
@@ -101,7 +120,7 @@ const styles = StyleSheet.create({
   },
   line: {
     height: 1,
-    borderTopColor: "black",
+    borderTopColor: Colors.text,
     margin: 1,
     padding: 0,
   },

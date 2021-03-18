@@ -13,6 +13,7 @@ import { Image } from "react-native";
 import WebView from "react-native-webview";
 import RBSheet from "react-native-raw-bottom-sheet";
 import YoutubePlayer from "react-native-yt-player";
+import { Colors } from "../../constants";
 
 //Component used in DanceChoreoTabView to display YouTube video results
 const VideoSearchItem = (props) => {
@@ -37,14 +38,26 @@ const VideoSearchItem = (props) => {
           }}
           source={{ uri: thumbnail }}
         />
-        <View>
-          <Text style={{ width: 200, paddingBottom: 5 }}>{title}</Text>
+        <View style={{ justifyContent: "space-between" }}>
+          <Text style={{ width: 200, paddingBottom: 5, color: Colors.FG }}>
+            {title}
+          </Text>
           <TouchableOpacity
             onPress={() => {
               refRBSheet.current.open();
             }}
           >
-            <Text style={{ borderWidth: 1, width: 60, textAlign: "center" }}>
+            <Text
+              style={{
+                borderWidth: 1,
+                width: 60,
+                textAlign: "center",
+                color: Colors.FG,
+                borderColor: Colors.FG,
+                borderWidth: 1,
+                borderRadius: 5,
+              }}
+            >
               Preview
             </Text>
           </TouchableOpacity>
@@ -69,7 +82,7 @@ const VideoSearchItem = (props) => {
       >
         <View style={{ flex: 1, maxHeight: "100%" }}>
           {/* <WebView
-            style={{ flex: 1, borderColor: "black" }}
+            style={{ flex: 1, borderColor: Colors.text }}
             javaScriptEnabled={true}
             scrollEnabled={false}
             allowsInlineMediaPlayback={true}

@@ -11,6 +11,7 @@ import TagActivity from "../components/Activity/TagActivity";
 
 import { getActivity as getActivityAPI } from "../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
+import { Colors } from "../../constants";
 
 const Activity = ({ navigation }) => {
   const { userToken } = useAuthState();
@@ -94,7 +95,9 @@ const Activity = ({ navigation }) => {
           borderBottomWidth: 0.3,
         }}
       >
-        <Text style={{ fontWeight: "bold" }}>Follow Requests +</Text>
+        <Text style={{ fontWeight: "bold", color: Colors.FG }}>
+          Follow Requests +
+        </Text>
       </TouchableOpacity>
     );
   };
@@ -118,6 +121,7 @@ const Activity = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.BG,
   },
 });
 

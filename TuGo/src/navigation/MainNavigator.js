@@ -19,6 +19,8 @@ import * as Notifications from "expo-notifications";
 import Constants from "expo-constants";
 import { postNotificationToken as postNotificationTokenAPI } from "../api";
 import { useNavigation } from "@react-navigation/native";
+import { Colors } from "../../constants";
+import { SimpleLineIcons } from "@expo/vector-icons";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -127,27 +129,18 @@ const MainNavigator = () => {
 
           if (route.name === "Explore") {
             return (
-              <Image
-                transition={false}
-                style={{ height: 40, width: 40 }}
-                resizeMode={"contain"}
-                source={
-                  focused
-                    ? require(`../../assets/ExploreIconActive.png`)
-                    : require(`../../assets/ExploreIcon.png`)
-                }
-              ></Image>
+              <SimpleLineIcons name="magnifier-add" size={24} color={color} />
             );
           }
           return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
       tabBarOptions={{
-        activeTintColor: "black",
+        activeTintColor: Colors.FG,
         inactiveTintColor: "gray",
-      }}
-      style={{
-        backgroundColor: "black",
+        style: {
+          backgroundColor: Colors.BG,
+        },
       }}
     >
       <Tab.Screen name="Feed" component={FeedNavigator} options={{}} />

@@ -12,6 +12,7 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { FlatList } from "react-native-gesture-handler";
 import DanceChoreosTabView from "../../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../../components/TabViews/VoiceCoversTabView";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -76,10 +77,10 @@ const VideoSelection = (props) => {
   const renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: "black" }}
-      style={{ backgroundColor: "white" }}
+      indicatorStyle={{ backgroundColor: Colors.FG }}
+      style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: "black" }}>{route.title}</Text>
+        <Text style={{ color: Colors.text }}>{route.title}</Text>
       )}
     />
   );
@@ -140,11 +141,11 @@ const VideoSelection = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   searchBar: {
     borderRadius: 10,
-    color: "black",
+    color: Colors.text,
     borderRadius: 10,
     height: 40,
     paddingLeft: 20,

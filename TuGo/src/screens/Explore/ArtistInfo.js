@@ -10,6 +10,7 @@ import {
 } from "react-native";
 import { getArtistInfo as getArtistInfoAPI } from "../../api";
 import HTML from "react-native-render-html";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -69,7 +70,7 @@ const ArtistInfo = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   chartImageView: {
     marginTop: 10,

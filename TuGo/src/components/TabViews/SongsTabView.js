@@ -20,6 +20,7 @@ import { useAuthState } from "../../context/authContext";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SearchItem from "../SearchItem";
 import TextTicker from "react-native-text-ticker";
+import { Colors } from "../../../constants";
 
 const styles = StyleSheet.create({
   activityIndicator: {
@@ -172,7 +173,7 @@ const SongsTabView = (props) => {
               <TextTicker
                 style={{
                   marginLeft: 20,
-                  color: "black",
+                  color: Colors.text,
                   fontWeight: "bold",
                   height: 20,
                 }}
@@ -194,7 +195,7 @@ const SongsTabView = (props) => {
   };
 
   return (
-    <View style={[{ flex: 1, backgroundColor: "white" }]}>
+    <View style={[{ flex: 1, backgroundColor: Colors.BG }]}>
       {loading ? (
         <View style={styles.activityIndicator}>
           <ActivityIndicator size="large" />

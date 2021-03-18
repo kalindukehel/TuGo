@@ -15,6 +15,7 @@ import {
 import { signUp as signUpAPI, signIn as SignInApi } from "../api";
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
+import { Colors } from "../../constants";
 
 const styles = StyleSheet.create({
   container: {
@@ -34,7 +35,7 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: "gray",
-    color: "black",
+    color: Colors.text,
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 10,
@@ -48,7 +49,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 60,
     padding: 10,
     borderRadius: 30,
-    //backgroundColor: "black",
+    //backgroundColor: Colors.FG,
   },
 });
 
@@ -67,7 +68,10 @@ const SignIn = ({ navigation }) => {
         name: name,
       };
       const signUpRes = await signUpAPI(data);
-      const signInRes = await SignInApi({ username: data.username, password: data.password });
+      const signInRes = await SignInApi({
+        username: data.username,
+        password: data.password,
+      });
       onSignIn(signInRes.data.token);
       dispatch({ type: "SIGN_IN", token: signInRes.data.token });
     } catch (error) {
@@ -140,7 +144,7 @@ const SignIn = ({ navigation }) => {
                 }
               }}
             >
-              <Text style={{ color: "white" }}>SignUp</Text>
+              <Text style={{ color: Colors.complimentText }}>SignUp</Text>
             </TouchableOpacity>
             <View style={{ flex: 1 }} />
           </View>

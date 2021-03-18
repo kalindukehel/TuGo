@@ -31,6 +31,8 @@ import {
 import SongBlock from "../../components/Explore/SongBlock";
 import { AntDesign, Octicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { Colors } from "../../../constants";
+import { Feather } from "@expo/vector-icons";
 
 //Components
 import ChartBlock from "../../components/Explore/ChartBlock";
@@ -152,10 +154,10 @@ const Explore = ({ navigation }) => {
   const renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: "black" }}
-      style={{ backgroundColor: "white" }}
+      indicatorStyle={{ backgroundColor: Colors.FG }}
+      style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: "black" }}>{route.title}</Text>
+        <Text style={{ color: Colors.text }}>{route.title}</Text>
       )}
     />
   );
@@ -247,7 +249,7 @@ const Explore = ({ navigation }) => {
             }}
             onPress={() => setMode("search")}
           >
-            <AntDesign name="search1" size={30} color="black" />
+            <AntDesign name="search1" size={30} color={Colors.FG} />
           </TouchableOpacity>
           <TouchableOpacity
             style={{}}
@@ -255,20 +257,10 @@ const Explore = ({ navigation }) => {
               navigation.push("New Post");
             }}
           >
-            <PostButton width={40} height={35} style={{}} />
+            <Feather name="plus-square" size={35} color={Colors.FG} />
           </TouchableOpacity>
         </View>
       )}
-
-      {/* Search results modal */}
-
-      {/* <Modal
-        visible={modalVisible}
-        animationType="fade"
-        onRequestClose={() => {
-          Alert.alert("Modal has been closed.");
-        }}
-      > */}
       {mode === "search" && (
         <View style={styles.containertwo}>
           <View
@@ -280,6 +272,7 @@ const Explore = ({ navigation }) => {
             }}
           >
             <TextInput
+              keyboardAppearance={Colors.BG === "black" ? "dark" : "light"}
               clearButtonMode="always"
               editable={true}
               autoFocus={true}
@@ -287,6 +280,7 @@ const Explore = ({ navigation }) => {
               autoCapitalize="none"
               style={{ ...styles.searchBar }}
               placeholder={"Search"}
+              placeholderTextColor={Colors.text}
               value={search}
               onChangeText={(text) => {
                 if (!isEditing) {
@@ -299,7 +293,7 @@ const Explore = ({ navigation }) => {
               }}
             />
             <TouchableOpacity onPress={() => setMode("")}>
-              <Text>Cancel</Text>
+              <Text style={{ color: Colors.text }}>Cancel</Text>
             </TouchableOpacity>
           </View>
           <TabView
@@ -312,7 +306,6 @@ const Explore = ({ navigation }) => {
           />
         </View>
       )}
-      {/* </Modal> */}
       {mode != "search" && (
         <ScrollView
           refreshControl={
@@ -325,6 +318,7 @@ const Explore = ({ navigation }) => {
                 marginLeft: leftSpacing,
                 fontSize: 35,
                 marginTop: 50,
+                color: Colors.FG,
               }}
             >
               Browse
@@ -351,9 +345,9 @@ const Explore = ({ navigation }) => {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 25 }}>Artists</Text>
+            <Text style={{ fontSize: 25, color: Colors.FG }}>Artists</Text>
             <TouchableWithoutFeedback>
-              <Octicons name="chevron-right" size={24} color="black" />
+              <Octicons name="chevron-right" size={24} color={Colors.FG} />
             </TouchableWithoutFeedback>
           </View>
 
@@ -375,9 +369,9 @@ const Explore = ({ navigation }) => {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 25 }}>Charts</Text>
+            <Text style={{ fontSize: 25, color: Colors.FG }}>Charts</Text>
             <TouchableWithoutFeedback>
-              <Octicons name="chevron-right" size={24} color="black" />
+              <Octicons name="chevron-right" size={24} color={Colors.FG} />
             </TouchableWithoutFeedback>
           </View>
           <View
@@ -433,26 +427,26 @@ const Explore = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   searchBar: {
     borderRadius: 10,
-    color: "black",
     borderRadius: 10,
     height: 40,
     paddingLeft: 20,
     marginRight: 10,
-    borderColor: "gray",
-    backgroundColor: "#E8E8E8",
+    color: Colors.text,
+    borderColor: Colors.FG,
+    borderWidth: 1,
     width: "85%",
   },
   textInputStyle: {
     height: 40,
     borderWidth: 1,
     paddingLeft: 20,
-    backgroundColor: "#065581",
+    backgroundColor: Colors.primary,
     borderRadius: 10,
-    color: "white",
+    color: Colors.text,
   },
   containertwo: { flex: 1, flexDirection: "column" },
   scene: {

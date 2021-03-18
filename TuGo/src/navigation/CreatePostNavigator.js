@@ -4,6 +4,7 @@ import { createStackNavigator, TransitionSpecs } from "@react-navigation/stack";
 import SongSelection from "../screens/CreatePost/SongSelection";
 import VideoSelection from "../screens/CreatePost/VideoSelection";
 import CaptionSelection from "../screens/CreatePost/CaptionSelection";
+import { Colors } from "../../constants";
 
 const Stack = createStackNavigator();
 const CreatePostNavigator = () => {
@@ -13,7 +14,7 @@ const CreatePostNavigator = () => {
         options={{
           headerShown: false,
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
@@ -27,7 +28,7 @@ const CreatePostNavigator = () => {
         options={{
           headerShown: false,
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
@@ -41,7 +42,7 @@ const CreatePostNavigator = () => {
         options={{
           headerShown: false,
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,

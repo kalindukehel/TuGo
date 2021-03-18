@@ -19,6 +19,7 @@ import { Audio } from "expo-av";
 import { getAudioLink as getAudioLinkAPI } from "../api";
 import TextTicker from "react-native-text-ticker";
 import { Entypo } from "@expo/vector-icons";
+import { Colors } from "../../constants";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -36,6 +37,7 @@ const SearchItem = (props) => {
     color,
     genre,
     trackId,
+    artistId,
   } = props;
   let tileColor = color ? color : "#ffffff00";
   const { playingId, stopAll } = usePlayerState();
@@ -178,7 +180,8 @@ const SearchItem = (props) => {
               title,
               coverArt,
               genre,
-              trackId
+              trackId,
+              artistId
             )
           : {};
       }}
@@ -220,7 +223,7 @@ const SearchItem = (props) => {
           >
             <TextTicker
               style={{
-                color: selected ? "white" : "black",
+                color: selected ? Colors.BG : Colors.FG,
                 height: 20,
               }}
               duration={7000}
@@ -233,7 +236,7 @@ const SearchItem = (props) => {
             </TextTicker>
             <TextTicker
               style={{
-                color: selected ? "white" : "black",
+                color: selected ? Colors.BG : Colors.FG,
                 fontWeight: "bold",
                 height: 20,
               }}
@@ -258,7 +261,7 @@ const SearchItem = (props) => {
           minimumValue={0}
           maximumValue={1}
           minimumTrackTintColor="#C4C4C4"
-          maximumTrackTintColor={selected ? "white" : "black"}
+          maximumTrackTintColor={selected ? Colors.BG : Colors.FG}
           onSlidingStart={seekSliding}
           onSlidingComplete={seekComplete}
           thumbStyle={{ width: 15, height: 15 }}
@@ -268,7 +271,11 @@ const SearchItem = (props) => {
         />
         {loadingPlayer ? (
           <View style={{ marginLeft: "auto", marginRight: 10 }}>
-            <ActivityIndicator animating={true} size="large" color="black" />
+            <ActivityIndicator
+              animating={true}
+              size="large"
+              color={Colors.FG}
+            />
           </View>
         ) : (
           <TouchableOpacity
@@ -277,9 +284,9 @@ const SearchItem = (props) => {
             style={{ marginLeft: "auto", marginRight: 10 }}
           >
             {isPlaying ? (
-              <Entypo name="controller-paus" size={35} color="black" />
+              <Entypo name="controller-paus" size={35} color={Colors.FG} />
             ) : (
-              <Entypo name="controller-play" size={35} color="black" />
+              <Entypo name="controller-play" size={35} color={Colors.FG} />
             )}
           </TouchableOpacity>
         )}
@@ -291,7 +298,7 @@ const SearchItem = (props) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   imageViewNotPlaying: {
     marginLeft: 8,

@@ -7,14 +7,15 @@ import {
   by_ids as by_idsAPI,
 } from "../../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { API_URL } from "../../../constants";
+import { API_URL, Colors } from "../../../constants";
+
 const styles = StyleSheet.create({
   acceptButton: {
     borderRadius: 5,
     padding: 3,
     width: 70,
     alignItems: "center",
-    backgroundColor: "#065581",
+    backgroundColor: Colors.primary,
   },
   deleteButton: {
     borderRadius: 5,
@@ -25,17 +26,17 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
   },
   acceptButtonText: {
-    color: "white",
+    color: Colors.text,
     fontWeight: "bold",
   },
-  deleteButtonText: { color: "black", fontWeight: "bold" },
-  username: { paddingTop: 4, fontWeight: "bold" },
-  name: { paddingTop: 4 },
+  deleteButtonText: { color: Colors.text, fontWeight: "bold" },
+  username: { paddingTop: 4, fontWeight: "bold", color: Colors.text },
+  name: { paddingTop: 4, color: Colors.text },
   profilePicture: {
     width: 60,
     height: 60,
     alignSelf: "center",
-    borderColor: "black",
+    borderColor: Colors.FG,
     borderWidth: 1,
     borderRadius: 90,
   },
@@ -77,6 +78,7 @@ const FollowRequest = (props) => {
         flex: 1,
         flexDirection: "row",
         alignItems: "center",
+        color: Colors.BG,
       }}
     >
       <TouchableOpacity

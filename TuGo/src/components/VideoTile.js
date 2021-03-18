@@ -3,6 +3,7 @@ import React, { useRef } from "react";
 import RBSheet from "react-native-raw-bottom-sheet";
 import WebView from "react-native-webview";
 import YoutubePlayer from "react-native-yt-player";
+import { Colors } from "../../constants";
 
 //Video Tile to display YouTube video linked to a post, or in CreatePost
 const VideoTile = (props) => {
@@ -26,6 +27,8 @@ const VideoTile = (props) => {
             width: 100,
             height: 170,
             borderRadius: 20,
+            borderColor: Colors.FG,
+            borderWidth: 1,
           }}
         />
       </TouchableOpacity>
@@ -48,7 +51,7 @@ const VideoTile = (props) => {
       >
         <View style={{ flex: 1, maxHeight: "100%" }}>
           {/* <WebView
-            style={{ flex: 1, borderColor: "black" }}
+            style={{ flex: 1, borderColor: Colors.text }}
             javaScriptEnabled={true}
             scrollEnabled={false}
             allowsInlineMediaPlayback={true}

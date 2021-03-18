@@ -3,6 +3,7 @@ import { FlatList, View } from "react-native";
 import { searchUsers as searchUsersAPI } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import AccountTile from "../../components/AccountTile";
+import { Colors } from "../../../constants";
 
 const AccountsTabView = (props) => {
   const { searchQuery, navigation } = props;
@@ -27,7 +28,7 @@ const AccountsTabView = (props) => {
   };
 
   return (
-    <View style={[{ flex: 1, backgroundColor: "white" }]}>
+    <View style={[{ flex: 1, backgroundColor: Colors.BG }]}>
       <FlatList
         keyboardShouldPersistTaps={"handled"}
         contentContainerStyle={{ flexGrow: 1 }}

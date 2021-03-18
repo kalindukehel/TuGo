@@ -21,6 +21,7 @@ import { getFeedPosts as getFeedPostsAPI } from "../api";
 import PostComponent from "../components/PostComponent";
 import { useScrollToTop } from "@react-navigation/native";
 import { Avatar, Badge, Icon, withBadge } from "react-native-elements";
+import { Colors } from "../../constants";
 
 const Feed = ({ navigation }) => {
   const { userToken, self } = useAuthState();
@@ -51,7 +52,7 @@ const Feed = ({ navigation }) => {
           {unread ? (
             <Entypo name="notification" size={24} color="red" />
           ) : (
-            <Entypo name="notification" size={24} color="black" />
+            <Entypo name="notification" size={24} color={Colors.FG} />
           )}
         </TouchableOpacity>
       ),
@@ -109,6 +110,7 @@ const Feed = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.BG,
   },
 });
 

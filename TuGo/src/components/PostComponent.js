@@ -35,6 +35,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import Like from "../../assets/LikeButton.svg";
 import DMButton from "../../assets/DMButton.svg";
 import CommentsButton from "../../assets/CommentsButton.svg";
+import { FontAwesome } from "@expo/vector-icons";
 
 import moment from "moment";
 import ImageModal from "react-native-image-modal";
@@ -45,15 +46,14 @@ import { Audio, Video, AVPlaybackStatus } from "expo-av";
 import { Slider } from "react-native-elements";
 
 //icons
-import { Octicons } from "@expo/vector-icons";
-import { AntDesign } from "@expo/vector-icons";
-import { Entypo } from "@expo/vector-icons";
+import { Octicons, FontAwesome5, AntDesign } from "@expo/vector-icons";
 
 import { WebView } from "react-native-webview";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import Orientation from "react-native-orientation";
 import TextTicker from "react-native-text-ticker";
 import Player from "./Player";
+import { Colors } from "../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -199,15 +199,15 @@ const PostComponent = (props) => {
 
   //tab view for more page
   const FirstRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
+    <View style={[styles.scene, { backgroundColor: Colors.BG }]} />
   );
 
   const SecondRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
+    <View style={[styles.scene, { backgroundColor: Colors.BG }]} />
   );
 
   const ThirdRoute = () => (
-    <View style={[styles.scene, { backgroundColor: "white" }]} />
+    <View style={[styles.scene, { backgroundColor: Colors.BG }]} />
   );
 
   const initialLayout = { width: Dimensions.get("window").width };
@@ -228,10 +228,10 @@ const PostComponent = (props) => {
   const renderTabBar = (props) => (
     <TabBar
       {...props}
-      indicatorStyle={{ backgroundColor: "black" }}
-      style={{ backgroundColor: "white" }}
+      indicatorStyle={{ backgroundColor: Colors.FG }}
+      style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: "black" }}>{route.title}</Text>
+        <Text style={{ color: Colors.text }}>{route.title}</Text>
       )}
     />
   );
@@ -240,6 +240,11 @@ const PostComponent = (props) => {
     const likesRes = await getPostLikesAPI(userToken, postId);
     setLikes(likesRes.data);
   }
+
+  const isLiked = () => {
+    const ids = likes.map((like) => like.author);
+    return ids.includes(self.id);
+  };
 
   async function likePost() {
     const likeRes = await likePostAPI(userToken, postId);
@@ -353,7 +358,7 @@ const PostComponent = (props) => {
                   marginRight: 5,
                 }}
               ></Image>
-              <Text style={{ fontWeight: "bold", color: "gray" }}>
+              <Text style={{ fontWeight: "bold", color: Colors.text }}>
                 {author ? author.username : ""}
               </Text>
             </View>
@@ -364,7 +369,7 @@ const PostComponent = (props) => {
               alignItems: "center",
             }}
           >
-            <Text style={{ color: "gray" }}>
+            <Text style={{ color: Colors.text }}>
               {post ? moment(post.created_at).fromNow() : ""}
             </Text>
             <TouchableOpacity
@@ -377,7 +382,7 @@ const PostComponent = (props) => {
                 optionsRef.current.open();
               }}
             >
-              <Octicons name="kebab-horizontal" size={24} color="black" />
+              <Octicons name="kebab-horizontal" size={24} color={Colors.FG} />
             </TouchableOpacity>
           </View>
           <RBSheet
@@ -485,6 +490,8 @@ const PostComponent = (props) => {
           artist={post.song_artist}
           title={post.song_name}
           audioLink={post.audio_url}
+          artistId={post.artist_id}
+          navigation={navigation}
         />
         <View>
           <FlatList
@@ -510,7 +517,11 @@ const PostComponent = (props) => {
               }}
             >
               <View style={{ flexDirection: "row", alignItems: "center" }}>
-                <Like width={40} height={35} fill="red" />
+                <FontAwesome5
+                  name="fire"
+                  size={30}
+                  color={isLiked() ? "red" : Colors.FG}
+                />
               </View>
             </TouchableOpacity>
           </View>
@@ -534,7 +545,10 @@ const PostComponent = (props) => {
                 backgroundColor: "transparent",
               },
               draggableIcon: {
-                backgroundColor: "#000",
+                backgroundColor: Colors.FG,
+              },
+              container: {
+                backgroundColor: Colors.BG,
               },
             }}
           >
@@ -555,7 +569,7 @@ const PostComponent = (props) => {
               if (maxlimit == 10000) setMaxlimit(95);
             }}
           >
-            <DMButton width={40} height={35} />
+            <FontAwesome name="send" size={30} color={Colors.FG} />
           </TouchableOpacity>
         </View>
         <View
@@ -573,7 +587,7 @@ const PostComponent = (props) => {
               });
             }}
           >
-            <Text>
+            <Text style={{ color: Colors.text }}>
               {likes
                 ? likes.length == 1
                   ? likes.length + ` like`
@@ -589,9 +603,9 @@ const PostComponent = (props) => {
             }}
           >
             {isFavorite ? (
-              <AntDesign name="pluscircle" size={25} color="black" />
+              <AntDesign name="pluscircle" size={25} color={Colors.FG} />
             ) : (
-              <AntDesign name="pluscircleo" size={25} color="black" />
+              <AntDesign name="pluscircleo" size={25} color={Colors.FG} />
             )}
           </TouchableOpacity>
         </View>
@@ -603,7 +617,7 @@ const PostComponent = (props) => {
             marginVertical: 10,
           }}
         >
-          <Text style={{ flexWrap: "wrap" }}>
+          <Text style={{ flexWrap: "wrap", color: Colors.text }}>
             <Text style={{ fontWeight: "bold" }}>{author.username + `: `}</Text>
             <Text style={{}}>
               {post.caption.length > maxlimit
@@ -620,9 +634,16 @@ const PostComponent = (props) => {
             });
           }}
         >
-          <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <CommentsButton width={40} height={35} fill="#0ff" />
-            <Text>{comments ? `${comments.length}` : `loading`}</Text>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+            }}
+          >
+            <FontAwesome5 name="comment" size={30} color={Colors.FG} />
+            <Text style={{ color: Colors.text, marginLeft: 10 }}>
+              {comments ? `${comments.length}` : `loading`}
+            </Text>
           </View>
         </TouchableOpacity>
       </View>
@@ -633,7 +654,7 @@ const PostComponent = (props) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   moreButton: {
     borderRadius: 5,
@@ -644,7 +665,7 @@ const styles = StyleSheet.create({
   },
   moreButtonText: {
     alignSelf: "center",
-    color: "black",
+    color: Colors.complimentText,
   },
   imageViewNotPlaying: {
     marginLeft: 8,
@@ -673,6 +694,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: 300,
     height: 200,
+    borderColor: Colors.FG,
+    borderWidth: 1,
   },
   scene: {
     flex: 1,

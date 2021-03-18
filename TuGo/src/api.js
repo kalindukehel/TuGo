@@ -468,6 +468,7 @@ export async function getArtistInfo(id) {
 }
 
 export async function createPost(caption, postDetails, tiles, token) {
+  console.log(postDetails);
   //Convert postDetails into an object to send as a request to api
   let postData = {
     caption: caption,
@@ -477,6 +478,7 @@ export async function createPost(caption, postDetails, tiles, token) {
     song_artist: postDetails.artist,
     song_tags: postDetails.genre.join(", "),
     song_id: postDetails.trackId,
+    artist_id: postDetails.artistId,
     author: 2,
   };
   //Create post using postdata and store created object as res

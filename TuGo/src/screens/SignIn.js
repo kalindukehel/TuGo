@@ -16,6 +16,7 @@ import { signIn as signInAPI, getSelf as getSelfAPI } from "../api";
 
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
+import { Colors } from "../../constants";
 
 const styles = StyleSheet.create({
   container: {
@@ -35,7 +36,7 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: "gray",
-    color: "black",
+    color: Colors.text,
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 15,
@@ -49,7 +50,7 @@ const styles = StyleSheet.create({
     marginHorizontal: 60,
     padding: 10,
     borderRadius: 30,
-    //backgroundColor: "black",
+    //backgroundColor: Colors.FG,
   },
 });
 
@@ -117,7 +118,7 @@ const SignIn = ({ navigation }) => {
                 }
               }}
             >
-              <Text style={{ color: "white" }}>Login</Text>
+              <Text style={{ color: Colors.complimentText }}>Login</Text>
             </TouchableOpacity>
             <View style={{ flex: 1 }} />
           </View>

@@ -6,6 +6,7 @@ import {
   Text,
   View,
 } from "react-native";
+import { Colors } from "../../../constants";
 const ArtistBlock = (props) => {
   const { artist, navigation, image, id, similarArtist, index } = props;
   return (
@@ -32,7 +33,9 @@ const ArtistBlock = (props) => {
             uri: image,
           }}
         ></ImageBackground>
-        <Text style={styles.chartName}>{similarArtist ? `${artist}` : `${index} ${artist}`}</Text>
+        <Text style={styles.chartName}>
+          {similarArtist ? `${artist}` : `${index} ${artist}`}
+        </Text>
       </View>
     </TouchableWithoutFeedback>
   );
@@ -50,6 +53,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     alignSelf: "center",
     marginTop: 10,
+    color: Colors.FG,
   },
 });
 

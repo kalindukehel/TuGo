@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import {
   View,
-  Text,
+  TouchableWithoutFeedback,
   TouchableOpacity,
   Dimensions,
   StyleSheet,
@@ -19,13 +19,23 @@ import { Audio } from "expo-av";
 import { getAudioLink as getAudioLinkAPI } from "../api";
 import TextTicker from "react-native-text-ticker";
 import { Entypo } from "@expo/vector-icons";
+import { Colors } from "../../constants";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
 //SearchItem Component for CreatePost Screen
 const Player = (props) => {
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { index, coverArt, artist, title, audioLink, color } = props;
+  const {
+    index,
+    coverArt,
+    artist,
+    title,
+    audioLink,
+    color,
+    artistId,
+    navigation,
+  } = props;
   let tileColor = color ? color : "#ffffff00";
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -199,24 +209,36 @@ const Player = (props) => {
               marginBottom: 30,
             }}
           >
-            <TextTicker
-              style={{
-                color: "black",
-                height: 20,
+            <TouchableWithoutFeedback
+              onPress={() => {
+                if (artistId && artistId != "") {
+                  navigation.push("Artist", {
+                    artist: artistId,
+                    image: coverArt,
+                  });
+                }
               }}
-              duration={7000}
-              bounce
-              repeatSpacer={50}
-              marqueeDelay={1000}
-              shouldAnimateTreshold={40}
             >
-              {artist}
-            </TextTicker>
+              <TextTicker
+                style={{
+                  height: 20,
+                  color: Colors.text,
+                }}
+                duration={7000}
+                bounce
+                repeatSpacer={50}
+                marqueeDelay={1000}
+                shouldAnimateTreshold={40}
+              >
+                {artist}
+              </TextTicker>
+            </TouchableWithoutFeedback>
+
             <TextTicker
               style={{
-                color: "black",
                 fontWeight: "bold",
                 height: 20,
+                color: Colors.text,
               }}
               duration={7000}
               bounce
@@ -238,18 +260,22 @@ const Player = (props) => {
           }}
           minimumValue={0}
           maximumValue={1}
-          minimumTrackTintColor="#C4C4C4"
+          minimumTrackTintColor={"white"}
           maximumTrackTintColor={"black"}
           onSlidingStart={seekSliding}
           onSlidingComplete={seekComplete}
           thumbStyle={{ width: 15, height: 15 }}
-          thumbTintColor="#C4C4C4"
+          thumbTintColor={"white"}
           value={sliderValue}
           disabled={refreshing ? true : false}
         />
         {loadingPlayer ? (
           <View style={{ marginLeft: "auto", marginRight: 10 }}>
-            <ActivityIndicator animating={true} size="large" color="black" />
+            <ActivityIndicator
+              animating={true}
+              size="large"
+              color={Colors.FG}
+            />
           </View>
         ) : (
           <TouchableOpacity
@@ -258,9 +284,9 @@ const Player = (props) => {
             style={{ marginLeft: "auto", marginRight: 10 }}
           >
             {isPlaying ? (
-              <Entypo name="controller-paus" size={35} color="black" />
+              <Entypo name="controller-paus" size={35} color={Colors.FG} />
             ) : (
-              <Entypo name="controller-play" size={35} color="black" />
+              <Entypo name="controller-play" size={35} color={Colors.FG} />
             )}
           </TouchableOpacity>
         )}
@@ -272,7 +298,7 @@ const Player = (props) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   imageViewNotPlaying: {
     marginLeft: 8,

@@ -25,6 +25,7 @@ import {
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
+import { Colors } from "../../constants";
 
 //components
 import Player from "../components/Player";
@@ -225,6 +226,8 @@ const FavoritesTile = (props) => {
           artist={post.song_artist}
           title={post.song_name}
           audioLink={post.audio_url}
+          artistId={post.artist_id}
+          navigation={navigation}
         />
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <TouchableOpacity
@@ -264,7 +267,7 @@ const FavoritesTile = (props) => {
 const styles = StyleSheet.create({
   scrollView: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   viewPostButton: {
     borderRadius: 5,
@@ -276,7 +279,7 @@ const styles = StyleSheet.create({
   },
   viewPostButtonText: {
     alignSelf: "center",
-    color: "black",
+    color: Colors.text,
   },
   imageViewNotPlaying: {
     marginLeft: 8,

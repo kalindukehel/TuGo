@@ -11,6 +11,7 @@ import {
 import { getSavedSongs as getSavedSongsAPI } from "../api";
 import { useAuthState } from "../context/authContext";
 import FavoritesTile from "../components/FavoritesTile";
+import { Colors } from "../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -75,6 +76,7 @@ const Favorites = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: Colors.BG,
   },
 });
 

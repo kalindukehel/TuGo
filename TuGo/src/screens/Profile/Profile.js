@@ -32,7 +32,7 @@ import { API_URL } from "../../../constants";
 import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useScrollToTop } from "@react-navigation/native";
-import * as Notifications from "expo-notifications";
+import { Colors } from "../../../constants";
 
 //images
 import SoundcloudIcon from "../../../assets/soundcloud.svg";
@@ -43,16 +43,18 @@ var { width, height } = Dimensions.get("window");
 const blank =
   "https://www.publicdomainpictures.net/pictures/30000/velka/plain-white-background.jpg";
 
+const leftSpacing = 20;
+
 const styles = StyleSheet.create({
   profilePicture: {
-    width: "50%",
-    height: "100%",
-    alignSelf: "center",
-    borderColor: "black",
-    borderWidth: 2,
-    borderRadius: 90,
-    zIndex: 1,
-    position: "absolute",
+    shadowColor: "#000",
+    shadowOffset: {
+      width: 0,
+      height: 5,
+    },
+    shadowOpacity: 0.36,
+    shadowRadius: 6.68,
+    elevation: 11,
   },
   list: {
     paddingBottom: height / 100,
@@ -68,6 +70,7 @@ const styles = StyleSheet.create({
   userStatsNumber: {
     fontSize: 30,
     alignSelf: "center",
+    color: Colors.text,
   },
   userStatsText: {
     backgroundColor: "#EDEDED",
@@ -84,16 +87,22 @@ const styles = StyleSheet.create({
     zIndex: 2,
     position: "absolute",
   },
-  followButton: {
+  actionButton: {
     borderWidth: 1,
-    borderRadius: 5,
-    borderColor: "white",
-    width: 90,
-    paddingVertical: 3,
+    borderRadius: 10,
+    borderColor: "#ffffff00",
+    width: "70%",
+    paddingVertical: 7,
     alignSelf: "center",
   },
-  followButtonText: {
+  actionButtonText: {
     alignSelf: "center",
+  },
+  ProfileHeaderView: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginVertical: 20,
+    marginHorizontal: 10,
   },
 });
 
@@ -130,7 +139,9 @@ const Profile = (props) => {
     profileId = id;
   }
 
-  profileId == self.id &&
+  let isSelf = profileId == self.id;
+
+  isSelf &&
     props.id &&
     props.fromMyProfile &&
     !id &&
@@ -144,7 +155,7 @@ const Profile = (props) => {
               navigation.navigate("Settings");
             }}
           >
-            <Ionicons name="ios-settings" size={25} color={"black"} />
+            <Ionicons name="ios-settings" size={25} color={Colors.FG} />
           </TouchableOpacity>
         ),
         headerLeft: () => (
@@ -154,7 +165,7 @@ const Profile = (props) => {
               navigation.navigate("Favorites");
             }}
           >
-            <Fontisto name="favorite" size={24} color="black" />
+            <Fontisto name="favorite" size={24} color={Colors.FG} />
           </TouchableOpacity>
         ),
       });
@@ -239,55 +250,6 @@ const Profile = (props) => {
     );
   };
 
-  renderBackground = () => {
-    const topPosts = posts.filter((post, index) => index <= 5);
-    const six = [0, 1, 2, 3, 4, 5];
-    return (
-      <View style={{ width: width, height: 200 }}>
-        <View
-          style={{
-            flexDirection: "row",
-            flexWrap: "wrap",
-            height: "100%",
-            width: "100%",
-            opacity: 0.6,
-          }}
-        >
-          {six.map((index) => {
-            return (
-              <View
-                key={index}
-                style={{
-                  borderColor: "gray",
-                  borderWidth: 1,
-                  backgroundColor: "white",
-                  height: "50%",
-                  width: width / 3,
-                }}
-              >
-                <Image
-                  style={{ flex: 1, width: undefined, height: undefined }}
-                  source={{
-                    uri:
-                      topPosts[index] && error != 403
-                        ? topPosts[index].album_cover
-                        : blank,
-                  }}
-                ></Image>
-              </View>
-            );
-          })}
-        </View>
-        <Image
-          source={{
-            uri: user ? user.profile_picture : API_URL + "/media/default.jpg",
-          }}
-          style={styles.profilePicture}
-        ></Image>
-      </View>
-    );
-  };
-
   async function checkFollow() {
     //Get everyone that user is following
     const res = await getFollowingAPI(userToken, self.id);
@@ -347,7 +309,13 @@ const Profile = (props) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
   }
 
-  getHeader = () => {
+  const getNameSize = (name) => {
+    if (name.length <= 10) return 25;
+    if (name.length <= 20) return 18;
+    if (name.length <= 50) return 6;
+  };
+
+  const getHeader = () => {
     const renderFollowingType = () => {
       if (isFollowing == "true") {
         return "Following";
@@ -359,64 +327,93 @@ const Profile = (props) => {
     };
     return (
       <>
-        {renderBackground()}
-        {user && (
-          <>
-            <Text
-              style={{
-                marginVertical: 10,
-                marginHorizontal: 20,
-                fontSize: 18,
-                fontWeight: "bold",
-              }}
-            >
-              {user.name}
-            </Text>
-            {profileId != self.id ? (
-              <View style={{ marginTop: 10 }}>
-                <TouchableOpacity
-                  style={{
-                    ...styles.followButton,
-                    backgroundColor:
-                      isFollowing == "true" ? "#065581" : "#DCDCDC",
-                  }}
-                  onPress={() => changeFollow()}
-                >
-                  <Text
-                    style={{
-                      ...styles.followButtonText,
-                      color: isFollowing == "true" ? "white" : "black",
-                      fontWeight: "bold",
-                    }}
-                  >
-                    {isFollowing != "" && renderFollowingType()}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            ) : (
-              <View style={{ marginTop: 10 }}>
-                <TouchableOpacity
-                  style={{
-                    ...styles.followButton,
-                    backgroundColor: "#DCDCDC",
-                  }}
-                  onPress={() => {
-                    navigation.push("Edit Profile");
-                  }}
-                >
-                  <Text
-                    style={{
-                      ...styles.followButtonText,
-                      fontWeight: "bold",
-                    }}
-                  >
-                    Edit Profile
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            )}
-          </>
+        {isSelf && (
+          <Text
+            style={{
+              marginLeft: leftSpacing,
+              fontSize: 30,
+              marginTop: 20,
+              color: Colors.text,
+            }}
+          >
+            My Profile
+          </Text>
         )}
+        <View style={styles.ProfileHeaderView}>
+          <View style={styles.profilePicture}>
+            <Image
+              source={{
+                uri: user
+                  ? user.profile_picture
+                  : API_URL + "/media/default.jpg",
+              }}
+              style={{ height: 150, width: 150, borderRadius: 40 }}
+            />
+          </View>
+          <View
+            style={{
+              justifyContent: "space-between",
+              height: 120,
+              flex: 1,
+              alignItems: "center",
+            }}
+          >
+            {user && (
+              <>
+                <Text
+                  style={{
+                    marginVertical: 10,
+                    marginHorizontal: 20,
+                    fontSize: getNameSize(user.name),
+                    fontWeight: "bold",
+                    color: Colors.text,
+                  }}
+                >
+                  {user.name}
+                </Text>
+                {!isSelf ? (
+                  <TouchableOpacity
+                    style={{
+                      ...styles.actionButton,
+                      backgroundColor:
+                        isFollowing == "true" ? "#065581" : "#DCDCDC",
+                    }}
+                    onPress={() => changeFollow()}
+                  >
+                    <Text
+                      style={{
+                        ...styles.actionButtonText,
+                        color: isFollowing == "true" ? Colors.FG : Colors.BG,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      {isFollowing != "" && renderFollowingType()}
+                    </Text>
+                  </TouchableOpacity>
+                ) : (
+                  <TouchableOpacity
+                    style={{
+                      ...styles.actionButton,
+                      backgroundColor: "#DCDCDC",
+                    }}
+                    onPress={() => {
+                      navigation.push("Edit Profile");
+                    }}
+                  >
+                    <Text
+                      style={{
+                        ...styles.actionButtonText,
+                        fontWeight: "bold",
+                      }}
+                    >
+                      Edit Profile
+                    </Text>
+                  </TouchableOpacity>
+                )}
+              </>
+            )}
+          </View>
+        </View>
         <View
           style={{
             flexDirection: "row",
@@ -476,7 +473,9 @@ const Profile = (props) => {
             alignItems: "center",
           }}
         >
-          <Text style={{ fontWeight: "bold" }}>Portfolio</Text>
+          <Text style={{ fontWeight: "bold", color: Colors.text }}>
+            Portfolio
+          </Text>
           <View
             style={{
               flexDirection: "row",
@@ -520,7 +519,7 @@ const Profile = (props) => {
     <View
       style={{
         flex: 1,
-        backgroundColor: "white",
+        backgroundColor: Colors.BG,
       }}
     >
       <FlatList
@@ -535,7 +534,7 @@ const Profile = (props) => {
         data={posts}
         renderItem={renderSection}
         keyExtractor={(item) => item.id.toString()}
-        numColumns={2}
+        numColumns={3}
       />
     </View>
   );

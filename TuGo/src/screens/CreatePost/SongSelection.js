@@ -18,6 +18,7 @@ import PostButton from "../../../assets/PostButton.svg";
 import SearchItem from "../../components/SearchItem";
 import { render } from "react-dom";
 import { FlatList } from "react-native-gesture-handler";
+import { Colors } from "../../../constants";
 
 const CreatePost = ({ navigation }) => {
   const [search, setSearch] = useState();
@@ -39,7 +40,8 @@ const CreatePost = ({ navigation }) => {
     title,
     coverArt,
     genre,
-    trackId
+    trackId,
+    artistId
   ) => {
     //If item is already selected, deselect it
     if (selectedItem.id == id) {
@@ -52,6 +54,7 @@ const CreatePost = ({ navigation }) => {
         coverArt: null,
         genre: "",
         trackId: null,
+        artistId: null,
       });
     } else {
       //If different item or no item is selected, then set item as selected
@@ -64,45 +67,51 @@ const CreatePost = ({ navigation }) => {
         coverArt: coverArt,
         genre: genre,
         trackId: trackId,
+        artistId: artistId,
       });
     }
   };
 
   //When user enters their search term, perform search
   const handleResults = async (text) => {
-    setLoading(true);
-    let response = await typeSongAheadSearchAPI(text);
-    const filteredSongs = response.data.search.data.tracks.map((song) => {
-      return {
-        albumId: song.albumId,
-        trackId: song.id,
-        song_name: song.name,
-        song_artist: song.artistName,
-        audioLink: song.previewURL,
-        genres: song.links.genres.ids,
-      };
-    });
-    setResults(filteredSongs);
-    setLoading(false);
+    if (text != "") {
+      setLoading(true);
+      let response = await typeSongAheadSearchAPI(text);
+      const filteredSongs = response.data.search.data.tracks.map((song) => {
+        return {
+          albumId: song.albumId,
+          trackId: song.id,
+          song_name: song.name,
+          song_artist: song.artistName,
+          audioLink: song.previewURL,
+          genres: song.links.genres.ids,
+          artist_id: song.artistId,
+        };
+      });
+      setResults(filteredSongs);
+      setLoading(false);
+    } else {
+      setResults([]);
+    }
   };
 
   const getImage = (albumId) => {
     return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
   };
 
-  const renderItem = (item) => {
-    const suggestion = item.item;
+  const renderItem = ({ item }) => {
     return (
       <SearchItem
-        index={suggestion.trackId}
-        coverArt={getImage(suggestion.albumId)}
-        selected={suggestion.trackId == selectedItem.id}
+        index={item.trackId}
+        coverArt={getImage(item.albumId)}
+        selected={item.trackId == selectedItem.id}
         selectItem={selectItem}
-        artist={suggestion.song_artist}
-        title={suggestion.song_name}
-        audioLink={suggestion.audioLink}
-        genre={suggestion.genres}
-        trackId={suggestion.trackId}
+        artist={item.song_artist}
+        title={item.song_name}
+        audioLink={item.audioLink}
+        genre={item.genres}
+        trackId={item.trackId}
+        artistId={item.artist_id}
       />
     );
   };
@@ -155,6 +164,7 @@ const CreatePost = ({ navigation }) => {
           editable={true}
           style={{ ...styles.searchBar }}
           placeholder={"Search"}
+          placeholderTextColor={Colors.FG}
           onChangeText={(text) => {
             handleChange(text);
           }}
@@ -180,17 +190,18 @@ const CreatePost = ({ navigation }) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   searchBar: {
     borderRadius: 10,
-    color: "black",
+    color: Colors.text,
     borderRadius: 10,
     height: 40,
     paddingLeft: 20,
     marginRight: 10,
-    borderColor: "gray",
-    backgroundColor: "#E8E8E8",
+    color: Colors.text,
+    borderColor: Colors.FG,
+    borderWidth: 1,
     width: "100%",
   },
 });

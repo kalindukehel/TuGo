@@ -24,6 +24,7 @@ import {
 import { FlatList } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
 import * as Haptics from "expo-haptics";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -37,20 +38,20 @@ const maxlimit = 20;
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   textInputStyle: {
     height: 40,
-    borderWidth: 1,
     paddingLeft: 20,
-    backgroundColor: "#065581",
     borderRadius: 20,
-    color: "white",
+    color: Colors.text,
+    borderColor: Colors.FG,
+    borderWidth: 1,
   },
   followButton: {
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: "white",
+    borderColor: Colors.complimentText,
     width: 90,
     paddingVertical: 3,
     alignSelf: "center",
@@ -212,12 +213,12 @@ const Followers = (props) => {
             }}
           ></Image>
           <View style={{ flexDirection: "column", flex: 1, marginLeft: 10 }}>
-            <Text style={{ fontWeight: "bold" }}>
+            <Text style={{ fontWeight: "bold", color: Colors.text }}>
               {follow.username.length > maxlimit
                 ? follow.username.substring(0, maxlimit - 3) + "..."
                 : follow.username}
             </Text>
-            <Text style={{}}>
+            <Text style={{ color: Colors.text }}>
               {follow.username.length > maxlimit
                 ? follow.name.substring(0, maxlimit - 3) + "..."
                 : follow.name}
@@ -279,7 +280,7 @@ const Followers = (props) => {
       onChangeText={(text) => searchFilterFunction(text)}
       value={search}
       placeholder="Search"
-      placeholderTextColor="white"
+      placeholderTextColor={Colors.text}
       clearButtonMode="always"
     />
   );

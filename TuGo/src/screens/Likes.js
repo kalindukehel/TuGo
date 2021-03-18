@@ -15,6 +15,7 @@ import { useAuthState } from "../context/authContext";
 import { API_URL } from "../../constants";
 import { FlatList } from "react-native-gesture-handler";
 import AccountTile from "../components/AccountTile";
+import { Colors } from "../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -63,12 +64,10 @@ const Likes = (props) => {
         );
       });
       setFilteredData(newData);
-      setSearch(text);
     } else {
       // Inserted text is blank
       // Update FilteredDataSource with masterData
       setFilteredData(masterData);
-      setSearch(text);
     }
   };
 
@@ -94,10 +93,13 @@ const Likes = (props) => {
   const header = () => (
     <TextInput
       style={styles.textInputStyle}
-      onChangeText={(text) => searchFilterFunction(text)}
+      onChangeText={(text) => {
+        setSearch(text);
+        searchFilterFunction(text);
+      }}
       value={search}
       placeholder="Search"
-      placeholderTextColor="white"
+      placeholderTextColor={Colors.text}
       clearButtonMode="always"
     />
   );
@@ -124,19 +126,20 @@ const Likes = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   textInputStyle: {
     height: 40,
+    borderWidth: 1,
     paddingLeft: 20,
-    backgroundColor: "#065581",
     borderRadius: 20,
-    color: "white",
+    color: Colors.text,
+    borderColor: Colors.FG,
   },
   followButton: {
     borderWidth: 1,
     borderRadius: 5,
-    borderColor: "white",
+    borderColor: Colors.complimentText,
     padding: 3,
   },
   followButtonText: {

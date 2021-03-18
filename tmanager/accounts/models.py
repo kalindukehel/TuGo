@@ -75,6 +75,7 @@ class Post(models.Model):
     song_artist = models.CharField(max_length=200)
     song_tags = models.CharField(max_length=200, default='', null=True, blank=True)
     song_id = models.CharField(max_length=200)
+    artist_id = models.CharField(max_length=200, default='', null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     REQUIRED_FIELDS = ['album_cover', 'audio_url', 'song_name','song_artist', 'song_id', 'created_at']

@@ -8,6 +8,7 @@ import Followers from "../screens/Profile/Follow";
 import Following from "../screens/Profile/Follow";
 import Profile from "../screens/Profile/Profile";
 import FollowRequests from "../screens/FollowRequests";
+import { Colors } from "../../constants";
 
 const Stack = createStackNavigator();
 
@@ -22,8 +23,11 @@ const ActivityNavigator = () => {
           gestureResponseDistance: {
             horizontal: 300,
           },
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
@@ -38,7 +42,7 @@ const ActivityNavigator = () => {
             horizontal: 300,
           },
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
         component={Profile}
       />
@@ -47,24 +51,30 @@ const ActivityNavigator = () => {
         name="Post"
         component={PostNavigator}
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           gestureResponseDistance: {
             horizontal: 300,
           },
           headerShown: false,
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
       />
 
       <Stack.Screen
         name="Following"
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           gestureResponseDistance: {
             horizontal: 300,
           },
           title: "Following",
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
@@ -76,12 +86,15 @@ const ActivityNavigator = () => {
       <Stack.Screen
         name="Followers"
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           gestureResponseDistance: {
             horizontal: 300,
           },
           title: "Followers",
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,
@@ -92,12 +105,15 @@ const ActivityNavigator = () => {
       <Stack.Screen
         name="Follow Requests"
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           gestureResponseDistance: {
             horizontal: 300,
           },
           title: "Follow Requests",
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerTitleStyle: {
             fontWeight: "bold",
             fontSize: 20,

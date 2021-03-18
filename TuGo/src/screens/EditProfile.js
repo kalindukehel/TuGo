@@ -13,6 +13,7 @@ import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import { postProfilePicture as postProfilePictureAPI } from "../api";
 import { useAuthState } from "../context/authContext";
+import { Colors } from "react-native/Libraries/NewAppScreen";
 var { width, height } = Dimensions.get("window");
 
 const EditProfile = (props) => {
@@ -69,7 +70,7 @@ const EditProfile = (props) => {
   };
 
   return (
-    <View style={{ flex: 1, backgroundColor: "white" }}>
+    <View style={{ flex: 1, backgroundColor: Colors.BG }}>
       <View
         style={{
           width: width / 2,
@@ -96,7 +97,7 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     alignSelf: "center",
-    borderColor: "black",
+    borderColor: Colors.text,
     borderWidth: 2,
     borderRadius: 90,
     zIndex: 1,

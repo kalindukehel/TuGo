@@ -9,6 +9,7 @@ import Chart from "../screens/Explore/Chart.js";
 import Artist from "../screens/Explore/Artist.js";
 import RelatedArtists from "../screens/Explore/RelatedArtists.js";
 import ArtistInfo from "../screens/Explore/ArtistInfo.js";
+import { Colors } from "../../constants";
 const Stack = createStackNavigator();
 
 const explorerNavigator = () => {
@@ -18,7 +19,6 @@ const explorerNavigator = () => {
       <Stack.Screen
         options={{
           headerShown: false,
-          //headerStyle: { height: Expo.Constants.statusBarHeight }
         }}
         name="Explore"
         component={Explore}
@@ -39,7 +39,7 @@ const explorerNavigator = () => {
         name="Profile"
         options={{
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
           headerShown: false,
         }}
       >
@@ -53,7 +53,7 @@ const explorerNavigator = () => {
         options={{
           headerShown: false,
           headerBackTitleVisible: false,
-          headerTintColor: "black",
+          headerTintColor: Colors.text,
         }}
       />
       <Stack.Screen
@@ -67,7 +67,7 @@ const explorerNavigator = () => {
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerStyle: {
-            backgroundColor: "#E3FBFF",
+            backgroundColor: Colors.primary,
             shadowRadius: 0,
             shadowOffset: {
               height: 0,
@@ -83,7 +83,7 @@ const explorerNavigator = () => {
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerStyle: {
-            backgroundColor: "#E3FBFF",
+            backgroundColor: Colors.primary,
             shadowRadius: 0,
             shadowOffset: {
               height: 0,
@@ -102,7 +102,7 @@ const explorerNavigator = () => {
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerStyle: {
-            backgroundColor: "#E3FBFF",
+            backgroundColor: Colors.primary,
             shadowRadius: 0,
             shadowOffset: {
               height: 0,
@@ -121,7 +121,7 @@ const explorerNavigator = () => {
           headerBackTitleVisible: false,
           headerTintColor: "black",
           headerStyle: {
-            backgroundColor: "#E3FBFF",
+            backgroundColor: Colors.primary,
             shadowRadius: 0,
             shadowOffset: {
               height: 0,

@@ -15,6 +15,7 @@ import {
 } from "../../api";
 
 import moment from "moment";
+import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -61,6 +62,7 @@ const FollowActivity = (props) => {
               flex: 1,
               marginHorizontal: 10,
               alignSelf: "center",
+              color: Colors.FG,
             }}
           >
             <Text style={{ fontWeight: "bold" }}>{follower.username}</Text>
@@ -77,7 +79,7 @@ const FollowActivity = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: Colors.BG,
   },
   followElement: {
     flex: 1,

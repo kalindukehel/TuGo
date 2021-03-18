@@ -8,10 +8,12 @@ import { AuthProvider } from "./src/context/authContext";
 import { PlayerProvider } from "./src/context/playerContext";
 import { NotificationProvider } from "./src/context/notificationContext";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
+import { changeColors } from "./constants";
 
 const Tab = createBottomTabNavigator();
 
 export default App = () => {
+  changeColors("dark");
   return (
     <SafeAreaProvider>
       <AuthProvider>
