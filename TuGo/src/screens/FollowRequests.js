@@ -8,6 +8,7 @@ import {
 } from "../api";
 import { FlatList, TouchableOpacity } from "react-native-gesture-handler";
 import FollowRequest from "../components/Activity/FollowRequest";
+import { Colors } from "../../constants";
 
 const FollowRequests = ({ navigation }) => {
   const [requests, setRequests] = useState([]);
@@ -48,7 +49,7 @@ const FollowRequests = ({ navigation }) => {
   };
 
   return (
-    <View style={{ height: "100%" }}>
+    <View style={{ height: "100%", backgroundColor: Colors.BG }}>
       <FlatList
         style={{ paddingTop: 10 }}
         data={requests}

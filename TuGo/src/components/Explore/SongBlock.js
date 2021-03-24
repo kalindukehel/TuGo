@@ -6,6 +6,7 @@ import {
   TouchableWithoutFeedback,
   ActivityIndicator,
   TouchableOpacity,
+  Dimensions,
 } from "react-native";
 import { getPostById as getPostByIdAPI } from "../../api";
 import { useAuthState } from "../../context/authContext";
@@ -18,6 +19,8 @@ import TextTicker from "react-native-text-ticker";
 
 //icons
 import { Entypo } from "@expo/vector-icons";
+
+var { width } = Dimensions.get("window");
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -52,7 +55,6 @@ export default SongBlock = (props) => {
     //Update post data from API
     setRefreshing(true);
     const postRes = await getPostByIdAPI(userToken, postId);
-    console.log(postRes.data);
     setPost(postRes.data);
     postRef.current = postRes.data;
     setRefreshing(false);
@@ -197,8 +199,8 @@ export default SongBlock = (props) => {
               paddingLeft: 2,
             }}
             style={{
-              width: 200,
-              height: 200,
+              width: width / 2,
+              height: width / 2,
               justifyContent: "flex-end",
             }}
           >

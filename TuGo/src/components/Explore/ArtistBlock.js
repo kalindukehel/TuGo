@@ -22,12 +22,12 @@ const ArtistBlock = (props) => {
         <ImageBackground
           imageStyle={{
             ...styles.chartImage,
-            width: similarArtist ? 180 : 180,
-            height: similarArtist ? 180 : 180,
+            width: similarArtist ? 180 : 150,
+            height: similarArtist ? 180 : 150,
           }}
           style={{
-            width: similarArtist ? 180 : 180,
-            height: similarArtist ? 180 : 180,
+            width: similarArtist ? 180 : 150,
+            height: similarArtist ? 180 : 150,
           }}
           source={{
             uri: image,

@@ -38,6 +38,9 @@ const ActivityNavigator = () => {
       <Stack.Screen
         name="Profile"
         options={{
+          headerStyle: {
+            backgroundColor: Colors.BG,
+          },
           gestureResponseDistance: {
             horizontal: 300,
           },

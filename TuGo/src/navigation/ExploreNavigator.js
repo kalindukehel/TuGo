@@ -8,7 +8,10 @@ import PostNavigator from "../navigation/PostNavigator";
 import Chart from "../screens/Explore/Chart.js";
 import Artist from "../screens/Explore/Artist.js";
 import RelatedArtists from "../screens/Explore/RelatedArtists.js";
+import ExplorePostsAll from "../screens/Explore/ExplorePostsAll.js";
 import ArtistInfo from "../screens/Explore/ArtistInfo.js";
+import VideoSelection from "../screens/CreatePost/VideoSelection";
+import CaptionSelection from "../screens/CreatePost/CaptionSelection";
 import { Colors } from "../../constants";
 const Stack = createStackNavigator();
 
@@ -128,6 +131,53 @@ const explorerNavigator = () => {
             },
           },
         }}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.text,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+          gestureEnabled: false,
+        }}
+        name="Video Selection"
+        component={VideoSelection}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.text,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+          gestureEnabled: false,
+        }}
+        name="Caption Selection"
+        component={CaptionSelection}
+      />
+      <Stack.Screen
+        options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+        name="Explore Posts"
+        component={ExplorePostsAll}
       />
     </Stack.Navigator>
   );

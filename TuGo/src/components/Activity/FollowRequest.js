@@ -26,10 +26,11 @@ const styles = StyleSheet.create({
     marginHorizontal: 15,
   },
   acceptButtonText: {
-    color: Colors.text,
     fontWeight: "bold",
   },
-  deleteButtonText: { color: Colors.text, fontWeight: "bold" },
+  deleteButtonText: {
+    fontWeight: "bold",
+  },
   username: { paddingTop: 4, fontWeight: "bold", color: Colors.text },
   name: { paddingTop: 4, color: Colors.text },
   profilePicture: {

@@ -74,9 +74,13 @@ const CommentActivity = (props) => {
               alignSelf: "center",
             }}
           >
-            <Text style={{ fontWeight: "bold" }}>{commenter.username}</Text>
-            <Text style={{}}>{` commented on your post: `}</Text>
-            <Text style={{}}>{comment + " "}</Text>
+            <Text style={{ fontWeight: "bold", color: Colors.text }}>
+              {commenter.username}
+            </Text>
+            <Text
+              style={{ color: Colors.text }}
+            >{` commented on your post: `}</Text>
+            <Text style={{ color: Colors.text }}>{comment + " "}</Text>
             <Text style={{ fontSize: 12, color: "#7D7D7D" }}>
               {moment(activity.created_at).fromNow(true)}
             </Text>
@@ -94,7 +98,7 @@ const CommentActivity = (props) => {
             }}
           >
             <Image
-              source={{ uri: post.soundcloud_art }}
+              source={{ uri: post.album_cover }}
               style={{
                 width: 45,
                 height: 45,

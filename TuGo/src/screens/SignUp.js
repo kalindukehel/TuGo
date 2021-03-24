@@ -15,7 +15,7 @@ import {
 import { signUp as signUpAPI, signIn as SignInApi } from "../api";
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
-import { Colors } from "../../constants";
+import { Colors, appTheme } from "../../constants";
 
 const styles = StyleSheet.create({
   container: {
@@ -91,6 +91,7 @@ const SignIn = ({ navigation }) => {
           <View style={styles.inner}>
             <Text style={styles.header}>SignUp</Text>
             <TextInput
+              keyboardAppearance={appTheme}
               onChangeText={(name) => setName(name)}
               placeholder="Enter Name"
               autoCapitalize="none"
@@ -101,6 +102,7 @@ const SignIn = ({ navigation }) => {
               style={styles.input}
             />
             <TextInput
+              keyboardAppearance={appTheme}
               onChangeText={(username) => setUsername(username)}
               placeholder="Enter Username"
               autoCapitalize="none"
@@ -111,6 +113,7 @@ const SignIn = ({ navigation }) => {
               style={styles.input}
             />
             <TextInput
+              keyboardAppearance={appTheme}
               onChangeText={(email) => setEmail(email)}
               placeholder="Enter Email"
               autoCapitalize="none"
@@ -121,6 +124,7 @@ const SignIn = ({ navigation }) => {
               style={styles.input}
             />
             <TextInput
+              keyboardAppearance={appTheme}
               onChangeText={(password) => setPassword(password)}
               placeholder="Enter Password"
               keyboardType="default"

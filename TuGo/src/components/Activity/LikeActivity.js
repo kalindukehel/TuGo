@@ -85,7 +85,7 @@ const LikeActivity = (props) => {
             }}
           >
             <Image
-              source={{ uri: post.soundcloud_art }}
+              source={{ uri: post.album_cover }}
               style={{
                 width: 45,
                 height: 45,

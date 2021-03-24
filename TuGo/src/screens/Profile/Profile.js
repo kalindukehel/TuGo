@@ -234,8 +234,8 @@ const Profile = (props) => {
         <View
           style={{
             flex: 1,
-            width: width / 2,
-            height: width / 2,
+            width: width / 3,
+            height: width / 3,
             paddingRight: 2,
             paddingLeft: 2,
             paddingBottom: 4,
@@ -527,7 +527,11 @@ const Profile = (props) => {
         style={{ flexDirection: "column" }}
         contentContainerStyle={styles.list}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.FG}
+          />
         }
         ListHeaderComponent={getHeader}
         ListFooterComponent={getFooter}

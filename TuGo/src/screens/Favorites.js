@@ -65,8 +65,13 @@ const Favorites = ({ navigation }) => {
         renderItem={renderItem}
         keyExtractor={(item, index) => item.id.toString()}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.FG}
+          />
         }
+        contentContainerStyle={{ paddingTop: 10 }}
         ItemSeparatorComponent={ItemSeparatorView}
       />
     </SafeAreaView>

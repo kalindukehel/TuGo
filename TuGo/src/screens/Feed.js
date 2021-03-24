@@ -98,7 +98,11 @@ const Feed = ({ navigation }) => {
         renderItem={renderItem}
         keyExtractor={(item, index) => item.id.toString()}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.FG}
+          />
         }
         onRefresh={refreshing}
         ItemSeparatorComponent={ItemSeparatorView}

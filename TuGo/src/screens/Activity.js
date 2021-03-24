@@ -110,7 +110,11 @@ const Activity = ({ navigation }) => {
         ListHeaderComponent={getHeader}
         keyExtractor={(activity) => activity.id.toString()}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.FG}
+          />
         }
         ItemSeparatorComponent={ItemSeparatorView}
       />

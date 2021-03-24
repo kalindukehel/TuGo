@@ -20,7 +20,7 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const RelatedArtists = (props) => {
   const { navigation } = props;
-  const { artistId, name } = props.route.params;
+  const { artistId } = props.route.params;
   const [similarArtists, setSimilarArtists] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const flatListRef = React.useRef();

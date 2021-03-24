@@ -24,7 +24,7 @@ import {
 import { FlatList } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
 import * as Haptics from "expo-haptics";
-import { Colors } from "../../../constants";
+import { Colors, appTheme } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -164,7 +164,6 @@ const Followers = (props) => {
   async function changeFollow(id, notification_token) {
     const res = await changeFollowAPI(userToken, id);
     let newFollowingStatus;
-    console.log(res.status);
     if (res.status == 201) {
       newFollowingStatus = "true";
       await pushNotificationAPI(notification_token, self.username, "follow");
@@ -182,7 +181,6 @@ const Followers = (props) => {
 
   const renderItem = (item) => {
     let follow = item.item;
-    console.log(follow);
     const isSelf = follow.id == self.id;
     const renderFollowingType = () => {
       if (followingStatus[follow.id] == "true") {
@@ -276,6 +274,7 @@ const Followers = (props) => {
 
   const header = () => (
     <TextInput
+      keyboardAppearance={appTheme}
       style={styles.textInputStyle}
       onChangeText={(text) => searchFilterFunction(text)}
       value={search}
@@ -293,7 +292,11 @@ const Followers = (props) => {
         extraData={followingStatus}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.FG}
+          />
         }
         ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}

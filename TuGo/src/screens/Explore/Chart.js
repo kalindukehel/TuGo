@@ -14,6 +14,8 @@ import {
 import {
   getExplorePosts as getExplorePostsAPI,
   songcharts as songchartsAPI,
+  getChartImage as getChartImageAPI,
+  getChartTracks as getChartTracksAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 
@@ -27,39 +29,27 @@ var { width, height } = Dimensions.get("window");
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const Chart = (props) => {
+  const { navigation } = props;
   const { chart } = props.route.params;
-  const { userToken } = useAuthState();
   const [refreshing, setRefreshing] = useState(false);
   const [chartData, setChartData] = useState(null);
   const flatListRef = React.useRef();
+  const [chartImage, setChartImage] = useState(null);
 
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    async function getChartOne() {
-      const chartoneRes = await songchartsAPI("pp.180234724", userToken);
-      setChartData(chartoneRes.data.data);
+    async function getChartData() {
+      const imageRes = await getChartImageAPI(chart);
+      setChartImage({
+        image: imageRes.data.playlists[0].images[0].url,
+        chartName: imageRes.data.playlists[0].name,
+      });
+      const tracksRes = await getChartTracksAPI(chart);
+      setChartData(tracksRes.data.tracks);
     }
-    async function getChartTwo() {
-      const charttwoRes = await songchartsAPI("pp.214725454", userToken);
-      setChartData(charttwoRes.data.data);
-    }
-    async function getChartThree() {
-      const chartthreeRes = await songchartsAPI("pp.225974698", userToken);
-      setChartData(chartthreeRes.data.data);
-    }
-    async function getChartFour() {
-      const chartfourRes = await songchartsAPI("pp.323137423", userToken);
-      setChartData(chartfourRes.data.data);
-    }
-    chart === "one"
-      ? getChartOne()
-      : chart === "two"
-      ? getChartTwo()
-      : chart === "three"
-      ? getChartThree()
-      : getChartFour();
+    getChartData();
     setRefreshing(false);
   }, []);
 
@@ -78,23 +68,31 @@ const Chart = (props) => {
     extrapolate: "clamp",
   });
 
-  const renderSuggestion = (suggestion) => {
+  const getImage = (albumId) => {
+    return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
+  };
+
+  const renderSuggestion = ({ item }) => {
     return (
       <SearchItem
-        index={suggestion.item.id}
-        coverArt={suggestion.item.albumCover}
+        index={item.id}
+        coverArt={getImage(item.albumId)}
         selected={false}
         selectItem={null}
-        artist={suggestion.item.artist}
-        title={suggestion.item.title}
-        audioLink={suggestion.item.audio_url}
-        color={"#ffffff00"}
+        artist={item.artistName}
+        title={item.name}
+        audioLink={item.previewURL}
+        postable={true}
+        navigation={navigation}
+        genre={item.links.genres.ids}
+        trackId={item.id}
       />
     );
   };
 
   return (
-    chartData && (
+    chartData &&
+    chartImage && (
       <SafeAreaView style={styles.container}>
         <AnimatedFlatList
           ref={flatListRef}
@@ -109,7 +107,7 @@ const Chart = (props) => {
             ],
             { useNativeDriver: true } // <-- Add this
           )}
-          data={chartData.tracks}
+          data={chartData}
           renderItem={renderSuggestion}
           keyExtractor={(item, index) => {
             return item.id;
@@ -121,13 +119,12 @@ const Chart = (props) => {
           <View style={styles.chartImageView}>
             <Image
               style={{ height: 200, width: 200, borderRadius: 40 }}
-              source={{ uri: chartData.playlist_image }}
+              source={{ uri: chartImage.image }}
             />
           </View>
-
           <TouchableWithoutFeedback onPress={toTop}>
             <View style={styles.chartNameView}>
-              <Text style={styles.chartName}>{chartData.name}</Text>
+              <Text style={styles.chartName}>{chartImage.chartName}</Text>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>

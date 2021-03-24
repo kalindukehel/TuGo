@@ -374,11 +374,6 @@ export async function getAudioLink(soundCloudLink) {
 }
 
 export async function getSoundCloudSearch(searchQuery) {
-  console.log(
-    "https://api-v2.soundcloud.com/search?q=" +
-      searchQuery +
-      "&variant_ids=&facet=model&user_id=448421-41791-230292-46720&client_id=3DLVBKZxoYMm5gFm9YjFxJTNFL0VECz7&limit=20&offset=0&linked_partitioning=1&app_version=1607696603&app_locale=en"
-  );
   return axios.get(
     "https://api-v2.soundcloud.com/search?q=" +
       searchQuery +
@@ -407,6 +402,18 @@ export async function songSearch(searchQuery, token) {
 }
 
 //napster api
+export async function getChartImage(playlistId) {
+  return axios.get(
+    `http://api.napster.com/v2.2/playlists/${playlistId}?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
+export async function getChartTracks(playlistId) {
+  return axios.get(
+    `http://api.napster.com/v2.2/playlists/${playlistId}/tracks?limit=100&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
 export async function songcharts(playlist_id, token) {
   let data = {
     playlist_id: playlist_id,
@@ -449,9 +456,15 @@ export async function topArtists() {
   );
 }
 
-export async function artistSongs(id) {
+export async function artistSongsTop(id) {
   return axios.get(
     `http://api.napster.com/v2.2/artists/${id}/tracks/top?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=50`
+  );
+}
+
+export async function artistSongs(id) {
+  return axios.get(
+    `http://api.napster.com/v2.2/artists/${id}/tracks?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=50`
   );
 }
 
@@ -468,7 +481,6 @@ export async function getArtistInfo(id) {
 }
 
 export async function createPost(caption, postDetails, tiles, token) {
-  console.log(postDetails);
   //Convert postDetails into an object to send as a request to api
   let postData = {
     caption: caption,
@@ -480,6 +492,7 @@ export async function createPost(caption, postDetails, tiles, token) {
     song_id: postDetails.trackId,
     artist_id: postDetails.artistId,
     author: 2,
+    video_count: tiles.length,
   };
   //Create post using postdata and store created object as res
   const res = await axios.post(`${API_URL}/api/posts/`, postData, {

@@ -20,22 +20,25 @@ const VoiceCoversTabView = (props) => {
   const [voiceCovers, setVoiceCovers] = useState([]);
   const [selectedVideos, setSelectedVideos] = useState(new Set());
 
-  const { song, selectFinalCover } = props;
+  const { song, selectFinalCover, inCreatePost } = props;
 
   useEffect(() => {
     let isLoaded = true;
 
     const loadVoiceCovers = async () => {
       //Get top 10 cover results from youtube for user's selected song and store in voiceCovers
-      const res = (
-        await getYoutubeSearch(song.title + "  cover")
-      ).data.items.map((item) => {
-        return {
-          videoId: item.id.videoId,
-          title: item.snippet.title,
-          thumbnail: item.snippet.thumbnails.high.url,
-        };
-      });
+      const searchQuery = inCreatePost
+        ? song.title + " " + song.artist + " cover"
+        : song.song_name + " " + song.song_artist + " cover";
+      const res = (await getYoutubeSearch(searchQuery)).data.items.map(
+        (item) => {
+          return {
+            videoId: item.id.videoId,
+            title: item.snippet.title,
+            thumbnail: item.snippet.thumbnails.high.url,
+          };
+        }
+      );
       if (isLoaded) setVoiceCovers(res);
     };
     loadVoiceCovers();
@@ -46,28 +49,39 @@ const VoiceCoversTabView = (props) => {
   }, []);
 
   const selectVideo = (id) => {
-    if (!selectedVideos.has(id)) {
-      //If video is not currently selected, add it to selectedVideos
-      const temp = selectedVideos.add(id);
-      setSelectedVideos(new Set(temp));
-      selectFinalCover(new Set(temp));
-    } else {
-      //If video is current selected, deselect it
-      selectedVideos.delete(id);
-      const temp = new Set(selectedVideos);
-      setSelectedVideos(new Set(selectedVideos));
-      selectFinalCover(temp);
+    if (inCreatePost) {
+      if (!selectedVideos.has(id)) {
+        //If video is not currently selected, add it to selectedVideos
+        const temp = selectedVideos.add(id);
+        setSelectedVideos(new Set(temp));
+        selectFinalCover(new Set(temp));
+      } else {
+        //If video is current selected, deselect it
+        selectedVideos.delete(id);
+        const temp = new Set(selectedVideos);
+        setSelectedVideos(new Set(selectedVideos));
+        selectFinalCover(temp);
+      }
     }
   };
 
   const renderItem = (item) => {
-    return (
+    return inCreatePost ? (
       <VideoSearchItem
+        inCreatePost={inCreatePost}
         title={item.item.title}
         thumbnail={item.item.thumbnail}
         videoId={item.item.videoId}
         selectVideo={selectVideo}
         selected={selectedVideos.has(item.item.videoId)}
+        key={item.item.videoId}
+      />
+    ) : (
+      <VideoSearchItem
+        inCreatePost={inCreatePost}
+        title={item.item.title}
+        thumbnail={item.item.thumbnail}
+        videoId={item.item.videoId}
         key={item.item.videoId}
       />
     );
@@ -88,11 +102,11 @@ const VoiceCoversTabView = (props) => {
   return (
     <View>
       <FlatList
-        style={{ paddingTop: 10 }}
+        contentContainerStyle={{ paddingBottom: 50, paddingTop: 10 }}
         data={voiceCovers}
         renderItem={renderItem}
         keyExtractor={(item, index) => {
-          return item.videoId.toString();
+          return index.toString();
         }}
         ItemSeparatorComponent={ItemSeparatorView}
       />

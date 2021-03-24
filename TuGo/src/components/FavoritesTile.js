@@ -3,20 +3,12 @@ import {
   View,
   Text,
   Dimensions,
-  Image,
-  RefreshControl,
-  ScrollView,
   StyleSheet,
   TouchableOpacity,
   ImageBackground,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
-  getPostLikes as getPostLikesAPI,
-  getPostComments as getPostCommentsAPI,
-  getAccountById as getAccountByIdAPI,
-  getPostTiles as getPostTilesAPI,
-  likePost as likePostAPI,
   setSoundCloudAudio as setSoundCloudAudioAPI,
   getPostFavorite as getPostFavoriteAPI,
   favoritePost as favoritePostAPI,
@@ -36,7 +28,7 @@ import { Audio } from "expo-av";
 //icons
 import { AntDesign } from "@expo/vector-icons";
 
-var { width, height } = Dimensions.get("window");
+var { width } = Dimensions.get("window");
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -48,7 +40,7 @@ const FavoritesTile = (props) => {
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
-  const [refreshing, setRefreshing] = useState(false);
+  const [, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
@@ -164,7 +156,6 @@ const FavoritesTile = (props) => {
   }, [navigation]);
 
   async function favoritePost() {
-    const likeRes = await favoritePostAPI(userToken, postId);
     const favRes = await getPostFavoriteAPI(userToken, postId);
     setIsFavorite(favRes.data.favorited);
   }
@@ -201,25 +192,25 @@ const FavoritesTile = (props) => {
     }
   }
 
-  async function seekSliding() {
-    setIsSeeking(true);
-  }
-
-  async function seekComplete(args) {
-    setSliderValue(args);
-    //Change song player position only if player is playing the song to which the slider corresponds
-    if (postRef.current.id == playingIdRef.current) {
-      const playerStatus = await soundObj.getStatusAsync();
-      await soundObj.setStatusAsync({
-        positionMillis: playerStatus.durationMillis * args,
-      });
-    }
-    setIsSeeking(false);
-  }
-
   return (
     post && (
-      <View style={{ flex: 1 }}>
+      <ImageBackground
+        source={{
+          uri: post.album_cover,
+        }}
+        imageStyle={{
+          opacity: 0.3,
+          backgroundColor: "#ffffff00",
+          borderRadius: 20,
+          borderColor: Colors.FG,
+          borderWidth: 1,
+        }}
+        style={{
+          width: width,
+          marginBottom: 10,
+          paddingBottom: 20,
+        }}
+      >
         <Player
           index={post.id}
           coverArt={post.album_cover}
@@ -238,9 +229,9 @@ const FavoritesTile = (props) => {
             }}
           >
             {isFavorite ? (
-              <AntDesign name="pluscircle" size={25} color="black" />
+              <AntDesign name="pluscircle" size={25} color={Colors.FG} />
             ) : (
-              <AntDesign name="pluscircleo" size={25} color="black" />
+              <AntDesign name="pluscircleo" size={25} color={Colors.FG} />
             )}
           </TouchableOpacity>
           <TouchableOpacity
@@ -259,7 +250,7 @@ const FavoritesTile = (props) => {
             <Text style={styles.viewPostButtonText}>View Post</Text>
           </TouchableOpacity>
         </View>
-      </View>
+      </ImageBackground>
     )
   );
 };
@@ -279,7 +270,6 @@ const styles = StyleSheet.create({
   },
   viewPostButtonText: {
     alignSelf: "center",
-    color: Colors.text,
   },
   imageViewNotPlaying: {
     marginLeft: 8,

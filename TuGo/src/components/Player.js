@@ -167,19 +167,13 @@ const Player = (props) => {
       style={{
         flexDirection: "row",
         alignItems: "center",
-        opacity: 0.75,
+        ...props.styles,
       }}
     >
-      <ImageBackground
-        source={{
-          uri: coverArt,
-        }}
-        imageStyle={{
-          opacity: 0.3,
-        }}
+      <View
         style={{
           width: width,
-          height: 80,
+          height: 100,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
@@ -256,7 +250,7 @@ const Player = (props) => {
             width: "55%",
             alignSelf: "flex-end",
             position: "absolute",
-            height: 35,
+            height: 30,
           }}
           minimumValue={0}
           maximumValue={1}
@@ -290,7 +284,7 @@ const Player = (props) => {
             )}
           </TouchableOpacity>
         )}
-      </ImageBackground>
+      </View>
     </View>
   );
 };

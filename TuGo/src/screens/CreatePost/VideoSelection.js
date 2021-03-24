@@ -18,7 +18,7 @@ var { width, height } = Dimensions.get("window");
 
 const VideoSelection = (props) => {
   const { song } = props.route.params;
-  console.log(song);
+
   const { navigation } = props;
 
   //Use finalChoreos variable to keep track of which videos are selected within child components
@@ -41,6 +41,7 @@ const VideoSelection = (props) => {
     if (index == 0) {
       return (
         <DanceChoreosTabView
+          inCreatePost={true}
           selectFinalChoreo={selectFinalChoreo}
           song={song}
         />
@@ -54,7 +55,11 @@ const VideoSelection = (props) => {
   const SecondRoute = () => {
     if (index == 1) {
       return (
-        <VoiceCoversTabView selectFinalCover={selectFinalCover} song={song} />
+        <VoiceCoversTabView
+          inCreatePost={true}
+          selectFinalCover={selectFinalCover}
+          song={song}
+        />
       );
     } else {
       return null;
@@ -100,7 +105,7 @@ const VideoSelection = (props) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: "blue" }}>CANCEL</Text>
+          <Text style={{ color: Colors.close }}>BACK</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
@@ -113,7 +118,7 @@ const VideoSelection = (props) => {
         >
           <Text
             style={{
-              color: "blue",
+              color: Colors.close,
             }}
           >
             NEXT

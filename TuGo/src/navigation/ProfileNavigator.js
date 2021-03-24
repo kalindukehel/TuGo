@@ -6,6 +6,9 @@ import Followers from "../screens/Profile/Follow";
 import Following from "../screens/Profile/Follow";
 import Favorites from "../screens/Favorites";
 import EditProfile from "../screens/EditProfile";
+import Artist from "../screens/Explore/Artist.js";
+import ArtistInfo from "../screens/Explore/ArtistInfo.js";
+import RelatedArtists from "../screens/Explore/RelatedArtists.js";
 import SettingsNavigator from "./SettingsNavigator";
 import PostNavigator from "./PostNavigator";
 import { useAuthState } from "../context/authContext";
@@ -139,6 +142,60 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
           },
         }}
         component={EditProfile}
+      />
+      <Stack.Screen
+        name="Artist"
+        component={Artist}
+        options={{
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+      />
+      <Stack.Screen
+        name="ArtistInfo"
+        component={ArtistInfo}
+        options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Related Artists"
+        component={RelatedArtists}
+        options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
       />
     </Stack.Navigator>
   );

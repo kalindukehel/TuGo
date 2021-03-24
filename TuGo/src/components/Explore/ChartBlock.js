@@ -3,12 +3,12 @@ import { View, TouchableWithoutFeedback, StyleSheet, Text } from "react-native";
 import { Colors } from "../../../constants";
 
 const ChartBlock = (props) => {
-  const { type, navigation, image, text } = props;
+  const { id, navigation, image, text } = props;
   return (
     <TouchableWithoutFeedback
       onPress={() => {
         navigation.push("Chart", {
-          chart: type,
+          chart: id,
         });
       }}
     >
@@ -26,13 +26,15 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
-    backgroundColor: Colors.FG,
+    backgroundColor: Colors.BG,
+    borderColor: Colors.FG,
+    borderWidth: 1,
   },
   chartName: {
     fontWeight: "bold",
     fontSize: 20,
     textAlign: "center",
-    color: Colors.complimentText,
+    color: Colors.text,
   },
 });
 

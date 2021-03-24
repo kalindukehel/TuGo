@@ -68,7 +68,7 @@ const MainNavigator = () => {
           lightColor: "#FF231F7C",
         });
       }
-
+      console.log(token);
       const res = await postNotificationTokenAPI(token, userToken, self.id);
     }
     registerForPushNotificationsAsync();

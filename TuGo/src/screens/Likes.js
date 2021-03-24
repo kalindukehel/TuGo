@@ -15,7 +15,7 @@ import { useAuthState } from "../context/authContext";
 import { API_URL } from "../../constants";
 import { FlatList } from "react-native-gesture-handler";
 import AccountTile from "../components/AccountTile";
-import { Colors } from "../../constants";
+import { Colors, appTheme } from "../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -92,6 +92,7 @@ const Likes = (props) => {
 
   const header = () => (
     <TextInput
+      keyboardAppearance={appTheme}
       style={styles.textInputStyle}
       onChangeText={(text) => {
         setSearch(text);
@@ -111,7 +112,11 @@ const Likes = (props) => {
         data={filteredData}
         keyExtractor={(item, index) => index.toString()}
         refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.FG}
+          />
         }
         ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}

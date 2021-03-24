@@ -16,7 +16,7 @@ import { signIn as signInAPI, getSelf as getSelfAPI } from "../api";
 
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
-import { Colors } from "../../constants";
+import { Colors, appTheme } from "../../constants";
 
 const styles = StyleSheet.create({
   container: {
@@ -36,7 +36,6 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: "gray",
-    color: Colors.text,
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 15,
@@ -86,6 +85,7 @@ const SignIn = ({ navigation }) => {
           <View style={styles.inner}>
             <Text style={styles.header}>Login</Text>
             <TextInput
+              keyboardAppearance={appTheme}
               onChangeText={(username) => setUsername(username)}
               placeholder="Enter Username"
               autoCapitalize="none"
@@ -96,6 +96,7 @@ const SignIn = ({ navigation }) => {
               style={styles.input}
             />
             <TextInput
+              keyboardAppearance={appTheme}
               onChangeText={(password) => setPassword(password)}
               placeholder="Enter Password"
               keyboardType="default"

@@ -13,12 +13,15 @@ import {
 
 import {
   getExplorePosts as getExplorePostsAPI,
+  artistSongsTop as artistSongsTopAPI,
+  getArtistInfo as getArtistInfoAPI,
   artistSongs as artistSongsAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 
 //Components
 import SearchItem from "../../components/SearchItem";
+import Player from "../../components/Player";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { Colors } from "../../../constants";
 
@@ -33,13 +36,19 @@ const Artist = (props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [artistSongs, setArtistSongs] = useState(null);
   const flatListRef = React.useRef();
+  const [artistName, setArtistName] = useState("");
 
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     async function getSongList() {
-      const res = await artistSongsAPI(artist);
+      const infoRes = await getArtistInfoAPI(artist);
+      setArtistName(infoRes.data.artists[0].name);
+      let res = await artistSongsTopAPI(artist);
+      if (res.data.tracks.length < 10) {
+        res = await artistSongsAPI(artist);
+      }
       setArtistSongs(res.data.tracks);
     }
     getSongList();
@@ -69,16 +78,19 @@ const Artist = (props) => {
     return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
   };
 
-  const renderSuggestion = (suggestion) => {
+  const renderSuggestion = ({ item }) => {
     return (
       <SearchItem
-        index={suggestion.item.id}
-        coverArt={getImage(suggestion.item.albumId)}
-        selected={false}
-        selectItem={null}
-        artist={suggestion.item.artistName}
-        title={suggestion.item.name}
-        audioLink={suggestion.item.previewURL}
+        index={item.id}
+        coverArt={getImage(item.albumId)}
+        artist={item.artistName}
+        title={item.name}
+        audioLink={item.previewURL}
+        artistId={item.artistId}
+        postable={true}
+        navigation={navigation}
+        genre={item.links.genres.ids}
+        trackId={item.id}
       />
     );
   };
@@ -125,7 +137,6 @@ const Artist = (props) => {
                 onPress={() => {
                   navigation.push("Related Artists", {
                     artistId: artist,
-                    name: artistSongs[0].artistName,
                   });
                 }}
               >
@@ -145,7 +156,7 @@ const Artist = (props) => {
           </View>
           <TouchableWithoutFeedback onPress={toTop}>
             <View style={styles.chartNameView}>
-              <Text style={styles.chartName}>{artistSongs[0].artistName}</Text>
+              <Text style={styles.chartName}>{artistName}</Text>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>

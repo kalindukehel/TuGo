@@ -18,7 +18,7 @@ import PostButton from "../../../assets/PostButton.svg";
 import SearchItem from "../../components/SearchItem";
 import { render } from "react-dom";
 import { FlatList } from "react-native-gesture-handler";
-import { Colors } from "../../../constants";
+import { Colors, appTheme } from "../../../constants";
 
 const CreatePost = ({ navigation }) => {
   const [search, setSearch] = useState();
@@ -132,7 +132,7 @@ const CreatePost = ({ navigation }) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: "blue" }}>CANCEL</Text>
+          <Text style={{ color: Colors.close }}>CANCEL</Text>
         </TouchableOpacity>
         <TouchableOpacity
           disabled={
@@ -150,7 +150,7 @@ const CreatePost = ({ navigation }) => {
                 Object.keys(selectedItem).length === 0 ||
                 !selectedItem.audioLink
                   ? "gray"
-                  : "blue",
+                  : Colors.close,
             }}
           >
             NEXT
@@ -159,6 +159,7 @@ const CreatePost = ({ navigation }) => {
       </View>
       <View style={{ margin: 8 }}>
         <TextInput
+          keyboardAppearance={appTheme}
           autoCorrect={false}
           clearButtonMode="always"
           editable={true}
@@ -172,7 +173,7 @@ const CreatePost = ({ navigation }) => {
       </View>
       {loading ? (
         <View style={styles.activityIndicator}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" animating={true} color={Colors.FG} />
         </View>
       ) : (
         <FlatList

@@ -7,6 +7,7 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   ActivityIndicator,
+  TouchableHighlight,
 } from "react-native";
 import { Slider } from "react-native-elements";
 import ImageModal from "react-native-image-modal";
@@ -20,6 +21,7 @@ import { getAudioLink as getAudioLinkAPI } from "../api";
 import TextTicker from "react-native-text-ticker";
 import { Entypo } from "@expo/vector-icons";
 import { Colors } from "../../constants";
+import * as Haptics from "expo-haptics";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -38,6 +40,8 @@ const SearchItem = (props) => {
     genre,
     trackId,
     artistId,
+    postable,
+    navigation,
   } = props;
   let tileColor = color ? color : "#ffffff00";
   const { playingId, stopAll } = usePlayerState();
@@ -170,6 +174,24 @@ const SearchItem = (props) => {
       style={{
         flexDirection: "row",
         alignItems: "center",
+      }}
+      delayLongPress={250}
+      onLongPress={() => {
+        if (postable) {
+          navigation.navigate("Video Selection", {
+            song: {
+              id: index,
+              artist: artist,
+              audioLink: audioLink,
+              title: title,
+              coverArt: coverArt,
+              trackId: trackId,
+              artistId: artistId,
+              genre: genre,
+            },
+          });
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+        }
       }}
       onPress={() => {
         selectItem

@@ -4,7 +4,7 @@ import {
   Text,
   Dimensions,
   Image,
-  Button,
+  ImageBackground,
   StyleSheet,
   TouchableOpacity,
   Alert,
@@ -32,9 +32,6 @@ import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { API_URL } from "../../constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import Like from "../../assets/LikeButton.svg";
-import DMButton from "../../assets/DMButton.svg";
-import CommentsButton from "../../assets/CommentsButton.svg";
 import { FontAwesome } from "@expo/vector-icons";
 
 import moment from "moment";
@@ -54,6 +51,9 @@ import Orientation from "react-native-orientation";
 import TextTicker from "react-native-text-ticker";
 import Player from "./Player";
 import { Colors } from "../../constants";
+import { ActivityIndicator } from "react-native";
+import DanceChoreosTabView from "../components/TabViews/DanceChoreosTabView";
+import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
 
 var { width, height } = Dimensions.get("window");
 
@@ -83,6 +83,7 @@ const PostComponent = (props) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
+  const [tileLoading, setTileLoading] = useState(false);
   const [status, setStatus] = useState({});
 
   const [isSelf, setIsSelf] = useState(false);
@@ -112,8 +113,13 @@ const PostComponent = (props) => {
     setComments(commentsRes.data);
     const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
     setAuthor(authorRes.data);
+
+    //waiting for tiles to load
+    setTileLoading(true);
     const tilesRes = await getPostTilesAPI(userToken, postId);
     setTiles(tilesRes.data);
+    setTileLoading(false);
+
     const favRes = await getPostFavoriteAPI(userToken, postId);
     setIsFavorite(favRes.data.favorited);
     const postsState = await getPostsAPI(userToken, self.id);
@@ -198,13 +204,21 @@ const PostComponent = (props) => {
   };
 
   //tab view for more page
-  const FirstRoute = () => (
-    <View style={[styles.scene, { backgroundColor: Colors.BG }]} />
-  );
+  const FirstRoute = () => {
+    if (index == 0) {
+      return <DanceChoreosTabView inCreatePost={false} song={post} />;
+    } else {
+      return null;
+    }
+  };
 
-  const SecondRoute = () => (
-    <View style={[styles.scene, { backgroundColor: Colors.BG }]} />
-  );
+  const SecondRoute = () => {
+    if (index == 1) {
+      return <VoiceCoversTabView inCreatePost={false} song={post} />;
+    } else {
+      return null;
+    }
+  };
 
   const ThirdRoute = () => (
     <View style={[styles.scene, { backgroundColor: Colors.BG }]} />
@@ -484,31 +498,68 @@ const PostComponent = (props) => {
             </TouchableOpacity>
           </RBSheet>
         </View>
-        <Player
-          index={post.id}
-          coverArt={post.album_cover}
-          artist={post.song_artist}
-          title={post.song_name}
-          audioLink={post.audio_url}
-          artistId={post.artist_id}
-          navigation={navigation}
-        />
-        <View>
-          <FlatList
-            data={tiles}
-            renderItem={renderTile}
-            keyExtractor={(item, index) => item.id.toString()}
-            horizontal={true}
-          />
-        </View>
-        <View
+        <ImageBackground
+          source={{
+            uri: post.album_cover,
+          }}
+          imageStyle={{
+            opacity: 0.3,
+            backgroundColor: "#ffffff00",
+            borderRadius: 20,
+            borderColor: Colors.FG,
+            borderWidth: 1,
+          }}
           style={{
-            margin: 10,
-            flexDirection: "row",
-            justifyContent: "space-between",
+            width: width,
+            marginBottom: 10,
+            paddingBottom: 20,
           }}
         >
-          <View style={{ flexDirection: "row" }}>
+          <Player
+            index={post.id}
+            coverArt={post.album_cover}
+            artist={post.song_artist}
+            title={post.song_name}
+            audioLink={post.audio_url}
+            artistId={post.artist_id}
+            navigation={navigation}
+          />
+          <View>
+            {tileLoading && post.video_count > 0 ? (
+              <View
+                style={{
+                  justifyContent: "center",
+                  alignItems: "center",
+                  height: 200,
+                  marginVertical: 10,
+                }}
+              >
+                <ActivityIndicator
+                  animating={true}
+                  size="large"
+                  color={Colors.FG}
+                />
+              </View>
+            ) : (
+              <FlatList
+                showsHorizontalScrollIndicator={false}
+                data={tiles}
+                renderItem={renderTile}
+                keyExtractor={(item, index) => item.id.toString()}
+                horizontal={true}
+              />
+            )}
+          </View>
+          {/* post action buttons */}
+          <View
+            style={{
+              flexDirection: "row",
+              justifyContent: "space-around",
+              alignItems: "center",
+              width: 250,
+              marginTop: 10,
+            }}
+          >
             <TouchableOpacity
               style={{}}
               onPress={() => {
@@ -516,7 +567,7 @@ const PostComponent = (props) => {
                 likePost();
               }}
             >
-              <View style={{ flexDirection: "row", alignItems: "center" }}>
+              <View style={{ flexDirection: "row" }}>
                 <FontAwesome5
                   name="fire"
                   size={30}
@@ -524,54 +575,76 @@ const PostComponent = (props) => {
                 />
               </View>
             </TouchableOpacity>
+
+            <TouchableOpacity
+              style={{}}
+              onPress={() => {
+                navigation.push("Comments", {
+                  postId: post.id,
+                });
+              }}
+            >
+              <View
+                style={{
+                  flexDirection: "row",
+                  alignItems: "center",
+                }}
+              >
+                <FontAwesome5 name="comment" size={30} color={Colors.FG} />
+                <Text style={{ color: Colors.text, marginLeft: 10 }}>
+                  {comments ? `${comments.length}` : `loading`}
+                </Text>
+              </View>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              style={styles.moreButton}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                moreRef.current.open();
+              }}
+            >
+              <Text style={styles.moreButtonText}>More</Text>
+            </TouchableOpacity>
+
+            <TouchableOpacity
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                if (maxlimit == 95) setMaxlimit(10000);
+                if (maxlimit == 10000) setMaxlimit(95);
+              }}
+            >
+              <FontAwesome name="send" size={30} color={Colors.FG} />
+            </TouchableOpacity>
+            <RBSheet
+              height={0.8 * height}
+              ref={moreRef}
+              closeOnDragDown={true}
+              closeOnPressMask={false}
+              customStyles={{
+                wrapper: {
+                  backgroundColor: "transparent",
+                },
+                draggableIcon: {
+                  backgroundColor: Colors.FG,
+                },
+                container: {
+                  backgroundColor: Colors.BG,
+                },
+              }}
+            >
+              <TabView
+                navigationState={{ index, routes }}
+                renderScene={renderScene}
+                onIndexChange={setIndex}
+                initialLayout={initialLayout}
+                renderTabBar={renderTabBar}
+                swipeEnabled={true}
+              />
+            </RBSheet>
           </View>
+        </ImageBackground>
 
-          <TouchableOpacity
-            style={styles.moreButton}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              moreRef.current.open();
-            }}
-          >
-            <Text style={styles.moreButtonText}>More</Text>
-          </TouchableOpacity>
-          <RBSheet
-            height={0.8 * height}
-            ref={moreRef}
-            closeOnDragDown={true}
-            closeOnPressMask={false}
-            customStyles={{
-              wrapper: {
-                backgroundColor: "transparent",
-              },
-              draggableIcon: {
-                backgroundColor: Colors.FG,
-              },
-              container: {
-                backgroundColor: Colors.BG,
-              },
-            }}
-          >
-            <TabView
-              navigationState={{ index, routes }}
-              renderScene={renderScene}
-              onIndexChange={setIndex}
-              initialLayout={initialLayout}
-              renderTabBar={renderTabBar}
-            />
-          </RBSheet>
-
-          <TouchableOpacity
-            style={{}}
-            onPress={() => {
-              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-              if (maxlimit == 95) setMaxlimit(10000);
-              if (maxlimit == 10000) setMaxlimit(95);
-            }}
-          >
-            <FontAwesome name="send" size={30} color={Colors.FG} />
-          </TouchableOpacity>
-        </View>
         <View
           style={{
             flexDirection: "row",
@@ -610,42 +683,26 @@ const PostComponent = (props) => {
           </TouchableOpacity>
         </View>
 
-        <View
-          style={{
-            flexDirection: "row",
-            marginHorizontal: 20,
-            marginVertical: 10,
-          }}
-        >
-          <Text style={{ flexWrap: "wrap", color: Colors.text }}>
-            <Text style={{ fontWeight: "bold" }}>{author.username + `: `}</Text>
-            <Text style={{}}>
-              {post.caption.length > maxlimit
-                ? post.caption.substring(0, maxlimit - 3) + "..."
-                : post.caption}
-            </Text>
-          </Text>
-        </View>
-        <TouchableOpacity
-          style={{ marginLeft: 10, marginTop: 5 }}
-          onPress={() => {
-            navigation.push("Comments", {
-              postId: post.id,
-            });
-          }}
-        >
+        {post.caption.length > 0 && (
           <View
             style={{
               flexDirection: "row",
-              alignItems: "center",
+              marginHorizontal: 20,
+              marginVertical: 10,
             }}
           >
-            <FontAwesome5 name="comment" size={30} color={Colors.FG} />
-            <Text style={{ color: Colors.text, marginLeft: 10 }}>
-              {comments ? `${comments.length}` : `loading`}
+            <Text style={{ flexWrap: "wrap", color: Colors.text }}>
+              <Text style={{ fontWeight: "bold" }}>
+                {author.username + `: `}
+              </Text>
+              <Text style={{}}>
+                {post.caption.length > maxlimit
+                  ? post.caption.substring(0, maxlimit - 3) + "..."
+                  : post.caption}
+              </Text>
             </Text>
           </View>
-        </TouchableOpacity>
+        )}
       </View>
     )
   );

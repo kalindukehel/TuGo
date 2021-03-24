@@ -24,7 +24,7 @@ import { useAuthState } from "../context/authContext";
 import { API_URL } from "../../constants";
 import { FlatList } from "react-native-gesture-handler";
 import Send from "../../assets/sendButton.svg";
-import { Colors } from "../../constants";
+import { Colors, appTheme } from "../../constants";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
 var { width, height } = Dimensions.get("window");
@@ -155,11 +155,16 @@ const Comments = (props) => {
     post && (
       <View style={styles.container}>
         <FlatList
+          keyboardDismissMode="on-drag"
           contentContainerStyle={{ flexGrow: 1 }}
           data={masterData}
           keyExtractor={(item, index) => index.toString()}
           refreshControl={
-            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            <RefreshControl
+              refreshing={refreshing}
+              onRefresh={onRefresh}
+              tintColor={Colors.FG}
+            />
           }
           renderItem={renderItem}
           ListHeaderComponent={header}
@@ -171,6 +176,7 @@ const Comments = (props) => {
         >
           <View style={styles.commentBarBackground}>
             <TextInput
+              keyboardAppearance={appTheme}
               clearButtonMode="always"
               editable={canSendComment}
               style={{ ...styles.commentBar }}

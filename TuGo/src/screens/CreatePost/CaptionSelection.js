@@ -15,7 +15,7 @@ import SearchItem from "../../components/SearchItem";
 import VideoTile from "../../components/VideoTile";
 import { createPost as createPostAPI } from "../../api";
 import { useAuthState } from "../../context/authContext";
-import { Colors } from "../../../constants";
+import { Colors, appTheme } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -52,7 +52,7 @@ const CaptionSelection = (props) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: "blue" }}>CANCEL</Text>
+          <Text style={{ color: Colors.close }}>BACK</Text>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
@@ -62,7 +62,7 @@ const CaptionSelection = (props) => {
         >
           <Text
             style={{
-              color: "blue",
+              color: Colors.close,
             }}
           >
             POST
@@ -89,8 +89,10 @@ const CaptionSelection = (props) => {
         />
       )}
       <TextInput
+        keyboardAppearance={appTheme}
         style={{ ...styles.commentBar }}
         placeholder={"Add caption..."}
+        placeholderTextColor={Colors.text}
         multiline={true}
         onChangeText={(value) => {
           setCaption(value);
@@ -127,8 +129,8 @@ const styles = StyleSheet.create({
     margin: 10,
     textAlignVertical: "top",
     marginRight: 10,
-    backgroundColor: "#E8E8E8",
-    borderColor: "gray",
+    borderColor: Colors.FG,
+    borderWidth: 1,
     marginTop: 20,
   },
 });

@@ -123,26 +123,29 @@ const SongsTabView = (props) => {
     return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
   };
 
-  const renderSuggestion = (item) => {
-    const suggestion = item.item;
+  const renderSuggestion = ({ item }) => {
     return (
       <>
-        {suggestion.type === "track" && (
+        {item.type === "track" && (
           <SearchItem
-            index={suggestion.id}
-            coverArt={getImage(suggestion.albumId)}
+            index={item.id}
+            coverArt={getImage(item.albumId)}
             selected={false}
             selectItem={null}
-            artist={suggestion.artistName}
-            title={suggestion.name}
-            audioLink={suggestion.previewURL}
+            artist={item.artistName}
+            title={item.name}
+            audioLink={item.previewURL}
+            postable={true}
+            navigation={navigation}
+            genre={item.links.genres.ids}
+            trackId={item.id}
           />
         )}
-        {suggestion.type === "artist" && (
+        {item.type === "artist" && (
           <TouchableWithoutFeedback
             onPress={() => {
               navigation.push("Artist", {
-                artist: suggestion.id,
+                artist: item.id,
               });
             }}
           >
@@ -167,7 +170,7 @@ const SongsTabView = (props) => {
                   alignItems: "center",
                 }}
                 source={{
-                  uri: getArtistImage(suggestion.id),
+                  uri: getArtistImage(item.id),
                 }}
               ></ImageBackground>
               <TextTicker
@@ -183,9 +186,9 @@ const SongsTabView = (props) => {
                 marqueeDelay={1000}
                 shouldAnimateTreshold={40}
               >
-                {suggestion.name.length > 32
-                  ? suggestion.name.substring(0, 32 - 3) + "..."
-                  : suggestion.name}
+                {item.name.length > 32
+                  ? item.name.substring(0, 32 - 3) + "..."
+                  : item.name}
               </TextTicker>
             </View>
           </TouchableWithoutFeedback>
@@ -198,7 +201,7 @@ const SongsTabView = (props) => {
     <View style={[{ flex: 1, backgroundColor: Colors.BG }]}>
       {loading ? (
         <View style={styles.activityIndicator}>
-          <ActivityIndicator size="large" />
+          <ActivityIndicator size="large" animating={true} color={Colors.FG} />
         </View>
       ) : (
         <FlatList

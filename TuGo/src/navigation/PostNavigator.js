@@ -7,6 +7,8 @@ import { useAuthState } from "../context/authContext";
 import Profile from "../screens/Profile/Profile";
 import Tile from "../screens/Tile";
 import Artist from "../screens/Explore/Artist.js";
+import ArtistInfo from "../screens/Explore/ArtistInfo.js";
+import RelatedArtists from "../screens/Explore/RelatedArtists.js";
 import { Colors } from "../../constants";
 
 const Stack = createStackNavigator();
@@ -76,6 +78,44 @@ const PostNavigator = ({ id }) => {
         name="Artist"
         component={Artist}
         options={{
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+      />
+      <Stack.Screen
+        name="ArtistInfo"
+        component={ArtistInfo}
+        options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Related Artists"
+        component={RelatedArtists}
+        options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerShown: true,
           headerBackTitleVisible: false,
           headerTintColor: "black",
