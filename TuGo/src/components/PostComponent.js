@@ -10,6 +10,8 @@ import {
   Alert,
   FlatList,
   Share,
+  ScrollView,
+  ActivityIndicator,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -26,6 +28,8 @@ import {
   pushNotification as pushNotificationAPI,
   getPosts as getPostsAPI,
   deletePost as deletePostAPI,
+  getSongLyrics as getSongLyricsAPI,
+  songLyrics as songLyricsAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
@@ -43,7 +47,12 @@ import { Audio, Video, AVPlaybackStatus } from "expo-av";
 import { Slider } from "react-native-elements";
 
 //icons
-import { Octicons, FontAwesome5, AntDesign } from "@expo/vector-icons";
+import {
+  Octicons,
+  FontAwesome5,
+  AntDesign,
+  Fontisto,
+} from "@expo/vector-icons";
 
 import { WebView } from "react-native-webview";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
@@ -51,9 +60,9 @@ import Orientation from "react-native-orientation";
 import TextTicker from "react-native-text-ticker";
 import Player from "./Player";
 import { Colors } from "../../constants";
-import { ActivityIndicator } from "react-native";
 import DanceChoreosTabView from "../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 var { width, height } = Dimensions.get("window");
 
@@ -66,7 +75,7 @@ const optionHeight = 60;
 const PostComponent = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, authorId, navigation } = props;
+  const { postId, authorId, navigation, isSeeking, setIsSeeking } = props;
   const { userToken, self } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -80,10 +89,10 @@ const PostComponent = (props) => {
   const [author, setAuthor] = useState(null);
   const [maxlimit, setMaxlimit] = useState(95);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
   const [tileLoading, setTileLoading] = useState(false);
+  const [lyrics, setLyrics] = useState("");
   const [status, setStatus] = useState({});
 
   const [isSelf, setIsSelf] = useState(false);
@@ -220,9 +229,14 @@ const PostComponent = (props) => {
     }
   };
 
-  const ThirdRoute = () => (
-    <View style={[styles.scene, { backgroundColor: Colors.BG }]} />
-  );
+  const ThirdRoute = () =>
+    refreshing ? (
+      <ScrollView>
+        <Text style={{ color: Colors.text }}>{lyrics}</Text>
+      </ScrollView>
+    ) : (
+      <ActivityIndicator animating={true} size="large" color={Colors.FG} />
+    );
 
   const initialLayout = { width: Dimensions.get("window").width };
 
@@ -313,9 +327,8 @@ const PostComponent = (props) => {
     const res = await deletePostAPI(postId, userToken);
   };
 
-  const renderTile = (tile) => {
-    const curTile = tile.item;
-    let vidLink = curTile.link.substr(curTile.link.length - 11);
+  const renderTile = ({ item, index }) => {
+    let vidLink = item.link.substr(item.link.length - 11);
     return (
       <View
         style={{
@@ -324,10 +337,10 @@ const PostComponent = (props) => {
         }}
       >
         <Video
-          ref={refRBSheet.current[tile.index]}
+          ref={refRBSheet.current[item.id]}
           style={styles.video}
           source={{
-            uri: curTile.video_id,
+            uri: item.video_id,
           }} // Can be a URL or a local file.
           useNativeControls
           resizeMode="contain"
@@ -523,6 +536,8 @@ const PostComponent = (props) => {
             audioLink={post.audio_url}
             artistId={post.artist_id}
             navigation={navigation}
+            isSeeking={isSeeking}
+            setIsSeeking={setIsSeeking}
           />
           <View>
             {tileLoading && post.video_count > 0 ? (
@@ -554,94 +569,122 @@ const PostComponent = (props) => {
           <View
             style={{
               flexDirection: "row",
-              justifyContent: "space-around",
+              justifyContent: "space-between",
               alignItems: "center",
-              width: 250,
-              marginTop: 10,
+              marginHorizontal: 10,
             }}
           >
-            <TouchableOpacity
-              style={{}}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                likePost();
+            <View
+              style={{
+                flexDirection: "row",
+                justifyContent: "space-around",
+                alignItems: "center",
+                width: 250,
+                marginTop: 10,
               }}
             >
-              <View style={{ flexDirection: "row" }}>
-                <FontAwesome5
-                  name="fire"
-                  size={30}
-                  color={isLiked() ? "red" : Colors.FG}
-                />
-              </View>
-            </TouchableOpacity>
+              <TouchableOpacity
+                style={{}}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  likePost();
+                }}
+              >
+                <View style={{ flexDirection: "row" }}>
+                  <FontAwesome5
+                    name="fire"
+                    size={25}
+                    color={isLiked() ? "red" : Colors.FG}
+                  />
+                </View>
+              </TouchableOpacity>
 
-            <TouchableOpacity
-              style={{}}
+              <TouchableOpacity
+                style={{}}
+                onPress={() => {
+                  navigation.push("Comments", {
+                    postId: post.id,
+                  });
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
+                >
+                  <FontAwesome5 name="comment" size={25} color={Colors.FG} />
+                  <Text style={{ color: Colors.text, marginLeft: 10 }}>
+                    {comments ? `${comments.length}` : `loading`}
+                  </Text>
+                </View>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                style={styles.moreButton}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  moreRef.current.open();
+                }}
+              >
+                <Text style={styles.moreButtonText}>More</Text>
+              </TouchableOpacity>
+
+              <TouchableOpacity
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  if (maxlimit == 95) setMaxlimit(10000);
+                  if (maxlimit == 10000) setMaxlimit(95);
+                }}
+              >
+                <FontAwesome name="send" size={25} color={Colors.FG} />
+              </TouchableOpacity>
+              <RBSheet
+                height={0.8 * height}
+                ref={moreRef}
+                closeOnDragDown={true}
+                closeOnPressMask={false}
+                customStyles={{
+                  wrapper: {
+                    backgroundColor: "transparent",
+                  },
+                  draggableIcon: {
+                    backgroundColor: Colors.FG,
+                  },
+                  container: {
+                    backgroundColor: Colors.BG,
+                  },
+                }}
+              >
+                <TabView
+                  navigationState={{ index, routes }}
+                  renderScene={renderScene}
+                  onIndexChange={setIndex}
+                  initialLayout={initialLayout}
+                  renderTabBar={renderTabBar}
+                  swipeEnabled={true}
+                />
+              </RBSheet>
+            </View>
+            {}
+            <TouchableWithoutFeedback
               onPress={() => {
-                navigation.push("Comments", {
-                  postId: post.id,
+                navigation.navigate("Video Selection", {
+                  song: {
+                    id: post.song_id,
+                    artist: post.song_artist,
+                    audioLink: post.audio_url,
+                    title: post.song_name,
+                    coverArt: post.album_cover,
+                    trackId: post.song_id,
+                    artistId: post.artist_id,
+                    genre: post.song_tags,
+                  },
                 });
               }}
             >
-              <View
-                style={{
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <FontAwesome5 name="comment" size={30} color={Colors.FG} />
-                <Text style={{ color: Colors.text, marginLeft: 10 }}>
-                  {comments ? `${comments.length}` : `loading`}
-                </Text>
-              </View>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              style={styles.moreButton}
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                moreRef.current.open();
-              }}
-            >
-              <Text style={styles.moreButtonText}>More</Text>
-            </TouchableOpacity>
-
-            <TouchableOpacity
-              onPress={() => {
-                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                if (maxlimit == 95) setMaxlimit(10000);
-                if (maxlimit == 10000) setMaxlimit(95);
-              }}
-            >
-              <FontAwesome name="send" size={30} color={Colors.FG} />
-            </TouchableOpacity>
-            <RBSheet
-              height={0.8 * height}
-              ref={moreRef}
-              closeOnDragDown={true}
-              closeOnPressMask={false}
-              customStyles={{
-                wrapper: {
-                  backgroundColor: "transparent",
-                },
-                draggableIcon: {
-                  backgroundColor: Colors.FG,
-                },
-                container: {
-                  backgroundColor: Colors.BG,
-                },
-              }}
-            >
-              <TabView
-                navigationState={{ index, routes }}
-                renderScene={renderScene}
-                onIndexChange={setIndex}
-                initialLayout={initialLayout}
-                renderTabBar={renderTabBar}
-                swipeEnabled={true}
-              />
-            </RBSheet>
+              <Fontisto name="arrow-return-right" size={25} color={Colors.FG} />
+            </TouchableWithoutFeedback>
           </View>
         </ImageBackground>
 

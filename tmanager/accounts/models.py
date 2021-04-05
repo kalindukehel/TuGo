@@ -115,6 +115,15 @@ class Like(models.Model):
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='likes')
     created_at = models.DateTimeField(auto_now_add=True)
 
+class Tag(models.Model):
+    author = models.ForeignKey('Account',on_delete=models.CASCADE, related_name='tagger')
+    post = models.ForeignKey('Post',on_delete=models.CASCADE,related_name='tags')
+    value = models.CharField(max_length=200)
+    created_at = models.DateTimeField(auto_now_add=True)
+    tagged = models.ForeignKey('Account',on_delete=models.CASCADE, related_name='tagged')
+
+    REQUIRED_FIELDS = ['author','value', 'tagged']
+
 class Favorite(models.Model):
     author = models.ForeignKey('Account',on_delete=models.CASCADE, related_name='favorites')
     post = models.ForeignKey('Post', on_delete=models.CASCADE, related_name='+')
@@ -134,6 +143,7 @@ class Activity_Item(models.Model):
     comment = models.ForeignKey(Comment,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
     like = models.ForeignKey(Like,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
     follower = models.ForeignKey(Follower,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
+    tag = models.ForeignKey(Tag,on_delete=models.CASCADE,null=True,blank=True,related_name='+')
     created_at = models.DateTimeField(auto_now_add=True)
 
     REQUIRED_FIELDS = ['user','activity_type','action_user']

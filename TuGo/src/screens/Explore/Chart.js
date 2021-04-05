@@ -35,6 +35,7 @@ const Chart = (props) => {
   const [chartData, setChartData] = useState(null);
   const flatListRef = React.useRef();
   const [chartImage, setChartImage] = useState(null);
+  const [isSeeking, setIsSeeking] = useState(false);
 
   const animatedValue = useRef(new Animated.Value(0)).current;
 
@@ -86,6 +87,7 @@ const Chart = (props) => {
         navigation={navigation}
         genre={item.links.genres.ids}
         trackId={item.id}
+        artistId={item.artistId}
       />
     );
   };
@@ -95,6 +97,7 @@ const Chart = (props) => {
     chartImage && (
       <SafeAreaView style={styles.container}>
         <AnimatedFlatList
+          scrollEnabled={!isSeeking}
           ref={flatListRef}
           style={{ flexGrow: 1 }}
           contentContainerStyle={{ marginTop: 270, paddingBottom: 270 }}

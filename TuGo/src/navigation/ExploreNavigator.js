@@ -9,6 +9,7 @@ import Chart from "../screens/Explore/Chart.js";
 import Artist from "../screens/Explore/Artist.js";
 import RelatedArtists from "../screens/Explore/RelatedArtists.js";
 import ExplorePostsAll from "../screens/Explore/ExplorePostsAll.js";
+import ArtistsAll from "../screens/Explore/ArtistsAll.js";
 import ArtistInfo from "../screens/Explore/ArtistInfo.js";
 import VideoSelection from "../screens/CreatePost/VideoSelection";
 import CaptionSelection from "../screens/CreatePost/CaptionSelection";
@@ -63,9 +64,6 @@ const explorerNavigator = () => {
         name="Chart"
         component={Chart}
         options={{
-          gestureResponseDistance: {
-            horizontal: 300,
-          },
           headerShown: true,
           headerBackTitleVisible: false,
           headerTintColor: "black",
@@ -133,6 +131,7 @@ const explorerNavigator = () => {
         }}
       />
       <Stack.Screen
+        name="Video Selection"
         options={{
           headerShown: false,
           headerBackTitleVisible: false,
@@ -143,10 +142,10 @@ const explorerNavigator = () => {
           },
           gestureEnabled: false,
         }}
-        name="Video Selection"
         component={VideoSelection}
       />
       <Stack.Screen
+        name="Caption Selection"
         options={{
           headerShown: false,
           headerBackTitleVisible: false,
@@ -157,10 +156,10 @@ const explorerNavigator = () => {
           },
           gestureEnabled: false,
         }}
-        name="Caption Selection"
         component={CaptionSelection}
       />
       <Stack.Screen
+        name="Explore Posts"
         options={{
           gestureResponseDistance: {
             horizontal: 300,
@@ -176,8 +175,26 @@ const explorerNavigator = () => {
             },
           },
         }}
-        name="Explore Posts"
         component={ExplorePostsAll}
+      />
+      <Stack.Screen
+        name="All Artists"
+        options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+        component={ArtistsAll}
       />
     </Stack.Navigator>
   );

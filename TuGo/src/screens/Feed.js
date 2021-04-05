@@ -30,6 +30,7 @@ const Feed = ({ navigation }) => {
   const notificationDispatch = useNotificationDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [feed, setFeed] = useState(null);
+  const [isSeeking, setIsSeeking] = useState(false);
   //push notifications expo
   const notificationListener = useRef();
   const responseListener = useRef();
@@ -75,7 +76,14 @@ const Feed = ({ navigation }) => {
 
   const renderItem = (component) => {
     const postId = component.item.post;
-    return <PostComponent postId={postId} navigation={navigation} />;
+    return (
+      <PostComponent
+        postId={postId}
+        navigation={navigation}
+        isSeeking={isSeeking}
+        setIsSeeking={setIsSeeking}
+      />
+    );
   };
 
   const ItemSeparatorView = () => {
@@ -93,9 +101,17 @@ const Feed = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+        scrollEnabled={!isSeeking}
         ref={ref}
         data={feed}
-        renderItem={renderItem}
+        renderItem={({ item }) => (
+          <PostComponent
+            postId={item.post}
+            navigation={navigation}
+            isSeeking={isSeeking}
+            setIsSeeking={setIsSeeking}
+          />
+        )}
         keyExtractor={(item, index) => item.id.toString()}
         refreshControl={
           <RefreshControl

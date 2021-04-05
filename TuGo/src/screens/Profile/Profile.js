@@ -19,7 +19,6 @@ import {
   getUserInfo as getUserInfoAPI,
   getPosts as getPostsAPI,
   getAccountById as getAccountByIdAPI,
-  getPostTiles as getPostTilesAPI,
   getFollowing as getFollowingAPI,
   changeFollow as changeFollowAPI,
   getRequested as getRequestedAPI,

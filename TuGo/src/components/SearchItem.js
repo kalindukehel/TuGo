@@ -58,13 +58,6 @@ const SearchItem = (props) => {
   const playingIdRef = useRef();
 
   const loadSound = async () => {
-    // const sound_url = (
-    //   await getAudioLinkAPI(props.audioLink)
-    //     .then((result) => result)
-    //     .catch((e) => {
-    //       console.log(e);
-    //     })
-    // ).data.url;
     const sound_url = audioLink;
     try {
       if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
@@ -286,10 +279,16 @@ const SearchItem = (props) => {
           maximumTrackTintColor={selected ? Colors.BG : Colors.FG}
           onSlidingStart={seekSliding}
           onSlidingComplete={seekComplete}
-          thumbStyle={{ width: 15, height: 15 }}
-          thumbTintColor="#C4C4C4"
+          thumbStyle={{
+            width: 10,
+            height: 10,
+            borderColor: Colors.FG,
+            borderWidth: 1,
+          }}
+          thumbTintColor={Colors.BG}
           value={sliderValue}
           disabled={refreshing ? true : false}
+          trackStyle={{ height: 3 }}
         />
         {loadingPlayer ? (
           <View style={{ marginLeft: "auto", marginRight: 10 }}>

@@ -1,14 +1,43 @@
-import React from "react";
+import React, { useState } from "react";
 import {
-  ImageBackground,
+  Image,
   TouchableWithoutFeedback,
   StyleSheet,
   Text,
   View,
+  Dimensions,
+  Animated,
 } from "react-native";
 import { Colors } from "../../../constants";
+
+var { width } = Dimensions.get("window");
+let maxlimit = 15;
+
 const ArtistBlock = (props) => {
-  const { artist, navigation, image, id, similarArtist, index } = props;
+  const { artist, navigation, image, id, topFive, index, columns } = props;
+
+  const size = width / columns;
+
+  const [sizeValue, setSizeValue] = useState(new Animated.Value(size));
+
+  const name = topFive ? `${index} ${artist}` : `${artist}`;
+
+  const imageAnimationIn = () => {
+    Animated.timing(sizeValue, {
+      toValue: width / (columns + 0.2),
+      duration: 20,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const imageAnimationOut = () => {
+    Animated.timing(sizeValue, {
+      toValue: size,
+      duration: 20,
+      useNativeDriver: false,
+    }).start();
+  };
+
   return (
     <TouchableWithoutFeedback
       onPress={() => {
@@ -17,24 +46,40 @@ const ArtistBlock = (props) => {
           image: image,
         });
       }}
+      onPressIn={imageAnimationIn}
+      onPressOut={imageAnimationOut}
     >
-      <View>
-        <ImageBackground
-          imageStyle={{
-            ...styles.chartImage,
-            width: similarArtist ? 180 : 150,
-            height: similarArtist ? 180 : 150,
-          }}
+      <View
+        style={{
+          width: width / (columns - 0.5),
+          height: width / (columns - 0.5),
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <View
           style={{
-            width: similarArtist ? 180 : 150,
-            height: similarArtist ? 180 : 150,
+            width: size,
+            height: size,
+            justifyContent: "center",
+            alignItems: "center",
           }}
-          source={{
-            uri: image,
-          }}
-        ></ImageBackground>
+        >
+          <Animated.Image
+            style={{
+              ...styles.chartImage,
+              width: sizeValue,
+              height: sizeValue,
+            }}
+            source={{
+              uri: image,
+            }}
+          />
+        </View>
         <Text style={styles.chartName}>
-          {similarArtist ? `${artist}` : `${index} ${artist}`}
+          {name.length > maxlimit
+            ? name.substring(0, maxlimit - 3) + "..."
+            : name}
         </Text>
       </View>
     </TouchableWithoutFeedback>

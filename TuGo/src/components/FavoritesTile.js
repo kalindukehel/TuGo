@@ -35,7 +35,7 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 //SongTile component for Favorites Screen
 const FavoritesTile = (props) => {
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, navigation } = props;
+  const { postId, navigation, isSeeking, setIsSeeking } = props;
   const { userToken } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -43,7 +43,6 @@ const FavoritesTile = (props) => {
   const [, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [isFavorite, setIsFavorite] = useState(false);
 
@@ -51,8 +50,6 @@ const FavoritesTile = (props) => {
   const isLoaded = useRef(false);
   const postRef = useRef();
   const playingIdRef = useRef();
-
-  stateRef.current = isSeeking;
 
   const onRefresh = async () => {
     try {
@@ -219,6 +216,8 @@ const FavoritesTile = (props) => {
           audioLink={post.audio_url}
           artistId={post.artist_id}
           navigation={navigation}
+          isSeeking={isSeeking}
+          setIsSeeking={setIsSeeking}
         />
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <TouchableOpacity

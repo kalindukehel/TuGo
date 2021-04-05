@@ -12,11 +12,20 @@ const Post = (props) => {
     : props.route.params; //Post ID sent from PostNavigator
   const { userToken, self } = useAuthState();
   const [refreshing, setRefreshing] = useState(false);
+  const [isSeeking, setIsSeeking] = useState(false);
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.BG }}>
-      <ScrollView contentContainerStyle={styles.scrollView}>
-        <PostComponent postId={postId} navigation={navigation} />
+      <ScrollView
+        contentContainerStyle={styles.scrollView}
+        scrollEnabled={!isSeeking}
+      >
+        <PostComponent
+          postId={postId}
+          navigation={navigation}
+          isSeeking={isSeeking}
+          setIsSeeking={setIsSeeking}
+        />
       </ScrollView>
     </View>
   );

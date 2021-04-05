@@ -19,6 +19,7 @@ const Favorites = ({ navigation }) => {
   const { userToken } = useAuthState();
   const [refreshing, setRefreshing] = useState(false);
   const [songs, setSongs] = useState(null);
+  const [isSeeking, setIsSeeking] = useState(false);
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -43,7 +44,14 @@ const Favorites = ({ navigation }) => {
 
   const renderItem = (component) => {
     const postId = component.item.post;
-    return <FavoritesTile postId={postId} navigation={navigation} />;
+    return (
+      <FavoritesTile
+        postId={postId}
+        navigation={navigation}
+        isSeeking={isSeeking}
+        setIsSeeking={setIsSeeking}
+      />
+    );
   };
 
   const ItemSeparatorView = () => {
@@ -61,6 +69,7 @@ const Favorites = ({ navigation }) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
+        scrollEnabled={!isSeeking}
         data={songs}
         renderItem={renderItem}
         keyExtractor={(item, index) => item.id.toString()}

@@ -31,7 +31,7 @@ const optionHeight = 60;
 export default SongBlock = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, navigation } = props;
+  const { postId, navigation, columns } = props;
   const { userToken } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -199,8 +199,8 @@ export default SongBlock = (props) => {
               paddingLeft: 2,
             }}
             style={{
-              width: width / 2,
-              height: width / 2,
+              width: width / columns,
+              height: width / columns,
               justifyContent: "flex-end",
             }}
           >

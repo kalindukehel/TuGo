@@ -35,6 +35,8 @@ const Player = (props) => {
     color,
     artistId,
     navigation,
+    isSeeking,
+    setIsSeeking,
   } = props;
   let tileColor = color ? color : "#ffffff00";
   const { playingId, stopAll } = usePlayerState();
@@ -42,7 +44,7 @@ const Player = (props) => {
 
   const [refreshing, setRefreshing] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
-  const [isSeeking, setIsSeeking] = useState(false);
+  // const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
 
@@ -258,10 +260,16 @@ const Player = (props) => {
           maximumTrackTintColor={"black"}
           onSlidingStart={seekSliding}
           onSlidingComplete={seekComplete}
-          thumbStyle={{ width: 15, height: 15 }}
-          thumbTintColor={"white"}
+          thumbStyle={{
+            width: 10,
+            height: 10,
+            borderColor: Colors.FG,
+            borderWidth: 1,
+          }}
+          thumbTintColor={Colors.BG}
           value={sliderValue}
           disabled={refreshing ? true : false}
+          trackStyle={{ height: 3 }}
         />
         {loadingPlayer ? (
           <View style={{ marginLeft: "auto", marginRight: 10 }}>

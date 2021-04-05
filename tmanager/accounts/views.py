@@ -1,7 +1,7 @@
 from django.shortcuts import render
-from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song
+from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer, TagSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
@@ -16,7 +16,7 @@ import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
 import pafy
-from datetime import datetime, date
+from datetime import datetime, date, timezone
 import requests
 import json
 
@@ -341,16 +341,16 @@ class PostViewSet(viewsets.ModelViewSet):
             for i in tiles:
                 if(i.is_youtube):
                     if(i.video_created is None):
-                        i.video_created = datetime.now()
-                        i.video_created = datetime.now()
+                        i.video_created = datetime.now(timezone.utc)
                         video = pafy.new(i.link)
                         best = video.getbest()
                         playurl = best.url
                         i.video_id = playurl
                     else:
-                        difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(i.video_created, i.video_created.time())           
-                        if(difference.seconds > five_hours):
-                            i.video_created = datetime.now()
+                        # difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(i.video_created, i.video_created.time()) 
+                        difference = datetime.now(timezone.utc) - i.video_created
+                        if(difference.total_seconds() > five_hours):
+                            i.video_created = datetime.now(timezone.utc)
                             video = pafy.new(i.link)
                             best = video.getbest()
                             playurl = best.url
@@ -375,6 +375,26 @@ class PostViewSet(viewsets.ModelViewSet):
                 return Response({"favorited":True})
             else:
                 return Response({"favorited":False})
+
+    @action(detail=True, methods=['GET','POST'], serializer_class=TagSerializer )
+    def tags(self, request, *args, **kwargs): 
+        if(request.method=='POST'):
+            tagged_id = request.data.get('tagged_id')
+            value = request.data.get('value')
+            #account being tagged
+            tagged_account = Account.objects.filter(id=tagged_id)[0]
+            tag = Tag(author=request.user,post=self.get_object(),value=value,tagged=tagged_account)
+            tag.save()
+            #If user is not commenting on own post, push activity item to the user receiving the comment
+            if(request.user != tagged_account):
+                activity_item = Activity_Item(user=tagged_account,activity_type='TAG',action_user=request.user,tag=tag, post=self.get_object())
+                activity_item.save()
+            return Response(status=status.HTTP_201_CREATED)
+        else:
+            all_tags = self.get_object().tags.all()
+            serializer = TagSerializer(all_tags,many=True)
+            return Response(serializer.data)
+        return Response(status=status.HTTP_200_OK)
 
 @api_view(['POST'])
 @permission_classes([permissions.AllowAny])

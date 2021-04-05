@@ -3,8 +3,12 @@ import { API_URL } from "../constants";
 import { useAuthState } from "./context/authContext";
 import * as Notifications from "expo-notifications";
 
-export async function getAccounts() {
-  return axios.get(`${API_URL}/api/accounts`);
+export async function getAccounts(token) {
+  return axios.get(`${API_URL}/api/accounts/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
 }
 
 export async function getAccountById(id, token) {
@@ -140,6 +144,14 @@ export async function getPostComments(token, id) {
   });
 }
 
+export async function getPostTags(token, id) {
+  return axios.get(`${API_URL}/api/posts/${id}/tags/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function getPostTiles(token, id) {
   return axios.get(`${API_URL}/api/posts/${id}/tiles/`, {
     headers: {
@@ -158,6 +170,15 @@ export async function likePost(token, id) {
 
 export async function addComment(token, id, data) {
   return axios.post(`${API_URL}/api/posts/${id}/comments/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function addTag(token, id, data) {
+  return axios.post(`${API_URL}/api/posts/${id}/tags/`, data, {
     headers: {
       Authorization: "Token " + token,
       "Content-Type": "application/json",
@@ -324,6 +345,14 @@ export async function pushNotification(expoPushToken, creator, type) {
       body: `${creator} commented on your post`,
       data: { type: "comment" },
     };
+  } else if (type == "tag") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "New Tag",
+      body: `${creator} tagged you in a post`,
+      data: { type: "tag" },
+    };
   }
   await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
@@ -450,9 +479,15 @@ export async function fullTextSearch(searchQuery) {
   );
 }
 
+export async function topFiveArtists() {
+  return axios.get(
+    `http://api.napster.com/v2.2/artists/top?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=5&range=day`
+  );
+}
+
 export async function topArtists() {
   return axios.get(
-    `http://api.napster.com/v2.2/artists/top?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=5`
+    `http://api.napster.com/v2.2/artists/top?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=50`
   );
 }
 
@@ -530,8 +565,15 @@ export async function createPost(caption, postDetails, tiles, token) {
   }
 }
 
-//Song lyrics api
-// export async function getSongLyrics(lyricsQuery) {
-//   console.log(lyricsQuery);
-//   return axios.get(`https://api.lyrics.ovh/v1/${lyricsQuery}`);
+// Song lyrics api
+export async function getSongLyrics(token, id) {
+  await axios.get(`${API_URL}/api/posts/${id}/lyrics/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+// export async function songLyrics(artist, title) {
+//   return axios.get(`https://api.lyrics.ovh/v1/${artist}/${title}/`)
 // }

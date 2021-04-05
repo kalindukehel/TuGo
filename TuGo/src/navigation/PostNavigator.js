@@ -9,6 +9,7 @@ import Tile from "../screens/Tile";
 import Artist from "../screens/Explore/Artist.js";
 import ArtistInfo from "../screens/Explore/ArtistInfo.js";
 import RelatedArtists from "../screens/Explore/RelatedArtists.js";
+import VideoSelection from "../screens/CreatePost/VideoSelection";
 import { Colors } from "../../constants";
 
 const Stack = createStackNavigator();
@@ -127,6 +128,20 @@ const PostNavigator = ({ id }) => {
             },
           },
         }}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.text,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+          gestureEnabled: false,
+        }}
+        name="Video Selection"
+        component={VideoSelection}
       />
     </Stack.Navigator>
   );

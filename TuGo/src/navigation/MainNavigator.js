@@ -91,6 +91,8 @@ const MainNavigator = () => {
           navigation.navigate("Follow Requests");
         } else if (type == "comment") {
           navigation.navigate("Activity");
+        } else if (type == "tag") {
+          navigation.navigate("Activity");
         }
       }
     );

@@ -71,6 +71,7 @@ const RelatedArtists = (props) => {
         image={getArtistImage(item.item.artistId)}
         id={item.item.artistId}
         similarArtist={true}
+        columns={3}
       />
     );
   };

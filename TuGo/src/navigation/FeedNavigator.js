@@ -1,5 +1,4 @@
 import React from "react";
-import { View, Text, Button } from "react-native";
 import { createStackNavigator } from "@react-navigation/stack";
 import Feed from "../screens/Feed";
 import Likes from "../screens/Likes";
@@ -9,6 +8,7 @@ import ArtistInfo from "../screens/Explore/ArtistInfo.js";
 import RelatedArtists from "../screens/Explore/RelatedArtists.js";
 import ProfileNavigator from "./ProfileNavigator";
 import FollowRequests from "../screens/FollowRequests";
+import VideoSelection from "../screens/CreatePost/VideoSelection";
 import { useAuthState } from "../context/authContext";
 import { Colors } from "../../constants";
 
@@ -149,6 +149,20 @@ const FeedNavigator = () => {
             },
           },
         }}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.text,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+          gestureEnabled: false,
+        }}
+        name="Video Selection"
+        component={VideoSelection}
       />
     </Stack.Navigator>
   );

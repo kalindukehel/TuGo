@@ -29,7 +29,7 @@ const ExplorePostsAll = (props) => {
   const renderItem = ({ item }) => {
     return (
       <View style={{}}>
-        <SongBlock postId={item.post} navigation={navigation} />
+        <SongBlock postId={item.post} navigation={navigation} columns={3} />
       </View>
     );
   };
@@ -42,7 +42,7 @@ const ExplorePostsAll = (props) => {
         renderItem={renderItem}
         keyExtractor={(item, index) => item.id.toString()}
         onRefresh={loading}
-        numColumns={2}
+        numColumns={3}
       />
     </SafeAreaView>
   );

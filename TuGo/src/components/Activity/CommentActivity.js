@@ -13,6 +13,7 @@ import {
   getAccountById as getAccountByIdAPI,
   getPostComments as getPostCommentsAPI,
 } from "../../api";
+import { replaceMentionValues } from "react-native-controlled-mentions";
 
 import moment from "moment";
 import { Colors } from "../../../constants";
@@ -80,7 +81,9 @@ const CommentActivity = (props) => {
             <Text
               style={{ color: Colors.text }}
             >{` commented on your post: `}</Text>
-            <Text style={{ color: Colors.text }}>{comment + " "}</Text>
+            <Text style={{ color: Colors.text }}>
+              {replaceMentionValues(comment, ({ name }) => `@${name}`) + " "}
+            </Text>
             <Text style={{ fontSize: 12, color: "#7D7D7D" }}>
               {moment(activity.created_at).fromNow(true)}
             </Text>

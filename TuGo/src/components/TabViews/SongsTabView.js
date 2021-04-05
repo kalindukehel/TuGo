@@ -139,6 +139,7 @@ const SongsTabView = (props) => {
             navigation={navigation}
             genre={item.links.genres.ids}
             trackId={item.id}
+            artistId={item.artistId}
           />
         )}
         {item.type === "artist" && (
