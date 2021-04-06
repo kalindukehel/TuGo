@@ -338,7 +338,10 @@ const PostComponent = (props) => {
       >
         <Video
           ref={refRBSheet.current[item.id]}
-          style={styles.video}
+          style={{
+            ...styles.video,
+            borderColor: item.is_youtube ? "red" : Colors.FG,
+          }}
           source={{
             uri: item.video_id,
           }} // Can be a URL or a local file.
@@ -794,8 +797,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
     width: 300,
     height: 200,
-    borderColor: Colors.FG,
     borderWidth: 1,
+    borderRadius: 20,
   },
   scene: {
     flex: 1,

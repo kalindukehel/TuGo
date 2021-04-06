@@ -1,9 +1,19 @@
-import { Image, View, TouchableOpacity } from "react-native";
 import React, { useRef } from "react";
+import {
+  Image,
+  View,
+  TouchableOpacity,
+  Dimensions,
+  SafeAreaView,
+  TouchableWithoutFeedback,
+} from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
 import WebView from "react-native-webview";
 import YoutubePlayer from "react-native-yt-player";
 import { Colors } from "../../constants";
+import { AntDesign } from "@expo/vector-icons";
+
+var { width, height } = Dimensions.get("window");
 
 //Video Tile to display YouTube video linked to a post, or in CreatePost
 const VideoTile = (props) => {
@@ -17,55 +27,75 @@ const VideoTile = (props) => {
         onPress={() => {
           refRBSheet.current.open();
         }}
-        style={{ marginHorizontal: 10 }}
       >
         <Image
           source={{
             uri: thumbnail,
           }}
           style={{
-            width: 100,
-            height: 170,
+            width: 300,
+            height: 200,
             borderRadius: 20,
-            borderColor: Colors.FG,
+            borderColor: "red",
             borderWidth: 1,
           }}
         />
       </TouchableOpacity>
       <RBSheet
-        height={400}
+        height={height * 0.8}
         ref={(ref) => {
           //set RBSheet array index equal to this object
           refRBSheet.current = ref;
         }}
-        closeOnDragDown={true}
-        closeOnPressMask={false}
+        closeOnDragDown={false}
+        closeOnPressMask={true}
         customStyles={{
           wrapper: {
             backgroundColor: "transparent",
           },
           draggableIcon: {
-            backgroundColor: "#000",
+            backgroundColor: Colors.FG,
+          },
+          container: {
+            backgroundColor: Colors.BG,
+            borderRadius: 10,
+            borderWidth: 1,
+            borderColor: Colors.FG,
           },
         }}
       >
-        <View style={{ flex: 1, maxHeight: "100%" }}>
-          {/* <WebView
-            style={{ flex: 1, borderColor: Colors.text }}
+        <SafeAreaView style={{ flex: 1 }}>
+          <View
+            style={{
+              height: 40,
+              backgroundColor: Colors.BG,
+              flexDirection: "row",
+              justifyContent: "flex-end",
+              alignItems: "center",
+              marginHorizontal: 10,
+            }}
+          >
+            <TouchableWithoutFeedback
+              onPress={() => refRBSheet.current.close()}
+            >
+              <AntDesign name="closecircle" size={24} color={Colors.FG} />
+            </TouchableWithoutFeedback>
+          </View>
+          <WebView
+            style={{ borderColor: Colors.text }}
             javaScriptEnabled={true}
-            scrollEnabled={false}
             allowsInlineMediaPlayback={true}
             source={{
               uri: url,
             }}
-          /> */}
-          <YoutubePlayer
+          />
+          {/* <YoutubePlayer
             loop
             videoId={videoId}
             onStart={() => console.log("onStart")}
             onEnd={() => alert("on End")}
-          />
-        </View>
+          /> */}
+        </SafeAreaView>
       </RBSheet>
     </View>
   );

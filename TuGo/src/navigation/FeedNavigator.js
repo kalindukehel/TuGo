@@ -9,6 +9,7 @@ import RelatedArtists from "../screens/Explore/RelatedArtists.js";
 import ProfileNavigator from "./ProfileNavigator";
 import FollowRequests from "../screens/FollowRequests";
 import VideoSelection from "../screens/CreatePost/VideoSelection";
+import CaptionSelection from "../screens/CreatePost/CaptionSelection";
 import { useAuthState } from "../context/authContext";
 import { Colors } from "../../constants";
 
@@ -163,6 +164,20 @@ const FeedNavigator = () => {
         }}
         name="Video Selection"
         component={VideoSelection}
+      />
+      <Stack.Screen
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.text,
+          headerTitleStyle: {
+            fontWeight: "bold",
+            fontSize: 20,
+          },
+          gestureEnabled: false,
+        }}
+        name="Caption Selection"
+        component={CaptionSelection}
       />
     </Stack.Navigator>
   );

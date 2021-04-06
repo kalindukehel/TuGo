@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import {
   StyleSheet,
   Text,
@@ -19,21 +19,41 @@ import {
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import { Colors, appTheme } from "../../../constants";
+import { Video } from "expo-av";
 
 var { width, height } = Dimensions.get("window");
 
 const CaptionSelection = (props) => {
-  const { song, danceChoreos, voiceCovers } = props.route.params;
-  const choreosAndCovers = [...danceChoreos, ...voiceCovers];
+  const { song, danceChoreos, voiceCovers, customVideos } = props.route.params;
+  const choreosAndCovers = [...danceChoreos, ...voiceCovers, ...customVideos];
   const { navigation } = props;
   const { userToken } = useAuthState();
   const [caption, setCaption] = useState("");
+  const [status, setStatus] = useState({});
 
-  console.log(song);
+  const videosRef = useRef([]);
 
-  const renderTile = (tile) => {
-    const videoId = tile.item;
-    return <VideoTile videoId={videoId} />;
+  const renderTile = ({ item }) => {
+    if (item.isCustom) {
+      return (
+        <View style={{ marginHorizontal: 10 }}>
+          <Video
+            ref={videosRef.current[item.uri]}
+            style={styles.video}
+            source={{ uri: item.uri }} // Can be a URL or a local file.
+            useNativeControls
+            resizeMode="contain"
+            onPlaybackStatusUpdate={(status) => setStatus(() => status)}
+          ></Video>
+        </View>
+      );
+    } else {
+      return (
+        <View style={{ marginHorizontal: 10 }}>
+          <VideoTile videoId={item} />
+        </View>
+      );
+    }
   };
 
   // useEffect(() => {
@@ -93,7 +113,7 @@ const CaptionSelection = (props) => {
           renderItem={renderTile}
           keyExtractor={(item, index) => index.toString()}
           style={{
-            maxHeight: 170,
+            maxHeight: 200,
             marginTop: 15,
           }}
           horizontal={true}
@@ -143,6 +163,14 @@ const styles = StyleSheet.create({
     borderColor: Colors.FG,
     borderWidth: 1,
     marginTop: 20,
+  },
+  video: {
+    alignSelf: "center",
+    width: 300,
+    height: 200,
+    borderColor: Colors.FG,
+    borderWidth: 1,
+    borderRadius: 20,
   },
 });
 

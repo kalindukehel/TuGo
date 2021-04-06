@@ -12,13 +12,15 @@ import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { FlatList } from "react-native-gesture-handler";
 import DanceChoreosTabView from "../../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../../components/TabViews/VoiceCoversTabView";
+import CustomVideoTabView from "../../components/TabViews/CustomVideoTabView";
 import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
 const VideoSelection = (props) => {
   const { song } = props.route.params;
-  console.log(song);
+  const [customVideos, setCustomVideos] = useState([]);
+
   const { navigation } = props;
 
   //Use finalChoreos variable to keep track of which videos are selected within child components
@@ -40,6 +42,20 @@ const VideoSelection = (props) => {
   const FirstRoute = () => {
     if (index == 0) {
       return (
+        <CustomVideoTabView
+          setCustomVideos={setCustomVideos}
+          customVideos={customVideos}
+        />
+      );
+    } else {
+      return null;
+    }
+  };
+
+  //Tab view for Voice Covers
+  const SecondRoute = () => {
+    if (index == 1) {
+      return (
         <DanceChoreosTabView
           inCreatePost={true}
           selectFinalChoreo={selectFinalChoreo}
@@ -52,8 +68,8 @@ const VideoSelection = (props) => {
   };
 
   //Tab view for Voice Covers
-  const SecondRoute = () => {
-    if (index == 1) {
+  const ThirdRoute = () => {
+    if (index == 2) {
       return (
         <VoiceCoversTabView
           inCreatePost={true}
@@ -70,13 +86,15 @@ const VideoSelection = (props) => {
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: "first", title: "Dance Choreos" },
-    { key: "second", title: "Voice Covers" },
+    { key: "first", title: "Custom Videos" },
+    { key: "second", title: "Dance Choreos" },
+    { key: "third", title: "Voice Covers" },
   ]);
 
   const renderScene = SceneMap({
     first: FirstRoute,
     second: SecondRoute,
+    third: ThirdRoute,
   });
 
   const renderTabBar = (props) => (
@@ -113,6 +131,7 @@ const VideoSelection = (props) => {
               song: song,
               danceChoreos: finalChoreos.current,
               voiceCovers: finalCovers.current,
+              customVideos: customVideos,
             });
           }}
         >
