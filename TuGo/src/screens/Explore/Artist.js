@@ -9,6 +9,7 @@ import {
   Animated,
   Dimensions,
   TouchableWithoutFeedback,
+  TextInput,
 } from "react-native";
 
 import {
@@ -23,7 +24,7 @@ import { useAuthState } from "../../context/authContext";
 import SearchItem from "../../components/SearchItem";
 import Player from "../../components/Player";
 import { TouchableHighlight } from "react-native-gesture-handler";
-import { Colors } from "../../../constants";
+import { Colors, appTheme } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -36,7 +37,16 @@ const Artist = (props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [artistSongs, setArtistSongs] = useState(null);
   const flatListRef = React.useRef();
+  const searchBarRef = React.useRef();
   const [artistName, setArtistName] = useState("");
+
+  //filter search
+  const [filteredData, setFilteredData] = useState([]);
+  const [masterData, setMasterData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [searchBarWidth, setSearchBarWidth] = useState(
+    new Animated.Value(width * 0.5)
+  );
 
   const animatedValue = useRef(new Animated.Value(0)).current;
 
@@ -50,6 +60,8 @@ const Artist = (props) => {
         res = await artistSongsAPI(artist);
       }
       setArtistSongs(res.data.tracks);
+      setFilteredData(res.data.tracks);
+      setMasterData(res.data.tracks);
     }
     getSongList();
     setRefreshing(false);
@@ -64,11 +76,34 @@ const Artist = (props) => {
     flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
   };
 
+  const scrollToTextInput = () => {
+    flatListRef.current.scrollToOffset({
+      animated: true,
+      offset: searchBarRef.current,
+    });
+  };
+
   let translateY = animatedValue.interpolate({
     inputRange: [0, 220],
     outputRange: [0, -220],
     extrapolate: "clamp",
   });
+
+  const searchAnimationInactive = () => {
+    Animated.timing(searchBarWidth, {
+      toValue: width * 0.5,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const searchAnimationActive = () => {
+    Animated.timing(searchBarWidth, {
+      toValue: width * 0.8,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
 
   const getImage = (albumId) => {
     return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
@@ -95,10 +130,39 @@ const Artist = (props) => {
     );
   };
 
+  const searchFilterFunction = (text) => {
+    // Check if searched text is not blank
+    if (text) {
+      // Inserted text is not blank
+      // Filter the masterDataSource and update FilteredDataSource
+      const newData = masterData.filter(function (item) {
+        // Applying filter for the inserted text in search bar
+        const usernameData = item.name
+          ? item.name.toUpperCase()
+          : "".toUpperCase();
+        const nameData = item.artistName
+          ? item.artistName.toUpperCase()
+          : "".toUpperCase();
+        const textData = text.toUpperCase();
+        return (
+          usernameData.indexOf(textData) > -1 || nameData.indexOf(textData) > -1
+        );
+      });
+      setFilteredData(newData);
+      setSearch(text);
+    } else {
+      // Inserted text is blank
+      // Update FilteredDataSource with masterData
+      setFilteredData(masterData);
+      setSearch(text);
+    }
+  };
+
   return (
-    artistSongs && (
+    filteredData && (
       <SafeAreaView style={styles.container}>
         <AnimatedFlatList
+          keyboardDismissMode="interactive"
           ref={flatListRef}
           style={{ flexGrow: 1 }}
           contentContainerStyle={{ marginTop: 270, paddingBottom: 270 }}
@@ -111,7 +175,7 @@ const Artist = (props) => {
             ],
             { useNativeDriver: true } // <-- Add this
           )}
-          data={artistSongs}
+          data={filteredData}
           renderItem={renderSuggestion}
           keyExtractor={(item, index) => {
             return item.id;
@@ -122,7 +186,11 @@ const Artist = (props) => {
         >
           <View style={styles.chartImageView}>
             <Image
-              style={{ height: 150, width: 150, borderRadius: 40 }}
+              style={{
+                height: 140,
+                width: 140,
+                borderRadius: 40,
+              }}
               source={{ uri: getArtistImage(artist) }}
             />
             <View
@@ -154,6 +222,40 @@ const Artist = (props) => {
               </TouchableWithoutFeedback>
             </View>
           </View>
+          <Animated.View
+            onLayout={(event) => {
+              const layout = event.nativeEvent.layout;
+              searchBarRef.current = layout.y;
+            }}
+            style={{
+              ...styles.textInputStyle,
+              width: searchBarWidth,
+              justifyContent: "center",
+              alignSelf: "center",
+            }}
+          >
+            <TextInput
+              keyboardAppearance={appTheme}
+              onChangeText={(text) => {
+                scrollToTextInput();
+                searchFilterFunction(text);
+              }}
+              style={{
+                flex: 1,
+                paddingLeft: 20,
+                paddingRight: 5,
+              }}
+              defaultValue={search}
+              placeholder="Search Top Songs..."
+              placeholderTextColor={"black"}
+              clearButtonMode="always"
+              onFocus={() => {
+                scrollToTextInput();
+                searchAnimationActive();
+              }}
+              onBlur={searchAnimationInactive}
+            />
+          </Animated.View>
           <TouchableWithoutFeedback onPress={toTop}>
             <View style={styles.chartNameView}>
               <Text style={styles.chartName}>{artistName}</Text>
@@ -200,7 +302,7 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#E8E8E8",
     padding: 10,
-    marginTop: 70,
+    marginTop: 30,
   },
   button: {
     borderColor: "black",
@@ -209,6 +311,15 @@ const styles = StyleSheet.create({
     width: 120,
     borderRadius: 5,
     paddingVertical: 5,
+  },
+  textInputStyle: {
+    height: 30,
+    borderRadius: 20,
+    borderColor: "black",
+    borderWidth: 1,
+    marginHorizontal: 20,
+    marginTop: 20,
+    width: "50%",
   },
 });
 

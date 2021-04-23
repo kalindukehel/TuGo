@@ -443,6 +443,12 @@ export async function getChartTracks(playlistId) {
   );
 }
 
+export async function getTrackDetails(trackId) {
+  return axios.get(
+    `http://api.napster.com/v2.2/tracks/${trackId}?limit=100&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
 export async function songcharts(playlist_id, token) {
   let data = {
     playlist_id: playlist_id,
@@ -523,7 +529,11 @@ export async function createPost(caption, postDetails, tiles, token) {
     audio_url: postDetails.audioLink,
     song_name: postDetails.title,
     song_artist: postDetails.artist,
-    song_tags: postDetails.genre.join(", "),
+    song_tags:
+      typeof postDetails.genre === "string" ||
+      postDetails.genre instanceof String
+        ? postDetails.genre
+        : postDetails.genre.join(", "),
     song_id: postDetails.trackId,
     artist_id: postDetails.artistId,
     author: 2,
@@ -539,22 +549,31 @@ export async function createPost(caption, postDetails, tiles, token) {
 
   //For every string (YouTube ID) sent in as tiles, create a tile under created object
   for (let i = 0; i < tiles.length; i++) {
-    const tileUrl = "https://www.youtube.com/watch?v=" + tiles[i];
-    const tileThumbnail =
-      "https://i.ytimg.com/vi/" + tiles[i] + "/mqdefault.jpg";
+    let tileData = {};
+    if (tiles[i].is_youtube) {
+      const videoId = tiles[i].video_id;
+      const tileUrl = "https://www.youtube.com/watch?v=" + videoId;
+      const tileThumbnail =
+        "https://i.ytimg.com/vi/" + videoId + "/mqdefault.jpg";
+      //Parse tileData from tile index
+      tileData = {
+        tile_type: "posted_choreo",
+        is_youtube: tiles[i].is_youtube,
+        youtube_link: tileUrl,
+        image: tileThumbnail,
+        view_count: 0,
+        youtube_video_url: videoId,
+      };
+    } else {
+      tileData = {
+        tile_type: "posted_choreo",
+        is_youtube: false,
+        custom_video_url: tiles[i].uri,
+        view_count: 0,
+      };
+    }
 
-    const videoId = tiles[i];
-    //Parse tileData from tile index
-    const tileData = {
-      tile_type: "posted_choreo",
-      is_youtube: true,
-      link: tileUrl,
-      image: tileThumbnail,
-      view_count: 0,
-      post: 0,
-      video_id: videoId,
-    };
-
+    console.log(tileData);
     //Create tile object under created post
     await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, tileData, {
       headers: {

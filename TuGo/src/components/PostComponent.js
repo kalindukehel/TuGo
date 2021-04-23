@@ -63,6 +63,7 @@ import { Colors } from "../../constants";
 import DanceChoreosTabView from "../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import Carousel, { Pagination } from "react-native-snap-carousel";
 
 var { width, height } = Dimensions.get("window");
 
@@ -94,6 +95,7 @@ const PostComponent = (props) => {
   const [tileLoading, setTileLoading] = useState(false);
   const [lyrics, setLyrics] = useState("");
   const [status, setStatus] = useState({});
+  const [activeSlide, setActiveSlide] = useState(0);
 
   const [isSelf, setIsSelf] = useState(false);
 
@@ -106,6 +108,7 @@ const PostComponent = (props) => {
   const isLoaded = useRef(false);
   const postRef = useRef();
   const playingIdRef = useRef();
+  const tilesRef = useRef();
 
   const firstRun = useRef(true);
 
@@ -328,7 +331,6 @@ const PostComponent = (props) => {
   };
 
   const renderTile = ({ item, index }) => {
-    let vidLink = item.link.substr(item.link.length - 11);
     return (
       <View
         style={{
@@ -343,7 +345,9 @@ const PostComponent = (props) => {
             borderColor: item.is_youtube ? "red" : Colors.FG,
           }}
           source={{
-            uri: item.video_id,
+            uri: item.is_youtube
+              ? item.youtube_video_url
+              : item.custom_video_url,
           }} // Can be a URL or a local file.
           useNativeControls
           resizeMode="contain"
@@ -541,6 +545,7 @@ const PostComponent = (props) => {
             navigation={navigation}
             isSeeking={isSeeking}
             setIsSeeking={setIsSeeking}
+            trackId={post.song_id}
           />
           <View>
             {tileLoading && post.video_count > 0 ? (
@@ -548,7 +553,7 @@ const PostComponent = (props) => {
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
-                  height: 200,
+                  height: 270,
                   marginVertical: 10,
                 }}
               >
@@ -559,13 +564,40 @@ const PostComponent = (props) => {
                 />
               </View>
             ) : (
-              <FlatList
-                showsHorizontalScrollIndicator={false}
-                data={tiles}
-                renderItem={renderTile}
-                keyExtractor={(item, index) => item.id.toString()}
-                horizontal={true}
-              />
+              tiles && (
+                <View>
+                  <Carousel
+                    ref={tilesRef}
+                    data={tiles}
+                    renderItem={renderTile}
+                    sliderWidth={width}
+                    itemWidth={width}
+                    onSnapToItem={(index) => setActiveSlide(index)}
+                  />
+
+                  <Pagination
+                    carouselRef={tilesRef}
+                    dotsLength={tiles.length}
+                    activeDotIndex={activeSlide}
+                    containerStyle={{ height: 70 }}
+                    tappableDots={true}
+                    dotStyle={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: 5,
+                      marginHorizontal: 8,
+                      backgroundColor: Colors.FG,
+                    }}
+                    inactiveDotStyle={
+                      {
+                        // Define styles for inactive dots here
+                      }
+                    }
+                    inactiveDotOpacity={0.4}
+                    inactiveDotScale={0.6}
+                  />
+                </View>
+              )
             )}
           </View>
           {/* post action buttons */}
@@ -669,7 +701,6 @@ const PostComponent = (props) => {
                 />
               </RBSheet>
             </View>
-            {}
             <TouchableWithoutFeedback
               onPress={() => {
                 navigation.navigate("Video Selection", {
@@ -795,7 +826,7 @@ const styles = StyleSheet.create({
   },
   video: {
     alignSelf: "center",
-    width: 300,
+    width: width * 0.9,
     height: 200,
     borderWidth: 1,
     borderRadius: 20,

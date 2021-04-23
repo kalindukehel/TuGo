@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   Dimensions,
   SafeAreaView,
+  TouchableWithoutFeedback,
 } from "react-native";
 
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
@@ -14,7 +15,6 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import YoutubePlayer from "react-native-yt-player";
 import { Colors } from "../../constants";
 import { AntDesign } from "@expo/vector-icons";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 var { width, height } = Dimensions.get("window");
 

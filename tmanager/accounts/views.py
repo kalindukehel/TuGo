@@ -278,6 +278,12 @@ class PostViewSet(viewsets.ModelViewSet):
     permission_classes = [
         permissions.IsAuthenticated
     ]
+
+    # def create(self, request, *args, **kwargs):
+    #     value = request.data.get('value')
+    #     x = PostSerializer(data)
+    #     if(x.is_valid()):
+    #         x.save()
         
     @action(detail=True, methods=['GET','POST'], serializer_class=LikeSerializer)
     def likes(self, request, *args, **kwargs):
@@ -323,38 +329,43 @@ class PostViewSet(viewsets.ModelViewSet):
             if(tile_type not in ['posted_cover', 'posted_choreo', 'suggested_cover', 'suggested_choreo']):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             is_youtube = request.data.get('is_youtube')
-            link = request.data.get('link')
+            youtube_link = request.data.get('youtube_link')
             image = request.data.get('image')
             
             #get video url
-            video_id = None
+            youtube_video_url = None
+            custom_video_url = None
             if(is_youtube):
-                video = pafy.new(link)
+                video = pafy.new(youtube_link)
                 best = video.getbest()
                 playurl = best.url  
-                video_id = playurl
-            tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,link=link,image=image,video_id=video_id)
+                youtube_video_url = playurl
+            else:
+                custom_video_url = request.data.get('custom_video_url')
+                print(custom_video_url)
+            tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,youtube_link=youtube_link,image=image,youtube_video_url=youtube_video_url, custom_video_url=custom_video_url)
+            print(tile)
             tile.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             tiles = self.get_object().tiles.all()
             for i in tiles:
                 if(i.is_youtube):
-                    if(i.video_created is None):
-                        i.video_created = datetime.now(timezone.utc)
-                        video = pafy.new(i.link)
+                    if(i.youtube_video_created is None):
+                        i.youtube_video_created = datetime.now(timezone.utc)
+                        video = pafy.new(i.youtube_link)
                         best = video.getbest()
                         playurl = best.url
-                        i.video_id = playurl
+                        i.youtube_video_url = playurl
                     else:
                         # difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(i.video_created, i.video_created.time()) 
-                        difference = datetime.now(timezone.utc) - i.video_created
+                        difference = datetime.now(timezone.utc) - i.youtube_video_created
                         if(difference.total_seconds() > five_hours):
-                            i.video_created = datetime.now(timezone.utc)
-                            video = pafy.new(i.link)
+                            i.youtube_video_created = datetime.now(timezone.utc)
+                            video = pafy.new(i.youtube_link)
                             best = video.getbest()
                             playurl = best.url
-                            i.video_id = playurl
+                            i.youtube_video_url = playurl
                 i.save()
             serializer = TileSerializer(tiles,many=True)
             return Response(serializer.data)

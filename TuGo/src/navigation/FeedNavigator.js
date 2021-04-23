@@ -65,9 +65,6 @@ const FeedNavigator = () => {
       <Stack.Screen
         name="Profile"
         options={{
-          gestureResponseDistance: {
-            horizontal: 300,
-          },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
           headerShown: false,

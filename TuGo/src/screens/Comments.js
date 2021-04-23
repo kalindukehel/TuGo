@@ -98,7 +98,7 @@ const Comments = (props) => {
           style={{ color: "aqua" }}
           onPress={() => {
             navigation.push("Profile", {
-              id: part.data.id,
+              id: parseInt(part.data.id, 10),
             });
           }}
         >
@@ -128,7 +128,7 @@ const Comments = (props) => {
     return (
       <ScrollView
         style={{
-          backgroundColor: "#2F2F2F",
+          backgroundColor: Colors.gray,
           position: "absolute",
           bottom: 40,
           left: 0,
@@ -352,7 +352,7 @@ const Comments = (props) => {
                 },
                 {
                   pattern: /(https?:\/\/|www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.(xn--)?[a-z0-9-]{2,20}\b([-a-zA-Z0-9@:%_\+\[\],.~#?&\/=]*[-a-zA-Z0-9@:%_\+\]~#?&\/=])*/gi,
-                  textStyle: { color: "blue" },
+                  textStyle: { fontWeight: "bold", color: "black" },
                 },
               ]}
               style={styles.commentBar}

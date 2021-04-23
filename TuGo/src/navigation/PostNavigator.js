@@ -49,6 +49,9 @@ const PostNavigator = ({ id }) => {
       <Stack.Screen
         name="Comments"
         options={{
+          gestureResponseDistance: {
+            horizontal: 300,
+          },
           headerStyle: {
             backgroundColor: Colors.BG,
           },

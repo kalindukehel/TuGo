@@ -24,13 +24,21 @@ import { Video } from "expo-av";
 var { width, height } = Dimensions.get("window");
 
 const CaptionSelection = (props) => {
-  const { song, danceChoreos, voiceCovers, customVideos } = props.route.params;
+  const { song, customVideos } = props.route.params;
+  let { danceChoreos, voiceCovers } = props.route.params;
+  danceChoreos = danceChoreos.map((id) => ({
+    is_youtube: true,
+    video_id: id,
+  }));
+  voiceCovers = voiceCovers.map((id) => ({
+    is_youtube: true,
+    video_id: id,
+  }));
   const choreosAndCovers = [...danceChoreos, ...voiceCovers, ...customVideos];
   const { navigation } = props;
   const { userToken } = useAuthState();
   const [caption, setCaption] = useState("");
   const [status, setStatus] = useState({});
-
   const videosRef = useRef([]);
 
   const renderTile = ({ item }) => {
@@ -50,7 +58,7 @@ const CaptionSelection = (props) => {
     } else {
       return (
         <View style={{ marginHorizontal: 10 }}>
-          <VideoTile videoId={item} />
+          <VideoTile videoId={item.video_id} />
         </View>
       );
     }
@@ -88,6 +96,8 @@ const CaptionSelection = (props) => {
         <TouchableOpacity
           onPress={() => {
             makePost();
+            navigation.pop();
+            navigation.pop();
             navigation.navigate("Explore");
           }}
         >
@@ -109,6 +119,7 @@ const CaptionSelection = (props) => {
       />
       {choreosAndCovers.length != 0 && (
         <FlatList
+          showsHorizontalScrollIndicator={false}
           data={choreosAndCovers}
           renderItem={renderTile}
           keyExtractor={(item, index) => index.toString()}

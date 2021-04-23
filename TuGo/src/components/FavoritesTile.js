@@ -97,7 +97,12 @@ const FavoritesTile = (props) => {
       if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
         await soundObj.loadAsync({ uri: sound_url });
         isLoaded.current = true;
-        playerDispatch({ type: "LOAD_PLAYER", id: postRef.current.id });
+        playerDispatch({
+          type: "LOAD_PLAYER",
+          id: postRef.current.id,
+          trackId: postRef.current.song_id,
+          url: postRef.current.audio_url,
+        });
         await soundObj.setProgressUpdateIntervalAsync(1000);
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
           if (isLoaded.current) {
@@ -218,6 +223,7 @@ const FavoritesTile = (props) => {
           navigation={navigation}
           isSeeking={isSeeking}
           setIsSeeking={setIsSeeking}
+          trackId={post.song_id}
         />
         <View style={{ flexDirection: "row", justifyContent: "space-around" }}>
           <TouchableOpacity

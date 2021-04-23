@@ -94,13 +94,14 @@ class Tile(models.Model):
     post = models.ForeignKey('Post',on_delete=models.CASCADE,related_name='tiles')
     tile_type = models.CharField(max_length=20) #posted_cover, posted_choreo, suggested_cover, suggested_choreo
     is_youtube = models.BooleanField(default=False)
-    link = models.URLField()
-    image = models.URLField()
+    youtube_link = models.URLField(null=True, blank=True)
+    image = models.URLField(null=True, blank=True)
     view_count = models.IntegerField(default='0')
-    video_id = models.CharField(max_length=11, default='')
-    video_created = models.DateTimeField(default=None, null=True, blank=True)
+    youtube_video_url = models.CharField(max_length=11, default='', null=True, blank=True)
+    youtube_video_created = models.DateTimeField(default=None, null=True, blank=True)
+    custom_video_url = models.FileField(upload_to='videoUploads/', null=True, blank=True)
 
-    REQUIRED_FIELDS = ['is_youtube','image','link','view_count']
+    REQUIRED_FIELDS = ['is_youtube','view_count']
 
 class Comment(models.Model):
     author = models.ForeignKey('Account',on_delete=models.CASCADE)

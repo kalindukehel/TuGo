@@ -33,12 +33,11 @@ export default SongBlock = (props) => {
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const { postId, navigation, columns } = props;
   const { userToken } = useAuthState();
-  const { playingId, stopAll } = usePlayerState();
+  const { playingId, stopAll, isPlaying, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
@@ -78,12 +77,16 @@ export default SongBlock = (props) => {
           uri: sound_url,
         });
         isLoaded.current = true;
-        playerDispatch({ type: "LOAD_PLAYER", id: postRef.current.id });
+        playerDispatch({
+          type: "LOAD_PLAYER",
+          id: postRef.current.id,
+          trackId: postRef.current.song_id,
+          url: postRef.current.audio_url,
+        });
         await soundObj.setProgressUpdateIntervalAsync(1000);
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
           if (isLoaded.current) {
             if (status.didJustFinish && status.isLoaded) {
-              setIsPlaying(false);
               soundObj.stopAsync();
             } else if (status.isLoaded && stateRef.current != true) {
               setSliderValue(status.positionMillis / status.durationMillis);
@@ -104,7 +107,6 @@ export default SongBlock = (props) => {
       try {
         if (postRef.current.id == playingIdRef.current && isMounted) {
           //If current playing song is same as current post
-          setIsPlaying(false);
           isLoaded.current = false;
           soundObj.unloadAsync();
           playerDispatch({ type: "UNLOAD_PLAYER" });
@@ -118,10 +120,6 @@ export default SongBlock = (props) => {
   useEffect(() => {
     playingIdRef.current = playingId;
   }, [playingId]);
-
-  useEffect(() => {
-    setIsPlaying(false);
-  }, [stopAll]);
 
   React.useEffect(() => {
     //When navigation is changed update the post states
@@ -154,19 +152,20 @@ export default SongBlock = (props) => {
           });
         }
         await soundObj.playAsync();
+        playerDispatch({ type: "PLAY" });
       } else {
-        if (isPlaying) {
+        if (isPlaying && trackId === post.song_id) {
           //if current post is playing
           await soundObj.pauseAsync();
+          playerDispatch({ type: "PAUSE" });
         } else {
-          setLoadingPlayer(true);
-          await loadSound();
-          setLoadingPlayer(false);
+          // setLoadingPlayer(true);
+          // await loadSound();
+          // setLoadingPlayer(false);
           await soundObj.playAsync();
+          playerDispatch({ type: "PLAY" });
         }
       }
-
-      setIsPlaying(!isPlaying);
     } catch (error) {
       console.log(error);
     }
@@ -192,7 +191,7 @@ export default SongBlock = (props) => {
               uri: post.album_cover,
             }}
             imageStyle={{
-              opacity: isPlaying ? 0.2 : 0.9,
+              opacity: isPlaying && trackId === post.song_id ? 0.2 : 0.9,
               borderRadius: 20,
               flex: 1,
               paddingRight: 2,
@@ -255,7 +254,7 @@ export default SongBlock = (props) => {
                   onPress={doPlay}
                   style={{ marginLeft: "auto", marginRight: 10 }}
                 >
-                  {isPlaying ? (
+                  {isPlaying && trackId === post.song_id ? (
                     <Entypo
                       name="controller-paus"
                       size={25}

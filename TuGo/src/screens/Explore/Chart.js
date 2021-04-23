@@ -9,6 +9,7 @@ import {
   Animated,
   Dimensions,
   TouchableWithoutFeedback,
+  TextInput,
 } from "react-native";
 
 import {
@@ -22,7 +23,7 @@ import { useAuthState } from "../../context/authContext";
 //Components
 import SearchItem from "../../components/SearchItem";
 import { TouchableHighlight } from "react-native-gesture-handler";
-import { Colors } from "../../../constants";
+import { Colors, appTheme } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -34,9 +35,19 @@ const Chart = (props) => {
   const [refreshing, setRefreshing] = useState(false);
   const [chartData, setChartData] = useState(null);
   const flatListRef = React.useRef();
+  const searchBarRef = React.useRef();
   const [chartImage, setChartImage] = useState(null);
   const [isSeeking, setIsSeeking] = useState(false);
 
+  //filter search
+  const [filteredData, setFilteredData] = useState([]);
+  const [masterData, setMasterData] = useState([]);
+  const [search, setSearch] = useState("");
+  const [searchBarWidth, setSearchBarWidth] = useState(
+    new Animated.Value(width * 0.5)
+  );
+
+  const [positionY, setPositionY] = useState(150);
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   const onRefresh = React.useCallback(() => {
@@ -49,6 +60,8 @@ const Chart = (props) => {
       });
       const tracksRes = await getChartTracksAPI(chart);
       setChartData(tracksRes.data.tracks);
+      setFilteredData(tracksRes.data.tracks);
+      setMasterData(tracksRes.data.tracks);
     }
     getChartData();
     setRefreshing(false);
@@ -68,6 +81,22 @@ const Chart = (props) => {
     outputRange: [0, -220],
     extrapolate: "clamp",
   });
+
+  const searchAnimationInactive = () => {
+    Animated.timing(searchBarWidth, {
+      toValue: width * 0.5,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const searchAnimationActive = () => {
+    Animated.timing(searchBarWidth, {
+      toValue: width * 0.8,
+      duration: 200,
+      useNativeDriver: false,
+    }).start();
+  };
 
   const getImage = (albumId) => {
     return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
@@ -92,25 +121,66 @@ const Chart = (props) => {
     );
   };
 
+  const searchFilterFunction = (text) => {
+    // Check if searched text is not blank
+    if (text) {
+      // Inserted text is not blank
+      // Filter the masterDataSource and update FilteredDataSource
+      const newData = masterData.filter(function (item) {
+        // Applying filter for the inserted text in search bar
+        const usernameData = item.name
+          ? item.name.toUpperCase()
+          : "".toUpperCase();
+        const nameData = item.artistName
+          ? item.artistName.toUpperCase()
+          : "".toUpperCase();
+        const textData = text.toUpperCase();
+        return (
+          usernameData.indexOf(textData) > -1 || nameData.indexOf(textData) > -1
+        );
+      });
+      setFilteredData(newData);
+      setSearch(text);
+    } else {
+      // Inserted text is blank
+      // Update FilteredDataSource with masterData
+      setFilteredData(masterData);
+      setSearch(text);
+    }
+  };
+
+  const scrollToTextInput = () => {
+    flatListRef.current.scrollToOffset({
+      animated: true,
+      offset: searchBarRef.current,
+    });
+  };
+
+  console.log(translateY);
   return (
     chartData &&
     chartImage && (
       <SafeAreaView style={styles.container}>
         <AnimatedFlatList
+          keyboardDismissMode="interactive"
           scrollEnabled={!isSeeking}
           ref={flatListRef}
           style={{ flexGrow: 1 }}
-          contentContainerStyle={{ marginTop: 270, paddingBottom: 270 }}
-          scrollEventThrottle={16} // <-- Use 1 here to make sure no events are ever missed
+          contentContainerStyle={{
+            marginTop: 270,
+            paddingBottom: 270,
+          }}
+          scrollEventThrottle={1} // <-- Use 1 here to make sure no events are ever missed
           onScroll={Animated.event(
             [
               {
                 nativeEvent: { contentOffset: { y: animatedValue } },
               },
             ],
-            { useNativeDriver: true } // <-- Add this
+            { useNativeDriver: true }, // <-- Add this
+            { listener: (event) => handleScroll(event) }
           )}
-          data={chartData}
+          data={filteredData}
           renderItem={renderSuggestion}
           keyExtractor={(item, index) => {
             return item.id;
@@ -121,10 +191,43 @@ const Chart = (props) => {
         >
           <View style={styles.chartImageView}>
             <Image
-              style={{ height: 200, width: 200, borderRadius: 40 }}
+              style={{ height: positionY, width: positionY, borderRadius: 40 }}
               source={{ uri: chartImage.image }}
             />
           </View>
+          <Animated.View
+            onLayout={(event) => {
+              const layout = event.nativeEvent.layout;
+              searchBarRef.current = layout.y;
+            }}
+            style={{
+              ...styles.textInputStyle,
+              width: searchBarWidth,
+              justifyContent: "center",
+            }}
+          >
+            <TextInput
+              keyboardAppearance={appTheme}
+              onChangeText={(text) => {
+                scrollToTextInput();
+                searchFilterFunction(text);
+              }}
+              style={{
+                flex: 1,
+                paddingLeft: 20,
+                paddingRight: 5,
+              }}
+              defaultValue={search}
+              placeholder="Search Top Songs..."
+              placeholderTextColor={"black"}
+              clearButtonMode="always"
+              onFocus={() => {
+                scrollToTextInput();
+                searchAnimationActive();
+              }}
+              onBlur={searchAnimationInactive}
+            />
+          </Animated.View>
           <TouchableWithoutFeedback onPress={toTop}>
             <View style={styles.chartNameView}>
               <Text style={styles.chartName}>{chartImage.chartName}</Text>
@@ -166,11 +269,26 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
   },
   chartNameView: {
-    marginTop: 20,
+    marginTop: 30,
     alignSelf: "center",
     borderRadius: 10,
     backgroundColor: "#E8E8E8",
     padding: 10,
+  },
+  textInputStyle: {
+    height: 30,
+    borderRadius: 20,
+    color: Colors.text,
+    borderColor: "black",
+    borderWidth: 1,
+    marginHorizontal: 20,
+    marginTop: 15,
+    width: "50%",
+  },
+  box2: {
+    backgroundColor: "red",
+    height: "100%",
+    flexGrow: 1,
   },
 });
 

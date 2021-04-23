@@ -22,6 +22,7 @@ import TextTicker from "react-native-text-ticker";
 import { Entypo } from "@expo/vector-icons";
 import { Colors } from "../../constants";
 import * as Haptics from "expo-haptics";
+import { Ticker } from "../Helpers/Truncate";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -38,17 +39,15 @@ const SearchItem = (props) => {
     audioLink,
     color,
     genre,
-    trackId,
     artistId,
     postable,
     navigation,
   } = props;
   let tileColor = color ? color : "#ffffff00";
-  const { playingId, stopAll } = usePlayerState();
+  const { playingId, stopAll, isPlaying, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
@@ -65,12 +64,16 @@ const SearchItem = (props) => {
           uri: sound_url,
         });
         isLoaded.current = true;
-        playerDispatch({ type: "LOAD_PLAYER", id: index });
+        playerDispatch({
+          type: "LOAD_PLAYER",
+          id: index,
+          trackId: props.trackId,
+          url: audioLink,
+        });
         await soundObj.setProgressUpdateIntervalAsync(1000);
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
           if (isLoaded.current) {
             if (status.didJustFinish && status.isLoaded) {
-              setIsPlaying(false);
               soundObj.stopAsync();
             } else if (status.isLoaded && stateRef.current != true) {
               setSliderValue(status.positionMillis / status.durationMillis);
@@ -89,7 +92,6 @@ const SearchItem = (props) => {
       try {
         if (index == playingIdRef.current) {
           //If current playing song is same as current post
-          setIsPlaying(false);
           isLoaded.current = false;
           soundObj.unloadAsync();
           playerDispatch({ type: "UNLOAD_PLAYER" });
@@ -101,9 +103,6 @@ const SearchItem = (props) => {
   }, []);
 
   //Stop playing if redux global state is set to false
-  useEffect(() => {
-    setIsPlaying(false);
-  }, [stopAll]);
 
   //Change local ref state when playingId redux state changes
   useEffect(() => {
@@ -128,19 +127,20 @@ const SearchItem = (props) => {
           });
         }
         await soundObj.playAsync();
+        playerDispatch({ type: "PLAY" });
       } else {
-        if (isPlaying) {
+        if (isPlaying && trackId === props.trackId) {
           //if current post is playing
           await soundObj.pauseAsync();
+          playerDispatch({ type: "PAUSE" });
         } else {
-          setLoadingPlayer(true);
-          await loadSound();
-          setLoadingPlayer(false);
+          // setLoadingPlayer(true);
+          // await loadSound();
+          // setLoadingPlayer(false);
           await soundObj.playAsync();
+          playerDispatch({ type: "PLAY" });
         }
       }
-
-      setIsPlaying(!isPlaying);
     } catch (error) {
       console.log(error);
     }
@@ -178,7 +178,7 @@ const SearchItem = (props) => {
               audioLink: audioLink,
               title: title,
               coverArt: coverArt,
-              trackId: trackId,
+              trackId: props.trackId,
               artistId: artistId,
               genre: genre,
             },
@@ -195,7 +195,7 @@ const SearchItem = (props) => {
               title,
               coverArt,
               genre,
-              trackId,
+              props.trackId,
               artistId
             )
           : {};
@@ -215,7 +215,9 @@ const SearchItem = (props) => {
         <View style={{ flexDirection: "row", alignItems: "center", flex: 1 }}>
           <View
             style={
-              isPlaying ? styles.imageViewPlaying : styles.imageViewNotPlaying
+              isPlaying && trackId === props.trackId
+                ? styles.imageViewPlaying
+                : styles.imageViewNotPlaying
             }
           >
             <ImageModal
@@ -236,33 +238,19 @@ const SearchItem = (props) => {
               marginBottom: 30,
             }}
           >
-            <TextTicker
+            <Ticker
+              string={artist}
+              maxLength={32}
+              style={{ color: selected ? Colors.BG : Colors.FG }}
+            />
+            <Ticker
+              string={title}
+              maxLength={32}
               style={{
-                color: selected ? Colors.BG : Colors.FG,
-                height: 20,
-              }}
-              duration={7000}
-              bounce
-              repeatSpacer={50}
-              marqueeDelay={1000}
-              shouldAnimateTreshold={40}
-            >
-              {artist}
-            </TextTicker>
-            <TextTicker
-              style={{
-                color: selected ? Colors.BG : Colors.FG,
                 fontWeight: "bold",
-                height: 20,
+                color: selected ? Colors.BG : Colors.FG,
               }}
-              duration={7000}
-              bounce
-              repeatSpacer={50}
-              marqueeDelay={1000}
-              shouldAnimateTreshold={40}
-            >
-              {title.length > 32 ? title.substring(0, 32 - 3) + "..." : title}
-            </TextTicker>
+            />
           </View>
         </View>
         <Slider
@@ -304,7 +292,7 @@ const SearchItem = (props) => {
             onPress={doPlay}
             style={{ marginLeft: "auto", marginRight: 10 }}
           >
-            {isPlaying ? (
+            {isPlaying && trackId === props.trackId ? (
               <Entypo name="controller-paus" size={35} color={Colors.FG} />
             ) : (
               <Entypo name="controller-play" size={35} color={Colors.FG} />

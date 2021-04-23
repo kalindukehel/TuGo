@@ -21,6 +21,7 @@ const VideoSelection = (props) => {
   const { song } = props.route.params;
   const [customVideos, setCustomVideos] = useState([]);
 
+  console.log(song);
   const { navigation } = props;
 
   //Use finalChoreos variable to keep track of which videos are selected within child components

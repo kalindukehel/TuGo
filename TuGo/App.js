@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { View } from "react-native";
 import Navigator from "./routes/homeStack";
 import { StyleSheet, StatusBar } from "react-native";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
@@ -9,11 +10,12 @@ import { PlayerProvider } from "./src/context/playerContext";
 import { NotificationProvider } from "./src/context/notificationContext";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { changeColors, Colors } from "./constants";
+import PlayerWidgets from "./src/components/PlayerWidget";
 
 const Tab = createBottomTabNavigator();
 
 export default App = () => {
-  changeColors("dark");
+  changeColors("light");
   return (
     <>
       <SafeAreaProvider>
@@ -21,6 +23,7 @@ export default App = () => {
           <PlayerProvider>
             <NotificationProvider>
               <AppNavigator />
+              <PlayerWidgets />
             </NotificationProvider>
           </PlayerProvider>
         </AuthProvider>

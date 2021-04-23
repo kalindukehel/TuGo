@@ -39,11 +39,10 @@ const Player = (props) => {
     setIsSeeking,
   } = props;
   let tileColor = color ? color : "#ffffff00";
-  const { playingId, stopAll } = usePlayerState();
+  const { playingId, stopAll, isPlaying, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
-  const [isPlaying, setIsPlaying] = useState(false);
   // const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
@@ -53,13 +52,6 @@ const Player = (props) => {
   const playingIdRef = useRef();
 
   const loadSound = async () => {
-    // const sound_url = (
-    //   await getAudioLinkAPI(props.audioLink)
-    //     .then((result) => result)
-    //     .catch((e) => {
-    //       console.log(e);
-    //     })
-    // ).data.url;
     const sound_url = audioLink;
     try {
       if (!(await soundObj.getStatusAsync()).isLoaded && sound_url) {
@@ -67,12 +59,17 @@ const Player = (props) => {
           uri: sound_url,
         });
         isLoaded.current = true;
-        playerDispatch({ type: "LOAD_PLAYER", id: index });
+        playerDispatch({
+          type: "LOAD_PLAYER",
+          id: index,
+          trackId: props.trackId,
+          url: audioLink,
+        });
         await soundObj.setProgressUpdateIntervalAsync(1000);
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
           if (isLoaded.current) {
             if (status.didJustFinish && status.isLoaded) {
-              setIsPlaying(false);
+              playerDispatch({ type: "PAUSE" });
               soundObj.stopAsync();
             } else if (status.isLoaded && stateRef.current != true) {
               setSliderValue(status.positionMillis / status.durationMillis);
@@ -85,27 +82,27 @@ const Player = (props) => {
     }
   };
 
-  useEffect(() => {
-    return () => {
-      //When component exits
-      try {
-        if (index == playingIdRef.current) {
-          //If current playing song is same as current post
-          setIsPlaying(false);
-          isLoaded.current = false;
-          soundObj.unloadAsync();
-          playerDispatch({ type: "UNLOAD_PLAYER" });
-        }
-      } catch (error) {
-        console.log("Error");
-      }
-    };
-  }, []);
+  // useEffect(() => {
+  //   return () => {
+  //     //When component exits
+  //     try {
+  //       if (index == playingIdRef.current) {
+  //         //If current playing song is same as current post
+  //         // setIsPlaying(false);
+  //         isLoaded.current = false;
+  //         soundObj.unloadAsync();
+  //         playerDispatch({ type: "UNLOAD_PLAYER" });
+  //       }
+  //     } catch (error) {
+  //       console.log("Error");
+  //     }
+  //   };
+  // }, []);
 
   //Stop playing if redux global state is set to false
-  useEffect(() => {
-    setIsPlaying(false);
-  }, [stopAll]);
+  // useEffect(() => {
+  //   setIsPlaying(false);
+  // }, [stopAll]);
 
   //Change local ref state when playingId redux state changes
   useEffect(() => {
@@ -130,19 +127,20 @@ const Player = (props) => {
           });
         }
         await soundObj.playAsync();
+        playerDispatch({ type: "PLAY" });
       } else {
-        if (isPlaying) {
+        if (isPlaying && trackId === props.trackId) {
           //if current post is playing
           await soundObj.pauseAsync();
+          playerDispatch({ type: "PAUSE" });
         } else {
-          setLoadingPlayer(true);
-          await loadSound();
-          setLoadingPlayer(false);
+          // setLoadingPlayer(true);
+          // await loadSound();
+          // setLoadingPlayer(false);
           await soundObj.playAsync();
+          playerDispatch({ type: "PLAY" });
         }
       }
-
-      setIsPlaying(!isPlaying);
     } catch (error) {
       console.log(error);
     }
@@ -263,8 +261,6 @@ const Player = (props) => {
           thumbStyle={{
             width: 10,
             height: 10,
-            borderColor: Colors.FG,
-            borderWidth: 1,
           }}
           thumbTintColor={Colors.BG}
           value={sliderValue}
@@ -285,7 +281,7 @@ const Player = (props) => {
             onPress={doPlay}
             style={{ marginLeft: "auto", marginRight: 10 }}
           >
-            {isPlaying ? (
+            {isPlaying && trackId === props.trackId ? (
               <Entypo name="controller-paus" size={35} color={Colors.FG} />
             ) : (
               <Entypo name="controller-play" size={35} color={Colors.FG} />

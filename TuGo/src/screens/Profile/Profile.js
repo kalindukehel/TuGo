@@ -108,7 +108,9 @@ const styles = StyleSheet.create({
 const Profile = (props) => {
   const { navigation } = props;
   let id = null;
-  if (props.route.params) id = props.route.params.id;
+  if (props.route.params) {
+    id = props.route.params.id;
+  }
   const { userToken, self } = useAuthState();
   const dispatch = useAuthDispatch();
   const [followers, setFollowers] = useState(0);
@@ -122,6 +124,7 @@ const Profile = (props) => {
   const [onBack, setOnBack] = useState(false);
   const [videoCount, setVideoCount] = useState(0);
   const firstRun = useRef(true);
+  const [offset, setOffset] = useState(0);
 
   //push notifications expo
   const notificationListener = useRef();
@@ -137,7 +140,6 @@ const Profile = (props) => {
   } else if (id) {
     profileId = id;
   }
-
   let isSelf = profileId == self.id;
 
   isSelf &&
@@ -257,7 +259,6 @@ const Profile = (props) => {
     //Get everyone user has requested
     const requestedRes = await getRequestedAPI(userToken);
     const idsRequested = requestedRes.data.map((item) => item.to_request);
-
     //Check if target user is in users's following or requested
     if (idsRequested.includes(profileId)) {
       setIsFollowing("requested");
@@ -267,7 +268,11 @@ const Profile = (props) => {
       setIsFollowing("false");
     }
   }
-
+  const onScroll = (event) => {
+    const currentOffset = event.nativeEvent.contentOffset.y;
+    const direction = currentOffset > offset ? "down" : "up";
+    setOffset(currentOffset);
+  };
   const OpenURLButton = ({ url, children }) => {
     const handlePress = React.useCallback(async () => {
       // Checking if the link is supported for links with custom URL scheme.
@@ -382,7 +387,7 @@ const Profile = (props) => {
                     <Text
                       style={{
                         ...styles.actionButtonText,
-                        color: isFollowing == "true" ? Colors.FG : Colors.BG,
+                        color: isFollowing == "true" ? Colors.BG : Colors.FG,
                         fontWeight: "bold",
                       }}
                     >
@@ -522,6 +527,7 @@ const Profile = (props) => {
       }}
     >
       <FlatList
+        onScroll={onScroll}
         ref={ref}
         style={{ flexDirection: "column" }}
         contentContainerStyle={styles.list}
