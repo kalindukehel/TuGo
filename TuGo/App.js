@@ -12,6 +12,10 @@ import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { changeColors, Colors } from "./constants";
 import PlayerWidgets from "./src/components/PlayerWidget";
 
+import Amplify from "aws-amplify";
+import config from "./aws-exports";
+Amplify.configure(config);
+
 const Tab = createBottomTabNavigator();
 
 export default App = () => {

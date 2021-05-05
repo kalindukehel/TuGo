@@ -16,7 +16,7 @@ import {
   useNotificationState,
   useNotificationDispatch,
 } from "../context/notificationContext";
-import { Entypo } from "@expo/vector-icons";
+import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { getFeedPosts as getFeedPostsAPI } from "../api";
 import PostComponent from "../components/PostComponent";
 import { useScrollToTop } from "@react-navigation/native";
@@ -55,6 +55,16 @@ const Feed = ({ navigation }) => {
           ) : (
             <Entypo name="notification" size={24} color={Colors.FG} />
           )}
+        </TouchableOpacity>
+      ),
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 20 }}
+          onPress={() => {
+            navigation.navigate("Direct");
+          }}
+        >
+          <FontAwesome name="send" size={20} color={Colors.FG} />
         </TouchableOpacity>
       ),
     });

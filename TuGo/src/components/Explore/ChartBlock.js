@@ -8,7 +8,8 @@ import {
 } from "react-native";
 import { Colors } from "../../../constants";
 
-const outerWidth = 130;
+const outerWidth = 105;
+const outerHeight = 55;
 const animationWidth = 120;
 
 const ChartBlock = (props) => {
@@ -16,17 +17,19 @@ const ChartBlock = (props) => {
 
   const [sizeValue, setSizeValue] = useState(new Animated.Value(outerWidth));
 
+  const [xy, setXY] = useState(new Animated.ValueXY({ x: 105, y: 55 }));
+
   const imageAnimationIn = () => {
-    Animated.timing(sizeValue, {
-      toValue: animationWidth,
+    Animated.timing(xy, {
+      toValue: { x: 100, y: 50 },
       duration: 20,
       useNativeDriver: false,
     }).start();
   };
 
   const imageAnimationOut = () => {
-    Animated.timing(sizeValue, {
-      toValue: outerWidth,
+    Animated.timing(xy, {
+      toValue: { x: 105, y: 55 },
       duration: 20,
       useNativeDriver: false,
     }).start();
@@ -46,15 +49,15 @@ const ChartBlock = (props) => {
         style={{
           justifyContent: "center",
           alignItems: "center",
-          height: outerWidth,
+          height: outerHeight,
           width: outerWidth,
         }}
       >
         <Animated.View
           style={{
             ...styles.chartLabel,
-            width: sizeValue,
-            height: sizeValue,
+            width: xy.x,
+            height: xy.y,
           }}
         >
           <Text style={styles.chartName}>{text}</Text>
@@ -75,7 +78,8 @@ const styles = StyleSheet.create({
     alignSelf: "center",
   },
   chartName: {
-    fontSize: 15,
+    fontWeight: "bold",
+    fontSize: 13,
     textAlign: "center",
     color: Colors.text,
     margin: 10,

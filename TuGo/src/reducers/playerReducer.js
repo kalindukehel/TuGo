@@ -20,6 +20,16 @@ export const playerReducer = (prevState, action) => {
         ...prevState,
         isPlaying: false,
       };
+    case "SEEKING":
+      return {
+        ...prevState,
+        isSeeking: true,
+      };
+    case "STOP_SEEKING":
+      return {
+        ...prevState,
+        isSeeking: false,
+      };
     case "UNLOAD_PLAYER":
       //Unloads the current soundObj
       const tempSoundObj = prevState.soundObj;

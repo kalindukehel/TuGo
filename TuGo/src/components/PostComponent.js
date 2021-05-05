@@ -668,8 +668,6 @@ const PostComponent = (props) => {
               <TouchableOpacity
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  if (maxlimit == 95) setMaxlimit(10000);
-                  if (maxlimit == 10000) setMaxlimit(95);
                 }}
               >
                 <FontAwesome name="send" size={25} color={Colors.FG} />

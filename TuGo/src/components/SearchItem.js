@@ -146,7 +146,9 @@ const SearchItem = (props) => {
     }
   }
   async function seekSliding() {
-    setIsSeeking(true);
+    playerDispatch({
+      type: "SEEKING",
+    });
   }
 
   async function seekComplete(args) {
@@ -158,7 +160,9 @@ const SearchItem = (props) => {
         positionMillis: playerStatus.durationMillis * args,
       });
     }
-    setIsSeeking(false);
+    playerDispatch({
+      type: "STOP_SEEKING",
+    });
   }
   stateRef.current = isSeeking;
 

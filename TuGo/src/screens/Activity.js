@@ -9,6 +9,8 @@ import CommentActivity from "../components/Activity/CommentActivity";
 import FollowActivity from "../components/Activity/FollowActivity";
 import TagActivity from "../components/Activity/TagActivity";
 
+import { Entypo } from "@expo/vector-icons";
+
 import { getActivity as getActivityAPI } from "../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Colors } from "../../constants";
@@ -20,6 +22,21 @@ const Activity = ({ navigation }) => {
   const [activities, setActivities] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const firstRun = useRef(true);
+
+  React.useLayoutEffect(() => {
+    navigation.setOptions({
+      headerRight: () => (
+        <TouchableOpacity
+          style={{ marginRight: 15 }}
+          onPress={() => {
+            navigation.goBack();
+          }}
+        >
+          <Entypo name="chevron-right" size={30} color="black" />
+        </TouchableOpacity>
+      ),
+    });
+  }, [navigation]);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);

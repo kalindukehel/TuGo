@@ -59,13 +59,13 @@ const Explore = ({ navigation }) => {
     {
       navigation: navigation,
       id: "pp.180234724",
-      text: "Trending HipHop",
+      text: "HipHop",
       image: "http://i.imgur.com/DbUle6M.png",
     },
     {
       navigation: navigation,
       id: "pp.214725454",
-      text: "Trending Pop",
+      text: "Pop",
       image: "http://i.imgur.com/DbUle6M.png",
     },
     {
@@ -77,7 +77,7 @@ const Explore = ({ navigation }) => {
     {
       navigation: navigation,
       id: "pp.323137423",
-      text: "Top 100 US Tracks",
+      text: "Top 100 US",
       image: "http://i.imgur.com/DbUle6M.png",
     },
   ];
@@ -248,14 +248,12 @@ const Explore = ({ navigation }) => {
 
   const renderChart = ({ item, index }) => {
     return (
-      <View style={{ height: 150 }}>
-        <ChartBlock
-          navigation={item.navigation}
-          id={item.id}
-          text={item.text}
-          image={item.iamge}
-        />
-      </View>
+      <ChartBlock
+        navigation={item.navigation}
+        id={item.id}
+        text={item.text}
+        image={item.iamge}
+      />
     );
   };
 

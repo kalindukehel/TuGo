@@ -13,6 +13,7 @@ const PlayerProvider = ({ children }) => {
     soundObj: new Audio.Sound(),
     url: null,
     trackId: null,
+    isSeeking: false,
   });
   return (
     <PlayerStateContext.Provider value={state}>

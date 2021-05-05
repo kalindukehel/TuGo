@@ -22,9 +22,14 @@ import { useNavigation } from "@react-navigation/native";
 import { Colors } from "../../constants";
 import { SimpleLineIcons } from "@expo/vector-icons";
 
+import { Auth, API, graphqlOperation } from "aws-amplify";
+import { getUser } from "../graphql/queries";
+import { createUser } from "../graphql/mutations";
+
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 
+//notification setup
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowAlert: true,
@@ -39,6 +44,39 @@ const MainNavigator = () => {
   const notificationDispatch = useNotificationDispatch();
   const notificationListener = React.useRef();
   const responseListener = React.useRef();
+
+  //aws create user if not in database
+  useEffect(() => {
+    const fetchUser = async () => {
+      const userInfo = self;
+
+      if (userInfo) {
+        const userData = await API.graphql(
+          graphqlOperation(getUser, { id: self.id })
+        );
+
+        if (userData.data.getUser) {
+          console.log("User is already registered in database");
+          return;
+        }
+        console.log("User not in database");
+        const newUser = {
+          id: self.id,
+          name: userInfo.name,
+          username: userInfo.username,
+          imageUri: userInfo.profile_picture,
+          status: "Hey, I am using Tugo",
+        };
+
+        console.log("New user is: " + newUser);
+        await API.graphql(graphqlOperation(createUser, { input: newUser }));
+      }
+    };
+
+    fetchUser();
+  }, []);
+
+  //notification listener
   useEffect(() => {
     async function registerForPushNotificationsAsync() {
       let token;

@@ -49,16 +49,12 @@ const ActivityNavigator = () => {
         }}
         component={Profile}
       />
-
       <Stack.Screen
         name="Post"
         component={PostNavigator}
         options={{
           headerStyle: {
             backgroundColor: Colors.BG,
-          },
-          gestureResponseDistance: {
-            horizontal: 300,
           },
           headerShown: false,
           headerBackTitleVisible: false,
