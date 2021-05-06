@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   FlatList,
+  RefreshControl,
 } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -13,22 +14,14 @@ import ChatListItem from "../../components/ChatListItem";
 import { API, graphqlOperation } from "aws-amplify";
 import { getUser } from "./queries";
 import { useAuthState } from "../../context/authContext";
+import { onCreateMessage } from "../../graphql/subscriptions";
 
 const ChatScreen = ({ navigation }) => {
   const [chatRooms, setChatRooms] = useState([]);
+  const [refreshing, setRefreshing] = useState(false);
   const { self } = useAuthState();
   React.useLayoutEffect(() => {
     navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity
-          style={{ marginLeft: 15 }}
-          onPress={() => {
-            navigation.goBack();
-          }}
-        >
-          <Entypo name="chevron-left" size={30} color={Colors.FG} />
-        </TouchableOpacity>
-      ),
       headerRight: () => (
         <TouchableOpacity
           style={{ marginRight: 15 }}
@@ -42,31 +35,66 @@ const ChatScreen = ({ navigation }) => {
     });
   }, [navigation]);
 
-  useEffect(() => {
-    const fetchChatRooms = async () => {
-      try {
-        const userData = await API.graphql(
-          graphqlOperation(getUser, {
-            id: self.id,
-          })
-        );
+  const fetchChatRooms = async () => {
+    try {
+      const userData = await API.graphql(
+        graphqlOperation(getUser, {
+          id: self.id,
+        })
+      );
 
-        setChatRooms(userData.data.getUser.chatRoomUser.items);
-      } catch (e) {
-        console.log(e);
-      }
-    };
+      setChatRooms(userData.data.getUser.chatRoomUser.items);
+    } catch (e) {
+      console.log(e);
+    }
+  };
+
+  const onRefresh = React.useCallback(() => {
+    setRefreshing(true);
     fetchChatRooms();
+    setRefreshing(false);
   }, []);
-  console.log(chatRooms);
+
+  useEffect(() => {
+    setRefreshing(true);
+    onRefresh();
+    setRefreshing(false);
+  }, []);
+
+  useEffect(() => {
+    const subscription = API.graphql(
+      graphqlOperation(onCreateMessage)
+    ).subscribe({
+      next: (data) => {
+        fetchChatRooms();
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   return (
     <View style={styles.container}>
-      <Text>ChatScreen</Text>
       <FlatList
         style={{ width: "100%" }}
         data={chatRooms}
-        renderItem={({ item }) => <ChatListItem chatRoom={item.chatRoom} />}
+        renderItem={({ item }) => {
+          if (item.chatRoom) {
+            return (
+              <ChatListItem chatRoom={item.chatRoom} navigation={navigation} />
+            );
+          } else {
+            return <></>;
+          }
+        }}
         keyExtractor={(item) => item.id}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            tintColor={Colors.FG}
+          />
+        }
       />
     </View>
   );

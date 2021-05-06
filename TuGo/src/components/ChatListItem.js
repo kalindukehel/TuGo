@@ -17,10 +17,8 @@ const ChatListItem = (props) => {
   useEffect(() => {
     const getOtherUser = async () => {
       if (chatRoom.chatRoomUsers.items[0].user.id == self.id) {
-        console.log("second is kush_p7");
         setOtherUser(chatRoom.chatRoomUsers.items[1].user);
       } else {
-        console.log("first is kush_p7");
         setOtherUser(chatRoom.chatRoomUsers.items[0].user);
       }
     };
@@ -28,10 +26,10 @@ const ChatListItem = (props) => {
   }, []);
 
   const onClick = () => {
-    // navigation.navigate('ChatRoom', {
-    //   id: chatRoom.id,
-    //   name: otherUser.name,
-    // })
+    navigation.push("ChatRoom", {
+      id: chatRoom.id,
+      name: otherUser.name,
+    });
   };
 
   if (!otherUser) {
@@ -45,7 +43,7 @@ const ChatListItem = (props) => {
           <Image source={{ uri: otherUser.imageUri }} style={styles.avatar} />
 
           <View style={styles.midContainer}>
-            <Text style={styles.username}>{otherUser.name}</Text>
+            <Text style={styles.name}>{otherUser.name}</Text>
             <Text numberOfLines={2} style={styles.lastMessage}>
               {chatRoom.lastMessage
                 ? `${chatRoom.lastMessage.user.name}: ${chatRoom.lastMessage.content}`
@@ -82,12 +80,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,
     marginRight: 15,
   },
-  username: {
+  name: {
     fontWeight: "bold",
     fontSize: 16,
   },
   lastMessage: {
-    fontSize: 16,
+    fontSize: 14,
     color: "grey",
   },
   time: {

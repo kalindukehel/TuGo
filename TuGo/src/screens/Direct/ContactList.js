@@ -25,7 +25,6 @@ const ContactList = (props) => {
           (user) => user.id != self.id
         );
         setAccounts(filteredUsers);
-        console.log(allUsersData);
       } catch (e) {
         console.log(e);
       }

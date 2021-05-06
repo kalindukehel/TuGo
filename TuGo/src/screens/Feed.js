@@ -39,37 +39,6 @@ const Feed = ({ navigation }) => {
   const ref = React.useRef(null);
   useScrollToTop(ref);
 
-  React.useLayoutEffect(() => {
-    const BadgedIcon = withBadge()(Icon);
-    navigation.setOptions({
-      headerLeft: () => (
-        <TouchableOpacity
-          style={{ marginLeft: 20 }}
-          onPress={() => {
-            navigation.navigate("Activity");
-          }}
-        >
-          {/* <BadgedIcon type="entypo" name="notification" size={30} style={{}} /> */}
-          {unread ? (
-            <Entypo name="notification" size={24} color="red" />
-          ) : (
-            <Entypo name="notification" size={24} color={Colors.FG} />
-          )}
-        </TouchableOpacity>
-      ),
-      headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 20 }}
-          onPress={() => {
-            navigation.navigate("Direct");
-          }}
-        >
-          <FontAwesome name="send" size={20} color={Colors.FG} />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation, unread]);
-
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     async function getFeedState() {

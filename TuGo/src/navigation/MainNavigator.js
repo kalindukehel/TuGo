@@ -7,9 +7,12 @@ import Activity from "../screens/Activity";
 import ProfileNavigator from "./ProfileNavigator";
 import ExploreNavigator from "./ExploreNavigator";
 import FeedNavigator from "./FeedNavigator";
+import ActivityNavigator from "./ActivityNavigator";
+import DirectNavigator from "./DirectNavigator";
 import NotificationExample from "../screens/NotificationExample";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
 import Ionicons from "react-native-vector-icons/Ionicons";
+import { Entypo, FontAwesome } from "@expo/vector-icons";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 import {
   useNotificationState,
@@ -25,6 +28,7 @@ import { SimpleLineIcons } from "@expo/vector-icons";
 import { Auth, API, graphqlOperation } from "aws-amplify";
 import { getUser } from "../graphql/queries";
 import { createUser } from "../graphql/mutations";
+import { OpaqueColorValue } from "react-native";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -56,10 +60,10 @@ const MainNavigator = () => {
         );
 
         if (userData.data.getUser) {
-          console.log("User is already registered in database");
+          // User is already registered in database
           return;
         }
-        console.log("User not in database");
+        // User not in database
         const newUser = {
           id: self.id,
           name: userInfo.name,
@@ -67,8 +71,6 @@ const MainNavigator = () => {
           imageUri: userInfo.profile_picture,
           status: "Hey, I am using Tugo",
         };
-
-        console.log("New user is: " + newUser);
         await API.graphql(graphqlOperation(createUser, { input: newUser }));
       }
     };
@@ -171,8 +173,13 @@ const MainNavigator = () => {
             return (
               <SimpleLineIcons name="magnifier-add" size={24} color={color} />
             );
+          } else if (route.name === "Chat") {
+            return <FontAwesome name="send" size={20} color={color} />;
+          } else if (route.name === "Activity") {
+            return <Entypo name="notification" size={24} color={color} />;
+          } else {
+            return <Ionicons name={iconName} size={size} color={color} />;
           }
-          return <Ionicons name={iconName} size={size} color={color} />;
         },
       })}
       tabBarOptions={{
@@ -184,7 +191,9 @@ const MainNavigator = () => {
       }}
     >
       <Tab.Screen name="Feed" component={FeedNavigator} options={{}} />
+      <Tab.Screen name="Chat" component={DirectNavigator} />
       <Tab.Screen name="Explore" component={ExploreNavigator} />
+      <Tab.Screen name="Activity" component={ActivityNavigator} />
       <Tab.Screen name="Profile">
         {(props) => (
           <ProfileNavigator {...props} id={self.id} fromMyProfile={true} />

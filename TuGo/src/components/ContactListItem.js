@@ -15,6 +15,7 @@ import {
 } from "../../src/graphql/mutations";
 import { listUsers } from "../../src/graphql/queries";
 import { useAuthState } from "../context/authContext";
+import { getUser } from "../screens/Direct/queries";
 
 var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
@@ -35,46 +36,83 @@ const ContactListItem = (props) => {
 
   const onClick = async () => {
     try {
-      //  1. Create a new Chat Room
-      const newChatRoomData = await API.graphql(
-        graphqlOperation(createChatRoom, {
-          input: {
-            // lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
-          },
+      // check if self already has a chatroom with account
+      const userData = await API.graphql(
+        graphqlOperation(getUser, {
+          id: self.id,
         })
       );
-
-      if (!newChatRoomData.data) {
-        console.log(" Failed to create a chat room");
-        return;
+      const allChatRooms = userData.data.getUser.chatRoomUser.items;
+      const activeChatRooms = allChatRooms.filter((chatRoom) => {
+        if (chatRoom.chatRoom) {
+          return true;
+        } else {
+          return false;
+        }
+      });
+      let existingChatRoomId = null;
+      for (var index in activeChatRooms) {
+        const currChatRoom = activeChatRooms[index];
+        let otherUser;
+        if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
+          otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
+        } else {
+          otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
+        }
+        if (otherUser.id == account.id) {
+          existingChatRoomId = currChatRoom.chatRoomID;
+          break;
+        }
       }
+      if (existingChatRoomId) {
+        navigation.goBack();
+        navigation.navigate("ChatRoom", {
+          id: existingChatRoomId,
+          name: account.name,
+        });
+      }
+      // } else {
+      //  1. Create a new Chat Room
+      //   const newChatRoomData = await API.graphql(
+      //     graphqlOperation(createChatRoom, {
+      //       input: {
+      //         lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
+      //       },
+      //     })
+      //   );
 
-      const newChatRoom = newChatRoomData.data.createChatRoom;
+      //   if (!newChatRoomData.data) {
+      //     // Failed to create a chat room
+      //     return;
+      //   }
 
-      // 2. Add `user` to the Chat Room
-      await API.graphql(
-        graphqlOperation(createChatRoomUser, {
-          input: {
-            userID: account.id,
-            chatRoomID: newChatRoom.id,
-          },
-        })
-      );
+      //   const newChatRoom = newChatRoomData.data.createChatRoom;
 
-      //  3. Add authenticated user to the Chat Room
-      await API.graphql(
-        graphqlOperation(createChatRoomUser, {
-          input: {
-            userID: self.id,
-            chatRoomID: newChatRoom.id,
-          },
-        })
-      );
+      //   // 2. Add `user` to the Chat Room
+      //   await API.graphql(
+      //     graphqlOperation(createChatRoomUser, {
+      //       input: {
+      //         userID: account.id,
+      //         chatRoomID: newChatRoom.id,
+      //       },
+      //     })
+      //   );
 
-      // navigation.navigate('ChatRoom', {
-      //   id: newChatRoom.id,
-      //   name: "Hardcoded name",
-      // })
+      //   //  3. Add authenticated user to the Chat Room
+      //   await API.graphql(
+      //     graphqlOperation(createChatRoomUser, {
+      //       input: {
+      //         userID: self.id,
+      //         chatRoomID: newChatRoom.id,
+      //       },
+      //     })
+      //   );
+
+      //   navigation.navigate("ChatRoom", {
+      //     id: newChatRoom.id,
+      //     name: "Hardcoded name",
+      //   });
+      // }
     } catch (e) {
       console.log(e);
     }

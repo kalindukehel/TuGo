@@ -47,13 +47,13 @@ const DirectNavigator = () => {
           },
         }}
       />
-      {/* <Stack.Screen
+      <Stack.Screen
         name="ChatRoom"
         component={ChatRoom}
-        options={({ route })  => ({
+        options={({ route }) => ({
           title: route.params.name,
         })}
-      /> */}
+      />
     </Stack.Navigator>
   );
 };

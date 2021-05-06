@@ -23,21 +23,6 @@ const Activity = ({ navigation }) => {
   const [refreshing, setRefreshing] = useState(false);
   const firstRun = useRef(true);
 
-  React.useLayoutEffect(() => {
-    navigation.setOptions({
-      headerRight: () => (
-        <TouchableOpacity
-          style={{ marginRight: 15 }}
-          onPress={() => {
-            navigation.goBack();
-          }}
-        >
-          <Entypo name="chevron-right" size={30} color="black" />
-        </TouchableOpacity>
-      ),
-    });
-  }, [navigation]);
-
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     async function getActivityStates() {
@@ -86,20 +71,6 @@ const Activity = ({ navigation }) => {
     );
   };
 
-  const ItemSeparatorView = () => {
-    return (
-      // Flat List Item Separator
-      <View
-        style={{
-          height: 2,
-          width: "90%",
-          backgroundColor: "#C8C8C8",
-          alignSelf: "center",
-        }}
-      />
-    );
-  };
-
   const getHeader = () => {
     return (
       <TouchableOpacity
@@ -133,7 +104,6 @@ const Activity = ({ navigation }) => {
             tintColor={Colors.FG}
           />
         }
-        ItemSeparatorComponent={ItemSeparatorView}
       />
     </View>
   );

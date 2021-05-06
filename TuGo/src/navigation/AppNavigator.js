@@ -55,14 +55,12 @@ export default AppNavigator = () => {
     !loading && (
       <SafeAreaProvider>
         <NavigationContainer>
-          <RootTab.Navigator
-            swipeEnabled={!isSeeking}
+          <Stack.Navigator
             headerMode="none"
-            tabBarOptions={tabBarOptions}
             initialRouteName={logined ? "Main" : "Auth"}
           >
             {!logined && (
-              <RootTab.Screen
+              <Stack.Screen
                 isSignout={isSignout}
                 name="Auth"
                 component={AuthNavigator}
@@ -70,16 +68,14 @@ export default AppNavigator = () => {
             )}
             {logined && (
               <>
-                <RootTab.Screen name="Activity" component={ActivityNavigator} />
-                <RootTab.Screen
+                <Stack.Screen
                   isSignout={isSignout}
                   name="Main"
                   component={MainNavigator}
                 />
-                <RootTab.Screen name="Direct" component={DirectNavigator} />
               </>
             )}
-          </RootTab.Navigator>
+          </Stack.Navigator>
         </NavigationContainer>
       </SafeAreaProvider>
     )
