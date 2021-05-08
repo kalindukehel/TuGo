@@ -387,7 +387,7 @@ const Profile = (props) => {
                     <Text
                       style={{
                         ...styles.actionButtonText,
-                        color: isFollowing == "true" ? Colors.BG : Colors.FG,
+                        color: isFollowing == "true" ? "white" : "black",
                         fontWeight: "bold",
                       }}
                     >

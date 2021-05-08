@@ -16,7 +16,6 @@ const ChatRoom = () => {
   const [messages, setMessages] = useState([]);
 
   const route = useRoute();
-  console.log(route.params.id);
   const fetchMessages = async () => {
     const messagesData = await API.graphql(
       graphqlOperation(messagesByChatRoom, {
@@ -54,6 +53,7 @@ const ChatRoom = () => {
         data={messages}
         renderItem={({ item }) => <ChatMessage message={item} />}
         inverted
+        keyboardDismissMode="interactive"
       />
 
       <ChatInputBox chatRoomID={route.params.id} />

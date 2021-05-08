@@ -5,14 +5,56 @@ import {
   Image,
   TouchableWithoutFeedback,
   StyleSheet,
+  Dimensions,
+  Animated,
+  PanResponder,
+  Alert,
 } from "react-native";
 import moment from "moment";
 import { useAuthState } from "../context/authContext";
+import { API, graphqlOperation } from "aws-amplify";
+import { deleteChatRoom } from "../graphql/mutations";
+import { Colors } from "../../constants";
 
 const ChatListItem = (props) => {
   const { chatRoom, navigation } = props;
-  const [otherUser, setOtherUser] = useState(null);
   const { self } = useAuthState();
+
+  const [otherUser, setOtherUser] = useState(null);
+
+  const deleteConfirmation = () =>
+    Alert.alert(
+      "Confirmation",
+      "Are you sure?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            onDeleteChatRoom();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+
+  const onDeleteChatRoom = async () => {
+    try {
+      await API.graphql(
+        graphqlOperation(deleteChatRoom, {
+          input: {
+            id: chatRoom.id,
+          },
+        })
+      );
+    } catch (e) {
+      console.log(e);
+    }
+  };
 
   useEffect(() => {
     const getOtherUser = async () => {
@@ -37,7 +79,10 @@ const ChatListItem = (props) => {
   }
 
   return (
-    <TouchableWithoutFeedback onPress={onClick}>
+    <TouchableWithoutFeedback
+      onPress={onClick}
+      onLongPress={deleteConfirmation}
+    >
       <View style={styles.container}>
         <View style={styles.lefContainer}>
           <Image source={{ uri: otherUser.imageUri }} style={styles.avatar} />
@@ -83,14 +128,15 @@ const styles = StyleSheet.create({
   name: {
     fontWeight: "bold",
     fontSize: 16,
+    color: Colors.text,
   },
   lastMessage: {
     fontSize: 14,
-    color: "grey",
+    color: Colors.gray,
   },
   time: {
     fontSize: 14,
-    color: "grey",
+    color: Colors.gray,
   },
 });
 

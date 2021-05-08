@@ -70,49 +70,48 @@ const ContactListItem = (props) => {
           id: existingChatRoomId,
           name: account.name,
         });
+      } else {
+        //1. Create a new Chat Room
+        const newChatRoomData = await API.graphql(
+          graphqlOperation(createChatRoom, {
+            input: {
+              lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
+            },
+          })
+        );
+
+        if (!newChatRoomData.data) {
+          // Failed to create a chat room
+          return;
+        }
+
+        const newChatRoom = newChatRoomData.data.createChatRoom;
+
+        // 2. Add `user` to the Chat Room
+        await API.graphql(
+          graphqlOperation(createChatRoomUser, {
+            input: {
+              userID: account.id,
+              chatRoomID: newChatRoom.id,
+            },
+          })
+        );
+
+        //  3. Add authenticated user to the Chat Room
+        await API.graphql(
+          graphqlOperation(createChatRoomUser, {
+            input: {
+              userID: self.id,
+              chatRoomID: newChatRoom.id,
+            },
+          })
+        );
+        navigation.goBack();
+        navigation.navigate("ChatRoom", {
+          id: newChatRoom.id,
+          name: account.name,
+        });
       }
-      // } else {
-      //  1. Create a new Chat Room
-      //   const newChatRoomData = await API.graphql(
-      //     graphqlOperation(createChatRoom, {
-      //       input: {
-      //         lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
-      //       },
-      //     })
-      //   );
-
-      //   if (!newChatRoomData.data) {
-      //     // Failed to create a chat room
-      //     return;
-      //   }
-
-      //   const newChatRoom = newChatRoomData.data.createChatRoom;
-
-      //   // 2. Add `user` to the Chat Room
-      //   await API.graphql(
-      //     graphqlOperation(createChatRoomUser, {
-      //       input: {
-      //         userID: account.id,
-      //         chatRoomID: newChatRoom.id,
-      //       },
-      //     })
-      //   );
-
-      //   //  3. Add authenticated user to the Chat Room
-      //   await API.graphql(
-      //     graphqlOperation(createChatRoomUser, {
-      //       input: {
-      //         userID: self.id,
-      //         chatRoomID: newChatRoom.id,
-      //       },
-      //     })
-      //   );
-
-      //   navigation.navigate("ChatRoom", {
-      //     id: newChatRoom.id,
-      //     name: "Hardcoded name",
-      //   });
-      // }
     } catch (e) {
       console.log(e);
     }

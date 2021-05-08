@@ -6,6 +6,7 @@ import {
   StyleSheet,
   FlatList,
   RefreshControl,
+  Alert,
 } from "react-native";
 import { Entypo } from "@expo/vector-icons";
 import { MaterialIcons } from "@expo/vector-icons";
@@ -14,7 +15,11 @@ import ChatListItem from "../../components/ChatListItem";
 import { API, graphqlOperation } from "aws-amplify";
 import { getUser } from "./queries";
 import { useAuthState } from "../../context/authContext";
-import { onCreateMessage } from "../../graphql/subscriptions";
+import {
+  onCreateMessage,
+  onDeleteChatRoom,
+  onCreateChatRoom,
+} from "../../graphql/subscriptions";
 
 const ChatScreen = ({ navigation }) => {
   const [chatRooms, setChatRooms] = useState([]);
@@ -66,6 +71,31 @@ const ChatScreen = ({ navigation }) => {
       graphqlOperation(onCreateMessage)
     ).subscribe({
       next: (data) => {
+        fetchChatRooms();
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const subscription = API.graphql(
+      graphqlOperation(onDeleteChatRoom)
+    ).subscribe({
+      next: (data) => {
+        fetchChatRooms();
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  useEffect(() => {
+    const subscription = API.graphql(
+      graphqlOperation(onCreateChatRoom)
+    ).subscribe({
+      next: (data) => {
+        console.log("hi");
         fetchChatRooms();
       },
     });
