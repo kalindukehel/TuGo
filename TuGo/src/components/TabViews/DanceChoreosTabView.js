@@ -39,6 +39,7 @@ const DanceChoreosTabView = (props) => {
           };
         }
       );
+      console.log(res);
       if (isLoaded) setDanceChoreos(res);
     };
     loadDanceChoreos();
@@ -114,4 +115,4 @@ const DanceChoreosTabView = (props) => {
   );
 };
 
-export default DanceChoreosTabView;
+export default React.memo(DanceChoreosTabView);

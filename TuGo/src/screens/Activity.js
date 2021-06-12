@@ -14,6 +14,7 @@ import { Entypo } from "@expo/vector-icons";
 import { getActivity as getActivityAPI } from "../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Colors } from "../../constants";
+import { useScrollToTop } from "@react-navigation/native";
 
 const Activity = ({ navigation }) => {
   const { userToken } = useAuthState();
@@ -22,6 +23,10 @@ const Activity = ({ navigation }) => {
   const [activities, setActivities] = useState(null);
   const [refreshing, setRefreshing] = useState(false);
   const firstRun = useRef(true);
+
+  //tap active tab to scroll to the top
+  const ref = React.useRef(null);
+  useScrollToTop(ref);
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
@@ -93,6 +98,7 @@ const Activity = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
+        ref={ref}
         data={activities}
         renderItem={renderActivity}
         ListHeaderComponent={getHeader}

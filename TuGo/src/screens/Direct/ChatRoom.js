@@ -7,12 +7,15 @@ import { API, graphqlOperation } from "aws-amplify";
 import { messagesByChatRoom } from "../../graphql/queries";
 import { onCreateMessage } from "../../graphql/subscriptions";
 
-import ChatMessage from "../../components/ChatMessage";
+import TextMessage from "../../components/TextMessage";
+import VoiceMessage from "../../components/VoiceMessage";
+import ImageMessage from "../../components/ImageMessage";
+import PostMessage from "../../components/PostMessage";
 import ChatInputBox from "../../components/ChatInputBox";
 
 import { Colors } from "../../../constants";
 
-const ChatRoom = () => {
+const ChatRoom = ({ navigation }) => {
   const [messages, setMessages] = useState([]);
 
   const route = useRoute();
@@ -51,7 +54,16 @@ const ChatRoom = () => {
     <View style={{ width: "100%", height: "100%", backgroundColor: Colors.BG }}>
       <FlatList
         data={messages}
-        renderItem={({ item }) => <ChatMessage message={item} />}
+        renderItem={({ item }) => {
+          if (item.type == "TEXT")
+            return <TextMessage message={item} navigation={navigation} />;
+          if (item.type == "VOICE")
+            return <VoiceMessage message={item} navigation={navigation} />;
+          if (item.type == "IMAGE")
+            return <ImageMessage message={item} navigation={navigation} />;
+          if (item.type == "POST")
+            return <PostMessage message={item} navigation={navigation} />;
+        }}
         inverted
         keyboardDismissMode="interactive"
       />

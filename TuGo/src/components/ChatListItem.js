@@ -78,6 +78,22 @@ const ChatListItem = (props) => {
     return null;
   }
 
+  const renderLastMessage = () => {
+    if (chatRoom.lastMessage) {
+      if (chatRoom.lastMessage.type == "TEXT") {
+        return `${chatRoom.lastMessage.content}`;
+      } else if (chatRoom.lastMessage.type == "VOICE") {
+        return `Sent an Audio Message`;
+      } else if (chatRoom.lastMessage.type == "IMAGE") {
+        return `Sent an Image`;
+      } else if (chatRoom.lastMessage.type == "POST") {
+        return `Shared a Post`;
+      }
+    } else {
+      return "";
+    }
+  };
+
   return (
     <TouchableWithoutFeedback
       onPress={onClick}
@@ -90,9 +106,7 @@ const ChatListItem = (props) => {
           <View style={styles.midContainer}>
             <Text style={styles.name}>{otherUser.name}</Text>
             <Text numberOfLines={2} style={styles.lastMessage}>
-              {chatRoom.lastMessage
-                ? `${chatRoom.lastMessage.user.name}: ${chatRoom.lastMessage.content}`
-                : ""}
+              {renderLastMessage()}
             </Text>
           </View>
         </View>

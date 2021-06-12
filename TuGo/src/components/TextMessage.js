@@ -1,19 +1,34 @@
 import React from "react";
-import { Text, View, StyleSheet } from "react-native";
+import { Text, View, StyleSheet, Image } from "react-native";
 import moment from "moment";
 import { useAuthState } from "../context/authContext";
-import { Colors } from "../../constants";
+import { Colors, API_URL } from "../../constants";
 
-const ChatMessage = (props) => {
+const TextMessage = (props) => {
   const { message } = props;
   const { self } = useAuthState();
 
   const isMyMessage = () => {
     return message.user.id == self.id;
   };
-
   return (
-    <View style={styles.container}>
+    <View
+      style={{
+        ...styles.container,
+        justifyContent: isMyMessage() ? "flex-end" : "flex-start",
+      }}
+    >
+      {!isMyMessage() && (
+        <Image
+          style={{
+            width: 30,
+            height: 30,
+            borderRadius: 999,
+            marginRight: 10,
+          }}
+          source={{ uri: message.user.imageUri }}
+        />
+      )}
       <View
         style={[
           styles.messageBox,
@@ -21,14 +36,11 @@ const ChatMessage = (props) => {
             backgroundColor: isMyMessage()
               ? Colors.primary
               : Colors.otherMessageBubble,
-            marginLeft: isMyMessage() ? 50 : 0,
-            marginRight: isMyMessage() ? 0 : 50,
           },
         ]}
       >
-        {!isMyMessage() && <Text style={styles.name}>{message.user.name}</Text>}
         <Text style={styles.message}>{message.content}</Text>
-        <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text>
+        {/* <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text> */}
       </View>
     </View>
   );
@@ -37,6 +49,8 @@ const ChatMessage = (props) => {
 const styles = StyleSheet.create({
   container: {
     padding: 10,
+    flexDirection: "row",
+    alignItems: "flex-end",
   },
   messageBox: {
     borderRadius: 20,
@@ -47,11 +61,13 @@ const styles = StyleSheet.create({
     fontWeight: "bold",
     marginBottom: 5,
   },
-  message: {},
+  message: {
+    fontSize: 17,
+  },
   time: {
     alignSelf: "flex-end",
     color: "grey",
   },
 });
 
-export default ChatMessage;
+export default TextMessage;

@@ -110,6 +110,7 @@ const styles = StyleSheet.create({
   infoView: {
     marginTop: 240,
     margin: 20,
+    color: "red",
   },
 });
 

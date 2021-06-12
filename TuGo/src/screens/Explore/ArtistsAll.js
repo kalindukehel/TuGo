@@ -56,6 +56,7 @@ const ArtistsAll = (props) => {
         contentContainerStyle={{
           justifyContent: "center",
           alignItems: "center",
+          paddingVertical: 20,
         }}
         data={artists}
         renderItem={renderArtist}

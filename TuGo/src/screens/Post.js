@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { View, ScrollView, StyleSheet } from "react-native";
+import { View, ScrollView, StyleSheet, SafeAreaView } from "react-native";
 import { useAuthState } from "../context/authContext";
 import PostComponent from "../components/PostComponent";
 import { Colors } from "../../constants";
@@ -13,26 +13,25 @@ const Post = (props) => {
   const { userToken, self } = useAuthState();
   const [refreshing, setRefreshing] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
+  const [disableScroll, setDisableScroll] = useState(false);
 
   return (
-    <View style={{ flex: 1, backgroundColor: Colors.BG }}>
-      <ScrollView
-        contentContainerStyle={styles.scrollView}
-        scrollEnabled={!isSeeking}
-      >
+    <SafeAreaView style={styles.container}>
+      <ScrollView scrollEnabled={!disableScroll}>
         <PostComponent
           postId={postId}
           navigation={navigation}
           isSeeking={isSeeking}
           setIsSeeking={setIsSeeking}
+          setDisableScroll={setDisableScroll}
         />
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollView: {
+  container: {
     flex: 1,
     backgroundColor: Colors.BG,
   },

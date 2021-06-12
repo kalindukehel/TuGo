@@ -34,6 +34,7 @@ type Message
     fields: ["chatRoomID", "createdAt"]
     queryField: "messagesByChatRoom"
   ) {
+  seen: Boolean!
   id: ID!
   createdAt: String!
   content: String!
@@ -41,4 +42,12 @@ type Message
   chatRoomID: ID!
   user: User @connection(fields: ["userID"])
   chatRoom: ChatRoom @connection(fields: ["chatRoomID"])
+  type: MessageType!
+}
+
+enum MessageType {
+  TEXT
+  VOICE
+  IMAGE
+  POST
 }

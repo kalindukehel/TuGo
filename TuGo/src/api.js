@@ -353,6 +353,14 @@ export async function pushNotification(expoPushToken, creator, type) {
       body: `${creator} tagged you in a post`,
       data: { type: "tag" },
     };
+  } else if (type == "message") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "New Tag",
+      body: `${creator} sent you in a message`,
+      data: { type: "message" },
+    };
   }
   await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
@@ -391,7 +399,8 @@ export async function getYoutubeSearch(searchQuery) {
   return axios.get(
     "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" +
       searchQuery +
-      "&key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"
+      "&key=AIzaSyB_h3y-lLNf7djjTiP4Kbzrkf1xzJPWgXI"
+    //AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"
     //"&key=AIzaSyCP3Rb3_s9kW4MN1Huw_6j5NJ1QTHVyl54"
   );
 }

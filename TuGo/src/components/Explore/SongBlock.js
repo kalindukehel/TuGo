@@ -33,7 +33,7 @@ export default SongBlock = (props) => {
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const { postId, navigation, columns } = props;
   const { userToken } = useAuthState();
-  const { playingId, stopAll, isPlaying, trackId } = usePlayerState();
+  const { playingId, stopAll, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
@@ -41,6 +41,7 @@ export default SongBlock = (props) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
+  const [isPlaying, setIsPlaying] = useState(false);
   const stateRef = useRef();
   const isLoaded = useRef(false);
   const postRef = useRef();
@@ -152,18 +153,18 @@ export default SongBlock = (props) => {
           });
         }
         await soundObj.playAsync();
-        playerDispatch({ type: "PLAY" });
+        setIsPlaying(true);
       } else {
         if (isPlaying && trackId === post.song_id) {
           //if current post is playing
           await soundObj.pauseAsync();
-          playerDispatch({ type: "PAUSE" });
+          setIsPlaying(false);
         } else {
           // setLoadingPlayer(true);
           // await loadSound();
           // setLoadingPlayer(false);
           await soundObj.playAsync();
-          playerDispatch({ type: "PLAY" });
+          setIsPlaying(true);
         }
       }
     } catch (error) {

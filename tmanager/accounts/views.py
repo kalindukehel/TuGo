@@ -353,7 +353,11 @@ class PostViewSet(viewsets.ModelViewSet):
                 if(i.is_youtube):
                     if(i.youtube_video_created is None):
                         i.youtube_video_created = datetime.now(timezone.utc)
-                        video = pafy.new(i.youtube_link)
+                        try:
+                            video = pafy.new(i.youtube_link)
+                        except:
+                            print("video is currently not available")
+                            continue
                         best = video.getbest()
                         playurl = best.url
                         i.youtube_video_url = playurl
@@ -362,7 +366,11 @@ class PostViewSet(viewsets.ModelViewSet):
                         difference = datetime.now(timezone.utc) - i.youtube_video_created
                         if(difference.total_seconds() > five_hours):
                             i.youtube_video_created = datetime.now(timezone.utc)
-                            video = pafy.new(i.youtube_link)
+                            try:
+                                video = pafy.new(i.youtube_link)
+                            except:
+                                print("video is currently not available")
+                                continue
                             best = video.getbest()
                             playurl = best.url
                             i.youtube_video_url = playurl

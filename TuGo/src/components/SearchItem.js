@@ -42,15 +42,18 @@ const SearchItem = (props) => {
     artistId,
     postable,
     navigation,
+    setDisableScroll,
   } = props;
   let tileColor = color ? color : "#ffffff00";
-  const { playingId, stopAll, isPlaying, trackId } = usePlayerState();
+  const { playingId, stopAll, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
+
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const stateRef = useRef();
   const isLoaded = useRef(false);
@@ -75,6 +78,7 @@ const SearchItem = (props) => {
           if (isLoaded.current) {
             if (status.didJustFinish && status.isLoaded) {
               soundObj.stopAsync();
+              setIsPlaying(false);
             } else if (status.isLoaded && stateRef.current != true) {
               setSliderValue(status.positionMillis / status.durationMillis);
             }
@@ -127,28 +131,28 @@ const SearchItem = (props) => {
           });
         }
         await soundObj.playAsync();
-        playerDispatch({ type: "PLAY" });
+        setIsPlaying(true);
       } else {
         if (isPlaying && trackId === props.trackId) {
           //if current post is playing
           await soundObj.pauseAsync();
-          playerDispatch({ type: "PAUSE" });
+          setIsPlaying(false);
         } else {
           // setLoadingPlayer(true);
           // await loadSound();
           // setLoadingPlayer(false);
           await soundObj.playAsync();
-          playerDispatch({ type: "PLAY" });
+          setIsPlaying(true);
         }
       }
     } catch (error) {
       console.log(error);
     }
   }
+
   async function seekSliding() {
-    playerDispatch({
-      type: "SEEKING",
-    });
+    setIsSeeking(true);
+    setDisableScroll(true);
   }
 
   async function seekComplete(args) {
@@ -160,9 +164,8 @@ const SearchItem = (props) => {
         positionMillis: playerStatus.durationMillis * args,
       });
     }
-    playerDispatch({
-      type: "STOP_SEEKING",
-    });
+    setIsSeeking(false);
+    setDisableScroll(false);
   }
   stateRef.current = isSeeking;
 
@@ -274,19 +277,17 @@ const SearchItem = (props) => {
           thumbStyle={{
             width: 10,
             height: 10,
-            borderColor: Colors.FG,
-            borderWidth: 1,
           }}
-          thumbTintColor={Colors.BG}
+          thumbTintColor={Colors.FG}
           value={sliderValue}
           disabled={refreshing ? true : false}
-          trackStyle={{ height: 3 }}
+          trackStyle={{ height: 1.5 }}
         />
         {loadingPlayer ? (
-          <View style={{ marginLeft: "auto", marginRight: 10 }}>
+          <View style={{ marginLeft: "auto", marginRight: 16 }}>
             <ActivityIndicator
               animating={true}
-              size="large"
+              size="small"
               color={Colors.FG}
             />
           </View>
@@ -297,9 +298,9 @@ const SearchItem = (props) => {
             style={{ marginLeft: "auto", marginRight: 10 }}
           >
             {isPlaying && trackId === props.trackId ? (
-              <Entypo name="controller-paus" size={35} color={Colors.FG} />
+              <Entypo name="controller-paus" size={30} color={Colors.FG} />
             ) : (
-              <Entypo name="controller-play" size={35} color={Colors.FG} />
+              <Entypo name="controller-play" size={30} color={Colors.FG} />
             )}
           </TouchableOpacity>
         )}

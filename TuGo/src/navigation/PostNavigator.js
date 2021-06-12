@@ -1,5 +1,8 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  TransitionPresets,
+} from "@react-navigation/stack";
 import Post from "../screens/Post";
 import Likes from "../screens/Likes";
 import Comments from "../screens/Comments";
@@ -11,6 +14,7 @@ import ArtistInfo from "../screens/Explore/ArtistInfo.js";
 import RelatedArtists from "../screens/Explore/RelatedArtists.js";
 import VideoSelection from "../screens/CreatePost/VideoSelection";
 import CaptionSelection from "../screens/CreatePost/CaptionSelection";
+import ShareToDirect from "../screens/Others/ShareToDirect";
 import { Colors } from "../../constants";
 
 const Stack = createStackNavigator();
@@ -160,6 +164,15 @@ const PostNavigator = ({ id }) => {
         }}
         name="Caption Selection"
         component={CaptionSelection}
+      />
+      <Stack.Screen
+        options={{
+          ...TransitionPresets.ModalTransition,
+          cardStyle: { backgroundColor: "transparent" },
+          headerShown: false,
+        }}
+        name="ShareToDirect"
+        component={ShareToDirect}
       />
     </Stack.Navigator>
   );

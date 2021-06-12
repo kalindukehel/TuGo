@@ -29,7 +29,7 @@ const ExplorePostsAll = (props) => {
   const renderItem = ({ item }) => {
     return (
       <View style={{}}>
-        <SongBlock postId={item.post} navigation={navigation} columns={3} />
+        <SongBlock postId={item.post} navigation={navigation} columns={2} />
       </View>
     );
   };

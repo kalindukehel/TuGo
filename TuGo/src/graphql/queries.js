@@ -75,11 +75,13 @@ export const getChatRoomUser = /* GraphQL */ `
         }
         lastMessageID
         lastMessage {
+          seen
           id
           createdAt
           content
           userID
           chatRoomID
+          type
           updatedAt
         }
         createdAt
@@ -139,17 +141,20 @@ export const getChatRoom = /* GraphQL */ `
       }
       messages {
         items {
+          seen
           id
           createdAt
           content
           userID
           chatRoomID
+          type
           updatedAt
         }
         nextToken
       }
       lastMessageID
       lastMessage {
+        seen
         id
         createdAt
         content
@@ -170,6 +175,7 @@ export const getChatRoom = /* GraphQL */ `
           createdAt
           updatedAt
         }
+        type
         updatedAt
       }
       createdAt
@@ -194,11 +200,13 @@ export const listChatRooms = /* GraphQL */ `
         }
         lastMessageID
         lastMessage {
+          seen
           id
           createdAt
           content
           userID
           chatRoomID
+          type
           updatedAt
         }
         createdAt
@@ -211,6 +219,7 @@ export const listChatRooms = /* GraphQL */ `
 export const getMessage = /* GraphQL */ `
   query GetMessage($id: ID!) {
     getMessage(id: $id) {
+      seen
       id
       createdAt
       content
@@ -238,16 +247,19 @@ export const getMessage = /* GraphQL */ `
         }
         lastMessageID
         lastMessage {
+          seen
           id
           createdAt
           content
           userID
           chatRoomID
+          type
           updatedAt
         }
         createdAt
         updatedAt
       }
+      type
       updatedAt
     }
   }
@@ -260,6 +272,7 @@ export const listMessages = /* GraphQL */ `
   ) {
     listMessages(filter: $filter, limit: $limit, nextToken: $nextToken) {
       items {
+        seen
         id
         createdAt
         content
@@ -280,6 +293,7 @@ export const listMessages = /* GraphQL */ `
           createdAt
           updatedAt
         }
+        type
         updatedAt
       }
       nextToken
@@ -304,6 +318,7 @@ export const messagesByChatRoom = /* GraphQL */ `
       nextToken: $nextToken
     ) {
       items {
+        seen
         id
         createdAt
         content
@@ -324,6 +339,7 @@ export const messagesByChatRoom = /* GraphQL */ `
           createdAt
           updatedAt
         }
+        type
         updatedAt
       }
       nextToken

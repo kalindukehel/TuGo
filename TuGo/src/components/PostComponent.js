@@ -12,6 +12,7 @@ import {
   Share,
   ScrollView,
   ActivityIndicator,
+  Button,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -36,7 +37,7 @@ import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { API_URL } from "../../constants";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 
-import { FontAwesome } from "@expo/vector-icons";
+import { FontAwesome, Foundation } from "@expo/vector-icons";
 
 import moment from "moment";
 import ImageModal from "react-native-image-modal";
@@ -45,6 +46,7 @@ import RBSheet from "react-native-raw-bottom-sheet";
 
 import { Audio, Video, AVPlaybackStatus } from "expo-av";
 import { Slider } from "react-native-elements";
+import YouTube from "react-native-youtube";
 
 //icons
 import {
@@ -64,6 +66,7 @@ import DanceChoreosTabView from "../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
+import ShareToDirect from "../screens/Others/ShareToDirect";
 
 var { width, height } = Dimensions.get("window");
 
@@ -73,10 +76,9 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 const optionHeight = 60;
 
 //PostComponent is a post by a user
-const PostComponent = (props) => {
+const PostComponent = ({ postId, authorId, navigation, setDisableScroll }) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, authorId, navigation, isSeeking, setIsSeeking } = props;
   const { userToken, self } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -101,10 +103,10 @@ const PostComponent = (props) => {
 
   const insets = useSafeAreaInsets();
 
+  const shareModal = useRef();
   const refRBSheet = useRef([]);
   const moreRef = useRef();
   const optionsRef = useRef();
-  const stateRef = useRef();
   const isLoaded = useRef(false);
   const postRef = useRef();
   const playingIdRef = useRef();
@@ -112,10 +114,11 @@ const PostComponent = (props) => {
 
   const firstRun = useRef(true);
 
-  stateRef.current = isSeeking;
+  let WebViewRef = [];
 
   async function getPostStates() {
     //Update post data from API
+    console.log("hi");
     const postRes = await getPostByIdAPI(userToken, postId);
     setPost(postRes.data);
     postRef.current = postRes.data;
@@ -176,18 +179,18 @@ const PostComponent = (props) => {
     setIsPlaying(false);
   }, [stopAll]);
 
-  React.useEffect(() => {
-    //When navigation is changed update the post states
-    const unsubscribe = navigation.addListener("focus", async () => {
-      if (firstRun.current) {
-        firstRun.current = false;
-      } else {
-        await getPostStates();
-      }
-    });
+  // React.useEffect(() => {
+  //   //When navigation is changed update the post states
+  //   const unsubscribe = navigation.addListener("focus", async () => {
+  //     if (firstRun.current) {
+  //       firstRun.current = false;
+  //     } else {
+  //       await getPostStates();
+  //     }
+  //   });
 
-    return unsubscribe;
-  }, [navigation]);
+  //   return unsubscribe;
+  // }, [navigation]);
 
   const onFullScreen = (fullScreen) => {
     if (fullScreen) {
@@ -331,6 +334,7 @@ const PostComponent = (props) => {
   };
 
   const renderTile = ({ item, index }) => {
+    var youtube_id = item.youtube_link.substr(item.youtube_link.length - 11);
     return (
       <View
         style={{
@@ -338,7 +342,7 @@ const PostComponent = (props) => {
           marginVertical: 10,
         }}
       >
-        <Video
+        {/* <Video
           ref={refRBSheet.current[item.id]}
           style={{
             ...styles.video,
@@ -350,9 +354,33 @@ const PostComponent = (props) => {
               : item.custom_video_url,
           }} // Can be a URL or a local file.
           useNativeControls
-          resizeMode="contain"
+          resizeMode="cover"
           onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-        ></Video>
+        ></Video> */}
+        <View
+          style={{
+            width: "100%",
+            height: 400,
+            borderWidth: 2,
+          }}
+        >
+          <WebView
+            ref={(WEBVIEW_REF) => (WebViewRef[item.id] = WEBVIEW_REF)}
+            scrollEnabled={false}
+            javaScriptEnabled={true}
+            domStorageEnabled={true}
+            allowsInlineMediaPlayback={true}
+            source={{ uri: `https://www.youtube.com/watch?v=${youtube_id}` }}
+          />
+        </View>
+        <TouchableOpacity
+          style={{ position: "absolute", left: "90%", top: "90%", zIndex: 99 }}
+          onPress={() => {
+            WebViewRef[item.id] && WebViewRef[item.id].reload();
+          }}
+        >
+          <Foundation name="refresh" size={30} color={Colors.primary} />
+        </TouchableOpacity>
       </View>
     );
   };
@@ -543,9 +571,8 @@ const PostComponent = (props) => {
             audioLink={post.audio_url}
             artistId={post.artist_id}
             navigation={navigation}
-            isSeeking={isSeeking}
-            setIsSeeking={setIsSeeking}
             trackId={post.song_id}
+            setDisableScroll={setDisableScroll}
           />
           <View>
             {tileLoading && post.video_count > 0 ? (
@@ -668,10 +695,30 @@ const PostComponent = (props) => {
               <TouchableOpacity
                 onPress={() => {
                   Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  shareModal.current.open();
                 }}
               >
                 <FontAwesome name="send" size={25} color={Colors.FG} />
               </TouchableOpacity>
+              <RBSheet
+                height={height}
+                ref={shareModal}
+                closeOnDragDown={false}
+                closeOnPressMask={false}
+                customStyles={{
+                  wrapper: {
+                    backgroundColor: "transparent",
+                  },
+                  draggableIcon: {
+                    backgroundColor: "transparent",
+                  },
+                  container: {
+                    backgroundColor: "transparent",
+                  },
+                }}
+              >
+                <ShareToDirect shareItem={post} shareModal={shareModal} />
+              </RBSheet>
               <RBSheet
                 height={0.8 * height}
                 ref={moreRef}
@@ -834,4 +881,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default PostComponent;
+export default React.memo(PostComponent);

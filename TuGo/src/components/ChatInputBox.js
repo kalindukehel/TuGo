@@ -172,7 +172,27 @@ const ChatInputBox = (props) => {
     }
   };
 
-  const onSendPress = async () => {
+  const onSendVoice = async () => {
+    try {
+      const newMessageData = await API.graphql(
+        graphqlOperation(createMessage, {
+          input: {
+            content: recordingUri,
+            userID: myUserId,
+            chatRoomID,
+            type: "VOICE",
+            seen: 0,
+          },
+        })
+      );
+      await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
+    } catch (e) {
+      console.log(e);
+    }
+
+    setRecordingUri(null);
+  };
+  const onSendText = async () => {
     try {
       const newMessageData = await API.graphql(
         graphqlOperation(createMessage, {
@@ -180,11 +200,17 @@ const ChatInputBox = (props) => {
             content: message,
             userID: myUserId,
             chatRoomID,
+            type: "TEXT",
+            seen: 0,
           },
         })
       );
-
       await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
+      // const notifRes = await pushNotificationAPI(
+      //   author.notification_token,
+      //   self.username,
+      //   "comment"
+      // );
     } catch (e) {
       console.log(e);
     }
@@ -193,10 +219,12 @@ const ChatInputBox = (props) => {
   };
 
   const onPress = () => {
-    if (!message) {
+    if (!(message || recordingUri)) {
       onMicrophonePress();
+    } else if (recordingUri) {
+      onSendVoice();
     } else {
-      onSendPress();
+      onSendText();
     }
   };
 
@@ -267,7 +295,7 @@ const ChatInputBox = (props) => {
         )}
         <TouchableOpacity onPress={onPress}>
           <View style={styles.buttonContainer}>
-            {!message ? (
+            {!(message || recordingUri) ? (
               <MaterialCommunityIcons
                 name="microphone"
                 size={28}

@@ -1,7 +1,14 @@
 export const playerReducer = (prevState, action) => {
   switch (action.type) {
+    case "LOAD_VOICE":
+      return {
+        ...prevState,
+        isPlaying: false,
+        stopAll: false,
+        voiceUrl: action.voiceUrl,
+        playingId: action.id,
+      };
     case "LOAD_PLAYER":
-      console.log(action.trackId);
       return {
         ...prevState,
         isPlaying: false,
@@ -41,6 +48,17 @@ export const playerReducer = (prevState, action) => {
         stopAll: true,
         url: null,
         trackId: null,
+      };
+    case "UNLOAD_VOICE":
+      //Unloads the current soundObj
+      const tempVoiceSoundObj = prevState.soundObj;
+      tempVoiceSoundObj.unloadAsync();
+      return {
+        ...prevState,
+        isPlaying: false,
+        stopAll: true,
+        voiceUrl: null,
+        playingId: null,
       };
     default:
       return prevState;

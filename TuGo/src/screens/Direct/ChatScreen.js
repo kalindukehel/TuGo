@@ -47,8 +47,14 @@ const ChatScreen = ({ navigation }) => {
           id: self.id,
         })
       );
-
-      setChatRooms(userData.data.getUser.chatRoomUser.items);
+      const filterValidRooms = userData.data.getUser.chatRoomUser.items.filter(
+        (item) => item.chatRoom != null
+      );
+      const sortedRooms = filterValidRooms.sort(
+        (a, b) =>
+          a.chatRoom.lastMessage.updatedAt < b.chatRoom.lastMessage.updatedAt
+      );
+      setChatRooms(sortedRooms);
     } catch (e) {
       console.log(e);
     }
@@ -95,14 +101,12 @@ const ChatScreen = ({ navigation }) => {
       graphqlOperation(onCreateChatRoom)
     ).subscribe({
       next: (data) => {
-        console.log("hi");
         fetchChatRooms();
       },
     });
 
     return () => subscription.unsubscribe();
   }, []);
-
   return (
     <View style={styles.container}>
       <FlatList

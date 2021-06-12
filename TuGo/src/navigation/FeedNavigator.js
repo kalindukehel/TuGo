@@ -1,11 +1,15 @@
 import React from "react";
-import { createStackNavigator } from "@react-navigation/stack";
+import {
+  createStackNavigator,
+  TransitionPresets,
+} from "@react-navigation/stack";
 import Feed from "../screens/Feed";
 import Likes from "../screens/Likes";
 import Comments from "../screens/Comments";
 import Artist from "../screens/Explore/Artist.js";
 import ArtistInfo from "../screens/Explore/ArtistInfo.js";
 import RelatedArtists from "../screens/Explore/RelatedArtists.js";
+import ShareToDirect from "../screens/Others/ShareToDirect";
 import ProfileNavigator from "./ProfileNavigator";
 import FollowRequests from "../screens/FollowRequests";
 import VideoSelection from "../screens/CreatePost/VideoSelection";
@@ -175,6 +179,15 @@ const FeedNavigator = () => {
         }}
         name="Caption Selection"
         component={CaptionSelection}
+      />
+      <Stack.Screen
+        options={{
+          ...TransitionPresets.ModalTransition,
+          cardStyle: { backgroundColor: "transparent" },
+          headerShown: false,
+        }}
+        name="ShareToDirect"
+        component={ShareToDirect}
       />
     </Stack.Navigator>
   );

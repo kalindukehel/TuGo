@@ -19,7 +19,7 @@ Amplify.configure(config);
 const Tab = createBottomTabNavigator();
 
 export default App = () => {
-  changeColors("light");
+  changeColors("dark");
   return (
     <>
       <SafeAreaProvider>
@@ -27,7 +27,7 @@ export default App = () => {
           <PlayerProvider>
             <NotificationProvider>
               <AppNavigator />
-              <PlayerWidgets />
+              {/* <PlayerWidgets /> */}
             </NotificationProvider>
           </PlayerProvider>
         </AuthProvider>

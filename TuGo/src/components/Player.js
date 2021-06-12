@@ -35,17 +35,18 @@ const Player = (props) => {
     color,
     artistId,
     navigation,
-    isSeeking,
-    setIsSeeking,
+    setDisableScroll,
   } = props;
   let tileColor = color ? color : "#ffffff00";
-  const { playingId, stopAll, isPlaying, trackId } = usePlayerState();
+  const { playingId, stopAll, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
 
   const [refreshing, setRefreshing] = useState(false);
-  // const [isSeeking, setIsSeeking] = useState(false);
+  const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
+
+  const [isPlaying, setIsPlaying] = useState(false);
 
   const stateRef = useRef();
   const isLoaded = useRef(false);
@@ -69,7 +70,7 @@ const Player = (props) => {
         await soundObj.setOnPlaybackStatusUpdate(async (status) => {
           if (isLoaded.current) {
             if (status.didJustFinish && status.isLoaded) {
-              playerDispatch({ type: "PAUSE" });
+              setIsPlaying(false);
               soundObj.stopAsync();
             } else if (status.isLoaded && stateRef.current != true) {
               setSliderValue(status.positionMillis / status.durationMillis);
@@ -127,18 +128,18 @@ const Player = (props) => {
           });
         }
         await soundObj.playAsync();
-        playerDispatch({ type: "PLAY" });
+        setIsPlaying(true);
       } else {
         if (isPlaying && trackId === props.trackId) {
           //if current post is playing
           await soundObj.pauseAsync();
-          playerDispatch({ type: "PAUSE" });
+          setIsPlaying(false);
         } else {
           // setLoadingPlayer(true);
           // await loadSound();
           // setLoadingPlayer(false);
           await soundObj.playAsync();
-          playerDispatch({ type: "PLAY" });
+          setIsPlaying(true);
         }
       }
     } catch (error) {
@@ -146,9 +147,8 @@ const Player = (props) => {
     }
   }
   async function seekSliding() {
-    playerDispatch({
-      type: "SEEKING",
-    });
+    setIsSeeking(true);
+    setDisableScroll(true);
   }
 
   async function seekComplete(args) {
@@ -160,9 +160,8 @@ const Player = (props) => {
         positionMillis: playerStatus.durationMillis * args,
       });
     }
-    playerDispatch({
-      type: "STOP_SEEKING",
-    });
+    setIsSeeking(false);
+    setDisableScroll(false);
   }
   stateRef.current = isSeeking;
 
@@ -258,24 +257,24 @@ const Player = (props) => {
           }}
           minimumValue={0}
           maximumValue={1}
-          minimumTrackTintColor={"white"}
-          maximumTrackTintColor={"black"}
+          minimumTrackTintColor={"#C4C4C4"}
+          maximumTrackTintColor={Colors.FG}
           onSlidingStart={seekSliding}
           onSlidingComplete={seekComplete}
           thumbStyle={{
             width: 10,
             height: 10,
           }}
-          thumbTintColor={Colors.BG}
+          thumbTintColor={Colors.FG}
           value={sliderValue}
           disabled={refreshing ? true : false}
-          trackStyle={{ height: 3 }}
+          trackStyle={{ height: 2 }}
         />
         {loadingPlayer ? (
-          <View style={{ marginLeft: "auto", marginRight: 10 }}>
+          <View style={{ marginLeft: "auto", marginRight: 16 }}>
             <ActivityIndicator
               animating={true}
-              size="large"
+              size="small"
               color={Colors.FG}
             />
           </View>
@@ -286,9 +285,9 @@ const Player = (props) => {
             style={{ marginLeft: "auto", marginRight: 10 }}
           >
             {isPlaying && trackId === props.trackId ? (
-              <Entypo name="controller-paus" size={35} color={Colors.FG} />
+              <Entypo name="controller-paus" size={30} color={Colors.FG} />
             ) : (
-              <Entypo name="controller-play" size={35} color={Colors.FG} />
+              <Entypo name="controller-play" size={30} color={Colors.FG} />
             )}
           </TouchableOpacity>
         )}

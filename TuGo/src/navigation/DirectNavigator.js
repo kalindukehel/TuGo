@@ -4,6 +4,7 @@ import { Colors } from "../../constants";
 import ChatScreen from "../screens/Direct/ChatScreen";
 import ContactList from "../screens/Direct/ContactList";
 import ChatRoom from "../screens/Direct/ChatRoom";
+import PostNavigator from "./PostNavigator";
 
 const Stack = createStackNavigator();
 
@@ -85,6 +86,15 @@ const DirectNavigator = () => {
             fontSize: 20,
           },
         })}
+      />
+      <Stack.Screen
+        name="Post"
+        component={PostNavigator}
+        options={{
+          headerShown: false,
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.text,
+        }}
       />
     </Stack.Navigator>
   );

@@ -39,6 +39,7 @@ const Artist = (props) => {
   const flatListRef = React.useRef();
   const searchBarRef = React.useRef();
   const [artistName, setArtistName] = useState("");
+  const [disableScroll, setDisableScroll] = useState(false);
 
   //filter search
   const [filteredData, setFilteredData] = useState([]);
@@ -126,6 +127,7 @@ const Artist = (props) => {
         navigation={navigation}
         genre={item.links.genres.ids}
         trackId={item.id}
+        setDisableScroll={setDisableScroll}
       />
     );
   };
@@ -162,6 +164,7 @@ const Artist = (props) => {
     filteredData && (
       <SafeAreaView style={styles.container}>
         <AnimatedFlatList
+          scrollEnabled={!disableScroll}
           keyboardDismissMode="interactive"
           ref={flatListRef}
           style={{ flexGrow: 1 }}
@@ -291,7 +294,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: width,
     flex: 1,
-    backgroundColor: "#E3FBFF",
+    backgroundColor: Colors.primary,
     borderBottomRightRadius: 50,
   },
   chartName: {

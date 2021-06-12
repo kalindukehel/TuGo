@@ -37,7 +37,7 @@ const Chart = (props) => {
   const flatListRef = React.useRef();
   const searchBarRef = React.useRef();
   const [chartImage, setChartImage] = useState(null);
-  const [isSeeking, setIsSeeking] = useState(false);
+  const [disableScroll, setDisableScroll] = useState(false);
 
   //filter search
   const [filteredData, setFilteredData] = useState([]);
@@ -117,6 +117,7 @@ const Chart = (props) => {
         genre={item.links.genres.ids}
         trackId={item.id}
         artistId={item.artistId}
+        setDisableScroll={setDisableScroll}
       />
     );
   };
@@ -156,14 +157,13 @@ const Chart = (props) => {
     });
   };
 
-  console.log(translateY);
   return (
     chartData &&
     chartImage && (
       <SafeAreaView style={styles.container}>
         <AnimatedFlatList
           keyboardDismissMode="interactive"
-          scrollEnabled={!isSeeking}
+          scrollEnabled={!disableScroll}
           ref={flatListRef}
           style={{ flexGrow: 1 }}
           contentContainerStyle={{
@@ -262,7 +262,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     width: width,
     flex: 1,
-    backgroundColor: "#E3FBFF",
+    backgroundColor: Colors.primary,
     borderBottomRightRadius: 50,
   },
   chartName: {

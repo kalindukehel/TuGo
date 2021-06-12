@@ -11,6 +11,7 @@ import {
   TouchableWithoutFeedback,
   Alert,
   SafeAreaView,
+  ActivityIndicator,
 } from "react-native";
 import { signIn as signInAPI, getSelf as getSelfAPI } from "../api";
 
@@ -44,12 +45,12 @@ const styles = StyleSheet.create({
     backgroundColor: "#FFFFFF",
   },
   button: {
-    alignItems: "center",
-    marginTop: 30,
+    height: 40,
     marginHorizontal: 60,
     padding: 10,
     borderRadius: 30,
-    //backgroundColor: Colors.FG,
+    justifyContent: "center",
+    alignItems: "center",
   },
 });
 
@@ -57,17 +58,20 @@ const SignIn = ({ navigation }) => {
   const dispatch = useAuthDispatch();
   const [username, setUsername] = useState(null);
   const [password, setPassword] = useState(null);
+  const [loading, setLoading] = useState(false);
   async function login() {
     try {
       const data = {
         username: username,
         password: password,
       };
+      setLoading(true);
       const res = await signInAPI(data);
       onSignIn(res.data.token);
       const response = await getSelfAPI(res.data.token);
       dispatch({ type: "GET_SELF", self: response.data });
       dispatch({ type: "SIGN_IN", token: res.data.token });
+      setLoading(false);
     } catch (error) {
       console.log(error);
     }
@@ -108,18 +112,26 @@ const SignIn = ({ navigation }) => {
             />
             <TouchableOpacity
               disabled={!password || !username}
-              style={
-                password && username
-                  ? { ...styles.button, backgroundColor: "gray" }
-                  : { ...styles.button, backgroundColor: "#d3d3d3" }
-              }
+              style={{
+                ...styles.button,
+                backgroundColor:
+                  password && username ? Colors.primary : "#d3d3d3",
+              }}
               onPress={() => {
                 if (username && password) {
                   login();
                 }
               }}
             >
-              <Text style={{ color: Colors.complimentText }}>Login</Text>
+              {loading ? (
+                <ActivityIndicator
+                  animating={true}
+                  size="small"
+                  color={Colors.complimentText}
+                />
+              ) : (
+                <Text style={{ color: Colors.complimentText }}>Login</Text>
+              )}
             </TouchableOpacity>
             <View style={{ flex: 1 }} />
           </View>
