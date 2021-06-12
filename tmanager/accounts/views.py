@@ -335,46 +335,46 @@ class PostViewSet(viewsets.ModelViewSet):
             #get video url
             youtube_video_url = None
             custom_video_url = None
-            if(is_youtube):
-                video = pafy.new(youtube_link)
-                best = video.getbest()
-                playurl = best.url  
-                youtube_video_url = playurl
-            else:
-                custom_video_url = request.data.get('custom_video_url')
-                print(custom_video_url)
+            # if(is_youtube):
+            #     # video = pafy.new(youtube_link)
+            #     # best = video.getbest()
+            #     # playurl = best.url  
+            #     # youtube_video_url = playurl
+            # else:
+            #     custom_video_url = request.data.get('custom_video_url')
+            #     print(custom_video_url)
             tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,youtube_link=youtube_link,image=image,youtube_video_url=youtube_video_url, custom_video_url=custom_video_url)
             print(tile)
             tile.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
             tiles = self.get_object().tiles.all()
-            for i in tiles:
-                if(i.is_youtube):
-                    if(i.youtube_video_created is None):
-                        i.youtube_video_created = datetime.now(timezone.utc)
-                        try:
-                            video = pafy.new(i.youtube_link)
-                        except:
-                            print("video is currently not available")
-                            continue
-                        best = video.getbest()
-                        playurl = best.url
-                        i.youtube_video_url = playurl
-                    else:
-                        # difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(i.video_created, i.video_created.time()) 
-                        difference = datetime.now(timezone.utc) - i.youtube_video_created
-                        if(difference.total_seconds() > five_hours):
-                            i.youtube_video_created = datetime.now(timezone.utc)
-                            try:
-                                video = pafy.new(i.youtube_link)
-                            except:
-                                print("video is currently not available")
-                                continue
-                            best = video.getbest()
-                            playurl = best.url
-                            i.youtube_video_url = playurl
-                i.save()
+            # for i in tiles:
+            #     if(i.is_youtube):
+            #         if(i.youtube_video_created is None):
+            #             i.youtube_video_created = datetime.now(timezone.utc)
+            #             try:
+            #                 video = pafy.new(i.youtube_link)
+            #             except:
+            #                 print("video is currently not available")
+            #                 continue
+            #             best = video.getbest()
+            #             playurl = best.url
+            #             i.youtube_video_url = playurl
+            #         else:
+            #             # difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(i.video_created, i.video_created.time()) 
+            #             difference = datetime.now(timezone.utc) - i.youtube_video_created
+            #             if(difference.total_seconds() > five_hours):
+            #                 i.youtube_video_created = datetime.now(timezone.utc)
+            #                 try:
+            #                     video = pafy.new(i.youtube_link)
+            #                 except:
+            #                     print("video is currently not available")
+            #                     continue
+            #                 best = video.getbest()
+            #                 playurl = best.url
+            #                 i.youtube_video_url = playurl
+            #     i.save()
             serializer = TileSerializer(tiles,many=True)
             return Response(serializer.data)
 
