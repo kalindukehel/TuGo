@@ -135,7 +135,15 @@ const Explore = ({ navigation }) => {
   //Tab Views
   const FirstRoute = () => {
     if (index == 0) {
-      return <AccountsTabView searchQuery={search} navigation={navigation} />;
+      return (
+        <SongsTabView
+          searchQuery={search}
+          navigation={navigation}
+          isEditing={isEditing}
+          handleEditing={handleEditing}
+          handleChange={handleChange}
+        />
+      );
     } else {
       return <View></View>;
     }
@@ -150,15 +158,7 @@ const Explore = ({ navigation }) => {
 
   const ThirdRoute = () => {
     if (index == 2) {
-      return (
-        <SongsTabView
-          searchQuery={search}
-          navigation={navigation}
-          isEditing={isEditing}
-          handleEditing={handleEditing}
-          handleChange={handleChange}
-        />
-      );
+      return <AccountsTabView searchQuery={search} navigation={navigation} />;
     } else {
       return <View></View>;
     }
@@ -168,9 +168,9 @@ const Explore = ({ navigation }) => {
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: "first", title: "Accounts" },
+    { key: "first", title: "Songs" },
     { key: "second", title: "Posts" },
-    { key: "third", title: "Songs" },
+    { key: "third", title: "Accounts" },
   ]);
 
   const renderScene = SceneMap({

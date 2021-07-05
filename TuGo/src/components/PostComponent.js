@@ -31,6 +31,7 @@ import {
   deletePost as deletePostAPI,
   getSongLyrics as getSongLyricsAPI,
   songLyrics as songLyricsAPI,
+  deleteTile as deleteTileAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
@@ -54,6 +55,7 @@ import {
   FontAwesome5,
   AntDesign,
   Fontisto,
+  Feather,
 } from "@expo/vector-icons";
 
 import { WebView } from "react-native-webview";
@@ -76,7 +78,13 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 const optionHeight = 60;
 
 //PostComponent is a post by a user
-const PostComponent = ({ postId, authorId, navigation, setDisableScroll }) => {
+const PostComponent = ({
+  postId,
+  authorId,
+  navigation,
+  setDisableScroll,
+  goBackOnDelete = true,
+}) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const { userToken, self } = useAuthState();
@@ -178,25 +186,6 @@ const PostComponent = ({ postId, authorId, navigation, setDisableScroll }) => {
   useEffect(() => {
     setIsPlaying(false);
   }, [stopAll]);
-
-  // React.useEffect(() => {
-  //   //When navigation is changed update the post states
-  //   const unsubscribe = navigation.addListener("focus", async () => {
-  //     if (firstRun.current) {
-  //       firstRun.current = false;
-  //     } else {
-  //       await getPostStates();
-  //     }
-  //   });
-
-  //   return unsubscribe;
-  // }, [navigation]);
-
-  const onFullScreen = (fullScreen) => {
-    if (fullScreen) {
-      Orientation.lockToLandscape();
-    }
-  };
 
   //share button function to share posts cross-platforms
   const onShare = async () => {
@@ -321,7 +310,28 @@ const PostComponent = ({ postId, authorId, navigation, setDisableScroll }) => {
           onPress: () => {
             deletePost();
             optionsRef.current.close();
-            if (navigation.canGoBack()) navigation.goBack();
+            if (goBackOnDelete) navigation.goBack();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+
+  //delete tile confirmation alert function
+  const deleteTileConfirmation = (tileId) =>
+    Alert.alert(
+      "Confirmation",
+      "Are you sure?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            deleteTile(tileId);
           },
         },
       ],
@@ -333,8 +343,14 @@ const PostComponent = ({ postId, authorId, navigation, setDisableScroll }) => {
     const res = await deletePostAPI(postId, userToken);
   };
 
+  //delete tile async function
+  const deleteTile = async (tileId) => {
+    const res = await deleteTileAPI(postId, tileId, userToken);
+  };
+
   const renderTile = ({ item, index }) => {
-    var youtube_id = item.youtube_link.substr(item.youtube_link.length - 11);
+    if (item.is_youtube)
+      var youtube_id = item.youtube_link.substr(item.youtube_link.length - 11);
     return (
       <View
         style={{
@@ -373,14 +389,37 @@ const PostComponent = ({ postId, authorId, navigation, setDisableScroll }) => {
             source={{ uri: `https://www.youtube.com/watch?v=${youtube_id}` }}
           />
         </View>
-        <TouchableOpacity
-          style={{ position: "absolute", left: "90%", top: "90%", zIndex: 99 }}
-          onPress={() => {
-            WebViewRef[item.id] && WebViewRef[item.id].reload();
+        <View
+          style={{
+            backgroundColor: Colors.contrastGray,
+            position: "absolute",
+            right: "3%",
+            top: "90%",
+            zIndex: 99,
+            flexDirection: "row",
+            justifyContent: "center",
+            alignItems: "center",
+            paddingHorizontal: 8,
+            borderRadius: 5,
           }}
         >
-          <Foundation name="refresh" size={30} color={Colors.primary} />
-        </TouchableOpacity>
+          {/* <TouchableOpacity
+            style={{ marginRight: 20 }}
+            onPress={() => {
+              deleteTileConfirmation(item.id);
+            }}
+          >
+            <Feather name="trash-2" size={24} color="red" />
+          </TouchableOpacity> */}
+          <TouchableOpacity
+            style={{}}
+            onPress={() => {
+              WebViewRef[item.id] && WebViewRef[item.id].reload();
+            }}
+          >
+            <Foundation name="refresh" size={30} color={Colors.primary} />
+          </TouchableOpacity>
+        </View>
       </View>
     );
   };

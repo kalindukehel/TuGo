@@ -57,7 +57,9 @@ const ArtistInfo = (props) => {
         <ScrollView>
           <View style={styles.infoView}>
             <HTML
-              source={{ html: artistDetails.bios[0].bio }}
+              source={{
+                html: `<p style="color: ${Colors.text};"> ${artistDetails.bios[0].bio}`,
+              }}
               contentWidth={contentWidth}
             />
           </View>
@@ -88,7 +90,7 @@ const styles = StyleSheet.create({
     position: "absolute",
     height: 180,
     width: width,
-    backgroundColor: "#E3FBFF",
+    backgroundColor: Colors.primary,
     borderBottomRightRadius: 50,
     alignItems: "center",
     justifyContent: "center",

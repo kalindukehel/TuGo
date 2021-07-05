@@ -53,11 +53,6 @@ const Feed = ({ navigation }) => {
     onRefresh();
   }, []);
 
-  const renderItem = (component) => {
-    const postId = component.item.post;
-    return <PostComponent postId={postId} navigation={navigation} />;
-  };
-
   const ItemSeparatorView = () => {
     return (
       // Flat List Item Separator
@@ -81,6 +76,7 @@ const Feed = ({ navigation }) => {
             postId={item.post}
             navigation={navigation}
             setDisableScroll={setDisableScroll}
+            goBackOnDelete={false}
           />
         )}
         keyExtractor={(item, index) => item.id.toString()}

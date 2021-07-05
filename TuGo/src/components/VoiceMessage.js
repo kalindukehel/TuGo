@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Animated,
+  Image,
 } from "react-native";
 import moment from "moment";
 import { useAuthState } from "../context/authContext";

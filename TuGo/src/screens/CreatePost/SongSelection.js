@@ -25,12 +25,7 @@ const CreatePost = ({ navigation }) => {
   const [results, setResults] = useState([]);
   const [selectedItem, setSelectedItem] = useState({});
   const [loading, setLoading] = useState(false);
-
-  //Update current text state when user types
-  const handleChange = (text) => {
-    setSearch(text);
-    handleResults(text);
-  };
+  const [disableScroll, setDisableScroll] = useState(false);
 
   //Function passed into SearchItem as a propr to select that item
   const selectItem = (
@@ -73,10 +68,11 @@ const CreatePost = ({ navigation }) => {
   };
 
   //When user enters their search term, perform search
-  const handleResults = async (text) => {
-    if (text != "") {
+  const handleResults = async (search) => {
+    console.log(search);
+    if (search != "") {
       setLoading(true);
-      let response = await typeSongAheadSearchAPI(text);
+      let response = await typeSongAheadSearchAPI(search);
       const filteredSongs = response.data.search.data.tracks.map((song) => {
         return {
           albumId: song.albumId,
@@ -112,6 +108,7 @@ const CreatePost = ({ navigation }) => {
         genre={item.genres}
         trackId={item.trackId}
         artistId={item.artist_id}
+        setDisableScroll={setDisableScroll}
       />
     );
   };
@@ -166,15 +163,11 @@ const CreatePost = ({ navigation }) => {
           style={{ ...styles.searchBar }}
           placeholder={"Search"}
           placeholderTextColor={Colors.FG}
-          onChangeText={(text) => {
-            handleChange(text);
-          }}
+          onChangeText={handleResults}
         />
       </View>
       {loading ? (
-        <View style={styles.activityIndicator}>
-          <ActivityIndicator size="large" animating={true} color={Colors.FG} />
-        </View>
+        <ActivityIndicator size="small" animating={true} color={Colors.FG} />
       ) : (
         <FlatList
           contentContainerStyle={{ flexGrow: 1 }}
@@ -182,6 +175,7 @@ const CreatePost = ({ navigation }) => {
           keyExtractor={(item, index) => item.trackId.toString()}
           renderItem={renderItem}
           keyboardDismissMode="on-drag"
+          scrollEnabled={!disableScroll}
         />
       )}
     </SafeAreaView>

@@ -152,7 +152,7 @@ const SearchItem = (props) => {
 
   async function seekSliding() {
     setIsSeeking(true);
-    setDisableScroll(true);
+    setDisableScroll && setDisableScroll(true);
   }
 
   async function seekComplete(args) {
@@ -165,7 +165,7 @@ const SearchItem = (props) => {
       });
     }
     setIsSeeking(false);
-    setDisableScroll(false);
+    setDisableScroll && setDisableScroll(false);
   }
   stateRef.current = isSeeking;
 

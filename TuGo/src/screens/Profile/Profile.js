@@ -112,7 +112,6 @@ const Profile = (props) => {
     id = props.route.params.id;
   }
   const { userToken, self } = useAuthState();
-  const dispatch = useAuthDispatch();
   const [followers, setFollowers] = useState(0);
   const [following, setFollowing] = useState(0);
   const [posts, setPosts] = useState([]);
@@ -121,14 +120,8 @@ const Profile = (props) => {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(200);
   const [isFollowing, setIsFollowing] = useState(false);
-  const [onBack, setOnBack] = useState(false);
-  const [videoCount, setVideoCount] = useState(0);
   const firstRun = useRef(true);
   const [offset, setOffset] = useState(0);
-
-  //push notifications expo
-  const notificationListener = useRef();
-  const responseListener = useRef();
 
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
@@ -508,6 +501,7 @@ const Profile = (props) => {
       error == 403 && (
         <Text
           style={{
+            color: Colors.text,
             fontSize: 20,
             fontWeight: "bold",
             alignSelf: "center",
@@ -527,7 +521,6 @@ const Profile = (props) => {
       }}
     >
       <FlatList
-        onScroll={onScroll}
         ref={ref}
         style={{ flexDirection: "column" }}
         contentContainerStyle={styles.list}

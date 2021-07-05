@@ -119,14 +119,6 @@ const styles = StyleSheet.create({
     shadowRadius: 6.68,
     elevation: 11,
   },
-  chartHeader: {
-    height: 220,
-    position: "absolute",
-    width: width,
-    flex: 1,
-    backgroundColor: "#E3FBFF",
-    borderBottomRightRadius: 50,
-  },
   chartName: {
     fontWeight: "bold",
     fontSize: 15,

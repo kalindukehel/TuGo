@@ -117,58 +117,57 @@ const Comments = (props) => {
 
   const renderAllSuggestions: (
     suggestions: Suggestion[]
-  ) => FC<MentionSuggestionsProps> = (suggestions) => ({
-    keyword,
-    onSuggestionPress,
-  }) => {
-    if (keyword == null) {
-      return <></>;
-    }
+  ) => FC<MentionSuggestionsProps> =
+    (suggestions) =>
+    ({ keyword, onSuggestionPress }) => {
+      if (keyword == null) {
+        return <></>;
+      }
 
-    return (
-      <ScrollView
-        style={{
-          backgroundColor: Colors.gray,
-          position: "absolute",
-          bottom: 40,
-          left: 0,
-          right: 0,
-          maxHeight: 300,
-          borderRadius: 10,
-        }}
-      >
-        {suggestions
-          .filter((one) =>
-            one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())
-          )
-          .map((one) => {
-            console.log(one);
-            return (
-              <TouchableWithoutFeedback
-                key={one.id}
-                onPress={() => onSuggestionPress(one)}
-                style={{
-                  padding: 12,
-                  flexDirection: "row",
-                  alignItems: "center",
-                }}
-              >
-                <Image
-                  source={{ uri: one.profile_picture }}
+      return (
+        <ScrollView
+          style={{
+            backgroundColor: Colors.contrastGray,
+            position: "absolute",
+            bottom: 40,
+            left: 0,
+            right: 0,
+            maxHeight: 300,
+            borderRadius: 10,
+          }}
+        >
+          {suggestions
+            .filter((one) =>
+              one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())
+            )
+            .map((one) => {
+              console.log(one);
+              return (
+                <TouchableWithoutFeedback
+                  key={one.id}
+                  onPress={() => onSuggestionPress(one)}
                   style={{
-                    width: 20,
-                    height: 20,
-                    borderRadius: 999,
-                    marginRight: 10,
+                    padding: 12,
+                    flexDirection: "row",
+                    alignItems: "center",
                   }}
-                />
-                <Text style={{ color: Colors.FG }}>{one.name}</Text>
-              </TouchableWithoutFeedback>
-            );
-          })}
-      </ScrollView>
-    );
-  };
+                >
+                  <Image
+                    source={{ uri: one.profile_picture }}
+                    style={{
+                      width: 20,
+                      height: 20,
+                      borderRadius: 999,
+                      marginRight: 10,
+                    }}
+                  />
+                  <Text style={{ color: Colors.FG }}>{one.name}</Text>
+                </TouchableWithoutFeedback>
+              );
+            })}
+        </ScrollView>
+      );
+    };
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -250,10 +249,11 @@ const Comments = (props) => {
         trigger: "@",
         renderSuggestions: renderMentionSuggestions,
       },
-      {
-        pattern: /(https?:\/\/|www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.(xn--)?[a-z0-9-]{2,20}\b([-a-zA-Z0-9@:%_\+\[\],.~#?&\/=]*[-a-zA-Z0-9@:%_\+\]~#?&\/=])*/gi,
-        textStyle: { color: "blue" },
-      },
+      // {
+      //   pattern:
+      //     /(https?:\/\/|www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.(xn--)?[a-z0-9-]{2,20}\b([-a-zA-Z0-9@:%_\+\[\],.~#?&\/=]*[-a-zA-Z0-9@:%_\+\]~#?&\/=])*/gi,
+      //   textStyle: { color: "blue" },
+      // },
     ]);
     return (
       <View style={styles.comment}>
@@ -349,11 +349,13 @@ const Comments = (props) => {
                 {
                   trigger: "@",
                   renderSuggestions: renderMentionSuggestions,
+                  textStyle: { fontWeight: "bold", color: Colors.text },
                 },
-                {
-                  pattern: /(https?:\/\/|www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.(xn--)?[a-z0-9-]{2,20}\b([-a-zA-Z0-9@:%_\+\[\],.~#?&\/=]*[-a-zA-Z0-9@:%_\+\]~#?&\/=])*/gi,
-                  textStyle: { fontWeight: "bold", color: "black" },
-                },
+                // {
+                //   pattern:
+                //     /(https?:\/\/|www\.)[-a-zA-Z0-9@:%._\+~#=]{1,256}\.(xn--)?[a-z0-9-]{2,20}\b([-a-zA-Z0-9@:%_\+\[\],.~#?&\/=]*[-a-zA-Z0-9@:%_\+\]~#?&\/=])*/gi,
+                //   textStyle: { fontWeight: "bold", color: Colors.text },
+                // },
               ]}
               style={styles.commentBar}
               placeholder="Type here..."

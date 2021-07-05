@@ -15,19 +15,14 @@ import RBSheet from "react-native-raw-bottom-sheet";
 import YoutubePlayer from "react-native-yt-player";
 import { Colors } from "../../constants";
 import { AntDesign } from "@expo/vector-icons";
+import HTML from "react-native-render-html";
 
 var { width, height } = Dimensions.get("window");
 
 //Component used in DanceChoreoTabView to display YouTube video results
 const VideoSearchItem = (props) => {
-  const {
-    title,
-    thumbnail,
-    videoId,
-    selected,
-    selectVideo,
-    inCreatePost,
-  } = props;
+  const { title, thumbnail, videoId, selected, selectVideo, inCreatePost } =
+    props;
   const refRBSheet = useRef();
   return (
     <View>
@@ -49,9 +44,15 @@ const VideoSearchItem = (props) => {
           source={{ uri: thumbnail }}
         />
         <View style={{ justifyContent: "space-between" }}>
-          <Text style={{ width: 200, paddingBottom: 5, color: Colors.FG }}>
+          {/* <Text style={{ width: 200, paddingBottom: 5, color: Colors.FG }}>
             {title}
-          </Text>
+          </Text> */}
+          <HTML
+            source={{
+              html: `<p style="color: ${Colors.text}; width: 200"> ${title}`,
+            }}
+            contentWidth={50}
+          />
           {inCreatePost && (
             <TouchableOpacity
               onPress={() => {

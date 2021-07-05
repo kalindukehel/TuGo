@@ -3,7 +3,7 @@ import {
   Animated,
   FlatList,
   Keyboard,
-  LayoutChangeEvent,
+  ActivityIndicator,
   SafeAreaView,
   StyleSheet,
   Text,
@@ -288,7 +288,7 @@ export default ShareToDirect;
 
 const styles = StyleSheet.create({
   bottomSheet: {
-    backgroundColor: "#2D2D2D",
+    backgroundColor: Colors.contrastGray,
     opacity: 1,
     borderWidth: 0.5,
     borderColor: Colors.gray,
@@ -390,11 +390,13 @@ const styles = StyleSheet.create({
 const ReceiverItem = ({ user, index, shareItem, message }) => {
   const [sent, setSent] = useState(false);
   const { self } = useAuthState();
+  const [loadingShare, setLoadingShare] = useState(false);
 
   const _onToggleSend = async () => {
     if (!sent) {
       try {
         // check if self already has a chatroom with account
+        setLoadingShare(true);
         const userData = await API.graphql(
           graphqlOperation(getUser, {
             id: self.id,
@@ -526,6 +528,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             })
           );
         }
+        setLoadingShare(false);
       } catch (e) {
         console.log(e);
       }
@@ -568,21 +571,25 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         style={{
           borderRadius: 10,
           padding: 6,
-          backgroundColor: sent ? "#65FF33" : Colors.primary,
+          backgroundColor: sent ? Colors.gray : Colors.primary,
           width: 60,
           justifyContent: "center",
           alignItems: "center",
         }}
       >
-        <Text
-          style={{
-            color: sent ? "black" : "white",
-            fontSize: 12,
-            padding: 3,
-          }}
-        >
-          {sent ? "Sent" : "Send"}
-        </Text>
+        {loadingShare ? (
+          <ActivityIndicator animating={true} size="small" color={Colors.FG} />
+        ) : (
+          <Text
+            style={{
+              color: "black",
+              fontSize: 12,
+              padding: 3,
+            }}
+          >
+            {sent ? "Sent" : "Send"}
+          </Text>
+        )}
       </TouchableOpacity>
     </View>
   );

@@ -41,6 +41,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.BG,
   },
   textInputStyle: {
+    marginTop: 10,
     height: 40,
     paddingLeft: 20,
     borderRadius: 20,
@@ -272,20 +273,29 @@ const Followers = (props) => {
     );
   };
 
-  const header = () => (
-    <TextInput
-      keyboardAppearance={appTheme}
-      style={styles.textInputStyle}
-      onChangeText={(text) => searchFilterFunction(text)}
-      value={search}
-      placeholder="Search"
-      placeholderTextColor={Colors.text}
-      clearButtonMode="always"
-    />
-  );
+  // const header = () => (
+  //   <TextInput
+  //     keyboardAppearance={appTheme}
+  //     style={styles.textInputStyle}
+  //     onChangeText={(text) => searchFilterFunction(text)}
+  //     value={search}
+  //     placeholder="Search"
+  //     placeholderTextColor={Colors.text}
+  //     clearButtonMode="always"
+  //   />
+  // );
 
   return (
     <View style={styles.container}>
+      <TextInput
+        keyboardAppearance={appTheme}
+        style={styles.textInputStyle}
+        onChangeText={(text) => searchFilterFunction(text)}
+        value={search}
+        placeholder="Search"
+        placeholderTextColor={Colors.text}
+        clearButtonMode="always"
+      />
       <FlatList
         contentContainerStyle={{ flexGrow: 1 }}
         data={filteredData}
@@ -301,7 +311,7 @@ const Followers = (props) => {
         ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode={"on-drag"}
-        ListHeaderComponent={header}
+        // ListHeaderComponent={header}
         ListHeaderComponentStyle={{ margin: 10 }}
       />
     </View>

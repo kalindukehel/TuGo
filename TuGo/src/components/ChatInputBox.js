@@ -39,7 +39,7 @@ const ChatInputBox = (props) => {
   const [recordedAnimation, setRecordingAnimated] = useState(
     new Animated.Value(0)
   );
-
+  console.log(chatRoomID);
   const [message, setMessage] = useState("");
   const [myUserId, setMyUserId] = useState(null);
   const [recording, setRecording] = useState();
@@ -194,6 +194,7 @@ const ChatInputBox = (props) => {
   };
   const onSendText = async () => {
     try {
+      //to update last message
       const newMessageData = await API.graphql(
         graphqlOperation(createMessage, {
           input: {
@@ -206,6 +207,22 @@ const ChatInputBox = (props) => {
         })
       );
       await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
+      // update seen list
+      const chatRoomData = await API.graphql(
+        graphqlOperation(updateChatRoom, {
+          input: {
+            id: chatRoomID,
+            seen: {
+              item: {
+                id: self.id,
+                username: self.username,
+                name: self.name,
+              },
+            },
+          },
+        })
+      );
+
       // const notifRes = await pushNotificationAPI(
       //   author.notification_token,
       //   self.username,

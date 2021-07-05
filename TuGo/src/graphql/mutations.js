@@ -119,6 +119,9 @@ export const createChatRoomUser = /* GraphQL */ `
           type
           updatedAt
         }
+        seen {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -167,6 +170,9 @@ export const updateChatRoomUser = /* GraphQL */ `
           type
           updatedAt
         }
+        seen {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -214,6 +220,9 @@ export const deleteChatRoomUser = /* GraphQL */ `
           chatRoomID
           type
           updatedAt
+        }
+        seen {
+          nextToken
         }
         createdAt
         updatedAt
@@ -279,6 +288,18 @@ export const createChatRoom = /* GraphQL */ `
         type
         updatedAt
       }
+      seen {
+        items {
+          id
+          name
+          username
+          imageUri
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -339,6 +360,18 @@ export const updateChatRoom = /* GraphQL */ `
         }
         type
         updatedAt
+      }
+      seen {
+        items {
+          id
+          name
+          username
+          imageUri
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
       }
       createdAt
       updatedAt
@@ -401,6 +434,18 @@ export const deleteChatRoom = /* GraphQL */ `
         type
         updatedAt
       }
+      seen {
+        items {
+          id
+          name
+          username
+          imageUri
+          status
+          createdAt
+          updatedAt
+        }
+        nextToken
+      }
       createdAt
       updatedAt
     }
@@ -448,6 +493,9 @@ export const createMessage = /* GraphQL */ `
           chatRoomID
           type
           updatedAt
+        }
+        seen {
+          nextToken
         }
         createdAt
         updatedAt
@@ -500,6 +548,9 @@ export const updateMessage = /* GraphQL */ `
           type
           updatedAt
         }
+        seen {
+          nextToken
+        }
         createdAt
         updatedAt
       }
@@ -550,6 +601,9 @@ export const deleteMessage = /* GraphQL */ `
           chatRoomID
           type
           updatedAt
+        }
+        seen {
+          nextToken
         }
         createdAt
         updatedAt

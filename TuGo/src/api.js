@@ -353,15 +353,16 @@ export async function pushNotification(expoPushToken, creator, type) {
       body: `${creator} tagged you in a post`,
       data: { type: "tag" },
     };
-  } else if (type == "message") {
-    message = {
-      to: expoPushToken,
-      sound: "default",
-      title: "New Tag",
-      body: `${creator} sent you in a message`,
-      data: { type: "message" },
-    };
   }
+  // } else if (type == "message") {
+  //   message = {
+  //     to: expoPushToken,
+  //     sound: "default",
+  //     title: "New Tag",
+  //     body: `${creator} sent you in a message`,
+  //     data: { type: "message" },
+  //   };
+  // }
   await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: {
@@ -375,6 +376,14 @@ export async function pushNotification(expoPushToken, creator, type) {
 
 export async function deletePost(postId, token) {
   return axios.delete(`${API_URL}/api/posts/${postId}/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function deleteTile(postId, tileId, token) {
+  return axios.delete(`${API_URL}/api/posts/${postId}/tiles/${tileId}`, {
     headers: {
       Authorization: "Token " + token,
     },

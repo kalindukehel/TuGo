@@ -335,6 +335,8 @@ class PostViewSet(viewsets.ModelViewSet):
             #get video url
             youtube_video_url = None
             custom_video_url = None
+            if(not is_youtube):
+                custom_video_url = request.data.get('custom_video_url')
             # if(is_youtube):
             #     # video = pafy.new(youtube_link)
             #     # best = video.getbest()
@@ -344,7 +346,6 @@ class PostViewSet(viewsets.ModelViewSet):
             #     custom_video_url = request.data.get('custom_video_url')
             #     print(custom_video_url)
             tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,youtube_link=youtube_link,image=image,youtube_video_url=youtube_video_url, custom_video_url=custom_video_url)
-            print(tile)
             tile.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
