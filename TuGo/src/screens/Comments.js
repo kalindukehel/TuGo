@@ -340,6 +340,7 @@ const Comments = (props) => {
         >
           <View style={styles.commentBarBackground}>
             <MentionInput
+              maxLength={200}
               keyboardAppearance={appTheme}
               containerStyle={{ borderRadius: 15, flex: 1, color: Colors.FG }}
               autoFocus

@@ -283,6 +283,7 @@ export async function postNotificationToken(data, token, id) {
 }
 
 export async function postProfilePicture(data, token, id) {
+  console.log(data)
   return axios.patch(
     `${API_URL}/api/accounts/${id}/`,
     {
@@ -291,6 +292,7 @@ export async function postProfilePicture(data, token, id) {
     {
       headers: {
         Authorization: "Token " + token,
+        "Content-Type": "image/jpeg",
       },
     }
   );
@@ -394,6 +396,26 @@ export async function toggleAccountVisilibity(isPrivate, token) {
   let data = {
     is_private: isPrivate,
   };
+  return axios.patch(`${API_URL}/api/accounts/self/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function editProfile(username, name, token) {
+  let data = {
+    username: username,
+    name: name
+  };
+  if (username){
+    data = {...data, username: username}
+  }
+  if (name){
+    data = {...data, name: name}
+  }
+  console.log(data)
   return axios.patch(`${API_URL}/api/accounts/self/`, data, {
     headers: {
       Authorization: "Token " + token,

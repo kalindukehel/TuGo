@@ -93,7 +93,6 @@ const ChatListItem = (props) => {
       return "";
     }
   };
-
   return (
     <TouchableWithoutFeedback
       onPress={onClick}

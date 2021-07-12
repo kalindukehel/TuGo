@@ -632,14 +632,14 @@ const PostComponent = ({
             ) : (
               tiles && (
                 <View>
-                  <Carousel
+                  {/* <Carousel
                     ref={tilesRef}
                     data={tiles}
                     renderItem={renderTile}
                     sliderWidth={width}
                     itemWidth={width}
                     onSnapToItem={(index) => setActiveSlide(index)}
-                  />
+                  /> */}
 
                   <Pagination
                     carouselRef={tilesRef}

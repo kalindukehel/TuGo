@@ -25,7 +25,7 @@ type ChatRoom @model {
   messages: [Message] @connection(keyName: "byChatRoom", fields: ["id"])
   lastMessageID: ID!
   lastMessage: Message @connection(fields: ["lastMessageID"])
-  seen: [User] @connection(fields: ["id"])
+  seen: [ChatRoomUser!]! @connection(keyName: "byChatRoom", fields: ["id"])
 }
 
 type Message

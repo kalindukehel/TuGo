@@ -184,10 +184,8 @@ export const getChatRoom = /* GraphQL */ `
       seen {
         items {
           id
-          name
-          username
-          imageUri
-          status
+          userID
+          chatRoomID
           createdAt
           updatedAt
         }

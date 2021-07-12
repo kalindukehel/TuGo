@@ -291,10 +291,8 @@ export const createChatRoom = /* GraphQL */ `
       seen {
         items {
           id
-          name
-          username
-          imageUri
-          status
+          userID
+          chatRoomID
           createdAt
           updatedAt
         }
@@ -364,10 +362,8 @@ export const updateChatRoom = /* GraphQL */ `
       seen {
         items {
           id
-          name
-          username
-          imageUri
-          status
+          userID
+          chatRoomID
           createdAt
           updatedAt
         }
@@ -437,10 +433,8 @@ export const deleteChatRoom = /* GraphQL */ `
       seen {
         items {
           id
-          name
-          username
-          imageUri
-          status
+          userID
+          chatRoomID
           createdAt
           updatedAt
         }

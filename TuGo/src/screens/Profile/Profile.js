@@ -394,7 +394,9 @@ const Profile = (props) => {
                       backgroundColor: "#DCDCDC",
                     }}
                     onPress={() => {
-                      navigation.push("Edit Profile");
+                      navigation.push("Edit Profile", {
+                        self: user
+                      });
                     }}
                   >
                     <Text

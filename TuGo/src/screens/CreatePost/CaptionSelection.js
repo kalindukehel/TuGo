@@ -131,6 +131,7 @@ const CaptionSelection = (props) => {
         />
       )}
       <TextInput
+        maxLength={200}
         keyboardAppearance={appTheme}
         style={{ ...styles.commentBar }}
         placeholder={"Add caption..."}

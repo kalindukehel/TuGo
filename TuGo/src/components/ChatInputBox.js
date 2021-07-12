@@ -213,11 +213,11 @@ const ChatInputBox = (props) => {
           input: {
             id: chatRoomID,
             seen: {
-              item: {
+              item: [{
                 id: self.id,
                 username: self.username,
                 name: self.name,
-              },
+              }]
             },
           },
         })
