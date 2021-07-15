@@ -248,14 +248,17 @@ const SearchItem = (props) => {
             <Ticker
               string={artist}
               maxLength={32}
-              style={{ color: selected ? Colors.BG : Colors.FG }}
+              style={{ 
+                fontWeight: "200",
+                color: Colors.text 
+              }}
             />
             <Ticker
               string={title}
               maxLength={32}
               style={{
-                fontWeight: "bold",
-                color: selected ? Colors.BG : Colors.FG,
+                fontWeight: "700",
+                color: isPlaying && trackId === props.trackId ? "#FF4343" : Colors.text,
               }}
             />
           </View>

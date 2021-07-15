@@ -321,7 +321,7 @@ const Comments = (props) => {
       <View style={styles.container}>
         <FlatList
           keyboardDismissMode="interactive"
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{ flexGrow: 1}}
           data={masterData}
           keyExtractor={(item, index) => index.toString()}
           refreshControl={
@@ -340,6 +340,7 @@ const Comments = (props) => {
         >
           <View style={styles.commentBarBackground}>
             <MentionInput
+              maxHeight={400}
               maxLength={200}
               keyboardAppearance={appTheme}
               containerStyle={{ borderRadius: 15, flex: 1, color: Colors.FG }}
@@ -366,6 +367,7 @@ const Comments = (props) => {
               disabled={!canSendComment}
               style={{
                 opacity: canSendComment ? 1 : 0.5,
+                marginBottom: 3
               }}
               onPress={sendComment}
             >
@@ -406,7 +408,7 @@ const styles = StyleSheet.create({
     borderColor: "#C8C8C8",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 20,
   },
@@ -418,12 +420,11 @@ const styles = StyleSheet.create({
   },
   commentBarBackground: {
     flexDirection: "row",
-    alignItems: "center",
-    borderColor: Colors.FG,
-    borderWidth: 1,
-    borderRadius: 10,
+    alignItems: "flex-end",
+    backgroundColor: Colors.contrastGray,
+    borderRadius: 20,
     margin: 5,
-    height: 40,
+    maxHeight: 100
   },
 });
 

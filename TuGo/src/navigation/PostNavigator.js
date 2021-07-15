@@ -27,7 +27,7 @@ const PostNavigator = ({ id }) => {
         name="Post"
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
@@ -44,7 +44,7 @@ const PostNavigator = ({ id }) => {
         component={Likes}
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
@@ -57,7 +57,7 @@ const PostNavigator = ({ id }) => {
             horizontal: 300,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
@@ -68,7 +68,7 @@ const PostNavigator = ({ id }) => {
         name="Profile"
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
