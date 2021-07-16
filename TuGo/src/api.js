@@ -283,16 +283,15 @@ export async function postNotificationToken(data, token, id) {
 }
 
 export async function postProfilePicture(data, token, id) {
-  console.log(data)
+  let formdata = new FormData();
+  formdata.append("profile_picture", {uri: data, name: 'image.jpg', type: 'image/jpeg'})
   return axios.patch(
     `${API_URL}/api/accounts/${id}/`,
-    {
-      profile_picture: data,
-    },
+    formdata,
     {
       headers: {
         Authorization: "Token " + token,
-        "Content-Type": "image/jpeg",
+        "Content-Type": "multipart/form-data",
       },
     }
   );
@@ -314,13 +313,13 @@ export async function deleteNotificationToken(token, id) {
 
 /* Push Notification functions */
 
-export async function pushNotification(expoPushToken, creator, type) {
+export async function pushNotification(expoPushToken, data, type) {
   let message;
   if (type == "like") {
     message = {
       to: expoPushToken,
       sound: "default",
-      body: `${creator} liked your post`,
+      body: `${data.creator} liked your post`,
       data: { type: "like" },
     };
   } else if (type == "follow") {
@@ -328,7 +327,7 @@ export async function pushNotification(expoPushToken, creator, type) {
       to: expoPushToken,
       sound: "default",
       title: "New Follower",
-      body: `${creator} started following you`,
+      body: `${data.creator} started following you`,
       data: { type: "follow" },
     };
   } else if (type == "request") {
@@ -336,7 +335,7 @@ export async function pushNotification(expoPushToken, creator, type) {
       to: expoPushToken,
       sound: "default",
       title: "New Follower",
-      body: `${creator} requested to following you`,
+      body: `${data.creator} requested to following you`,
       data: { type: "request" },
     };
   } else if (type == "comment") {
@@ -344,7 +343,7 @@ export async function pushNotification(expoPushToken, creator, type) {
       to: expoPushToken,
       sound: "default",
       title: "New Comment",
-      body: `${creator} commented on your post`,
+      body: `${data.creator} commented on your post`,
       data: { type: "comment" },
     };
   } else if (type == "tag") {
@@ -352,19 +351,18 @@ export async function pushNotification(expoPushToken, creator, type) {
       to: expoPushToken,
       sound: "default",
       title: "New Tag",
-      body: `${creator} tagged you in a post`,
+      body: `${data.creator} tagged you in a post`,
       data: { type: "tag" },
     };
+  } else if (type == "message") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: "New Message",
+      body: `${data.creator}\n${data.content}`,
+      data: { type: "message" },
+    };
   }
-  // } else if (type == "message") {
-  //   message = {
-  //     to: expoPushToken,
-  //     sound: "default",
-  //     title: "New Tag",
-  //     body: `${creator} sent you in a message`,
-  //     data: { type: "message" },
-  //   };
-  // }
   await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: {

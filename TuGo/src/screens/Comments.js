@@ -201,7 +201,7 @@ const Comments = (props) => {
       if (author.notification_token != self.notification_token) {
         const notifRes = await pushNotificationAPI(
           author.notification_token,
-          self.username,
+          {creator: self.username},
           "comment"
         );
       }
@@ -224,7 +224,7 @@ const Comments = (props) => {
           ) {
             const notifRes = await pushNotificationAPI(
               account.notification_token,
-              self.username,
+              {creator: self.username},
               "tag"
             );
           }

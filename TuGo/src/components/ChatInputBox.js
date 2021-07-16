@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { API, Auth, graphqlOperation } from "aws-amplify";
 
 import { createMessage, updateChatRoom } from "../graphql/mutations";
+import { getChatRoom, getUser } from "../screens/Direct/queries";
 
 import {
   MaterialCommunityIcons,
@@ -207,26 +208,29 @@ const ChatInputBox = (props) => {
         })
       );
       await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
+
       // update seen list
+      const data = await API.graphql(
+        graphqlOperation(getChatRoom, {
+          id: chatRoomID,
+        })
+      );
+      let seen = data.data.getChatRoom.seen
+      seen.push(self.id)
       const chatRoomData = await API.graphql(
         graphqlOperation(updateChatRoom, {
           input: {
             id: chatRoomID,
-            seen: {
-              item: [{
-                id: self.id,
-                username: self.username,
-                name: self.name,
-              }]
-            },
+            seen: seen
           },
         })
       );
 
+
       // const notifRes = await pushNotificationAPI(
       //   author.notification_token,
-      //   self.username,
-      //   "comment"
+      //   {creator: self.username, content: message},
+      //   "message"
       // );
     } catch (e) {
       console.log(e);
@@ -302,15 +306,15 @@ const ChatInputBox = (props) => {
                 keyboardAppearance={appTheme}
                 color={Colors.text}
               />
-                      <TouchableOpacity onPress={onPress} style={{marginBottom: 3}}>
-          <View style={{ marginRight: 5 }}>
-              <MaterialCommunityIcons
-                name="send-circle"
-                size={30}
-                color={message ? Colors.primary : Colors.FG}
-              />
-          </View>
-        </TouchableOpacity>
+              <TouchableOpacity onPress={onPress} style={{marginBottom: 3}}>
+                <View style={{ marginRight: 5 }}>
+                    <MaterialCommunityIcons
+                      name="send-circle"
+                      size={30}
+                      color={message ? Colors.primary : Colors.FG}
+                    />
+                </View>
+              </TouchableOpacity>
             </View>
           </>
         {/* )} */}

@@ -16,19 +16,21 @@ const AuthNavigator = ({ isSignout }) => {
         component={SignInScreen}
         options={{
           headerStyle: {
-            backgroundColor: Colors.Header,
+            backgroundColor: "#ffffff00",
           },
           headerBackTitleVisible: false,
           headerTintColor: "black",
+          headerTitle: false
         }}
       />
       <Stack.Screen name="SignUp" component={SignUpScreen}         
-      options={{
+        options={{
           headerStyle: {
-            backgroundColor: Colors.Header,
+            backgroundColor: "#ffffff00",
           },
           headerBackTitleVisible: false,
           headerTintColor: "black",
+          headerTitle: false
         }}/>
     </Stack.Navigator>
   );

@@ -13,10 +13,13 @@ import {
 import { API_URL } from "../../constants";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
-import { postProfilePicture as postProfilePictureAPI, editProfile as editProfileAPI } from "../api";
-import { useAuthState } from "../context/authContext";
+import { postProfilePicture as postProfilePictureAPI, editProfile as editProfileAPI, getSelf as getSelfAPI } from "../api";
+import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { Colors } from "../../constants"
 import { TextInput } from "react-native-gesture-handler";
+import { updateUser } from "../graphql/mutations"
+import { API, Auth, graphqlOperation } from "aws-amplify";
+
 var { width, height } = Dimensions.get("window");
 
 const EditProfile = (props) => {
@@ -25,6 +28,7 @@ const EditProfile = (props) => {
   const [image, setImage] = useState(self.profile_picture);
   const [username, setUsername] = useState(self.username);
   const [name, setName] = useState(self.name);
+  const dispatch = useAuthDispatch();
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -33,8 +37,23 @@ const EditProfile = (props) => {
           style={{ marginRight: 20 }}
           onPress={async () => {
             try {
-              //await postProfilePictureAPI(image, userToken, self.id);
-              const res = await editProfileAPI(username, name, userToken)
+              if (image != self.profile_picture) {
+                const userRes = await postProfilePictureAPI(image, userToken, self.id)
+                const update = {
+                  id: userRes.data.id,
+                  name: userRes.data.name,
+                  username: userRes.data.username,
+                  imageUri: userRes.data.profile_picture,
+                  status: "Hey, I am using Tugo",
+                }
+                const chatRoomData = await API.graphql(
+                  graphqlOperation(updateUser, { input: update })
+                );
+              }
+              if (name != self.name || username != self.username) await editProfileAPI(username, name, userToken)
+              //get self after updated self
+              const selfRes = await getSelfAPI(userToken);
+              dispatch({ type: "GET_SELF", self: selfRes.data });
               navigation.goBack();
             } catch (e) {
               alert(e)

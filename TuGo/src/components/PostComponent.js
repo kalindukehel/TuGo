@@ -278,7 +278,7 @@ const PostComponent = ({
     ) {
       const notifRes = await pushNotificationAPI(
         author.notification_token,
-        self.username,
+        {creator: self.username},
         "like"
       );
     }

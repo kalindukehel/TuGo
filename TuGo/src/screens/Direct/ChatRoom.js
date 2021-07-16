@@ -6,6 +6,8 @@ import { API, graphqlOperation } from "aws-amplify";
 
 import { messagesByChatRoom } from "../../graphql/queries";
 import { onCreateMessage } from "../../graphql/subscriptions";
+import { updateChatRoom } from "../../graphql/mutations"
+import { getChatRoom } from "../Direct/queries"
 
 import TextMessage from "../../components/TextMessage";
 import VoiceMessage from "../../components/VoiceMessage";
@@ -14,8 +16,10 @@ import PostMessage from "../../components/PostMessage";
 import ChatInputBox from "../../components/ChatInputBox";
 
 import { Colors } from "../../../constants";
+import { useAuthState } from "../../context/authContext";
 
 const ChatRoom = ({ navigation }) => {
+  const { self } = useAuthState()
   const [messages, setMessages] = useState([]);
 
   const route = useRoute();
@@ -29,8 +33,27 @@ const ChatRoom = ({ navigation }) => {
     setMessages(messagesData.data.messagesByChatRoom.items);
   };
 
+  // const updateSeen = async () => {
+  //   const data = await API.graphql(
+  //     graphqlOperation(getChatRoom, {
+  //       id: route.params.id,
+  //     })
+  //   );
+  //   let seen = data.data.getChatRoom.seen
+  //   seen.push(self.id)
+  //   const chatRoomData = await API.graphql(
+  //     graphqlOperation(updateChatRoom, {
+  //       input: {
+  //         id: route.params.id,
+  //         seen: seen
+  //       },
+  //     })
+  //   );
+  // }
+
   useEffect(() => {
     fetchMessages();
+    // updateSeen();
   }, []);
 
   useEffect(() => {
