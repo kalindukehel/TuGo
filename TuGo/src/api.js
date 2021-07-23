@@ -248,8 +248,9 @@ export async function getSavedSongs(token) {
   });
 }
 
-export async function getActivity(token) {
-  return axios.get(`${API_URL}/api/accounts/activity/`, {
+export async function getActivity(token, next) {
+  const url = next ? next : `${API_URL}/api/accounts/activity/`;
+  return axios.get(url, {
     headers: {
       Authorization: "Token " + token,
     },
@@ -283,7 +284,7 @@ export async function postNotificationToken(data, token, id) {
 }
 
 export async function postProfilePicture(data, token, id) {
-  console.log(data)
+  console.log(data);
   return axios.patch(
     `${API_URL}/api/accounts/${id}/`,
     {
@@ -407,15 +408,15 @@ export async function toggleAccountVisilibity(isPrivate, token) {
 export async function editProfile(username, name, token) {
   let data = {
     username: username,
-    name: name
+    name: name,
   };
-  if (username){
-    data = {...data, username: username}
+  if (username) {
+    data = { ...data, username: username };
   }
-  if (name){
-    data = {...data, name: name}
+  if (name) {
+    data = { ...data, name: name };
   }
-  console.log(data)
+  console.log(data);
   return axios.patch(`${API_URL}/api/accounts/self/`, data, {
     headers: {
       Authorization: "Token " + token,
