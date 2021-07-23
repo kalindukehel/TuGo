@@ -22,8 +22,8 @@ const Activity = ({ navigation }) => {
   const notificationDispatch = useNotificationDispatch();
   const [activities, setActivities] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
-  const [next, setNext] = useState(null);
   const firstRun = useRef(true);
+  const next = useRef(null);
 
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
@@ -33,17 +33,14 @@ const Activity = ({ navigation }) => {
     setRefreshing(true);
     async function getActivityStates() {
       console.log(next);
-      const activityRes = await getActivityAPI(userToken, next ? next : null);
+      const activityRes = await getActivityAPI(userToken, null);
       setActivities([...activities, ...activityRes.data.results]);
-      setNext(activityRes.data.next);
+      next.current = activityRes.data.next;
+      console.log(next);
     }
     getActivityStates();
     setRefreshing(false);
   }, []);
-
-  useEffect(() => {
-    console.log(activities);
-  }, [activities]);
 
   useEffect(() => {
     notificationDispatch({ type: "ADD_NOTIFICATION", unread: false });
@@ -110,7 +107,9 @@ const Activity = ({ navigation }) => {
         renderItem={renderActivity}
         ListHeaderComponent={getHeader}
         keyExtractor={(activity) => activity.id.toString()}
+        onEndReachedThreshold={0.9}
         onEndReached={() => {
+          console.log("end reached");
           onRefresh();
         }}
         refreshControl={

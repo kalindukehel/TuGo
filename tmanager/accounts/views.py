@@ -10,16 +10,23 @@ from django.contrib.auth import authenticate
 from django.db.models import Q
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
+from rest_framework.pagination import PageNumberPagination
 from copy import deepcopy
 from django_pandas.io import read_frame
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
+import pafy
 from datetime import datetime, date, timezone
 import requests
 import json
 
 five_hours = 21600
+
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 10
 
 class AccountViewSet(viewsets.ModelViewSet):
     queryset = Account.objects.all()
@@ -255,9 +262,13 @@ class AccountViewSet(viewsets.ModelViewSet):
         serializer = ExploreSerializer(request.user.explore.all().order_by('-post'),many=True)
         return Response(serializer.data)
 
-    @action(detail=False, methods=['GET'])
+    @action(detail=False, methods=['GET'],pagination_class = StandardResultsSetPagination)
     def activity(self,request,*args,**kwargs):
         activity = request.user.activity.all().order_by('-id')
+        page = self.paginate_queryset(activity)
+        if page is not None:
+            serializer = ActivitySerializer(page,many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = ActivitySerializer(activity,many=True)
         return Response(serializer.data)
 
@@ -305,7 +316,7 @@ class PostViewSet(viewsets.ModelViewSet):
             serializer = LikeSerializer(all_likes,many=True)
             return Response(serializer.data)
     
-    @action(detail=True, methods=['GET','POST'], serializer_class=CommentSerializer )
+    @action(detail=True, methods=['GET','POST'], serializer_class=CommentSerializer,pagination_class = StandardResultsSetPagination)
     def comments(self, request, *args, **kwargs): 
         if(request.method=='POST'):
             value = request.data.get('value')
@@ -334,8 +345,6 @@ class PostViewSet(viewsets.ModelViewSet):
             #get video url
             youtube_video_url = None
             custom_video_url = None
-            if(not is_youtube):
-                custom_video_url = request.data.get('custom_video_url')
             # if(is_youtube):
             #     # video = pafy.new(youtube_link)
             #     # best = video.getbest()
@@ -345,6 +354,7 @@ class PostViewSet(viewsets.ModelViewSet):
             #     custom_video_url = request.data.get('custom_video_url')
             #     print(custom_video_url)
             tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,youtube_link=youtube_link,image=image,youtube_video_url=youtube_video_url, custom_video_url=custom_video_url)
+            print(tile)
             tile.save()
             return Response(status=status.HTTP_201_CREATED)
         else:
@@ -475,57 +485,57 @@ def songcharts(request,*args,**kwargs):
     }
     return Response({'data': response},status=status.HTTP_200_OK)
 
-# class SongViewSet(viewsets.ModelViewSet):
-#     queryset = Song.objects.all()
-#     permission_classes = [
-#         permissions.IsAuthenticated
-#     ]
-#     serializer_class = SongSerializer
+class SongViewSet(viewsets.ModelViewSet):
+    queryset = Song.objects.all()
+    permission_classes = [
+        permissions.IsAuthenticated
+    ]
+    serializer_class = SongSerializer
 
-#     @action(detail=False, methods=['GET','POST'], serializer_class=SongSerializer)
-#     def songsearch(self, request,*args,**kwargs):
-#         response = []
-#         search_query = self.request.data.get('search_query')
-#         search_response = requests.get("https://www.googleapis.com/youtube/v3/search?key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg&type=video&part=snippet&maxResults=10&q="+ search_query +"&videoCategoryId=10").json()
-#         #each song from youtube response
-#         for song in search_response['items']:
-#             video_id = song['id']['videoId']
-#             url = "https://www.youtube.com/watch?v=" + video_id
-#             playurl = ''
-#             #check if song exists in database
-#             matching = Song.objects.filter(video_id=video_id)
-#             #if song does not exist generate a url and save song to the database
-#             if not matching:
-#                 video = pafy.new(url)
-#                 streams = video.audiostreams
-#                 for s in streams:
-#                     if (s.extension == "m4a"):
-#                         playurl = s.url
-#                         song_created = datetime.now()
-#                         title=song['snippet']['title']
-#                         thumbnail=song['snippet']['thumbnails']['high']['url']
-#                         artist=song['snippet']['channelTitle']
-#                         break
-#                 newSong = Song(video_id=video_id, audio_url=playurl, song_created=song_created, title=title, thumbnail=thumbnail, artist=artist)
-#                 response.append(newSong)
-#                 newSong.save()
-#             #if song exists, check if audio link is expired or not
-#             else:
-#                 saved = matching[0]
-#                 difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(saved.song_created, saved.song_created.time())          
-#                 if(difference.seconds > five_hours):
-#                     video = pafy.new(url)
-#                     streams = video.audiostreams
-#                     for s in streams:
-#                         if (s.extension == "m4a"):
-#                             saved.audio_url = s.url
-#                             playurl = s.url
-#                             saved.song_created = datetime.now()
-#                             saved.save()
-#                             response.append(saved)
-#                             break
-#                 else:
-#                     playurl = saved.audio_url
-#                     response.append(saved)
-#         serializer = SongSerializer(response, many=True)
-#         return Response(serializer.data)
+    @action(detail=False, methods=['GET','POST'], serializer_class=SongSerializer)
+    def songsearch(self, request,*args,**kwargs):
+        response = []
+        search_query = self.request.data.get('search_query')
+        search_response = requests.get("https://www.googleapis.com/youtube/v3/search?key=AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg&type=video&part=snippet&maxResults=10&q="+ search_query +"&videoCategoryId=10").json()
+        #each song from youtube response
+        for song in search_response['items']:
+            video_id = song['id']['videoId']
+            url = "https://www.youtube.com/watch?v=" + video_id
+            playurl = ''
+            #check if song exists in database
+            matching = Song.objects.filter(video_id=video_id)
+            #if song does not exist generate a url and save song to the database
+            if not matching:
+                video = pafy.new(url)
+                streams = video.audiostreams
+                for s in streams:
+                    if (s.extension == "m4a"):
+                        playurl = s.url
+                        song_created = datetime.now()
+                        title=song['snippet']['title']
+                        thumbnail=song['snippet']['thumbnails']['high']['url']
+                        artist=song['snippet']['channelTitle']
+                        break
+                newSong = Song(video_id=video_id, audio_url=playurl, song_created=song_created, title=title, thumbnail=thumbnail, artist=artist)
+                response.append(newSong)
+                newSong.save()
+            #if song exists, check if audio link is expired or not
+            else:
+                saved = matching[0]
+                difference = datetime.combine(datetime.now(), datetime.now().time()) - datetime.combine(saved.song_created, saved.song_created.time())          
+                if(difference.seconds > five_hours):
+                    video = pafy.new(url)
+                    streams = video.audiostreams
+                    for s in streams:
+                        if (s.extension == "m4a"):
+                            saved.audio_url = s.url
+                            playurl = s.url
+                            saved.song_created = datetime.now()
+                            saved.save()
+                            response.append(saved)
+                            break
+                else:
+                    playurl = saved.audio_url
+                    response.append(saved)
+        serializer = SongSerializer(response, many=True)
+        return Response(serializer.data)
