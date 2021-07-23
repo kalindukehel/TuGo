@@ -33,27 +33,30 @@ const ChatRoom = ({ navigation }) => {
     setMessages(messagesData.data.messagesByChatRoom.items);
   };
 
-  // const updateSeen = async () => {
-  //   const data = await API.graphql(
-  //     graphqlOperation(getChatRoom, {
-  //       id: route.params.id,
-  //     })
-  //   );
-  //   let seen = data.data.getChatRoom.seen
-  //   seen.push(self.id)
-  //   const chatRoomData = await API.graphql(
-  //     graphqlOperation(updateChatRoom, {
-  //       input: {
-  //         id: route.params.id,
-  //         seen: seen
-  //       },
-  //     })
-  //   );
-  // }
+  const updateSeen = async () => {
+    const data = await API.graphql(
+      graphqlOperation(getChatRoom, {
+        id: route.params.id,
+      })
+    );
+    let seen = data.data.getChatRoom.seen
+    if (!seen.includes(self.id)) {
+      seen.push(self.id)
+      let unique = [...new Set(seen)];
+      const chatRoomData = await API.graphql(
+        graphqlOperation(updateChatRoom, {
+          input: {
+            id: route.params.id,
+            seen: unique
+          },
+        })
+      );
+    }
+  }
 
   useEffect(() => {
     fetchMessages();
-    // updateSeen();
+    updateSeen();
   }, []);
 
   useEffect(() => {

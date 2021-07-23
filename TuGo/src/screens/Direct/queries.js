@@ -34,6 +34,7 @@ export const getUser = /* GraphQL */ `
                 name
               }
             }
+            seen
           }
         }
         nextToken

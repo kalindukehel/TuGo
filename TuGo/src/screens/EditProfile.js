@@ -28,6 +28,7 @@ const EditProfile = (props) => {
   const [image, setImage] = useState(self.profile_picture);
   const [username, setUsername] = useState(self.username);
   const [name, setName] = useState(self.name);
+  const [email, setEmail] = useState(self.email);
   const dispatch = useAuthDispatch();
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -50,7 +51,19 @@ const EditProfile = (props) => {
                   graphqlOperation(updateUser, { input: update })
                 );
               }
-              if (name != self.name || username != self.username) await editProfileAPI(username, name, userToken)
+              if (name != self.name || username != self.username) {
+                const userRes = await editProfileAPI(username, name, email, userToken)
+                const update = {
+                  id: userRes.data.id,
+                  name: userRes.data.name,
+                  username: userRes.data.username,  
+                  imageUri: userRes.data.profile_picture,
+                  status: "Hey, I am using Tugo",
+                }
+                const chatRoomData = await API.graphql(
+                  graphqlOperation(updateUser, { input: update })
+                );
+              }
               //get self after updated self
               const selfRes = await getSelfAPI(userToken);
               dispatch({ type: "GET_SELF", self: selfRes.data });
@@ -124,6 +137,14 @@ const EditProfile = (props) => {
       </View>
       <TextInput
         style={styles.input}
+        onChangeText={setName}
+        value={name}
+        placeholder={'Name'}
+        placeholderTextColor={Colors.gray}
+        maxLength={25}
+      />
+      <TextInput
+        style={styles.input}
         onChangeText={setUsername}
         value={username}
         placeholder={'Username'}
@@ -132,9 +153,9 @@ const EditProfile = (props) => {
       />
       <TextInput
         style={styles.input}
-        onChangeText={setName}
-        value={name}
-        placeholder={'Name'}
+        onChangeText={setEmail}
+        value={email}
+        placeholder={'Email'}
         placeholderTextColor={Colors.gray}
         maxLength={25}
       />

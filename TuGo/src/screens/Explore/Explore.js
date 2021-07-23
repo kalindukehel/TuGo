@@ -343,7 +343,7 @@ const Explore = ({ navigation }) => {
             onIndexChange={setIndex}
             initialLayout={initialLayout}
             renderTabBar={renderTabBar}
-            swipeEnabled={index == 2 ? false : true}
+            swipeEnabled={index == 0 ? false : true}
           />
         </View>
       )}

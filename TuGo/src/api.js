@@ -402,10 +402,11 @@ export async function toggleAccountVisilibity(isPrivate, token) {
   });
 }
 
-export async function editProfile(username, name, token) {
+export async function editProfile(username, name, email, token) {
   let data = {
     username: username,
-    name: name
+    name: name,
+    email: email
   };
   if (username){
     data = {...data, username: username}

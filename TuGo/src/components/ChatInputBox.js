@@ -210,12 +210,7 @@ const ChatInputBox = (props) => {
       await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
 
       // update seen list
-      const data = await API.graphql(
-        graphqlOperation(getChatRoom, {
-          id: chatRoomID,
-        })
-      );
-      let seen = data.data.getChatRoom.seen
+      let seen = []
       seen.push(self.id)
       const chatRoomData = await API.graphql(
         graphqlOperation(updateChatRoom, {

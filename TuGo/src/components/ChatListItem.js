@@ -17,11 +17,12 @@ import { deleteChatRoom } from "../graphql/mutations";
 import { Colors } from "../../constants";
 import { getChatRoom } from "../screens/Direct/queries";
 import { Octicons } from '@expo/vector-icons';
+import { onUpdateChatRoom } from  "../graphql/subscriptions"
 
 const ChatListItem = (props) => {
   const { chatRoom, navigation } = props;
   const { self } = useAuthState();
-  // const [seen, setSeen] = useState(null)
+  const [seen, setSeen] = useState(null)
 
   const [otherUser, setOtherUser] = useState(null);
 
@@ -58,6 +59,27 @@ const ChatListItem = (props) => {
       console.log(e);
     }
   };
+  const isViewed = async () => {
+    const data = await API.graphql(
+      graphqlOperation(getChatRoom, {
+        id: chatRoom.id,
+      })
+    );
+    let seen = data.data.getChatRoom.seen
+    console.log(seen)
+    setSeen(seen.includes(self.id))
+  }
+  useEffect(() => {
+    const subscription = API.graphql(
+      graphqlOperation(onUpdateChatRoom)
+    ).subscribe({
+      next: (data) => {
+        isViewed();
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   useEffect(() => {
     const getOtherUser = async () => {
       if (chatRoom.chatRoomUsers.items[0].user.id == self.id) {
@@ -67,16 +89,7 @@ const ChatListItem = (props) => {
       }
     };
     getOtherUser();
-    // const isViewed = async () => {
-    //   const data = await API.graphql(
-    //     graphqlOperation(getChatRoom, {
-    //       id: chatRoom.id,
-    //     })
-    //   );
-    //   let seen = data.data.getChatRoom.seen
-    //   setSeen(seen.includes(self.id))
-    // }
-    // isViewed();
+    isViewed();
   }, []);
 
   const onClick = () => {
@@ -106,6 +119,7 @@ const ChatListItem = (props) => {
     }
   };
   return (
+    seen != null &&
     <TouchableWithoutFeedback
       onPress={onClick}
       onLongPress={deleteConfirmation}
@@ -126,10 +140,10 @@ const ChatListItem = (props) => {
             {chatRoom.lastMessage &&
               moment(chatRoom.lastMessage.createdAt).format("DD/MM/YYYY")}
           </Text>
-          {/* {!seen &&
+          {!seen &&
           <View style={{alignItems: "center"}}>
             <Octicons name="primitive-dot" size={24} color={Colors.primary} />
-          </View> } */}
+          </View> }
         </View>
 
       </View>

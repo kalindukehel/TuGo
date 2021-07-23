@@ -34,7 +34,7 @@ const AccountTile = (props) => {
           style={{
             width: height / 20,
             height: height / 20,
-            borderRadius: "50%",
+            borderRadius: 999,
             borderWidth: 1,
           }}
         ></Image>
