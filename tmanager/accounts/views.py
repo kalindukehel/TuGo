@@ -1,4 +1,5 @@
 from django.shortcuts import render
+from django.core.files import File
 from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag
 from rest_framework import viewsets, permissions
 from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer, TagSerializer
@@ -334,7 +335,7 @@ class PostViewSet(viewsets.ModelViewSet):
             #get video url
             youtube_video_url = None
             custom_video_url = None
-            if(not is_youtube):
+            if(is_youtube == 'False'):
                 custom_video_url = request.data.get('custom_video_url')
             # if(is_youtube):
             #     # video = pafy.new(youtube_link)

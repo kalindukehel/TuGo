@@ -283,7 +283,7 @@ export async function postNotificationToken(data, token, id) {
 }
 
 export async function postProfilePicture(data, token, id) {
-  console.log(data)
+  console.log(data);
   return axios.patch(
     `${API_URL}/api/accounts/${id}/`,
     {
@@ -407,15 +407,15 @@ export async function toggleAccountVisilibity(isPrivate, token) {
 export async function editProfile(username, name, token) {
   let data = {
     username: username,
-    name: name
+    name: name,
   };
-  if (username){
-    data = {...data, username: username}
+  if (username) {
+    data = { ...data, username: username };
   }
-  if (name){
-    data = {...data, name: name}
+  if (name) {
+    data = { ...data, name: name };
   }
-  console.log(data)
+  console.log(data);
   return axios.patch(`${API_URL}/api/accounts/self/`, data, {
     headers: {
       Authorization: "Token " + token,
@@ -605,12 +605,22 @@ export async function createPost(caption, postDetails, tiles, token) {
         youtube_video_url: videoId,
       };
     } else {
-      tileData = {
-        tile_type: "posted_choreo",
-        is_youtube: false,
-        custom_video_url: tiles[i].uri,
-        view_count: 0,
-      };
+      tileData = new FormData();
+      tileData.append("tile_type", "posted_choreo");
+      tileData.append("is_youtube", "False");
+      tileData.append("view_count", 0);
+      tileData.append("custom_video_url", {
+        uri: tiles[i].uri,
+        name: "yourname.jpg",
+        type: "video/quicktime",
+      });
+      console.log(tileData);
+      // tileData = {
+      //   tile_type: "posted_choreo",
+      //   is_youtube: false,
+      //   custom_video_url: tiles[i].uri,
+      //   view_count: 0,
+      // };
     }
 
     console.log(tileData);
@@ -618,7 +628,7 @@ export async function createPost(caption, postDetails, tiles, token) {
     await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, tileData, {
       headers: {
         Authorization: "Token " + token,
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
       },
     });
   }
