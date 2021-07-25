@@ -59,6 +59,7 @@ const VideoSelection = (props) => {
         <DanceChoreosTabView
           inCreatePost={true}
           selectFinalChoreo={selectFinalChoreo}
+          parentSelected={new Set(finalChoreos.current)}
           song={song}
         />
       );
@@ -74,6 +75,7 @@ const VideoSelection = (props) => {
         <VoiceCoversTabView
           inCreatePost={true}
           selectFinalCover={selectFinalCover}
+          parentSelected={new Set(finalCovers.current)}
           song={song}
         />
       );

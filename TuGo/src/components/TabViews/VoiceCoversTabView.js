@@ -17,11 +17,16 @@ import VideoSearchItem from "../VideoSearchItem";
 
 //TabView to display YouTube items in VideoSelection in CreatePost
 const VoiceCoversTabView = (props) => {
+  const { song, selectFinalCover, parentSelected, inCreatePost } = props;
   const [voiceCovers, setVoiceCovers] = useState([]);
-  const [selectedVideos, setSelectedVideos] = useState(new Set());
+  const [selectedVideos, setSelectedVideos] = useState(
+    parentSelected ? parentSelected : new Set()
+  );
 
-  const { song, selectFinalCover, inCreatePost } = props;
-
+  useEffect(() => {
+    console.log(parentSelected);
+    console.log(selectedVideos);
+  }, []);
   useEffect(() => {
     let isLoaded = true;
 
