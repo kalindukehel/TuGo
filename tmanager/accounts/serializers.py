@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from accounts.models import Account, Post, Follower, Requester, Like, Comment, Tile, Explore_Item, Feed_Item, Activity_Item, Favorite, Song, Tag
 from rest_framework.validators import UniqueValidator
+from django.core.exceptions import ValidationError
 
 
 class AccountSerializer(serializers.ModelSerializer):
@@ -36,6 +37,14 @@ class PostSerializer(serializers.ModelSerializer):
         #set author to user making the request
         request['author'] = self.context['request'].user
         newPost = super().create(request, *args, **kwargs)
+        #push post to own feed
+        feed_item = Feed_Item(user=self.context['request'].user,post=newPost,follow_relation=None)
+        feed_item.save()
+        # try:
+        #     feed_item.full_clean()
+        #     feed_item.save()
+        # except ValidationError as e:
+        #     return None
         #create a feed item for the new post and push it to all followers
         for followerObject in self.context['request'].user.followers.all():
             feed_item = Feed_Item(user=followerObject.follower,post=newPost,follow_relation=followerObject)

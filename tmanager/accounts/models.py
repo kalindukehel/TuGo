@@ -84,7 +84,7 @@ class Post(models.Model):
 class Feed_Item(models.Model):
     user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='feed')
     post = models.ForeignKey(Post,on_delete=models.CASCADE,related_name='+')
-    follow_relation = models.ForeignKey(Follower,on_delete=models.CASCADE,related_name='+')
+    follow_relation = models.ForeignKey(Follower,on_delete=models.CASCADE,related_name='+',null=True, blank=True)
 
 class Explore_Item(models.Model):
     user = models.ForeignKey(Account,on_delete=models.CASCADE, related_name='explore')
@@ -97,7 +97,7 @@ class Tile(models.Model):
     youtube_link = models.URLField(null=True, blank=True)
     image = models.URLField(null=True, blank=True)
     view_count = models.IntegerField(default='0')
-    youtube_video_url = models.CharField(max_length=11, default='', null=True, blank=True)
+    youtube_video_url = models.CharField(max_length=2000, default='', null=True, blank=True)
     youtube_video_created = models.DateTimeField(default=None, null=True, blank=True)
     custom_video_url = models.FileField(upload_to='videoUploads/', null=True, blank=True)
 

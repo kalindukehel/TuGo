@@ -14,12 +14,14 @@ import DanceChoreosTabView from "../../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../../components/TabViews/VoiceCoversTabView";
 import CustomVideoTabView from "../../components/TabViews/CustomVideoTabView";
 import { Colors } from "../../../constants";
+import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
 
 var { width, height } = Dimensions.get("window");
 
 const VideoSelection = (props) => {
   const { song } = props.route.params;
   const [customVideos, setCustomVideos] = useState([]);
+  const playerDispatch = usePlayerDispatch();
 
   const { navigation } = props;
 
@@ -127,6 +129,7 @@ const VideoSelection = (props) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            playerDispatch({ type: "UNLOAD_PLAYER" });
             navigation.navigate("Caption Selection", {
               song: song,
               danceChoreos: finalChoreos.current,

@@ -20,6 +20,7 @@ import {
 import { useAuthState } from "../../context/authContext";
 import { Colors, appTheme } from "../../../constants";
 import { Video } from "expo-av";
+import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
 
 var { width, height } = Dimensions.get("window");
 
@@ -40,6 +41,7 @@ const CaptionSelection = (props) => {
   const [caption, setCaption] = useState("");
   const [status, setStatus] = useState({});
   const videosRef = useRef([]);
+  const playerDispatch = usePlayerDispatch();
 
   const renderTile = ({ item }) => {
     if (item.isCustom) {
@@ -95,6 +97,7 @@ const CaptionSelection = (props) => {
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            playerDispatch({ type: "UNLOAD_PLAYER" });
             makePost();
             navigation.pop();
             navigation.pop();

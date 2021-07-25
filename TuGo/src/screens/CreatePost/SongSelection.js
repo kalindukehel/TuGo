@@ -19,6 +19,7 @@ import SearchItem from "../../components/SearchItem";
 import { render } from "react-dom";
 import { FlatList } from "react-native-gesture-handler";
 import { Colors, appTheme } from "../../../constants";
+import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
 
 const CreatePost = ({ navigation }) => {
   const [search, setSearch] = useState();
@@ -26,6 +27,12 @@ const CreatePost = ({ navigation }) => {
   const [selectedItem, setSelectedItem] = useState({});
   const [loading, setLoading] = useState(false);
   const [disableScroll, setDisableScroll] = useState(false);
+  const playerDispatch = usePlayerDispatch();
+  //Update current text state when user types
+  const handleChange = (text) => {
+    setSearch(text);
+    handleResults(text);
+  };
 
   //Function passed into SearchItem as a propr to select that item
   const selectItem = (
@@ -136,6 +143,7 @@ const CreatePost = ({ navigation }) => {
             Object.keys(selectedItem).length === 0 || !selectedItem.audioLink
           }
           onPress={() => {
+            playerDispatch({ type: "UNLOAD_PLAYER" });
             navigation.navigate("Video Selection", {
               song: selectedItem,
             });

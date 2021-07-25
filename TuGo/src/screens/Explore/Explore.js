@@ -39,6 +39,8 @@ import ChartBlock from "../../components/Explore/ChartBlock";
 import ArtistBlock from "../../components/Explore/ArtistBlock";
 import Animated from "react-native-reanimated";
 
+import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+
 var { width, height } = Dimensions.get("window");
 
 const leftSpacing = 20;
@@ -54,6 +56,7 @@ const Explore = ({ navigation }) => {
   const [status, setStatus] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState("");
+  const playerDispatch = usePlayerDispatch();
 
   const charts = [
     {
@@ -295,6 +298,7 @@ const Explore = ({ navigation }) => {
           <TouchableOpacity
             style={{}}
             onPress={() => {
+              playerDispatch({ type: "UNLOAD_PLAYER" });
               navigation.push("New Post");
             }}
           >

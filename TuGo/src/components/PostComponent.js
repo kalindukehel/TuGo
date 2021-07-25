@@ -294,6 +294,11 @@ const PostComponent = ({
     getFavoriteStates();
   }
 
+  async function onClick() {
+    playerDispatch({ type: "UNLOAD_PLAYER" });
+    await soundObj.unloadAsync();
+  }
+
   //delete confirmation alert function
   const deleteConfirmation = () =>
     Alert.alert(
@@ -386,6 +391,7 @@ const PostComponent = ({
             javaScriptEnabled={true}
             domStorageEnabled={true}
             allowsInlineMediaPlayback={true}
+            onTouchStart={onClick}
             source={{ uri: `https://www.youtube.com/watch?v=${youtube_id}` }}
           />
         </View>
