@@ -53,7 +53,7 @@ const MainNavigator = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const userInfo = self;
-
+      console.log(self)
       if (userInfo) {
         const userData = await API.graphql(
           graphqlOperation(getUser, { id: self.id })
@@ -142,6 +142,7 @@ const MainNavigator = () => {
 
   return (
     <Tab.Navigator
+      lazy={true}
       initialRouteName="Feed"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
@@ -183,7 +184,7 @@ const MainNavigator = () => {
         activeTintColor: Colors.FG,
         inactiveTintColor: "gray",
         style: {
-          backgroundColor: Colors.BG,
+          backgroundColor: Colors.Footer,
         },
       }}
     >

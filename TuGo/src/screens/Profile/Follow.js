@@ -167,10 +167,10 @@ const Followers = (props) => {
     let newFollowingStatus;
     if (res.status == 201) {
       newFollowingStatus = "true";
-      await pushNotificationAPI(notification_token, self.username, "follow");
+      await pushNotificationAPI(notification_token, {creator: self.username}, "follow");
     } else if (res.status == 202) {
       newFollowingStatus = "requested";
-      await pushNotificationAPI(notification_token, self.username, "request");
+      await pushNotificationAPI(notification_token, {creator: self.username}, "request");
     } else if (res.status == 204) {
       newFollowingStatus = "false";
     }
@@ -207,7 +207,7 @@ const Followers = (props) => {
             style={{
               width: height / 20,
               height: height / 20,
-              borderRadius: "50%",
+              borderRadius: 999,
               borderWidth: 1,
             }}
           ></Image>

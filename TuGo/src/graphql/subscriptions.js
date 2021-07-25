@@ -107,9 +107,7 @@ export const onCreateChatRoomUser = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -155,9 +153,7 @@ export const onUpdateChatRoomUser = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -203,9 +199,7 @@ export const onDeleteChatRoomUser = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -261,22 +255,14 @@ export const onCreateChatRoom = /* GraphQL */ `
         chatRoom {
           id
           lastMessageID
+          seen
           createdAt
           updatedAt
         }
         type
         updatedAt
       }
-      seen {
-        items {
-          id
-          userID
-          chatRoomID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      seen
       createdAt
       updatedAt
     }
@@ -329,22 +315,14 @@ export const onUpdateChatRoom = /* GraphQL */ `
         chatRoom {
           id
           lastMessageID
+          seen
           createdAt
           updatedAt
         }
         type
         updatedAt
       }
-      seen {
-        items {
-          id
-          userID
-          chatRoomID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      seen
       createdAt
       updatedAt
     }
@@ -397,22 +375,14 @@ export const onDeleteChatRoom = /* GraphQL */ `
         chatRoom {
           id
           lastMessageID
+          seen
           createdAt
           updatedAt
         }
         type
         updatedAt
       }
-      seen {
-        items {
-          id
-          userID
-          chatRoomID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      seen
       createdAt
       updatedAt
     }
@@ -458,9 +428,7 @@ export const onCreateMessage = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -509,9 +477,7 @@ export const onUpdateMessage = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -560,9 +526,7 @@ export const onDeleteMessage = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }

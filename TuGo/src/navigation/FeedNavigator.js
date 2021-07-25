@@ -27,7 +27,8 @@ const FeedNavigator = () => {
         options={{
           headerTransparent: false,
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
+            opacity: 1
           },
           headerTitleStyle: {
             fontWeight: "bold",
@@ -35,7 +36,7 @@ const FeedNavigator = () => {
             color: Colors.text,
           },
         }}
-        name="Tugo"
+        name="TuGo"
         component={Feed}
       />
       <Stack.Screen
@@ -43,7 +44,7 @@ const FeedNavigator = () => {
         component={Likes}
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           gestureResponseDistance: {
             horizontal: 300,
@@ -56,7 +57,7 @@ const FeedNavigator = () => {
         name="Comments"
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           gestureResponseDistance: {
             horizontal: 300,
@@ -85,7 +86,7 @@ const FeedNavigator = () => {
             horizontal: 300,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           title: "Follow Requests",
           headerBackTitleVisible: false,

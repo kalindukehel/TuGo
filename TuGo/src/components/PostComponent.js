@@ -69,6 +69,7 @@ import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import ShareToDirect from "../screens/Others/ShareToDirect";
+import {FlatListSlider} from 'react-native-flatlist-slider';
 
 var { width, height } = Dimensions.get("window");
 
@@ -119,7 +120,7 @@ const PostComponent = ({
   const postRef = useRef();
   const playingIdRef = useRef();
   const tilesRef = useRef();
-
+  const tileWidth = width * 0.9
   const firstRun = useRef(true);
 
   let WebViewRef = [];
@@ -278,7 +279,7 @@ const PostComponent = ({
     ) {
       const notifRes = await pushNotificationAPI(
         author.notification_token,
-        self.username,
+        {creator: self.username},
         "like"
       );
     }
@@ -637,6 +638,16 @@ const PostComponent = ({
             ) : (
               tiles && (
                 <View>
+                  {/* <FlatList
+                      ref={tilesRef}
+                      data={tiles}
+                      renderItem={renderTile}
+                      horizontal={true} // row instead of column
+                      // Add the 4 properties below for snapping
+                      snapToInterval={tileWidth + 15} // Adjust to your content width
+                      decelerationRate="fast"
+                      pagingEnabled
+                  /> */}
                   <Carousel
                     ref={tilesRef}
                     data={tiles}
@@ -926,3 +937,27 @@ const styles = StyleSheet.create({
 });
 
 export default React.memo(PostComponent);
+
+const Preview = ({
+  style,
+  item,
+  imageKey,
+  onPress,
+  index,
+  active,
+  local,
+}) => {
+  return (
+    <TouchableOpacity
+      style={[styles.videoContainer]}
+      onPress={() => onPress(item)}>
+      <View style={[styles.imageContainer, styles.shadow]}>
+        <Image
+          style={[styles.videoPreview, active ? {} : {height: 120}]}
+          source={{uri: item[imageKey]}}
+        />
+      </View>
+      <Text style={styles.desc}>{item.desc}</Text>
+    </TouchableOpacity>
+  );
+}

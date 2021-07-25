@@ -74,8 +74,6 @@ const styles = StyleSheet.create({
   userStatsText: {
     backgroundColor: "#EDEDED",
     paddingHorizontal: 5,
-    borderWidth: 1,
-    borderColor: "#EDEDED",
     overflow: "hidden",
     borderRadius: 10,
   },
@@ -292,7 +290,7 @@ const Profile = (props) => {
     if (res.status == 201) {
       await pushNotificationAPI(
         user.notification_token,
-        self.username,
+        {creator: self.username},
         "follow"
       );
     } else if (res.status == 202) {
@@ -417,6 +415,7 @@ const Profile = (props) => {
           style={{
             flexDirection: "row",
             justifyContent: "space-around",
+            marginBottom: 20
           }}
         >
           <TouchableOpacity
@@ -431,14 +430,10 @@ const Profile = (props) => {
             <Text style={styles.userStatsNumber}>{following}</Text>
             <Text style={styles.userStatsText}>Following</Text>
           </TouchableOpacity>
-          <View style={{ marginTop: 25 }}>
+          <View style={{ }}>
             <Text style={styles.userStatsNumber}>{postsLength}</Text>
             <Text
-              style={{
-                ...styles.userStatsText,
-                backgroundColor: "#D3D3D3",
-                borderColor: "#D3D3D3",
-              }}
+              style={styles.userStatsText}
             >
               Songs
             </Text>

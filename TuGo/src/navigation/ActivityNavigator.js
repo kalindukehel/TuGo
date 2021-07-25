@@ -24,7 +24,7 @@ const ActivityNavigator = () => {
             horizontal: 300,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
@@ -39,7 +39,7 @@ const ActivityNavigator = () => {
         name="Profile"
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           gestureResponseDistance: {
             horizontal: 300,
@@ -54,7 +54,7 @@ const ActivityNavigator = () => {
         component={PostNavigator}
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerShown: false,
           headerBackTitleVisible: false,
@@ -66,7 +66,7 @@ const ActivityNavigator = () => {
         name="Following"
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           gestureResponseDistance: {
             horizontal: 300,
@@ -86,7 +86,7 @@ const ActivityNavigator = () => {
         name="Followers"
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           gestureResponseDistance: {
             horizontal: 300,
@@ -105,7 +105,7 @@ const ActivityNavigator = () => {
         name="Follow Requests"
         options={{
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           gestureResponseDistance: {
             horizontal: 300,

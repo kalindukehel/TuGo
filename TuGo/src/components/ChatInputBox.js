@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { API, Auth, graphqlOperation } from "aws-amplify";
 
 import { createMessage, updateChatRoom } from "../graphql/mutations";
+import { getChatRoom, getUser } from "../screens/Direct/queries";
 
 import {
   MaterialCommunityIcons,
@@ -207,26 +208,24 @@ const ChatInputBox = (props) => {
         })
       );
       await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
+
       // update seen list
+      let seen = []
+      seen.push(self.id)
       const chatRoomData = await API.graphql(
         graphqlOperation(updateChatRoom, {
           input: {
             id: chatRoomID,
-            seen: {
-              item: [{
-                id: self.id,
-                username: self.username,
-                name: self.name,
-              }]
-            },
+            seen: seen
           },
         })
       );
 
+
       // const notifRes = await pushNotificationAPI(
       //   author.notification_token,
-      //   self.username,
-      //   "comment"
+      //   {creator: self.username, content: message},
+      //   "message"
       // );
     } catch (e) {
       console.log(e);
@@ -257,7 +256,7 @@ const ChatInputBox = (props) => {
       keyboardVerticalOffset={65 + insets.bottom}
     >
       <View style={styles.container}>
-        {recordingUri ? (
+        {/* {recordingUri ? (
           <>
             <TouchableOpacity onPress={clearRecording}>
               <AntDesign name="closecircle" size={24} color={Colors.FG} />
@@ -289,17 +288,12 @@ const ChatInputBox = (props) => {
               )}
             </TouchableOpacity>
           </>
-        ) : (
+        ) : ( */}
           <>
-            <Fontisto
-              name="camera"
-              size={24}
-              color="grey"
-              style={styles.icon}
-            />
             <View style={styles.mainContainer}>
               <TextInput
                 placeholder={"Send a message"}
+                placeholderTextColor={Colors.text}
                 style={styles.textInput}
                 multiline
                 value={message}
@@ -307,26 +301,18 @@ const ChatInputBox = (props) => {
                 keyboardAppearance={appTheme}
                 color={Colors.text}
               />
+              <TouchableOpacity onPress={onPress} style={{marginBottom: 3}}>
+                <View style={{ marginRight: 5 }}>
+                    <MaterialCommunityIcons
+                      name="send-circle"
+                      size={30}
+                      color={message ? Colors.primary : Colors.FG}
+                    />
+                </View>
+              </TouchableOpacity>
             </View>
           </>
-        )}
-        <TouchableOpacity onPress={onPress}>
-          <View style={styles.buttonContainer}>
-            {!(message || recordingUri) ? (
-              <MaterialCommunityIcons
-                name="microphone"
-                size={28}
-                color={recording ? "red" : Colors.FG}
-              />
-            ) : (
-              <MaterialCommunityIcons
-                name="send-circle"
-                size={30}
-                color={Colors.FG}
-              />
-            )}
-          </View>
-        </TouchableOpacity>
+        {/* )} */}
       </View>
     </KeyboardAvoidingView>
   );
@@ -337,27 +323,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: 5,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderTopWidth: 1,
-    borderColor: Colors.gray,
     justifyContent: "space-between",
   },
   mainContainer: {
     flexDirection: "row",
-    backgroundColor: Colors.BG,
-    paddingHorizontal: 10,
-    borderRadius: 25,
-    marginHorizontal: 5,
-    flex: 1,
-    borderColor: Colors.gray,
-    borderWidth: 1,
+    alignItems: "flex-end",
+    backgroundColor: Colors.contrastGray,
+    borderRadius: 20,
+    margin: 5,
+    maxHeight: 100
   },
   textInput: {
     flex: 1,
     marginHorizontal: 10,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingHorizontal: 10
   },
   icon: {
     marginHorizontal: 5,

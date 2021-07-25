@@ -19,11 +19,13 @@ import {
   onCreateMessage,
   onDeleteChatRoom,
   onCreateChatRoom,
+  onUpdateChatRoom
 } from "../../graphql/subscriptions";
 
 const ChatScreen = ({ navigation }) => {
   const [chatRooms, setChatRooms] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
+  const [seenArr, setSeenArr] = useState([])
   const { self } = useAuthState();
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -48,12 +50,13 @@ const ChatScreen = ({ navigation }) => {
         })
       );
       const filterValidRooms = userData.data.getUser.chatRoomUser.items.filter(
-        (item) => item.chatRoom != null
+        (item) => item.chatRoom != null && item.chatRoom.lastMessage != null
       );
       const sortedRooms = filterValidRooms.sort(
-        (a, b) =>
-          a.chatRoom.lastMessage.updatedAt < b.chatRoom.lastMessage.updatedAt
-      );
+        (a, b) => a.chatRoom.lastMessage.updatedAt < b.chatRoom.lastMessage.updatedAt)
+      ;
+      let seenList = sortedRooms.map(room => room.seen)
+      setSeenArr(seenList)
       setChatRooms(sortedRooms);
     } catch (e) {
       console.log(e);
@@ -107,9 +110,23 @@ const ChatScreen = ({ navigation }) => {
 
     return () => subscription.unsubscribe();
   }, []);
+
+  useEffect(() => {
+    const subscription = API.graphql(
+      graphqlOperation(onUpdateChatRoom)
+    ).subscribe({
+      next: (data) => {
+        console.log("updated")
+        fetchChatRooms();
+      },
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
   return (
     <View style={styles.container}>
       <FlatList
+        extraData={seenArr}
         style={{ width: "100%" }}
         data={chatRooms}
         renderItem={({ item }) => {

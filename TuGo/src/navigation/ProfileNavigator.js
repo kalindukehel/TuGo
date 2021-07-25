@@ -32,7 +32,7 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
             fontSize: 20,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
         }}
         name="Profile"
@@ -50,7 +50,7 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
             horizontal: 300,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
@@ -85,7 +85,7 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
             fontSize: 20,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
         }}
         component={Following}
@@ -105,7 +105,7 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
             fontSize: 20,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
         }}
         component={Followers}
@@ -121,7 +121,7 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
             fontSize: 20,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
         }}
         component={Favorites}
@@ -140,7 +140,7 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
             fontSize: 20,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
         }}
         component={EditProfile}
