@@ -69,7 +69,6 @@ import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import ShareToDirect from "../screens/Others/ShareToDirect";
-import {FlatListSlider} from 'react-native-flatlist-slider';
 
 var { width, height } = Dimensions.get("window");
 
@@ -120,7 +119,7 @@ const PostComponent = ({
   const postRef = useRef();
   const playingIdRef = useRef();
   const tilesRef = useRef();
-  const tileWidth = width * 0.9
+  const tileWidth = width * 0.9;
   const firstRun = useRef(true);
 
   let WebViewRef = [];
@@ -279,7 +278,7 @@ const PostComponent = ({
     ) {
       const notifRes = await pushNotificationAPI(
         author.notification_token,
-        {creator: self.username},
+        { creator: self.username },
         "like"
       );
     }
@@ -938,26 +937,19 @@ const styles = StyleSheet.create({
 
 export default React.memo(PostComponent);
 
-const Preview = ({
-  style,
-  item,
-  imageKey,
-  onPress,
-  index,
-  active,
-  local,
-}) => {
+const Preview = ({ style, item, imageKey, onPress, index, active, local }) => {
   return (
     <TouchableOpacity
       style={[styles.videoContainer]}
-      onPress={() => onPress(item)}>
+      onPress={() => onPress(item)}
+    >
       <View style={[styles.imageContainer, styles.shadow]}>
         <Image
-          style={[styles.videoPreview, active ? {} : {height: 120}]}
-          source={{uri: item[imageKey]}}
+          style={[styles.videoPreview, active ? {} : { height: 120 }]}
+          source={{ uri: item[imageKey] }}
         />
       </View>
       <Text style={styles.desc}>{item.desc}</Text>
     </TouchableOpacity>
   );
-}
+};
