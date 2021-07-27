@@ -17,10 +17,11 @@ import VideoSearchItem from "../VideoSearchItem";
 
 //TabView to display YouTube items in VideoSelection in CreatePost
 const DanceChoreosTabView = (props) => {
+  const { song, selectFinalChoreo, parentSelected, inCreatePost } = props;
   const [danceChoreos, setDanceChoreos] = useState([]);
-  const [selectedVideos, setSelectedVideos] = useState(new Set());
-
-  const { song, selectFinalChoreo, inCreatePost } = props;
+  const [selectedVideos, setSelectedVideos] = useState(
+    parentSelected ? parentSelected : new Set()
+  );
 
   useEffect(() => {
     let isLoaded = true;
@@ -67,6 +68,7 @@ const DanceChoreosTabView = (props) => {
   };
 
   const renderItem = (item) => {
+    console.log(selectedVideos);
     return inCreatePost ? (
       <VideoSearchItem
         title={item.item.title}

@@ -24,6 +24,9 @@ const VideoSearchItem = (props) => {
   const { title, thumbnail, videoId, selected, selectVideo, inCreatePost } =
     props;
   const refRBSheet = useRef();
+  useEffect(() => {
+    console.log(selected);
+  }, []);
   return (
     <View>
       <TouchableOpacity
