@@ -24,7 +24,7 @@ import {
   Fontisto,
 } from "@expo/vector-icons";
 import { useAuthState } from "../context/authContext";
-import { Colors, appTheme } from "../../constants";
+import { Colors, appTheme, Length } from "../../constants";
 
 //audio for recording messages
 import { Audio } from "expo-av";
@@ -300,6 +300,7 @@ const ChatInputBox = (props) => {
                 onChangeText={setMessage}
                 keyboardAppearance={appTheme}
                 color={Colors.text}
+                maxLength={Length.message}
               />
               <TouchableOpacity onPress={onPress} style={{marginBottom: 3}}>
                 <View style={{ marginRight: 5 }}>

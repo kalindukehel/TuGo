@@ -21,7 +21,7 @@ var { width, height } = Dimensions.get("window");
 
 //Component used in DanceChoreoTabView to display YouTube video results
 const VideoSearchItem = (props) => {
-  const { title, thumbnail, videoId, selected, selectVideo, inCreatePost } =
+  const { title, thumbnail, videoId, selected, selectVideo, inCreatePost, outlineColor } =
     props;
   const refRBSheet = useRef();
   useEffect(() => {
@@ -39,9 +39,9 @@ const VideoSearchItem = (props) => {
           style={{
             width: 145,
             height: 90,
-            borderWidth: selected ? 5 : 2,
+            borderWidth: selected ? 3 : 0,
             borderRadius: 10,
-            borderColor: selected ? "turquoise" : "black",
+            borderColor: selected ? outlineColor : "black",
             marginEnd: 10,
           }}
           source={{ uri: thumbnail }}

@@ -158,7 +158,8 @@ const FavoritesTile = (props) => {
   }, [navigation]);
 
   async function favoritePost() {
-    const favRes = await getPostFavoriteAPI(userToken, postId);
+    console.log("post fav")
+    const favRes = await favoritePostAPI(userToken, postId);
     setIsFavorite(favRes.data.favorited);
   }
 
@@ -193,7 +194,6 @@ const FavoritesTile = (props) => {
       console.log(error);
     }
   }
-
   return (
     post && (
       <ImageBackground

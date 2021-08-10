@@ -28,7 +28,7 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 const optionHeight = 60;
 
 //PostComponent is a post by a user
-export default SongBlock = (props) => {
+const SongBlock = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
   const { postId, navigation, columns } = props;
@@ -321,3 +321,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default React.memo(SongBlock);

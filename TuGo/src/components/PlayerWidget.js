@@ -9,7 +9,7 @@ import {
   Dimensions,
 } from "react-native";
 import { AntDesign, FontAwesome } from "@expo/vector-icons";
-import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
+import { useErrorState, useErrorDispatch } from "../context/errorContext";
 import { getTrackDetails as getTrackDetailsAPI } from "../api";
 import { Truncate, Ticker } from "../Helpers/Truncate";
 import { Colors } from "../../constants";
@@ -18,29 +18,27 @@ import GestureRecognizer, {
 } from "react-native-swipe-gestures";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { MaterialIcons } from '@expo/vector-icons';
 
 var { width, height } = Dimensions.get("window");
 
 const toRight = width - 45;
 
 const PlayerWidget = () => {
-  const { isPlaying, trackId, soundObj, url } = usePlayerState(); //Use global soundObj from Redux state
+  const { isError, errorMessage } = useErrorState(); //Use global soundObj from Redux state
   const [song, setSong] = useState(null);
   const [xy, setXY] = useState(new Animated.ValueXY(0));
-  const playerDispatch = usePlayerDispatch();
+  const errorDispatch = useErrorDispatch();
   const [sideState, setSideState] = useState(true);
-
+  const [show, setShow] = useState(isError)
   const insets = useSafeAreaInsets();
 
-  const onSwipeDown = async (gestureState) => {
+  const onSwipeUp = async (gestureState) => {
     Animated.spring(xy, {
-      toValue: { x: xy.x, y: 200 },
+      toValue: { x: xy.x, y: -200 },
       useNativeDriver: true,
     }).start();
-    if (isPlaying) {
-      await soundObj.pauseAsync();
-      playerDispatch({ type: "PAUSE" });
-    }
+    setShow(false)
   };
 
   const resetX = () => {
@@ -60,19 +58,28 @@ const PlayerWidget = () => {
   };
 
   useEffect(() => {
-    Animated.spring(xy, {
-      toValue: { x: xy.x, y: 0 },
-      useNativeDriver: true,
-    }).start();
-  }, [trackId]);
+    if(show) {
+      Animated.spring(xy, {
+        toValue: { x: xy.x, y: 0 },
+        useNativeDriver: true,
+      }).start();
+    }
+    else{
+      errorDispatch({type: 'CLEAR_ERROR'})
+    }
+  },[show])
 
   useEffect(() => {
-    async function getTrack() {
-      const res = await getTrackDetailsAPI(trackId);
-      setSong(res.data.tracks[0]);
-    }
-    if (trackId) getTrack();
-  }, [trackId]);
+    setShow(isError)
+  }, [isError]);
+
+  // useEffect(() => {
+  //   async function getTrack() {
+  //     const res = await getTrackDetailsAPI(trackId);
+  //     setSong(res.data.tracks[0]);
+  //   }
+  //   if (trackId) getTrack();
+  // }, [isError]);
 
   const getImage = (albumId) => {
     return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
@@ -100,51 +107,29 @@ const PlayerWidget = () => {
     directionalOffsetThreshold: 20,
   };
 
-  if (!url) return <></>;
+  useEffect(() => {
+    console.log(xy.y)
+  }, [xy.y]);
 
+  if (!show) return <></>;
   return (
     <GestureRecognizer
-      // onSwipeDown={(state) => onSwipeDown(state)}
-      onSwipeRight={(state) => onSwipeRight(state)}
+      onSwipeUp={(state) => onSwipeUp(state)}
+      // onSwipeRight={(state) => onSwipeRight(state)}
       config={config}
       style={{}}
     >
       <Animated.View
         style={[
           styles.container,
-          { bottom: 49 + insets.bottom },
+          { top: insets.top - height },
           { transform: xy.getTranslateTransform() },
         ]}
       >
         <View style={styles.row}>
-          <TouchableWithoutFeedback onPress={resetX}>
-            <Image
-              source={{ uri: song ? getImage(song.albumId) : blank }}
-              style={styles.image}
-            />
-          </TouchableWithoutFeedback>
-          <View style={styles.rightContainer}>
-            <View style={styles.nameContainer}>
-              <Ticker
-                string={song ? song.name : ""}
-                style={{ ...styles.title, marginTop: 5 }}
-              />
-              <Ticker
-                string={song ? song.artistName : ""}
-                style={styles.artist}
-              />
-            </View>
-
-            <View style={styles.iconsContainer}>
-              <AntDesign name="pluscircle" size={20} color={Colors.FG} />
-              <TouchableOpacity onPress={doPlay}>
-                <FontAwesome
-                  name={isPlaying ? "pause" : "play"}
-                  size={20}
-                  color={Colors.FG}
-                />
-              </TouchableOpacity>
-            </View>
+          <MaterialIcons name="error-outline" size={45} color={Colors.FG} />
+          <View style={{marginLeft: 20}}>
+            <Text style={{color: Colors.text }}>{errorMessage}</Text>
           </View>
         </View>
       </Animated.View>
@@ -155,10 +140,11 @@ const PlayerWidget = () => {
 const styles = StyleSheet.create({
   container: {
     position: "absolute",
-    backgroundColor: Colors.gray,
+    backgroundColor: "maroon",
     width: "100%",
-    opacity: 0.9,
+    opacity: 1,
     borderRadius: 10,
+    height: 60
   },
   progress: {
     height: 3,
@@ -166,6 +152,8 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: "row",
+    alignItems: 'center',
+    flex: 1
   },
   image: {
     width: 40,

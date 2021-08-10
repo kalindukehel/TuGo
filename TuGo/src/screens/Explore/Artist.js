@@ -24,7 +24,7 @@ import { useAuthState } from "../../context/authContext";
 import SearchItem from "../../components/SearchItem";
 import Player from "../../components/Player";
 import { TouchableHighlight } from "react-native-gesture-handler";
-import { Colors, appTheme } from "../../../constants";
+import { API_URL, Colors, appTheme } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -40,6 +40,7 @@ const Artist = (props) => {
   const searchBarRef = React.useRef();
   const [artistName, setArtistName] = useState("");
   const [disableScroll, setDisableScroll] = useState(false);
+  const [profileImage, setProfileImage] = useState(API_URL + "/media/default.jpg")
 
   //filter search
   const [filteredData, setFilteredData] = useState([]);
@@ -64,7 +65,19 @@ const Artist = (props) => {
       setFilteredData(res.data.tracks);
       setMasterData(res.data.tracks);
     }
+    function checkImageURL(artistId){
+      const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`
+      fetch(url)
+         .then(res => {
+         if(res.status == 404){
+         }else{
+           setProfileImage(`https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`)
+        }
+      })
+     .catch(err=>{console.log(err)})
+    }
     getSongList();
+    checkImageURL(artist);
     setRefreshing(false);
   }, []);
 
@@ -194,7 +207,7 @@ const Artist = (props) => {
                 width: 140,
                 borderRadius: 40,
               }}
-              source={{ uri: getArtistImage(artist) }}
+              source={{ uri: profileImage}}
             />
             <View
               style={{

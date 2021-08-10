@@ -13,6 +13,7 @@ import {
   Keyboard,
   Platform,
   GestureResponderHandlers,
+  Alert
 } from "react-native";
 import {
   getPostComments as getPostCommentsAPI,
@@ -23,9 +24,10 @@ import {
   pushNotification as pushNotificationAPI,
   getAccounts as getAccountsAPI,
   addTag as addTagAPI,
+  deleteComment as deleteCommentAPI
 } from "../api";
 import { useAuthState } from "../context/authContext";
-import { API_URL } from "../../constants";
+import { API_URL, Length } from "../../constants";
 import {
   FlatList,
   ScrollView,
@@ -33,7 +35,7 @@ import {
 } from "react-native-gesture-handler";
 import Send from "../../assets/sendButton.svg";
 import { Colors, appTheme } from "../../constants";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
 import {
   MentionInput,
   Suggestion,
@@ -45,6 +47,7 @@ import {
   isMentionPartType,
 } from "react-native-controlled-mentions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
 
 var { width, height } = Dimensions.get("window");
 
@@ -169,9 +172,6 @@ const Comments = (props) => {
       );
     };
 
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    setCanSendComment(false);
     async function getPostStates() {
       const postRes = await getPostByIdAPI(userToken, postId);
       setPost(postRes.data);
@@ -183,6 +183,10 @@ const Comments = (props) => {
       const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
       setAuthor(authorRes.data);
     }
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setCanSendComment(false);
     await getPostStates();
     setRefreshing(false);
     setCanSendComment(true);
@@ -194,6 +198,11 @@ const Comments = (props) => {
   const findAccountfromId = (id) => {
     return accounts.find((account) => account.id == id);
   };
+
+  async function onDeleteComment(commentId) {
+    const res = await deleteCommentAPI(postId, commentId, userToken);
+    await getPostStates()
+  }
 
   async function sendComment() {
     if (message != "") {
@@ -240,10 +249,31 @@ const Comments = (props) => {
     }
   }
 
+  const deleteConfirmation = (commentId) =>
+    Alert.alert(
+      "Delete Comment\n",
+      "Are you sure?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            onDeleteComment(commentId);
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+
   const renderItem = ({ item }) => {
     const curAccount = commentAccounts.find(
       (accounts) => accounts.id == item.author
     );
+    const isSelf = self.id === item.author;
     const { parts } = parseValue(item.value, [
       {
         trigger: "@",
@@ -257,30 +287,44 @@ const Comments = (props) => {
     ]);
     return (
       <View style={styles.comment}>
-        <TouchableOpacity
-          style={{ flexDirection: "row", alignItems: "center" }}
-          onPress={() => {
-            navigation.push("Profile", {
-              id: curAccount.id,
-            });
-          }}
-        >
-          <Image
-            source={{ uri: API_URL + curAccount.profile_picture }}
-            style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
-          ></Image>
-        </TouchableOpacity>
-        <Text
-          style={{
-            flexWrap: "wrap",
-            marginRight: 20,
-            marginLeft: 10,
-            color: Colors.text,
-          }}
-        >
-          <Text style={styles.authorName}>{curAccount.username + `: `}</Text>
-          <Text style={{ color: Colors.text }}>{parts.map(renderPart)}</Text>
-        </Text>
+        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+          <TouchableOpacity
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={() => {
+              navigation.push("Profile", {
+                id: curAccount.id,
+              });
+            }}
+          >
+            <Image
+              source={{ uri: API_URL + curAccount.profile_picture }}
+              style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
+            ></Image>
+          </TouchableOpacity>
+          <Text
+            style={{
+              flexWrap: "wrap",
+              marginRight: 20,
+              marginLeft: 10,
+              color: Colors.text,
+            }}
+          >
+            <Text style={styles.authorName}>{curAccount.username + `: `}</Text>
+            <Text style={{ color: Colors.text }}>{parts.map(renderPart)}</Text>
+          </Text>
+        </View>
+        {isSelf &&
+        <TouchableWithoutFeedback style={{}} onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          deleteConfirmation(item.id)
+        }}>
+          <View
+            style={{paddingHorizontal: 5}}>
+            <AntDesign name="close" size={16} color={Colors.FG} />
+          </View>
+        </TouchableWithoutFeedback>
+        
+        }
       </View>
     );
   };
@@ -341,7 +385,7 @@ const Comments = (props) => {
           <View style={styles.commentBarBackground}>
             <MentionInput
               maxHeight={400}
-              maxLength={200}
+              maxLength={Length.comment}
               keyboardAppearance={appTheme}
               containerStyle={{ borderRadius: 15, flex: 1, color: Colors.FG }}
               autoFocus
@@ -405,12 +449,12 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   comment: {
-    borderColor: "#C8C8C8",
     flexDirection: "row",
     alignItems: "center",
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 20,
+    justifyContent: 'space-between'
   },
   commentBar: {
     color: Colors.text,

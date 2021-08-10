@@ -68,7 +68,6 @@ const DanceChoreosTabView = (props) => {
   };
 
   const renderItem = (item) => {
-    console.log(selectedVideos);
     return inCreatePost ? (
       <VideoSearchItem
         title={item.item.title}
@@ -78,6 +77,7 @@ const DanceChoreosTabView = (props) => {
         inCreatePost={inCreatePost}
         selected={selectedVideos.has(item.item.videoId)}
         key={item.item.videoId}
+        outlineColor={"maroon"}
       />
     ) : (
       <VideoSearchItem

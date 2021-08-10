@@ -18,7 +18,7 @@ import {
   getSongLyrics as getSongLyricsAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
-import { Colors, appTheme } from "../../../constants";
+import { Colors, appTheme, Length } from "../../../constants";
 import { Video } from "expo-av";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
 
@@ -134,7 +134,7 @@ const CaptionSelection = (props) => {
         />
       )}
       <TextInput
-        maxLength={200}
+        maxLength={Length.caption}
         keyboardAppearance={appTheme}
         style={{ ...styles.commentBar }}
         placeholder={"Add caption..."}

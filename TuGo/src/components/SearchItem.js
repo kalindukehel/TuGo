@@ -20,7 +20,7 @@ import { Audio } from "expo-av";
 import { getAudioLink as getAudioLinkAPI } from "../api";
 import TextTicker from "react-native-text-ticker";
 import { Entypo } from "@expo/vector-icons";
-import { Colors } from "../../constants";
+import { Colors, Length } from "../../constants";
 import * as Haptics from "expo-haptics";
 import { Ticker } from "../Helpers/Truncate";
 
@@ -247,7 +247,7 @@ const SearchItem = (props) => {
           >
             <Ticker
               string={artist}
-              maxLength={32}
+              maxLength={Length.song.artist}
               style={{ 
                 fontWeight: "200",
                 color: Colors.text 
@@ -255,7 +255,7 @@ const SearchItem = (props) => {
             />
             <Ticker
               string={title}
-              maxLength={32}
+              maxLength={Length.song.title}
               style={{
                 fontWeight: "700",
                 color: isPlaying && trackId === props.trackId ? "#FF4343" : Colors.text,

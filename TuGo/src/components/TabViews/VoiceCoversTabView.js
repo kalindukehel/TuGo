@@ -80,6 +80,7 @@ const VoiceCoversTabView = (props) => {
         selectVideo={selectVideo}
         selected={selectedVideos.has(item.item.videoId)}
         key={item.item.videoId}
+        outlineColor={"purple"}
       />
     ) : (
       <VideoSearchItem

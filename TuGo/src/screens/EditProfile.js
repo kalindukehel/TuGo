@@ -10,12 +10,11 @@ import {
   Keyboard,
   TouchableWithoutFeedback
 } from "react-native";
-import { API_URL } from "../../constants";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
 import { postProfilePicture as postProfilePictureAPI, editProfile as editProfileAPI, getSelf as getSelfAPI } from "../api";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
-import { Colors } from "../../constants"
+import { Colors, Length } from "../../constants"
 import { TextInput } from "react-native-gesture-handler";
 import { updateUser } from "../graphql/mutations"
 import { API, Auth, graphqlOperation } from "aws-amplify";
@@ -141,7 +140,7 @@ const EditProfile = (props) => {
         value={name}
         placeholder={'Name'}
         placeholderTextColor={Colors.gray}
-        maxLength={25}
+        maxLength={Length.name}
       />
       <TextInput
         style={styles.input}
@@ -149,7 +148,7 @@ const EditProfile = (props) => {
         value={username}
         placeholder={'Username'}
         placeholderTextColor={Colors.gray}
-        maxLength={25}
+        maxLength={Length.username}
       />
       <TextInput
         style={styles.input}
@@ -157,7 +156,7 @@ const EditProfile = (props) => {
         value={email}
         placeholder={'Email'}
         placeholderTextColor={Colors.gray}
-        maxLength={25}
+        maxLength={Length.email}
       />
     </View>
     </TouchableWithoutFeedback>

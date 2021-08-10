@@ -20,7 +20,7 @@ import { useAuthState } from "../../context/authContext";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SearchItem from "../SearchItem";
 import TextTicker from "react-native-text-ticker";
-import { Colors } from "../../../constants";
+import { API_URL, Colors } from "../../../constants";
 
 const styles = StyleSheet.create({
   activityIndicator: {
@@ -40,6 +40,7 @@ const SongsTabView = (props) => {
   } = props;
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(API_URL + "/media/default.jpg")
 
   useEffect(() => {
     let isMounted = true;
@@ -66,38 +67,6 @@ const SongsTabView = (props) => {
         setLoading(false);
       }
     };
-    const loadSuggestions = async () => {
-      if (isEditing && searchQuery != "") {
-        //If user is still typing, get suggested song names as results
-        const tempSuggestions = (
-          await getSoundCloudSuggestionsAPI(searchQuery)
-        ).data.collection.map((item) => {
-          return item.output;
-        });
-        if (isMounted) setResults(tempSuggestions);
-      } else if (searchQuery != "") {
-        //If editing is finished and searchQuery is valid, get song items as results
-        let response = await getSoundCloudSearchAPI(searchQuery);
-        let topData = response.data.collection.slice(
-          0,
-          response.data.collection.length
-        );
-
-        //Function to see if result has required attributes
-        const checkValidPost = (item) => {
-          if (item.media && item.artwork_url && item.title) {
-            if (item.media.transcodings) {
-              return true;
-            }
-          }
-          return false;
-        };
-
-        //Filter results with filter and keep only valid
-        let tempResults = topData.filter((item) => checkValidPost(item));
-        if (isMounted) setResults(tempResults);
-      }
-    };
     loadsongs();
     return () => {
       isMounted = false;
@@ -122,6 +91,19 @@ const SongsTabView = (props) => {
   const getArtistImage = (artistId) => {
     return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
   };
+
+  function checkImageURL(artistId){
+    const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`
+    fetch(url)
+       .then(res => {
+       if(res.status == 404){
+         return null
+       }else{
+         return url
+      }
+    })
+   .catch(err=>{console.log(err)})
+   }
 
   const renderSuggestion = ({ item }) => {
     return (
@@ -171,7 +153,7 @@ const SongsTabView = (props) => {
                   alignItems: "center",
                 }}
                 source={{
-                  uri: getArtistImage(item.id),
+                  uri: getArtistImage(item.id)
                 }}
               ></ImageBackground>
               <TextTicker

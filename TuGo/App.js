@@ -7,6 +7,7 @@ import { isSignedIn, signed } from "./src/auth";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { AuthProvider } from "./src/context/authContext";
 import { PlayerProvider } from "./src/context/playerContext";
+import { ErrorProvider } from "./src/context/errorContext";
 import { NotificationProvider } from "./src/context/notificationContext";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { changeColors, Colors } from "./constants";
@@ -25,10 +26,12 @@ export default App = () => {
       <SafeAreaProvider>
         <AuthProvider>
           <PlayerProvider>
-            <NotificationProvider>
-              <AppNavigator />
-              {/* <PlayerWidgets /> */}
-            </NotificationProvider>
+            <ErrorProvider>
+              <NotificationProvider>
+                <AppNavigator />
+                <PlayerWidgets />
+              </NotificationProvider>
+            </ErrorProvider>
           </PlayerProvider>
         </AuthProvider>
       </SafeAreaProvider>

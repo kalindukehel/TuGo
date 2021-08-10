@@ -26,6 +26,7 @@ import {
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
+import { useErrorState, useErrorDispatch } from "../../context/errorContext";
 import Ionicons from "react-native-vector-icons/Ionicons";
 import { API_URL } from "../../../constants";
 import { Fontisto } from "@expo/vector-icons";
@@ -120,6 +121,7 @@ const Profile = (props) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const firstRun = useRef(true);
   const [offset, setOffset] = useState(0);
+  const errorDispatch = useErrorDispatch();
 
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
@@ -191,6 +193,7 @@ const Profile = (props) => {
 
   useEffect(() => {
     onRefresh();
+    // errorDispatch({type: 'REPORT_ERROR', message: "I am testing this"})
   }, [profileId]);
 
   React.useEffect(() => {

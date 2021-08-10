@@ -108,7 +108,12 @@ const MainNavigator = () => {
         });
       }
       console.log(token);
-      const res = await postNotificationTokenAPI(token, userToken, self.id);
+      try{
+        const res = await postNotificationTokenAPI(token, userToken, self.id);
+      }
+      catch(e){
+        alert(e)
+      }
     }
     registerForPushNotificationsAsync();
     // This listener is fired whenever a notification is received while the app is foregrounded

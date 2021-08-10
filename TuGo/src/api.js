@@ -177,6 +177,22 @@ export async function addComment(token, id, data) {
   });
 }
 
+export async function deleteComment(postId, commentId, token) {
+  const data = {
+    id: commentId
+  }
+  console.log(token)
+  console.log(commentId)
+  return axios.delete(`${API_URL}/api/posts/${postId}/comments/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+    data: {
+      id: commentId
+    }
+  });
+}
+
 export async function addTag(token, id, data) {
   return axios.post(`${API_URL}/api/posts/${id}/tags/`, data, {
     headers: {
@@ -268,6 +284,7 @@ export async function searchUsers(data, token) {
   });
 }
 
+//check error for this
 export async function postNotificationToken(data, token, id) {
   return axios.patch(
     `${API_URL}/api/accounts/${id}/`,
