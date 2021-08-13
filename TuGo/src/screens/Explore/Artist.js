@@ -38,7 +38,7 @@ const Artist = (props) => {
   const [artistSongs, setArtistSongs] = useState(null);
   const flatListRef = React.useRef();
   const searchBarRef = React.useRef();
-  const [artistName, setArtistName] = useState("");
+  const [artistDetails, setArtistDetails] = useState("");
   const [disableScroll, setDisableScroll] = useState(false);
   const [profileImage, setProfileImage] = useState(API_URL + "/media/default.jpg")
 
@@ -56,7 +56,7 @@ const Artist = (props) => {
     setRefreshing(true);
     async function getSongList() {
       const infoRes = await getArtistInfoAPI(artist);
-      setArtistName(infoRes.data.artists[0].name);
+      setArtistDetails(infoRes.data.artists[0]);
       let res = await artistSongsTopAPI(artist);
       if (res.data.tracks.length < 10) {
         res = await artistSongsAPI(artist);
@@ -70,6 +70,7 @@ const Artist = (props) => {
       fetch(url)
          .then(res => {
          if(res.status == 404){
+           if(masterData.length > 0) setProfileImage(getImage(masterData[0].albumId))
          }else{
            setProfileImage(`https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`)
         }
@@ -155,8 +156,8 @@ const Artist = (props) => {
         const usernameData = item.name
           ? item.name.toUpperCase()
           : "".toUpperCase();
-        const nameData = item.artistName
-          ? item.artistName.toUpperCase()
+        const nameData = item.artistDetails.name
+          ? item.artistDetails.name.toUpperCase()
           : "".toUpperCase();
         const textData = text.toUpperCase();
         return (
@@ -226,7 +227,7 @@ const Artist = (props) => {
               >
                 <Text style={styles.button}>Related Artists</Text>
               </TouchableWithoutFeedback>
-
+              {artistDetails.bios &&
               <TouchableWithoutFeedback
                 onPress={() => {
                   navigation.push("ArtistInfo", {
@@ -236,6 +237,7 @@ const Artist = (props) => {
               >
                 <Text style={styles.button}>Info</Text>
               </TouchableWithoutFeedback>
+              }
             </View>
           </View>
           <Animated.View
@@ -274,7 +276,7 @@ const Artist = (props) => {
           </Animated.View>
           <TouchableWithoutFeedback onPress={toTop}>
             <View style={styles.chartNameView}>
-              <Text style={styles.chartName}>{artistName}</Text>
+              <Text style={styles.chartName}>{artistDetails.name}</Text>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>

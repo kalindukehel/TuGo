@@ -15,6 +15,7 @@ import VoiceCoversTabView from "../../components/TabViews/VoiceCoversTabView";
 import CustomVideoTabView from "../../components/TabViews/CustomVideoTabView";
 import { Colors } from "../../../constants";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+import { AntDesign } from '@expo/vector-icons';
 
 var { width, height } = Dimensions.get("window");
 
@@ -107,7 +108,20 @@ const VideoSelection = (props) => {
       indicatorStyle={{ backgroundColor: Colors.FG }}
       style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: Colors.text }}>{route.title}</Text>
+        <>
+        {route.title === 'Dance Choreos' &&
+        <View style={{borderRadius: 5, backgroundColor: 'red', flexDirection: 'row', alignItems: 'center', padding: 2}}>
+          <Text style={{ color: Colors.text, marginRight: 3}}>{route.title}</Text>
+          <AntDesign name="search1" size={14} color="black" />
+        </View>}
+        {route.title === 'Voice Covers' &&
+        <View style={{borderRadius: 5, backgroundColor: 'red', flexDirection: 'row', alignItems: 'center', padding: 2}}>
+            <Text style={{ color: Colors.text, marginRight: 3}}>{route.title}</Text>
+            <AntDesign name="search1" size={14} color="black" />
+        </View>}
+        {route.title === 'Custom Videos' &&
+          <Text style={{ color: Colors.text }}>{route.title}</Text>}
+        </>
       )}
     />
   );

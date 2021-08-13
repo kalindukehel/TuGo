@@ -459,14 +459,17 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             })
           );
         } else {
+          console.log('creating) 1')
           //1. Create a new Chat Room
           const newChatRoomData = await API.graphql(
             graphqlOperation(createChatRoom, {
               input: {
                 lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
+                seen: [self.id]
               },
             })
           );
+          console.log('after create')
 
           if (!newChatRoomData.data) {
             // Failed to create a chat room
@@ -476,6 +479,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           const newChatRoom = newChatRoomData.data.createChatRoom;
 
           // 2. Add `user` to the Chat Room
+          console.log('add user to room')
           await API.graphql(
             graphqlOperation(createChatRoomUser, {
               input: {
@@ -486,6 +490,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           );
 
           //  3. Add authenticated user to the Chat Room
+          console.log('add auth user')
           await API.graphql(
             graphqlOperation(createChatRoomUser, {
               input: {
@@ -501,11 +506,13 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             type: "POST",
             seen: 0,
           };
+          console.log('before create msg)')
           let newMessageData = await API.graphql(
             graphqlOperation(createMessage, {
               input: msg,
             })
           );
+          console.log('after create msg)')
           if (message != "") {
             newMessageData = await API.graphql(
               graphqlOperation(createMessage, {

@@ -171,7 +171,7 @@ const Explore = ({ navigation }) => {
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: "first", title: "Songs" },
+    { key: "first", title: "Music" },
     { key: "second", title: "Posts" },
     { key: "third", title: "Accounts" },
   ]);
@@ -385,11 +385,12 @@ const Explore = ({ navigation }) => {
             >
               <View
                 style={{
-                  flex: 1,
+                  padding: 5,
                   alignItems: "flex-end",
                 }}
               >
-                <Octicons name="chevron-right" size={24} color={Colors.FG} />
+                {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
+                <Text style={{color: Colors.close}}>See All</Text>
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -423,11 +424,12 @@ const Explore = ({ navigation }) => {
             >
               <View
                 style={{
-                  flex: 1,
+                  padding: 5,
                   alignItems: "flex-end",
                 }}
               >
-                <Octicons name="chevron-right" size={24} color={Colors.FG} />
+                {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
+                <Text style={{color: Colors.close}}>See All</Text>
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -452,7 +454,8 @@ const Explore = ({ navigation }) => {
           >
             <Text style={{ fontSize: 25, color: Colors.FG }}>Charts</Text>
             <TouchableWithoutFeedback>
-              <Octicons name="chevron-right" size={24} color={Colors.FG} />
+              {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
+              <Text style={{color: Colors.close}}>See All</Text>
             </TouchableWithoutFeedback>
           </View>
 

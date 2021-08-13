@@ -3,7 +3,7 @@ import {
   FlatList,
   View,
   StyleSheet,
-  Text,
+  Image,
   ActivityIndicator,
   TouchableWithoutFeedback,
   ImageBackground,
@@ -73,17 +73,6 @@ const SongsTabView = (props) => {
     };
   }, []);
 
-  const ItemSeparatorView = () => {
-    return (
-      // Flat List Item Separator
-      <View
-        style={{
-          alignSelf: "center",
-        }}
-      />
-    );
-  };
-
   const getImage = (albumId) => {
     return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
   };
@@ -137,15 +126,11 @@ const SongsTabView = (props) => {
                 flexDirection: "row",
                 alignItems: "center",
                 marginLeft: 8,
-                marginTop: 8,
+                marginTop: 12,
+                marginBottom: 10
               }}
             >
-              <ImageBackground
-                imageStyle={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 999,
-                }}
+              <Image  
                 style={{
                   width: 60,
                   height: 60,
@@ -155,13 +140,14 @@ const SongsTabView = (props) => {
                 source={{
                   uri: getArtistImage(item.id)
                 }}
-              ></ImageBackground>
+              />
               <TextTicker
                 style={{
                   marginLeft: 20,
                   color: Colors.text,
                   fontWeight: "bold",
-                  height: 20,
+                  height: 25,
+                  fontSize: 20
                 }}
                 duration={7000}
                 bounce

@@ -12,7 +12,8 @@ import {
   Share,
   ScrollView,
   ActivityIndicator,
-  Button,
+  Animated,
+  Easing
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -66,9 +67,11 @@ import Player from "./Player";
 import { Colors } from "../../constants";
 import DanceChoreosTabView from "../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import { TouchableHighlight, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import ShareToDirect from "../screens/Others/ShareToDirect";
+import { useTilePlayerDispatch } from "../context/tilePlayerContext";
+import PostedTile from "./PostedTile";
 
 var { width, height } = Dimensions.get("window");
 
@@ -90,13 +93,13 @@ const PostComponent = ({
   const { userToken, self } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
-
+  const tilePlayerDispatch = useTilePlayerDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
 
   const [likes, setLikes] = useState(null);
   const [comments, setComments] = useState(null);
-  const [tiles, setTiles] = useState(null);
+  const [tiles, setTiles] = useState([]);
   const [author, setAuthor] = useState(null);
   const [maxlimit, setMaxlimit] = useState(95);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -106,7 +109,7 @@ const PostComponent = ({
   const [lyrics, setLyrics] = useState("");
   const [status, setStatus] = useState({});
   const [activeSlide, setActiveSlide] = useState(0);
-
+  const [animatedTileValue, setAnimatedTileValue] = useState(new Animated.Value(0));
   const [isSelf, setIsSelf] = useState(false);
 
   const insets = useSafeAreaInsets();
@@ -126,7 +129,6 @@ const PostComponent = ({
 
   async function getPostStates() {
     //Update post data from API
-    console.log("hi");
     const postRes = await getPostByIdAPI(userToken, postId);
     setPost(postRes.data);
     postRef.current = postRes.data;
@@ -352,6 +354,23 @@ const PostComponent = ({
   const deleteTile = async (tileId) => {
     const res = await deleteTileAPI(postId, tileId, userToken);
   };
+
+  const handleAnimation = () => {
+    Animated.timing(animatedTileValue, {
+        toValue: 1,
+        duration: 1000,
+        easing: Easing.ease,
+        useNativeDriver: true
+    }).start()
+}
+
+  const renderTileTest = ({item, index}) => {
+    return (
+      <View style={{margin: (width - 3*width/3.4) /8}}>
+        <PostedTile url={item.youtube_link} thumbnail={item.image}/>
+      </View>
+    )
+  }
 
   const renderTile = ({ item, index }) => {
     if (item.is_youtube)
@@ -647,7 +666,15 @@ const PostComponent = ({
                       decelerationRate="fast"
                       pagingEnabled
                   /> */}
-                  <Carousel
+                  <FlatList
+                      contentContainerStyle={{flexGrow: 1, alignItems: 'center'}}
+                      ref={tilesRef}
+                      data={tiles}
+                      renderItem={renderTileTest}
+                      numColumns={3}
+                      style={ goBackOnDelete ? { } : {alignItems : 'center'} }  
+                  />
+                  {/* <Carousel
                     ref={tilesRef}
                     data={tiles}
                     renderItem={renderTile}
@@ -676,7 +703,7 @@ const PostComponent = ({
                     }
                     inactiveDotOpacity={0.4}
                     inactiveDotScale={0.6}
-                  />
+                  /> */}
                 </View>
               )
             )}
@@ -736,15 +763,24 @@ const PostComponent = ({
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.moreButton}
+              <TouchableWithoutFeedback
                 onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  moreRef.current.open();
+                  navigation.navigate("Video Selection", {
+                    song: {
+                      id: post.song_id,
+                      artist: post.song_artist,
+                      audioLink: post.audio_url,
+                      title: post.song_name,
+                      coverArt: post.album_cover,
+                      trackId: post.song_id,
+                      artistId: post.artist_id,
+                      genre: post.song_tags,
+                    },
+                  });
                 }}
               >
-                <Text style={styles.moreButtonText}>More</Text>
-              </TouchableOpacity>
+                <AntDesign name="retweet" size={25} color={Colors.FG}/>
+              </TouchableWithoutFeedback>
 
               <TouchableOpacity
                 onPress={() => {
@@ -800,24 +836,16 @@ const PostComponent = ({
                 />
               </RBSheet>
             </View>
-            <TouchableWithoutFeedback
-              onPress={() => {
-                navigation.navigate("Video Selection", {
-                  song: {
-                    id: post.song_id,
-                    artist: post.song_artist,
-                    audioLink: post.audio_url,
-                    title: post.song_name,
-                    coverArt: post.album_cover,
-                    trackId: post.song_id,
-                    artistId: post.artist_id,
-                    genre: post.song_tags,
-                  },
-                });
-              }}
+            <TouchableOpacity
+                style={styles.moreButton}
+                onPress={() => {
+                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                  moreRef.current.open();
+                }}
             >
-              <Fontisto name="arrow-return-right" size={25} color={Colors.FG} />
-            </TouchableWithoutFeedback>
+                <Text style={styles.moreButtonText}>More</Text>
+            </TouchableOpacity>
+
           </View>
         </ImageBackground>
 
@@ -893,12 +921,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "#CDCDCD",
     alignSelf: "center",
+    marginRight: 5
   },
   moreButtonText: {
     alignSelf: "center",
-    color: Colors.complimentText,
+    color: Colors.close,
+    fontWeight: 'bold'
   },
   imageViewNotPlaying: {
     marginLeft: 8,

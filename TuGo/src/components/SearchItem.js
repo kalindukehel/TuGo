@@ -301,9 +301,9 @@ const SearchItem = (props) => {
             style={{ marginLeft: "auto", marginRight: 10 }}
           >
             {isPlaying && trackId === props.trackId ? (
-              <Entypo name="controller-paus" size={30} color={Colors.FG} />
+              <Entypo name="controller-paus" size={30} color={Colors.gray} />
             ) : (
-              <Entypo name="controller-play" size={30} color={Colors.FG} />
+              <Entypo name="controller-play" size={30} color={Colors.gray} />
             )}
           </TouchableOpacity>
         )}

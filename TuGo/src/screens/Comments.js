@@ -274,6 +274,7 @@ const Comments = (props) => {
       (accounts) => accounts.id == item.author
     );
     const isSelf = self.id === item.author;
+    console.log(isSelf)
     const { parts } = parseValue(item.value, [
       {
         trigger: "@",
@@ -287,7 +288,7 @@ const Comments = (props) => {
     ]);
     return (
       <View style={styles.comment}>
-        <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', width: isSelf ? 0.8*width : 0.9*width}}>
           <TouchableOpacity
             style={{ flexDirection: "row", alignItems: "center" }}
             onPress={() => {

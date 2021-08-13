@@ -6,6 +6,9 @@ import ArtistBlock from "../../components/Explore/ArtistBlock";
 
 //api
 import { topArtists as topArtistsAPI } from "../../api";
+import { Dimensions } from "react-native";
+
+var {width,height} = Dimensions.get("window")
 
 const ArtistsAll = (props) => {
   const { navigation } = props;
@@ -52,18 +55,21 @@ const ArtistsAll = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
+
       <FlatList
-        contentContainerStyle={{
-          justifyContent: "center",
-          alignItems: "center",
-          paddingVertical: 20,
-        }}
-        data={artists}
-        renderItem={renderArtist}
-        keyExtractor={(item, index) => item.id.toString()}
-        onRefresh={loading}
-        numColumns={2}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          style={{ flexGrow: 1 }}
+          ItemSeparatorComponent={() => <View style={{ margin: 30 }}></View>}
+          contentContainerStyle={{
+            width: width,
+            alignItems: "center",
+            paddingVertical: 10,
+          }}
+          data={artists}
+          renderItem={renderArtist}
+          keyExtractor={(item, index) => {
+            return index.toString();
+          }}
+          numColumns={2}
       />
     </SafeAreaView>
   );

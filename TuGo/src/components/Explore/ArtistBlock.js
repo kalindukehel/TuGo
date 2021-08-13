@@ -20,7 +20,7 @@ const ArtistBlock = (props) => {
 
   const [sizeValue, setSizeValue] = useState(new Animated.Value(size));
 
-  const name = topFive ? `${index} ${artist}` : `${artist}`;
+  const name = `${artist}`;
 
   const imageAnimationIn = () => {
     Animated.timing(sizeValue, {

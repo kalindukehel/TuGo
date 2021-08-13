@@ -1,5 +1,4 @@
 export const errorReducer = (prevState, action) => {
-    console.log(action)
     switch (action.type) {
       case "REPORT_ERROR":
         return {

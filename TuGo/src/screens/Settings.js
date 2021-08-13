@@ -6,6 +6,7 @@ import {
   Switch,
   StyleSheet,
   ScrollView,
+  ActivityIndicator
 } from "react-native";
 import {
   getSelf as getSelfAPI,
@@ -24,6 +25,7 @@ import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 const Settings = ({ navigation }) => {
   const { userToken, self } = useAuthState();
   const [isPrivate, setIsPrivate] = useState();
+  const [loading, setLoading] = useState(false);
   const dispatch = useAuthDispatch();
 
   useEffect(() => {
@@ -132,10 +134,10 @@ const Settings = ({ navigation }) => {
           <View style={styles.titleBreak} />
         </View>
       </View>
-
       <TouchableOpacity
         style={styles.logout}
         onPress={async () => {
+          setLoading(true)
           onSignOut();
           try {
             await deleteNotificationTokenAPI(userToken, self.id);
@@ -144,10 +146,20 @@ const Settings = ({ navigation }) => {
             dispatch({ type: "SIGN_OUT" });
           } catch (e) {
             console.log(e);
+            setLoading(false)
           }
+          setLoading(false)
         }}
-      >
-        <Text>Logout</Text>
+      >              
+      {loading ? (
+        <ActivityIndicator
+          animating={true}
+          size="small"
+          color={Colors.complimentText}
+        />
+      ) : (
+        <Text style={{ color: Colors.complimentText }}>Logout</Text>
+      )}
       </TouchableOpacity>
     </ScrollView>
   );
@@ -159,13 +171,13 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.BG,
   },
   logout: {
-    backgroundColor: "#DCDCDC",
-    paddingVertical: 15,
-    paddingHorizontal: 80,
-    alignSelf: "center",
-    borderRadius: 10,
-    marginTop: 40,
-    marginBottom: 20,
+    height: 40,
+    marginHorizontal: 60,
+    padding: 10,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.gray
   },
   heading: {
     fontWeight: "bold",

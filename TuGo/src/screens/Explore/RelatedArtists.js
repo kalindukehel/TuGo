@@ -63,7 +63,6 @@ const RelatedArtists = (props) => {
   };
 
   const renderAlbum = (item) => {
-    console.log(item);
     return (
       <ArtistBlock
         artist={item.item.name}
