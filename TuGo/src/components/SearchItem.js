@@ -178,6 +178,7 @@ const SearchItem = (props) => {
       delayLongPress={250}
       onLongPress={() => {
         if (postable) {
+          playerDispatch({ type: "UNLOAD_PLAYER" });
           navigation.navigate("Video Selection", {
             song: {
               id: index,
@@ -248,9 +249,9 @@ const SearchItem = (props) => {
             <Ticker
               string={artist}
               maxLength={Length.song.artist}
-              style={{ 
+              style={{
                 fontWeight: "200",
-                color: Colors.text 
+                color: Colors.text,
               }}
             />
             <Ticker
@@ -258,7 +259,10 @@ const SearchItem = (props) => {
               maxLength={Length.song.title}
               style={{
                 fontWeight: "700",
-                color: isPlaying && trackId === props.trackId ? "#FF4343" : Colors.text,
+                color:
+                  isPlaying && trackId === props.trackId
+                    ? "#FF4343"
+                    : Colors.text,
               }}
             />
           </View>
