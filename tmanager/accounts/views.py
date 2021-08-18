@@ -353,7 +353,7 @@ class PostViewSet(viewsets.ModelViewSet):
             serializer = CommentSerializer(all_comments,many=True)
             return Response(serializer.data)
 
-    @action(detail=True, methods=['GET','POST'], serializer_class=TileSerializer )
+    @action(detail=True, methods=['GET','POST','DELETE'], serializer_class=TileSerializer )
     def tiles(self, request, *args, **kwargs): 
         if(request.method=='POST'):
             tile_type = request.data.get('tile_type')
@@ -384,6 +384,13 @@ class PostViewSet(viewsets.ModelViewSet):
             except ValidationError as e:
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
+        elif(request.method=='DELETE'):
+            tile = Tile.objects.get(pk=request.data.get('id'))
+            if(request.user==tile.post.author):
+                tile.delete()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
         else:
             tiles = self.get_object().tiles.all()
             # for i in tiles:
