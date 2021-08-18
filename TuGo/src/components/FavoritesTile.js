@@ -242,6 +242,7 @@ const FavoritesTile = (props) => {
           <TouchableOpacity
             style={styles.viewPostButton}
             onPress={() => {
+              playerDispatch({ type: "UNLOAD_PLAYER" });
               isPlaying && doPlay(); //if sound is playing toggle it off when going to a profile
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               navigation.push("Post", {
