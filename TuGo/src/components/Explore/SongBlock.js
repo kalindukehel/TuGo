@@ -177,7 +177,7 @@ const SongBlock = (props) => {
       <View style={{ flex: 1, marginVertical: 5 }}>
         <TouchableWithoutFeedback
           onPress={() => {
-            isPlaying && doPlay(); //if sound is playing toggle it off when going to a profile
+            playerDispatch({ type: "UNLOAD_PLAYER" });
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.push("Post", {
               screen: "Post",
