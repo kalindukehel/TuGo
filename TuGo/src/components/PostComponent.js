@@ -70,6 +70,7 @@ import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
 import { TouchableHighlight, TouchableWithoutFeedback } from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import ShareToDirect from "../screens/Others/ShareToDirect";
+import TileRender from "../screens/Others/TileRender";
 import { useTilePlayerDispatch } from "../context/tilePlayerContext";
 import PostedTile from "./PostedTile";
 
@@ -114,6 +115,7 @@ const PostComponent = ({
 
   const insets = useSafeAreaInsets();
 
+  const tileModal = useRef()
   const shareModal = useRef();
   const refRBSheet = useRef([]);
   const moreRef = useRef();
@@ -324,27 +326,6 @@ const PostComponent = ({
       { cancelable: false }
     );
 
-  //delete tile confirmation alert function
-  const deleteTileConfirmation = (tileId) =>
-    Alert.alert(
-      "Confirmation",
-      "Are you sure?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => {},
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => {
-            deleteTile(tileId);
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-
   //delete post async function
   const deletePost = async () => {
     const res = await deletePostAPI(postId, userToken);
@@ -367,7 +348,7 @@ const PostComponent = ({
   const renderTileTest = ({item, index}) => {
     return (
       <View style={{margin: (width - 3*width/3.4) /8}}>
-        <PostedTile url={item.youtube_link} thumbnail={item.image}/>
+        <PostedTile url={item.youtube_link} thumbnail={item.image} isAuthor={isSelf} tileId={item.id} postId={postId}/>
       </View>
     )
   }
@@ -673,7 +654,8 @@ const PostComponent = ({
                       renderItem={renderTileTest}
                       numColumns={3}
                       style={ goBackOnDelete ? { } : {alignItems : 'center'} }  
-                  />
+                  />         
+                  
                   {/* <Carousel
                     ref={tilesRef}
                     data={tiles}
@@ -809,6 +791,7 @@ const PostComponent = ({
               >
                 <ShareToDirect shareItem={post} shareModal={shareModal} />
               </RBSheet>
+              
               <RBSheet
                 height={0.8 * height}
                 ref={moreRef}

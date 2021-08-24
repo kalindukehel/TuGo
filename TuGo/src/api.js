@@ -181,8 +181,6 @@ export async function deleteComment(postId, commentId, token) {
   const data = {
     id: commentId
   }
-  console.log(token)
-  console.log(commentId)
   return axios.delete(`${API_URL}/api/posts/${postId}/comments/`, {
     headers: {
       Authorization: "Token " + token,
@@ -400,10 +398,13 @@ export async function deletePost(postId, token) {
 }
 
 export async function deleteTile(postId, tileId, token) {
-  return axios.delete(`${API_URL}/api/posts/${postId}/tiles/${tileId}`, {
+  return axios.delete(`${API_URL}/api/posts/${postId}/tiles/`, {
     headers: {
       Authorization: "Token " + token,
     },
+    data: {
+      id: tileId
+    }
   });
 }
 

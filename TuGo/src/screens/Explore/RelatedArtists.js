@@ -62,13 +62,13 @@ const RelatedArtists = (props) => {
     return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
   };
 
-  const renderAlbum = (item) => {
+  const renderAlbum = ({item}) => {
     return (
       <ArtistBlock
-        artist={item.item.name}
+        artist={item.name}
         navigation={navigation}
-        image={getArtistImage(item.item.artistId)}
-        id={item.item.artistId}
+        image={getArtistImage(item.artistId)}
+        id={item.artistId}
         similarArtist={true}
         columns={3}
       />
