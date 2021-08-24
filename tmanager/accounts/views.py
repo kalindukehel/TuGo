@@ -94,7 +94,7 @@ class AccountViewSet(viewsets.ModelViewSet):
                     activity_item.full_clean()
                     activity_item.save()
                 except ValidationError as e:
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"detail":"Activity item could not be created."},status=status.HTTP_400_BAD_REQUEST)
             elif(action == 'delete'):
                 follow_request = request.user.requests.filter(requester=requester)
                 follow_request.delete()
@@ -174,7 +174,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer = PostSerializer(all_posts,many=True)
             return Response(serializer.data)
         else:
-            return Response(status=HTTP_403_FORBIDDEN)
+            return Response({"detail":"Private account."},status=HTTP_403_FORBIDDEN)
 
     @action(detail=False, methods=['GET'])
     def feed(self,request,*args,**kwargs):
@@ -331,7 +331,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 comment.full_clean()
                 comment.save()
             except ValidationError as e:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail":"Comment exceeds 200 characters."},status=status.HTTP_400_BAD_REQUEST)
             #If user is not commenting on own post, push activity item to the user receiving the comment
             if(request.user != self.get_object().author):
                 activity_item = Activity_Item(user=self.get_object().author,activity_type='COMMENT',action_user=request.user,comment=comment, post=self.get_object())
@@ -339,7 +339,7 @@ class PostViewSet(viewsets.ModelViewSet):
                     activity_item.full_clean()
                     activity_item.save()
                 except ValidationError as e:
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"detail":"Activity item could not be created."},status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
         elif(request.method=='DELETE'):
             comment = Comment.objects.get(pk=request.data.get('id'))
@@ -347,7 +347,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 comment.delete()
                 return Response(status=status.HTTP_200_OK)
             else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail":"Comment could not be deleted."},status=status.HTTP_400_BAD_REQUEST)
         else:
             all_comments = self.get_object().comments.all()
             serializer = CommentSerializer(all_comments,many=True)
@@ -358,7 +358,7 @@ class PostViewSet(viewsets.ModelViewSet):
         if(request.method=='POST'):
             tile_type = request.data.get('tile_type')
             if(tile_type not in ['posted_cover', 'posted_choreo', 'suggested_cover', 'suggested_choreo']):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail":"Invalid tile type."},status=status.HTTP_400_BAD_REQUEST)
             is_youtube = request.data.get('is_youtube')
             youtube_link = request.data.get('youtube_link')
             image = request.data.get('image')
@@ -382,7 +382,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 tile.full_clean()
                 tile.save()
             except ValidationError as e:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail":"Tile could not be created"},status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
         elif(request.method=='DELETE'):
             tile = Tile.objects.get(pk=request.data.get('id'))
@@ -390,7 +390,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 tile.delete()
                 return Response(status=status.HTTP_200_OK)
             else:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail":"Tile could not be deleted."},status=status.HTTP_400_BAD_REQUEST)
         else:
             tiles = self.get_object().tiles.all()
             # for i in tiles:
@@ -451,7 +451,7 @@ class PostViewSet(viewsets.ModelViewSet):
                 tag.full_clean()
                 tag.save()
             except ValidationError as e:
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail":"User could not be tagged."},status=status.HTTP_400_BAD_REQUEST)
             #If user is not commenting on own post, push activity item to the user receiving the comment
             if(request.user != tagged_account):
                 activity_item = Activity_Item(user=tagged_account,activity_type='TAG',action_user=request.user,tag=tag, post=self.get_object())
@@ -459,7 +459,7 @@ class PostViewSet(viewsets.ModelViewSet):
                     activity_item.full_clean()
                     activity_item.save()
                 except ValidationError as e:
-                    return Response(status=status.HTTP_400_BAD_REQUEST)
+                    return Response({"detail":"Activity item could not be created."},status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
         else:
             all_tags = self.get_object().tags.all()
@@ -494,6 +494,23 @@ def signup(request, *args, **kwargs):
     serializer.save()
 
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def valid(request, *args, **kwargs):
+    valid_type = request.data.get('type')
+    if(valid_type == 'username' and request.data.get('username')):
+        if Account.objects.filter(username=request.data.get('username')).exists():
+            return Response({"available":False},status=status.HTTP_200_OK)
+        else:
+            return Response({"available":True},status=status.HTTP_200_OK)
+    elif(valid_type == 'email' and request.data.get('email')):
+        if Account.objects.filter(email=request.data.get('email')).exists():
+            return Response({"available":False},status=status.HTTP_200_OK)
+        else:
+            return Response({"available":True},status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])

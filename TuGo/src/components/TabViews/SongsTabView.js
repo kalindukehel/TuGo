@@ -31,31 +31,29 @@ const styles = StyleSheet.create({
 
 const SongsTabView = (props) => {
   const { userToken } = useAuthState();
-  const {
-    searchQuery,
-    isEditing,
-    handleChange,
-    handleEditing,
-    navigation,
-  } = props;
+  const { searchQuery, isEditing, handleChange, handleEditing, navigation } =
+    props;
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
-  const [profileImage, setProfileImage] = useState(API_URL + "/media/default.jpg")
+  const [profileImage, setProfileImage] = useState(
+    API_URL + "/media/default.jpg"
+  );
 
   useEffect(() => {
     let isMounted = true;
     const loadsongs = async () => {
       if (isEditing && searchQuery != "") {
-        setLoading(true);
+        isMounted && setLoading(true);
         const resArtist = await searchArtistAPI(searchQuery);
         const resTracks = await typeSongAheadSearchAPI(searchQuery);
-        setResults([
-          ...resArtist.data.search.data.artists,
-          ...resTracks.data.search.data.tracks,
-        ]);
-        setLoading(false);
+        isMounted &&
+          setResults([
+            ...resArtist.data.search.data.artists,
+            ...resTracks.data.search.data.tracks,
+          ]);
+        isMounted && setLoading(false);
       } else if (searchQuery != "") {
-        setLoading(true);
+        isMounted && setLoading(true);
         //const res = await songSearchAPI(searchQuery, userToken);
         const res = await fullTextSearchAPI(searchQuery);
         const resArray = [
@@ -63,8 +61,8 @@ const SongsTabView = (props) => {
           ...res.data.search.data.albums,
           ...res.data.search.data.tracks,
         ];
-        setResults(resArray);
-        setLoading(false);
+        isMounted && setResults(resArray);
+        isMounted && setLoading(false);
       }
     };
     loadsongs();
@@ -81,18 +79,20 @@ const SongsTabView = (props) => {
     return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
   };
 
-  function checkImageURL(artistId){
-    const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`
+  function checkImageURL(artistId) {
+    const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
     fetch(url)
-       .then(res => {
-       if(res.status == 404){
-         return null
-       }else{
-         return url
-      }
-    })
-   .catch(err=>{console.log(err)})
-   }
+      .then((res) => {
+        if (res.status == 404) {
+          return null;
+        } else {
+          return url;
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
 
   const renderSuggestion = ({ item }) => {
     return (
@@ -127,10 +127,10 @@ const SongsTabView = (props) => {
                 alignItems: "center",
                 marginLeft: 8,
                 marginTop: 12,
-                marginBottom: 10
+                marginBottom: 10,
               }}
             >
-              <Image  
+              <Image
                 style={{
                   width: 60,
                   height: 60,
@@ -138,7 +138,7 @@ const SongsTabView = (props) => {
                   alignItems: "center",
                 }}
                 source={{
-                  uri: getArtistImage(item.id)
+                  uri: getArtistImage(item.id),
                 }}
               />
               <TextTicker
@@ -147,7 +147,7 @@ const SongsTabView = (props) => {
                   color: Colors.text,
                   fontWeight: "bold",
                   height: 25,
-                  fontSize: 20
+                  fontSize: 20,
                 }}
                 duration={7000}
                 bounce

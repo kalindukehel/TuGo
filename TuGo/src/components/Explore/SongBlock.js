@@ -51,24 +51,7 @@ const SongBlock = (props) => {
 
   stateRef.current = isSeeking;
 
-  async function getPostStates() {
-    //Update post data from API
-    setRefreshing(true);
-    const postRes = await getPostByIdAPI(userToken, postId);
-    setPost(postRes.data);
-    postRef.current = postRes.data;
-    setRefreshing(false);
-  }
-
-  const onRefresh = async () => {
-    try {
-      setRefreshing(true);
-      await getPostStates();
-      setRefreshing(false);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  async function getPostStates() {}
 
   const loadSound = async () => {
     const sound_url = postRef.current.audio_url;
@@ -102,19 +85,36 @@ const SongBlock = (props) => {
 
   useEffect(() => {
     let isMounted = true;
-    if (isMounted) onRefresh();
-    return () => {
-      //When component exits
+    async function onRefresh() {
       try {
-        if (postRef.current.id == playingIdRef.current && isMounted) {
-          //If current playing song is same as current post
-          isLoaded.current = false;
-          soundObj.unloadAsync();
-          playerDispatch({ type: "UNLOAD_PLAYER" });
-        }
-      } catch (error) {
-        console.log("Error");
+        isMounted && setRefreshing(true);
+        //Update post data from API
+        const postRes = await getPostByIdAPI(userToken, postId);
+        isMounted && setPost(postRes.data);
+        postRef.current = postRes.data;
+        isMounted && setRefreshing(false);
+      } catch (e) {
+        console.log(e);
       }
+    }
+    if (isMounted) {
+      onRefresh();
+    }
+    return () => {
+      if (isMounted == true) {
+        //When component exits
+        try {
+          if (postRef.current.id == playingIdRef.current && isMounted) {
+            //If current playing song is same as current post
+            isLoaded.current = false;
+            soundObj.unloadAsync();
+            playerDispatch({ type: "UNLOAD_PLAYER" });
+          }
+        } catch (error) {
+          console.log("Error");
+        }
+      }
+      isMounted = false;
     };
   }, []);
 
