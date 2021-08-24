@@ -13,7 +13,7 @@ import {
   ScrollView,
   ActivityIndicator,
   Animated,
-  Easing
+  Easing,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -67,7 +67,10 @@ import Player from "./Player";
 import { Colors } from "../../constants";
 import DanceChoreosTabView from "../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
-import { TouchableHighlight, TouchableWithoutFeedback } from "react-native-gesture-handler";
+import {
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import ShareToDirect from "../screens/Others/ShareToDirect";
 import TileRender from "../screens/Others/TileRender";
@@ -110,12 +113,14 @@ const PostComponent = ({
   const [lyrics, setLyrics] = useState("");
   const [status, setStatus] = useState({});
   const [activeSlide, setActiveSlide] = useState(0);
-  const [animatedTileValue, setAnimatedTileValue] = useState(new Animated.Value(0));
+  const [animatedTileValue, setAnimatedTileValue] = useState(
+    new Animated.Value(0)
+  );
   const [isSelf, setIsSelf] = useState(false);
 
   const insets = useSafeAreaInsets();
 
-  const tileModal = useRef()
+  const tileModal = useRef();
   const shareModal = useRef();
   const refRBSheet = useRef([]);
   const moreRef = useRef();
@@ -129,30 +134,30 @@ const PostComponent = ({
 
   let WebViewRef = [];
 
-  async function getPostStates() {
-    //Update post data from API
-    const postRes = await getPostByIdAPI(userToken, postId);
-    setPost(postRes.data);
-    postRef.current = postRes.data;
-    const likesRes = await getPostLikesAPI(userToken, postId);
-    setLikes(likesRes.data);
-    const commentsRes = await getPostCommentsAPI(userToken, postId);
-    setComments(commentsRes.data);
-    const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
-    setAuthor(authorRes.data);
+  // async function getPostStates() {
+  //   //Update post data from API
+  //   const postRes = await getPostByIdAPI(userToken, postId);
+  //   setPost(postRes.data);
+  //   postRef.current = postRes.data;
+  //   const likesRes = await getPostLikesAPI(userToken, postId);
+  //   setLikes(likesRes.data);
+  //   const commentsRes = await getPostCommentsAPI(userToken, postId);
+  //   setComments(commentsRes.data);
+  //   const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
+  //   setAuthor(authorRes.data);
 
-    //waiting for tiles to load
-    setTileLoading(true);
-    const tilesRes = await getPostTilesAPI(userToken, postId);
-    setTiles(tilesRes.data);
-    setTileLoading(false);
+  //   //waiting for tiles to load
+  //   setTileLoading(true);
+  //   const tilesRes = await getPostTilesAPI(userToken, postId);
+  //   setTiles(tilesRes.data);
+  //   setTileLoading(false);
 
-    const favRes = await getPostFavoriteAPI(userToken, postId);
-    setIsFavorite(favRes.data.favorited);
-    const postsState = await getPostsAPI(userToken, self.id);
-    const postIds = postsState.data.map((item) => item.id);
-    setIsSelf(postIds.includes(postRes.data.id));
-  }
+  //   const favRes = await getPostFavoriteAPI(userToken, postId);
+  //   setIsFavorite(favRes.data.favorited);
+  //   const postsState = await getPostsAPI(userToken, self.id);
+  //   const postIds = postsState.data.map((item) => item.id);
+  //   setIsSelf(postIds.includes(postRes.data.id));
+  // }
 
   const onRefresh = async () => {
     try {
@@ -166,7 +171,48 @@ const PostComponent = ({
 
   useEffect(() => {
     let isMounted = true;
-    if (isMounted) onRefresh();
+    async function getPostStates() {
+      console.log(isMounted);
+    }
+    async function onRefresh() {
+      if (isMounted) {
+        try {
+          isMounted && setRefreshing(true);
+          //Update post data from API
+          const postRes = await getPostByIdAPI(userToken, postId);
+          isMounted && setPost(postRes.data);
+          postRef.current = postRes.data;
+          const likesRes = await getPostLikesAPI(userToken, postId);
+          isMounted && setLikes(likesRes.data);
+          const commentsRes = await getPostCommentsAPI(userToken, postId);
+          isMounted && setComments(commentsRes.data);
+          const authorRes = await getAccountByIdAPI(
+            postRes.data.author,
+            userToken
+          );
+          isMounted && setAuthor(authorRes.data);
+
+          //waiting for tiles to load
+          isMounted && setTileLoading(true);
+          const tilesRes = await getPostTilesAPI(userToken, postId);
+          isMounted && setTiles(tilesRes.data);
+          isMounted && setTileLoading(false);
+
+          const favRes = await getPostFavoriteAPI(userToken, postId);
+          isMounted && setIsFavorite(favRes.data.favorited);
+          const postsState = await getPostsAPI(userToken, self.id);
+          const postIds = postsState.data.map((item) => item.id);
+          isMounted && setIsSelf(postIds.includes(postRes.data.id));
+          isMounted && setRefreshing(false);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+
+    if (isMounted) {
+      onRefresh();
+    }
     return () => {
       //When component exits
       try {
@@ -180,6 +226,7 @@ const PostComponent = ({
       } catch (error) {
         console.log("Error");
       }
+      isMounted = false;
     };
   }, []);
 
@@ -188,7 +235,11 @@ const PostComponent = ({
   }, [playingId]);
 
   useEffect(() => {
-    setIsPlaying(false);
+    let isMounted = true;
+    isMounted && setIsPlaying(false);
+    return () => {
+      isMounted = false;
+    };
   }, [stopAll]);
 
   //share button function to share posts cross-platforms
@@ -338,20 +389,26 @@ const PostComponent = ({
 
   const handleAnimation = () => {
     Animated.timing(animatedTileValue, {
-        toValue: 1,
-        duration: 1000,
-        easing: Easing.ease,
-        useNativeDriver: true
-    }).start()
-}
+      toValue: 1,
+      duration: 1000,
+      easing: Easing.ease,
+      useNativeDriver: true,
+    }).start();
+  };
 
-  const renderTileTest = ({item, index}) => {
+  const renderTileTest = ({ item, index }) => {
     return (
-      <View style={{margin: (width - 3*width/3.4) /8}}>
-        <PostedTile url={item.youtube_link} thumbnail={item.image} isAuthor={isSelf} tileId={item.id} postId={postId}/>
+      <View style={{ margin: (width - (3 * width) / 3.4) / 8 }}>
+        <PostedTile
+          url={item.youtube_link}
+          thumbnail={item.image}
+          isAuthor={isSelf}
+          tileId={item.id}
+          postId={postId}
+        />
       </View>
-    )
-  }
+    );
+  };
 
   const renderTile = ({ item, index }) => {
     if (item.is_youtube)
@@ -648,14 +705,17 @@ const PostComponent = ({
                       pagingEnabled
                   /> */}
                   <FlatList
-                      contentContainerStyle={{flexGrow: 1, alignItems: 'center'}}
-                      ref={tilesRef}
-                      data={tiles}
-                      renderItem={renderTileTest}
-                      numColumns={3}
-                      style={ goBackOnDelete ? { } : {alignItems : 'center'} }  
-                  />         
-                  
+                    contentContainerStyle={{
+                      flexGrow: 1,
+                      alignItems: "center",
+                    }}
+                    ref={tilesRef}
+                    data={tiles}
+                    renderItem={renderTileTest}
+                    numColumns={3}
+                    style={goBackOnDelete ? {} : { alignItems: "center" }}
+                  />
+
                   {/* <Carousel
                     ref={tilesRef}
                     data={tiles}
@@ -761,7 +821,7 @@ const PostComponent = ({
                   });
                 }}
               >
-                <AntDesign name="retweet" size={25} color={Colors.FG}/>
+                <AntDesign name="retweet" size={25} color={Colors.FG} />
               </TouchableWithoutFeedback>
 
               <TouchableOpacity
@@ -791,7 +851,7 @@ const PostComponent = ({
               >
                 <ShareToDirect shareItem={post} shareModal={shareModal} />
               </RBSheet>
-              
+
               <RBSheet
                 height={0.8 * height}
                 ref={moreRef}
@@ -820,15 +880,14 @@ const PostComponent = ({
               </RBSheet>
             </View>
             <TouchableOpacity
-                style={styles.moreButton}
-                onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  moreRef.current.open();
-                }}
+              style={styles.moreButton}
+              onPress={() => {
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                moreRef.current.open();
+              }}
             >
-                <Text style={styles.moreButtonText}>More</Text>
+              <Text style={styles.moreButtonText}>More</Text>
             </TouchableOpacity>
-
           </View>
         </ImageBackground>
 
@@ -905,12 +964,12 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 5,
     alignSelf: "center",
-    marginRight: 5
+    marginRight: 5,
   },
   moreButtonText: {
     alignSelf: "center",
     color: Colors.close,
-    fontWeight: 'bold'
+    fontWeight: "bold",
   },
   imageViewNotPlaying: {
     marginLeft: 8,
