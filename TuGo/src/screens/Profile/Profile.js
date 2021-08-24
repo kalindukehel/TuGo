@@ -122,7 +122,7 @@ const Profile = (props) => {
   const firstRun = useRef(true);
   const [offset, setOffset] = useState(0);
   const errorDispatch = useErrorDispatch();
-
+  console.log(self)
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
   useScrollToTop(ref);

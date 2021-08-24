@@ -9,7 +9,7 @@ import {
   TextInput,
   Keyboard,
   TouchableWithoutFeedback,
-  Alert,
+  ActivityIndicator,
   SafeAreaView,
 } from "react-native";
 import { signUp as signUpAPI, signIn as SignInApi } from "../api";
@@ -35,7 +35,7 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: "gray",
-    color: Colors.text,
+    color: Colors.complimentText,
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 10,
@@ -59,8 +59,10 @@ const SignIn = ({ navigation }) => {
   const [password, setPassword] = useState(null);
   const [name, setName] = useState(null);
   const [email, setEmail] = useState(null);
+  const [loading, setLoading] = useState(false);
   async function signup() {
     try {
+      setLoading(true)
       const data = {
         username: username,
         password: password,
@@ -76,12 +78,14 @@ const SignIn = ({ navigation }) => {
       dispatch({ type: "SIGN_IN", token: signInRes.data.token });
     } catch (error) {
       console.log(error);
+      setLoading(false)
     }
+    setLoading(false)
   }
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={-15}
+      keyboardVerticalOffset={50}
       style={{
         flex: 1,
       }}
@@ -138,17 +142,24 @@ const SignIn = ({ navigation }) => {
               disabled={!password || !username || !name || !email}
               style={
                 password && username && name && email
-                  ? { ...styles.button, backgroundColor: "gray" }
-                  : { ...styles.button, backgroundColor: "#d3d3d3" }
+                  ? { ...styles.button, backgroundColor: Colors.primary }
+                  : { ...styles.button, backgroundColor: Colors.gray }
               }
               onPress={() => {
                 if (username && password && email && name) {
-                  console.log("new sign up");
                   signup();
                 }
               }}
             >
-              <Text style={{ color: Colors.complimentText }}>SignUp</Text>
+              {loading ? (
+                <ActivityIndicator
+                  animating={true}
+                  size="small"
+                  color={Colors.complimentText}
+                />
+              ) : (
+                <Text style={{ color: Colors.complimentText }}>SignUp</Text>
+              )}
             </TouchableOpacity>
             <View style={{ flex: 1 }} />
           </View>

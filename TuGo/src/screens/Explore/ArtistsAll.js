@@ -22,12 +22,8 @@ const ArtistsAll = (props) => {
       const artistsRes = await topArtistsAPI();
       const filteredArtists = artistsRes.data.artists.map((artist) => {
         return {
+          artistId: artist.id,
           name: artist.name,
-          id: artist.id,
-          image:
-            "https://api.napster.com/imageserver/v2/artists/" +
-            artist.id +
-            "/images/230x153.jpg",
         };
       });
       setArtists(filteredArtists);
@@ -40,14 +36,18 @@ const ArtistsAll = (props) => {
     onRefresh();
   }, []);
 
+  const getArtistImage = (artistId) => {
+    return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
+  };
+
   const renderArtist = ({ item, index }) => {
     return (
       <ArtistBlock
         artist={item.name}
         navigation={navigation}
-        image={item.image}
-        id={item.id}
-        index={index + 1}
+        image={getArtistImage(item.artistId)}
+        id={item.artistId}
+        similarArtist={true}
         columns={3}
       />
     );

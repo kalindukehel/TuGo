@@ -158,9 +158,8 @@ const FavoritesTile = (props) => {
   }, [navigation]);
 
   async function favoritePost() {
-    console.log("post fav")
     const favRes = await favoritePostAPI(userToken, postId);
-    setIsFavorite(favRes.data.favorited);
+    if (favRes.status === 201) setIsFavorite(!isFavorite);
   }
 
   async function doPlay() {
