@@ -61,6 +61,13 @@ class AccountViewSet(viewsets.ModelViewSet):
         user_list = Account.objects.filter(id__in=id_set if id_set !=None else [])
         serialized = PrivateAccountSerializer(user_list,many=True)
         return Response(serialized.data)
+    
+    @action(detail=False, methods=['GET'], serializer_class=AccountSerializer)
+    def viewable_users(self,request,*args,**kwargs):
+        following_list = request.user.following.values_list('following',flat=True)
+        user_list = Account.objects.filter(Q(is_private=False) | Q(id__in=following_list))
+        serialized = PrivateAccountSerializer(user_list,many=True)
+        return Response(serialized.data)
 
     @action(detail=False, methods=['POST'], serializer_class=AccountSerializer)
     def search_by_username(self,request,*args,**kwargs):
