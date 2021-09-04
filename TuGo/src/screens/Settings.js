@@ -177,7 +177,8 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.gray
+    backgroundColor: Colors.gray,
+    marginBottom: 15
   },
   heading: {
     fontWeight: "bold",

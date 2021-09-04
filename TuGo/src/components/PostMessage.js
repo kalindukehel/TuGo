@@ -25,10 +25,15 @@ const PostMessage = ({ message, navigation }) => {
   useEffect(() => {
     setLoadingPost(true);
     async function getPost() {
+      try{
       const postRes = await getPostByIdAPI(userToken, message.content);
       setPost(postRes.data);
       const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
       setAuthor(authorRes.data);
+      }
+      catch(e){
+        console.log(e)
+      }
     }
     getPost();
     setLoadingPost(false);

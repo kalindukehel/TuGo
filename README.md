@@ -14,17 +14,15 @@
 
     $ python manage.py migrate
 
-
 ## Run REST API
-    
+
     $ cd tmanager
 
 edit settings.py and add local ip to ALLOWED_HOSTS
 
-    $ python manage.py runserver 0.0.0.0:8000 
-    
-last parameter opens the server to the network
+    $ python manage.py runserver 0.0.0.0:8000
 
+last parameter opens the server to the network
 
 ## Install dependencies
 
@@ -33,7 +31,6 @@ last parameter opens the server to the network
 or
 
     $ npm install
-
 
 ## Run App Debugging Server
 
@@ -46,3 +43,11 @@ Edit constants.js to include local ip ex. "192.168.0.18"
 or run using expo
 
     $ expo start
+
+## Extend GraphQL api key
+
+    $ go to https://console.aws.amazon.com/appsync/home?region=us-east-1#/apis
+
+    $ select api
+
+    $ go to settings

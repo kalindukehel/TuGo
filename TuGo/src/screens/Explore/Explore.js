@@ -27,6 +27,8 @@ import {
   getExplorePosts as getExplorePostsAPI,
   topFiveArtists as topFiveArtistsAPI,
   artistImage as artistImageAPI,
+  getCharts as getChartsAPI,
+  getNewAlbums as getNewAlbumsAPI
 } from "../../api";
 import SongBlock from "../../components/Explore/SongBlock";
 import { AntDesign, Octicons } from "@expo/vector-icons";
@@ -40,6 +42,7 @@ import ArtistBlock from "../../components/Explore/ArtistBlock";
 import Animated from "react-native-reanimated";
 
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+import AlbumBlock from "../../components/Explore/AlbumBlock";
 
 var { width, height } = Dimensions.get("window");
 
@@ -56,34 +59,9 @@ const Explore = ({ navigation }) => {
   const [status, setStatus] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState("");
+  const [charts, setCharts] = useState(null);
+  const [albums, setAlbums] = useState(null);
   const playerDispatch = usePlayerDispatch();
-
-  const charts = [
-    {
-      navigation: navigation,
-      id: "pp.180234724",
-      text: "HipHop",
-      image: "http://i.imgur.com/DbUle6M.png",
-    },
-    {
-      navigation: navigation,
-      id: "pp.214725454",
-      text: "Pop",
-      image: "http://i.imgur.com/DbUle6M.png",
-    },
-    {
-      navigation: navigation,
-      id: "pp.225974698",
-      text: "New Music",
-      image: "http://i.imgur.com/DbUle6M.png",
-    },
-    {
-      navigation: navigation,
-      id: "pp.323137423",
-      text: "Top 100 US",
-      image: "http://i.imgur.com/DbUle6M.png",
-    },
-  ];
 
   const insets = useSafeAreaInsets();
 
@@ -98,6 +76,10 @@ const Explore = ({ navigation }) => {
       setIsLoading(true);
       const exploreState = await getExplorePostsAPI(userToken);
       const topArtistsRes = await topFiveArtistsAPI();
+      const charts = await getChartsAPI();
+      const albums = await getNewAlbumsAPI();
+      setCharts(charts.data.playlists)
+      setAlbums(albums.data.albums)
       setIsLoading(false);
       const filteredArtists = topArtistsRes.data.artists.map((artist) => {
         return {
@@ -252,10 +234,21 @@ const Explore = ({ navigation }) => {
   const renderChart = ({ item, index }) => {
     return (
       <ChartBlock
-        navigation={item.navigation}
+        navigation={navigation}
         id={item.id}
-        text={item.text}
-        image={item.iamge}
+        text={item.name}
+        image={`http://direct.napster.com/imageserver/v2/playlists/${item.id}/artists/images/230x153.jpg`}
+      />
+    );
+  };
+
+  const renderAlbum = ({ item, index }) => {
+    return (
+      <AlbumBlock
+        navigation={navigation}
+        id={item.id}
+        text={item.name}
+        image={`https://api.napster.com/imageserver/v2/albums/${item.id}/images/230x153.jpg`}
       />
     );
   };
@@ -427,7 +420,7 @@ const Explore = ({ navigation }) => {
                   padding: 5,
                   alignItems: "flex-end",
                 }}
-              >
+              > 
                 {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
                 <Text style={{color: Colors.close}}>See All</Text>
               </View>
@@ -453,10 +446,9 @@ const Explore = ({ navigation }) => {
             }}
           >
             <Text style={{ fontSize: 25, color: Colors.FG }}>Charts</Text>
-            <TouchableWithoutFeedback>
-              {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
+            {/* <TouchableWithoutFeedback>
               <Text style={{color: Colors.close}}>See All</Text>
-            </TouchableWithoutFeedback>
+            </TouchableWithoutFeedback> */}
           </View>
 
           <FlatList
@@ -466,6 +458,30 @@ const Explore = ({ navigation }) => {
             data={charts}
             horizontal={true}
             renderItem={renderChart}
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={ListEmptyComponentArtist}
+          />
+          <View
+            style={{
+              flexDirection: "row",
+              marginHorizontal: leftSpacing,
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <Text style={{ fontSize: 25, color: Colors.FG }}>Albums</Text>
+            {/* <TouchableWithoutFeedback>
+              <Text style={{color: Colors.close}}>See All</Text>
+            </TouchableWithoutFeedback> */}
+          </View>
+
+          <FlatList
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ padding: 20 }}
+            ItemSeparatorComponent={ItemSeparatorComponent}
+            data={albums}
+            horizontal={true}
+            renderItem={renderAlbum}
             keyExtractor={(item) => item.id}
             ListEmptyComponent={ListEmptyComponentArtist}
           />

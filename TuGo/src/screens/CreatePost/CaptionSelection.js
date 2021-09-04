@@ -72,9 +72,14 @@ const CaptionSelection = (props) => {
   //   }
   // },[])
 
-  const makePost = () => {
+  const makePost = async () => {
     //Call createPostAPI to create a new post
-    createPostAPI(caption, song, choreosAndCovers, userToken);
+    try{
+      await createPostAPI(caption, song, choreosAndCovers, userToken);
+    }
+    catch(e){
+      errorDispatch({type: 'REPORT_ERROR', message: "Something went wrong, could not create post"})
+    }
   };
 
   return (

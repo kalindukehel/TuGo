@@ -12,12 +12,18 @@ import {
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
-import { postProfilePicture as postProfilePictureAPI, editProfile as editProfileAPI, getSelf as getSelfAPI } from "../api";
+import { 
+postProfilePicture as postProfilePictureAPI, 
+editProfile as editProfileAPI, 
+getSelf as getSelfAPI,
+isValidEmail as isValidEmailAPI,
+isValidUsername as isValidUsernameAPI } from "../api";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { Colors, Length } from "../../constants"
 import { TextInput } from "react-native-gesture-handler";
 import { updateUser } from "../graphql/mutations"
 import { API, Auth, graphqlOperation } from "aws-amplify";
+import { AntDesign } from '@expo/vector-icons';
 
 var { width, height } = Dimensions.get("window");
 
@@ -28,12 +34,26 @@ const EditProfile = (props) => {
   const [username, setUsername] = useState(self.username);
   const [name, setName] = useState(self.name);
   const [email, setEmail] = useState(self.email);
+  const [usernameCheck, setUsernameCheck] = useState(true);
+  const [emailCheck, setEmailCheck] = useState(true);
   const dispatch = useAuthDispatch();
+  const [enabled, setEnabled] = useState(true)
+
+  useEffect(() => {
+    if(username !== self.username || email !== self.email || name !== self.name) {
+      console.log((usernameCheck && emailCheck) || name)
+      setEnabled((usernameCheck && emailCheck) || name)
+    }
+    else{
+      setEnabled(false)
+    }
+  },[username, email, usernameCheck, emailCheck, name])
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
         <TouchableOpacity
-        disabled={false}
+          disabled={!enabled}
           style={{ marginRight: 20 }}
           onPress={async () => {
             try {
@@ -50,7 +70,7 @@ const EditProfile = (props) => {
                   graphqlOperation(updateUser, { input: update })
                 );
               }
-              if (name != self.name || username != self.username) {
+              if (name != self.name || username != self.username){
                 const userRes = await editProfileAPI(username, name, email, userToken)
                 const update = {
                   id: userRes.data.id,
@@ -72,11 +92,11 @@ const EditProfile = (props) => {
             }
           }}
         >
-          <Text style={{ color: Colors.primary }}>SAVE</Text>
+          <Text style={{ color: enabled ? Colors.primary : Colors.gray }}>SAVE</Text>
         </TouchableOpacity>
       ),
     });
-  }, [navigation, username, name, image]);
+  }, [navigation, username, name, image, enabled]);
 
   // useEffect(() => {
   //   (async () => {
@@ -114,6 +134,31 @@ const EditProfile = (props) => {
     }
   };
 
+
+  const onChangeEmail = async (text) => {
+    if (text != self.email){
+      setEmail(text)
+      const res = await isValidEmailAPI(text)
+      setEmailCheck(res.data.available)
+    }
+    else {
+      setEmail(text)
+      setEmailCheck(true)
+    }
+  }
+  
+  const onChangeUsername = async (text) => {
+    if(text != self.username){
+      setUsername(text)
+      const res = await isValidUsernameAPI(text)
+      setUsernameCheck(res.data.available)
+    } 
+    else{
+      setUsername(text)
+      setUsernameCheck(true)
+    }
+  }
+
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
     <View style={styles.container }>
@@ -134,30 +179,42 @@ const EditProfile = (props) => {
           ></Image>
         </TouchableOpacity>
       </View>
-      <TextInput
-        style={styles.input}
-        onChangeText={setName}
-        value={name}
-        placeholder={'Name'}
-        placeholderTextColor={Colors.gray}
-        maxLength={Length.name}
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setUsername}
-        value={username}
-        placeholder={'Username'}
-        placeholderTextColor={Colors.gray}
-        maxLength={Length.username}
-      />
-      <TextInput
-        style={styles.input}
-        onChangeText={setEmail}
-        value={email}
-        placeholder={'Email'}
-        placeholderTextColor={Colors.gray}
-        maxLength={Length.email}
-      />
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <TextInput
+          style={styles.input}
+          onChangeText={setName}
+          value={name}
+          placeholder={'Name'}
+          placeholderTextColor={Colors.gray}
+          maxLength={Length.name}
+        />
+      </View>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangeUsername}
+          value={username}
+          placeholder={'Username'}
+          placeholderTextColor={Colors.gray}
+          maxLength={Length.username}
+        />
+        {(username === self.username) ?  null : usernameCheck === true ? 
+        <AntDesign name="checkcircle" size={20} color={Colors.FG} /> : 
+        <AntDesign name="closecircle" size={20} color={Colors.FG} />}
+      </View>
+      <View style={{flexDirection: 'row', alignItems: 'center'}}>
+        <TextInput
+          style={styles.input}
+          onChangeText={onChangeEmail}
+          value={email}
+          placeholder={'Email'}
+          placeholderTextColor={Colors.gray}
+          maxLength={Length.email}
+        />
+        {(email === self.email) ? null : emailCheck === true ? 
+        <AntDesign name="checkcircle" size={20} color={Colors.FG} /> : 
+        <AntDesign name="closecircle" size={20} color={Colors.FG} />}
+      </View>
     </View>
     </TouchableWithoutFeedback>
   );
@@ -184,7 +241,8 @@ const styles = StyleSheet.create({
     borderBottomWidth: 1,
     color: Colors.text,
     borderColor: Colors.primary,
-    fontSize: 20
+    fontSize: 20,
+    flex: 1,
   },
 });
 

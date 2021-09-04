@@ -14,33 +14,30 @@ import {
 
 import {
   getExplorePosts as getExplorePostsAPI,
-  artistSongsTop as artistSongsTopAPI,
-  getArtistInfo as getArtistInfoAPI,
-  artistSongs as artistSongsAPI,
+  songcharts as songchartsAPI,
+  getAlbumImage as getAlbumImageAPI,
+  getAlbumTracks as getAlbumTracksAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 
 //Components
 import SearchItem from "../../components/SearchItem";
-import Player from "../../components/Player";
 import { TouchableHighlight } from "react-native-gesture-handler";
-import { API_URL, Colors, appTheme } from "../../../constants";
+import { Colors, appTheme } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
-const Artist = (props) => {
+const Album = (props) => {
   const { navigation } = props;
-  const { artist } = props.route.params;
-  const { userToken } = useAuthState();
+  const { album } = props.route.params;
   const [refreshing, setRefreshing] = useState(false);
-  const [artistSongs, setArtistSongs] = useState(null);
+  const [albumData, setAlbumData] = useState(null);
   const flatListRef = React.useRef();
   const searchBarRef = React.useRef();
-  const [artistDetails, setArtistDetails] = useState("");
+  const [albumImage, setAlbumImage] = useState(null);
   const [disableScroll, setDisableScroll] = useState(false);
-  const [profileImage, setProfileImage] = useState(API_URL + "/media/default.jpg")
 
   //filter search
   const [filteredData, setFilteredData] = useState([]);
@@ -50,35 +47,23 @@ const Artist = (props) => {
     new Animated.Value(width * 0.5)
   );
 
+  const [positionY, setPositionY] = useState(150);
   const animatedValue = useRef(new Animated.Value(0)).current;
 
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
-    async function getSongList() {
-      const infoRes = await getArtistInfoAPI(artist);
-      setArtistDetails(infoRes.data.artists[0]);
-      let res = await artistSongsTopAPI(artist);
-      if (res.data.tracks.length < 10) {
-        res = await artistSongsAPI(artist);
-      }
-      setArtistSongs(res.data.tracks);
-      setFilteredData(res.data.tracks);
-      setMasterData(res.data.tracks);
+    async function getAlbumData() {
+      const imageRes = await getAlbumImageAPI(album);
+      setAlbumImage({
+        image: `https://api.napster.com/imageserver/v2/albums/${album}/images/230x153.jpg`,
+        albumName: imageRes.data.albums[0].name,
+      });
+      const tracksRes = await getAlbumTracksAPI(album);
+      setAlbumData(tracksRes.data.tracks);
+      setFilteredData(tracksRes.data.tracks);
+      setMasterData(tracksRes.data.tracks);
     }
-    function checkImageURL(artistId){
-      const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`
-      fetch(url)
-         .then(res => {
-         if(res.status == 404){
-           if(masterData.length > 0) setProfileImage(getImage(masterData[0].albumId))
-         }else{
-           setProfileImage(`https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`)
-        }
-      })
-     .catch(err=>{console.log(err)})
-    }
-    getSongList();
-    checkImageURL(artist);
+    getAlbumData();
     setRefreshing(false);
   }, []);
 
@@ -89,13 +74,6 @@ const Artist = (props) => {
   const toTop = () => {
     // use current
     flatListRef.current.scrollToOffset({ animated: true, offset: 0 });
-  };
-
-  const scrollToTextInput = () => {
-    flatListRef.current.scrollToOffset({
-      animated: true,
-      offset: searchBarRef.current,
-    });
   };
 
   let translateY = animatedValue.interpolate({
@@ -124,23 +102,21 @@ const Artist = (props) => {
     return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
   };
 
-  const getArtistImage = (artistId) => {
-    return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
-  };
-
   const renderSuggestion = ({ item }) => {
     return (
       <SearchItem
         index={item.id}
         coverArt={getImage(item.albumId)}
+        selected={false}
+        selectItem={null}
         artist={item.artistName}
         title={item.name}
         audioLink={item.previewURL}
-        artistId={item.artistId}
         postable={true}
         navigation={navigation}
         genre={item.links.genres.ids}
         trackId={item.id}
+        artistId={item.artistId}
         setDisableScroll={setDisableScroll}
       />
     );
@@ -174,23 +150,35 @@ const Artist = (props) => {
     }
   };
 
+  const scrollToTextInput = () => {
+    flatListRef.current.scrollToOffset({
+      animated: true,
+      offset: searchBarRef.current,
+    });
+  };
+
   return (
-    filteredData && (
+    albumData &&
+    albumImage && (
       <SafeAreaView style={styles.container}>
         <AnimatedFlatList
-          scrollEnabled={!disableScroll}
           keyboardDismissMode="interactive"
+          scrollEnabled={!disableScroll}
           ref={flatListRef}
           style={{ flexGrow: 1 }}
-          contentContainerStyle={{ marginTop: 270, paddingBottom: 270 }}
-          scrollEventThrottle={16} // <-- Use 1 here to make sure no events are ever missed
+          contentContainerStyle={{
+            marginTop: 270,
+            paddingBottom: 270,
+          }}
+          scrollEventThrottle={1} // <-- Use 1 here to make sure no events are ever missed
           onScroll={Animated.event(
             [
               {
                 nativeEvent: { contentOffset: { y: animatedValue } },
               },
             ],
-            { useNativeDriver: true } // <-- Add this
+            { useNativeDriver: true }, // <-- Add this
+            { listener: (event) => handleScroll(event) }
           )}
           data={filteredData}
           renderItem={renderSuggestion}
@@ -199,46 +187,13 @@ const Artist = (props) => {
           }}
         />
         <Animated.View
-          style={[styles.chartHeader, { transform: [{ translateY }] }]}
+          style={[styles.albumHeader, { transform: [{ translateY }] }]}
         >
-          <View style={styles.chartImageView}>
+          <View style={styles.albumImageView}>
             <Image
-              style={{
-                height: 140,
-                width: 140,
-                borderRadius: 40,
-              }}
-              source={{ uri: profileImage}}
+              style={{ height: positionY, width: positionY, borderRadius: 40 }}
+              source={{ uri: albumImage.image }}
             />
-            <View
-              style={{
-                justifyContent: "space-around",
-                height: 100,
-                flex: 1,
-                alignItems: "center",
-              }}
-            >
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  navigation.push("Related Artists", {
-                    artistId: artist,
-                  });
-                }}
-              >
-                <Text style={styles.button}>Related Artists</Text>
-              </TouchableWithoutFeedback>
-              {artistDetails.bios &&
-              <TouchableWithoutFeedback
-                onPress={() => {
-                  navigation.push("ArtistInfo", {
-                    artistId: artist,
-                  });
-                }}
-              >
-                <Text style={styles.button}>Info</Text>
-              </TouchableWithoutFeedback>
-              }
-            </View>
           </View>
           <Animated.View
             onLayout={(event) => {
@@ -249,7 +204,6 @@ const Artist = (props) => {
               ...styles.textInputStyle,
               width: searchBarWidth,
               justifyContent: "center",
-              alignSelf: "center",
             }}
           >
             <TextInput
@@ -275,8 +229,8 @@ const Artist = (props) => {
             />
           </Animated.View>
           <TouchableWithoutFeedback onPress={toTop}>
-            <View style={styles.chartNameView}>
-              <Text style={styles.chartName}>{artistDetails.name}</Text>
+            <View style={styles.albumNameView}>
+              <Text style={styles.albumName}>{albumImage.albumName}</Text>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>
@@ -290,11 +244,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.BG,
   },
-  chartImageView: {
-    flexDirection: "row",
-    alignItems: "center",
+  albumImageView: {
     marginTop: 10,
-    marginHorizontal: 10,
+
     shadowColor: "#000",
     shadowOffset: {
       width: 0,
@@ -304,41 +256,40 @@ const styles = StyleSheet.create({
     shadowRadius: 6.68,
     elevation: 11,
   },
-  chartHeader: {
+  albumHeader: {
     height: 220,
+    alignItems: "center",
     position: "absolute",
     width: width,
     flex: 1,
     backgroundColor: Colors.primary,
     borderBottomRightRadius: 50,
   },
-  chartName: {
+  albumName: {
     fontWeight: "bold",
   },
-  chartNameView: {
+  albumNameView: {
+    marginTop: 30,
     alignSelf: "center",
     borderRadius: 10,
     backgroundColor: "#E8E8E8",
     padding: 10,
-    marginTop: 30,
-  },
-  button: {
-    borderColor: "black",
-    borderWidth: 1,
-    textAlign: "center",
-    width: 120,
-    borderRadius: 5,
-    paddingVertical: 5,
   },
   textInputStyle: {
     height: 30,
     borderRadius: 20,
+    color: Colors.text,
     borderColor: "black",
     borderWidth: 1,
     marginHorizontal: 20,
-    marginTop: 20,
+    marginTop: 15,
     width: "50%",
+  },
+  box2: {
+    backgroundColor: "red",
+    height: "100%",
+    flexGrow: 1,
   },
 });
 
-export default Artist;
+export default Album;
