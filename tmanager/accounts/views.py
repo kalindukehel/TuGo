@@ -445,6 +445,21 @@ class PostViewSet(viewsets.ModelViewSet):
                 return Response({"favorited":True})
             else:
                 return Response({"favorited":False})
+    
+    @action(detail=False, methods=['GET'], serializer_class=LikeSerializer)
+    def liked(self, request, *args, **kwargs):
+        #Shows posts user has liked
+        liked = request.user.liked.all().order_by('-id')
+        serializer = LikeSerializer(liked,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['POST'], serializer_class=PostSerializer)
+    def search_by_post(self,request,*args,**kwargs):
+        search_query = self.request.data.get('search_query')
+        #Filters posts by if song name or artist contains search query
+        post_list = Post.objects.filter(Q(song_name__contains=search_query) | Q(song_artist__contains=search_query))
+        serialized = PostSerializer(post_list,many=True)
+        return Response(serialized.data)
 
     @action(detail=True, methods=['GET','POST'], serializer_class=TagSerializer )
     def tags(self, request, *args, **kwargs): 
