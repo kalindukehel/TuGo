@@ -9,7 +9,7 @@ import {
 import { Colors } from "../../../constants";
 
 const outerWidth = 105;
-const outerHeight = 55;
+const outerHeight = 70;
 const animationWidth = 120;
 
 const ChartBlock = (props) => {
@@ -17,11 +17,11 @@ const ChartBlock = (props) => {
 
   const [sizeValue, setSizeValue] = useState(new Animated.Value(outerWidth));
 
-  const [xy, setXY] = useState(new Animated.ValueXY({ x: 105, y: 55 }));
+  const [xy, setXY] = useState(new Animated.ValueXY({ x: outerWidth, y: outerHeight }));
 
   const imageAnimationIn = () => {
     Animated.timing(xy, {
-      toValue: { x: 100, y: 50 },
+      toValue: { x: 100, y: 65 },
       duration: 20,
       useNativeDriver: false,
     }).start();
@@ -29,7 +29,7 @@ const ChartBlock = (props) => {
 
   const imageAnimationOut = () => {
     Animated.timing(xy, {
-      toValue: { x: 105, y: 55 },
+      toValue: { x: outerWidth, y: outerHeight },
       duration: 20,
       useNativeDriver: false,
     }).start();

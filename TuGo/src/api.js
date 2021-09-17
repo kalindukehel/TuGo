@@ -373,8 +373,8 @@ export async function pushNotification(expoPushToken, data, type) {
     message = {
       to: expoPushToken,
       sound: "default",
-      title: "New Message",
-      body: `${data.creator}\n${data.content}`,
+      title: `${data.creator} sent you a message`,
+      body: `${data.content}`,
       data: { type: "message" },
     };
   }
@@ -580,6 +580,12 @@ export async function searchArtist(searchQuery) {
   );
 }
 
+export async function searchAlbum(searchQuery) {
+  return axios.get(
+    `http://api.napster.com/v2.2/search?type=album&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}&per_type_limit=1`
+  );
+}
+
 export async function fullTextSongSearch(searchQuery) {
   return axios.get(
     `http://api.napster.com/v2.2/search/verbose?type=track&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}`
@@ -679,8 +685,6 @@ export async function createPost(caption, postDetails, tiles, token) {
         view_count: 0,
       };
     }
-
-    console.log(tileData);
     //Create tile object under created post
     await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, tileData, {
       headers: {

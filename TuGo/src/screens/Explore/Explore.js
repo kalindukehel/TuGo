@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -22,7 +22,7 @@ import AccountsTabView from "../../components/TabViews/AccountsTabView";
 import PostsTabView from "../../components/TabViews/PostsTabView";
 import SongsTabView from "../../components/TabViews/SongsTabView";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useScrollToTop } from "@react-navigation/native";
+import { useScrollToTop } from '@react-navigation/native';
 import {
   getExplorePosts as getExplorePostsAPI,
   topFiveArtists as topFiveArtistsAPI,
@@ -66,7 +66,6 @@ const Explore = ({ navigation }) => {
   const insets = useSafeAreaInsets();
 
   //scroll to top
-  let player = React.useRef(null);
   const ref = React.useRef(null);
   useScrollToTop(ref);
 
@@ -178,8 +177,8 @@ const Explore = ({ navigation }) => {
   const renderItem = (component) => {
     const postId = component.item.post;
     return (
-      <View style={{ height: 200 }}>
-        <SongBlock postId={postId} navigation={navigation} columns={2} />
+      <View style={{ height: 150, width: 150 }}>
+        <SongBlock postId={postId} navigation={navigation} columns={2} blockHeight={150} blockWidth={150}/>
       </View>
     );
   };
@@ -205,7 +204,7 @@ const Explore = ({ navigation }) => {
     ) : (
       <View
         style={{
-          height: 200,
+          height: 150,
           justifyContent: "center",
           width: width - 40,
         }}
@@ -346,6 +345,7 @@ const Explore = ({ navigation }) => {
       )}
       {mode != "search" && (
         <ScrollView
+          ref={ref}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -393,7 +393,6 @@ const Explore = ({ navigation }) => {
             contentContainerStyle={{ padding: 20 }}
             ItemSeparatorComponent={ItemSeparatorComponent}
             horizontal={true}
-            ref={ref}
             style={{}}
             data={explore}
             renderItem={renderItem}
@@ -469,7 +468,7 @@ const Explore = ({ navigation }) => {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 25, color: Colors.FG }}>Albums</Text>
+            <Text style={{ fontSize: 25, color: Colors.FG }}>Latest</Text>
             {/* <TouchableWithoutFeedback>
               <Text style={{color: Colors.close}}>See All</Text>
             </TouchableWithoutFeedback> */}

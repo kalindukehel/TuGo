@@ -16,7 +16,7 @@ import { API, graphqlOperation } from "aws-amplify";
 import { deleteChatRoom } from "../graphql/mutations";
 import { Colors } from "../../constants";
 import { getChatRoom } from "../screens/Direct/queries";
-import { Octicons } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { onUpdateChatRoom } from  "../graphql/subscriptions"
 
 const ChatListItem = (props) => {
@@ -66,7 +66,6 @@ const ChatListItem = (props) => {
       })
     );
     let seen = data.data.getChatRoom.seen
-    console.log(seen)
     setSeen(seen.includes(self.id))
   }
   useEffect(() => {
@@ -138,11 +137,11 @@ const ChatListItem = (props) => {
         <View>
           <Text style={styles.time}>
             {chatRoom.lastMessage &&
-              moment(chatRoom.lastMessage.createdAt).format("DD/MM/YYYY")}
+            moment(chatRoom.lastMessage.updatedAt).fromNow()}
           </Text>
           {!seen &&
-          <View style={{alignItems: "center"}}>
-            <Octicons name="primitive-dot" size={24} color={Colors.primary} />
+          <View style={{flex: 1, justifyContent: 'center', alignItems: "center"}}>
+            <MaterialCommunityIcons name="chat" size={20} color={Colors.primary} />
           </View> }
         </View>
 

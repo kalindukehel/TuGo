@@ -27,7 +27,7 @@ import { SimpleLineIcons } from "@expo/vector-icons";
 
 import { Auth, API, graphqlOperation } from "aws-amplify";
 import { getUser } from "../graphql/queries";
-import { createUser } from "../graphql/mutations";
+import { createUser, updateUser } from "../graphql/mutations";
 import { OpaqueColorValue } from "react-native";
 
 const Tab = createBottomTabNavigator();
@@ -49,39 +49,10 @@ const MainNavigator = () => {
   const notificationListener = React.useRef();
   const responseListener = React.useRef();
 
-  //aws create user if not in database
-  useEffect(() => {
-    const fetchUser = async () => {
-      const userInfo = self;
-      console.log(self)
-      if (userInfo) {
-        const userData = await API.graphql(
-          graphqlOperation(getUser, { id: self.id })
-        );
-
-        if (userData.data.getUser) {
-          // User is already registered in database
-          return;
-        }
-        // User not in database
-        const newUser = {
-          id: self.id,
-          name: userInfo.name,
-          username: userInfo.username,
-          imageUri: userInfo.profile_picture,
-          status: "Hey, I am using Tugo",
-        };
-        await API.graphql(graphqlOperation(createUser, { input: newUser }));
-      }
-    };
-
-    fetchUser();
-  }, []);
-
   //notification listener
   useEffect(() => {
+    let token;
     async function registerForPushNotificationsAsync() {
-      let token;
       if (Constants.isDevice) {
         const { status: existingStatus } =
           await Notifications.getPermissionsAsync();
@@ -125,7 +96,7 @@ const MainNavigator = () => {
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        const type = response.notification.request.content.data.body.type;
+        const type = response.notification.request.content.data.type;
         if (type == "follow") {
           navigation.navigate("Activity");
         } else if (type == "like") {
@@ -136,8 +107,46 @@ const MainNavigator = () => {
           navigation.navigate("Activity");
         } else if (type == "tag") {
           navigation.navigate("Activity");
+        } else if (type == "message") {
+          navigation.navigate("Chat");
         }
       });
+    
+      //aws create user if not in database
+      const fetchUser = async () => {
+        const userInfo = self;
+        console.log(self.notification_token)
+        if (userInfo) {
+          const userData = await API.graphql(
+            graphqlOperation(getUser, { id: self.id })
+          );
+  
+          if (userData.data.getUser) {
+            // User is already registered in database
+            const update = {
+              id: userData.data.getUser.id,
+              expoPushToken: token
+            }
+            const chatRoomData = await API.graphql(
+              graphqlOperation(updateUser, { input: update })
+            );
+  
+            return;
+          }
+          // User not in database
+          const newUser = {
+            id: self.id,
+            name: userInfo.name,
+            username: userInfo.username,
+            imageUri: userInfo.profile_picture,
+            status: "Hey, I am using Tugo",
+            expoPushToken: self.notification_token
+          };
+          await API.graphql(graphqlOperation(createUser, { input: newUser }));
+        }
+      };
+  
+      fetchUser();
 
     return () => {
       Notifications.removeNotificationSubscription(notificationListener);
@@ -193,7 +202,7 @@ const MainNavigator = () => {
         },
       }}
     >
-      <Tab.Screen name="Feed" component={FeedNavigator} options={{}} />
+      <Tab.Screen name="Feed" component={FeedNavigator} />
       <Tab.Screen name="Chat" component={DirectNavigator} />
       <Tab.Screen name="Explore" component={ExploreNavigator} />
       <Tab.Screen name="Activity" component={ActivityNavigator} />

@@ -3,7 +3,9 @@ import { Text, View, StyleSheet, Image } from "react-native";
 import moment from "moment";
 import { useAuthState } from "../context/authContext";
 import { Colors, API_URL } from "../../constants";
+import { Dimensions } from "react-native";
 
+const { width, height } = Dimensions.get('window')
 const TextMessage = (props) => {
   const { message } = props;
   const { self } = useAuthState();
@@ -39,7 +41,17 @@ const TextMessage = (props) => {
           },
         ]}
       >
-        <Text style={styles.message}>{message.content}</Text>
+          <Text
+            style={{
+              flexWrap: "wrap",
+              marginRight: 5,
+              marginLeft: 5,
+              color: Colors.text,
+            }}
+          >
+            <Text style={styles.message}>{message.content}</Text>
+          </Text>
+        {/* <Text style={styles.message}>{message.content}</Text> */}
         {/* <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text> */}
       </View>
     </View>
@@ -48,21 +60,19 @@ const TextMessage = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 10,
+    padding: 5,
     flexDirection: "row",
     alignItems: "flex-end",
   },
   messageBox: {
     borderRadius: 20,
     padding: 10,
-  },
-  name: {
-    color: Colors.text,
-    fontWeight: "bold",
-    marginBottom: 5,
+    flexDirection: 'row', alignItems: 'center', maxWidth: 0.8 * width
   },
   message: {
-    fontSize: 17,
+    fontSize: 14,
+    flexShrink: 1,
+    color: 'black'
   },
   time: {
     alignSelf: "flex-end",

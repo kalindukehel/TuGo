@@ -4,6 +4,7 @@ type User @model {
   username: String!
   imageUri: String
   status: String
+  expoPushToken: String
   chatRoomUser: [ChatRoomUser] @connection(keyName: "byUser", fields: ["id"])
 }
 

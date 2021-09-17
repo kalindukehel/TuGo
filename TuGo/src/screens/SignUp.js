@@ -70,7 +70,7 @@ const SignIn = ({ navigation }) => {
   const [enabled, setEnabled] = useState(true)
 
   useEffect(() => {
-    setEnabled(usernameCheck && emailCheck && name && password)
+    setEnabled(usernameCheck && emailCheck && name && password && username && email)
   },[username, email, usernameCheck, emailCheck, name, password])
 
   async function signup() {
@@ -196,7 +196,7 @@ const SignIn = ({ navigation }) => {
                   : { ...styles.button, backgroundColor: Colors.gray }
               }
               onPress={() => {
-                if (username && password && email && name) {
+                if (enabled) {
                   signup();
                 }
               }}

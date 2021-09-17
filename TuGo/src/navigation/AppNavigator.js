@@ -49,7 +49,6 @@ export default AppNavigator = () => {
       display: "none",
     },
   };
-
   const logined = !(userToken == null);
   return (
     !loading && (

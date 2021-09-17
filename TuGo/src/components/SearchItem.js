@@ -22,7 +22,8 @@ import TextTicker from "react-native-text-ticker";
 import { Entypo } from "@expo/vector-icons";
 import { Colors, Length } from "../../constants";
 import * as Haptics from "expo-haptics";
-import { Ticker } from "../Helpers/Truncate";
+import { Ticker, Truncate } from "../Helpers/Truncate";
+import { getTrackDetails as getTrackDetailsAPI } from "../api"
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -52,6 +53,7 @@ const SearchItem = (props) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
+  const [isExplicit, setIsExplicit] = useState(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -91,6 +93,11 @@ const SearchItem = (props) => {
   };
 
   useEffect(() => {
+    async function getTrack () {
+      const res = await getTrackDetailsAPI(index)
+      setIsExplicit(res.data.tracks[0].isExplicit)
+    }
+    getTrack()
     return () => {
       //When component exits
       try {
@@ -246,25 +253,29 @@ const SearchItem = (props) => {
               marginBottom: 30,
             }}
           >
-            <Ticker
+            <Text style={{color: Colors.text, fontWeight: "200"}}>
+              {Truncate(artist, Length.song.artist)}
+            </Text>
+            {/* <Ticker
               string={artist}
               maxLength={Length.song.artist}
               style={{
                 fontWeight: "200",
                 color: Colors.text,
               }}
-            />
-            <Ticker
-              string={title}
-              maxLength={Length.song.title}
-              style={{
-                fontWeight: "700",
-                color:
-                  isPlaying && trackId === props.trackId
-                    ? "#FF4343"
-                    : Colors.text,
-              }}
-            />
+            /> */}
+              <Ticker
+                string={title}
+                maxLength={Length.song.title}
+                style={{
+                  fontWeight: "700",
+                  color:
+                    isPlaying && trackId === props.trackId
+                      ? "#FF4343"
+                      : Colors.text,
+                }}
+                isExplicit={isExplicit}
+              />
           </View>
         </View>
         <Slider

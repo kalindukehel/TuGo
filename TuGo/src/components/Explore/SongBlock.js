@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Dimensions,
+  Animated,
+  Image
 } from "react-native";
 import { getPostById as getPostByIdAPI } from "../../api";
 import { useAuthState } from "../../context/authContext";
@@ -31,7 +33,10 @@ const optionHeight = 60;
 const SongBlock = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, navigation, columns } = props;
+  const { postId, navigation, columns, blockHeight, blockWidth } = props;
+  const outerWidth = blockWidth;
+  const outerHeight = blockHeight;
+  const [xy, setXY] = useState(new Animated.ValueXY({ x: outerWidth, y: outerHeight }));
   const { userToken } = useAuthState();
   const { playingId, stopAll, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -50,6 +55,22 @@ const SongBlock = (props) => {
   const firstRun = useRef(true);
 
   stateRef.current = isSeeking;
+
+  const imageAnimationIn = () => {
+    Animated.timing(xy, {
+      toValue: { x: outerWidth - 10, y: outerHeight - 10},
+      duration: 20,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const imageAnimationOut = () => {
+    Animated.timing(xy, {
+      toValue: { x: outerWidth, y: outerHeight   },
+      duration: 20,
+      useNativeDriver: false,
+    }).start();
+  };
 
   async function getPostStates() {}
 
@@ -174,7 +195,20 @@ const SongBlock = (props) => {
 
   return (
     post && (
-      <View style={{ flex: 1, marginVertical: 5 }}>
+      <ImageBackground 
+        style={{
+          height: '100%', 
+          width: '100%', 
+          justifyContent: 'center', 
+          alignItems: 'center'
+        }}
+        imageStyle={{
+          opacity: 0.3
+        }}
+        source={{
+          uri: post.album_cover
+        }}
+      >
         <TouchableWithoutFeedback
           onPress={() => {
             playerDispatch({ type: "UNLOAD_PLAYER" });
@@ -186,34 +220,36 @@ const SongBlock = (props) => {
               },
             });
           }}
+          onPressIn={imageAnimationIn}
+          onPressOut={imageAnimationOut}
         >
-          <ImageBackground
+          <View style={{width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+          <Animated.Image
             source={{
               uri: post.album_cover,
             }}
-            imageStyle={{
-              opacity: isPlaying && trackId === post.song_id ? 0.2 : 0.9,
+            style={{
+              width: xy.x,
+              height: xy.y,
+              opacity: isPlaying && trackId === post.song_id ? 0.3 : 0.9,
               borderRadius: 20,
-              flex: 1,
               paddingRight: 2,
               paddingLeft: 2,
             }}
-            style={{
-              width: width / columns,
-              height: width / columns,
-              justifyContent: "flex-end",
-            }}
-          >
+          />
             <View
               style={{
                 backgroundColor: Colors.BG,
-                opacity: 0.8,
+                opacity: 0.9,
                 height: 40,
                 flexDirection: "row",
                 paddingLeft: 15,
                 borderRadius: 20,
                 justifyContent: "space-between",
                 alignItems: "center",
+                position: 'absolute',
+                bottom: 0,
+                width: '100%'
               }}
             >
               <View style={{ flex: 1 }}>
@@ -271,9 +307,9 @@ const SongBlock = (props) => {
                 </TouchableOpacity>
               )}
             </View>
-          </ImageBackground>
+            </View>
         </TouchableWithoutFeedback>
-      </View>
+      </ImageBackground>
     )
   );
 };

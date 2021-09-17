@@ -6,7 +6,8 @@ import {
   Text,
   Animated,
 } from "react-native";
-import { Colors } from "../../../constants";
+import { Colors, Length } from "../../../constants";
+import { Truncate } from "../../Helpers/Truncate";
 
 const outerWidth = 120;
 const outerHeight = 120;
@@ -21,7 +22,7 @@ const AlbumBlock = (props) => {
 
   const imageAnimationIn = () => {
     Animated.timing(xy, {
-      toValue: { x: 110, y: 110 },
+      toValue: { x: 115, y: 115 },
       duration: 20,
       useNativeDriver: false,
     }).start();
@@ -45,7 +46,7 @@ const AlbumBlock = (props) => {
       onPressIn={imageAnimationIn}
       onPressOut={imageAnimationOut}
     >
-        <View style={{flexDirection: 'column', alignItems: 'center'}}>
+        <View style={{flexDirection: 'column' }}>
             <View
                 style={{
                 justifyContent: "center",
@@ -56,13 +57,16 @@ const AlbumBlock = (props) => {
             >
                 <Animated.Image
                 style={{
+                    borderRadius: 10,
                     width: xy.x,
                     height: xy.y,
                 }}
                 source={{uri: image}}
                 />
             </View>
-            <Text style={{color: Colors.text, marginTop: 10}}>{text}</Text>
+            <Text style={{ flexWrap: "wrap", width: 120, marginTop: 5 }}>
+              <Text style={{color: Colors.text}}>{text}</Text>
+            </Text>
         </View>
     </TouchableWithoutFeedback>
   );

@@ -21,12 +21,18 @@ import {
   onCreateChatRoom,
   onUpdateChatRoom
 } from "../../graphql/subscriptions";
+import { useScrollToTop } from '@react-navigation/native';
 
 const ChatScreen = ({ navigation }) => {
   const [chatRooms, setChatRooms] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const [seenArr, setSeenArr] = useState([])
   const { self } = useAuthState();
+
+  //scroll to top
+  const ref = React.useRef(null);
+  useScrollToTop(ref);
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -116,7 +122,6 @@ const ChatScreen = ({ navigation }) => {
       graphqlOperation(onUpdateChatRoom)
     ).subscribe({
       next: (data) => {
-        console.log("updated")
         fetchChatRooms();
       },
     });
@@ -126,6 +131,7 @@ const ChatScreen = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <FlatList
+        ref={ref}
         extraData={seenArr}
         style={{ width: "100%" }}
         data={chatRooms}

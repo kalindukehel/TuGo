@@ -24,9 +24,7 @@ const VideoSearchItem = (props) => {
   const { title, thumbnail, videoId, selected, selectVideo, inCreatePost, outlineColor } =
     props;
   const refRBSheet = useRef();
-  useEffect(() => {
-    console.log(selected);
-  }, []);
+
   return (
     <View>
       <TouchableOpacity
@@ -52,7 +50,7 @@ const VideoSearchItem = (props) => {
           </Text> */}
           <HTML
             source={{
-              html: `<p style="color: ${Colors.text}; width: 200"> ${title}`,
+              html: `<p style="color: ${Colors.text}; width: 200;"> ${title}`,
             }}
             contentWidth={50}
           />

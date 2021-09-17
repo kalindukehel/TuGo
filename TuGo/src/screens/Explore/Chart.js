@@ -34,8 +34,8 @@ const Chart = (props) => {
   const { chart } = props.route.params;
   const [refreshing, setRefreshing] = useState(false);
   const [chartData, setChartData] = useState(null);
-  const flatListRef = React.useRef();
-  const searchBarRef = React.useRef();
+  const flatListRef = useRef();
+  const searchBarRef = useRef();
   const [chartImage, setChartImage] = useState(null);
   const [disableScroll, setDisableScroll] = useState(false);
 
@@ -59,6 +59,7 @@ const Chart = (props) => {
         chartName: imageRes.data.playlists[0].name,
       });
       const tracksRes = await getChartTracksAPI(chart);
+      console.log(tracksRes.data.tracks.length)
       setChartData(tracksRes.data.tracks);
       setFilteredData(tracksRes.data.tracks);
       setMasterData(tracksRes.data.tracks);
@@ -114,7 +115,7 @@ const Chart = (props) => {
         audioLink={item.previewURL}
         postable={true}
         navigation={navigation}
-        genre={item.links.genres.ids}
+        genre={item.links.genres ? item.links.genres.ids : []}
         trackId={item.id}
         artistId={item.artistId}
         setDisableScroll={setDisableScroll}
@@ -278,7 +279,6 @@ const styles = StyleSheet.create({
   textInputStyle: {
     height: 30,
     borderRadius: 20,
-    color: Colors.text,
     borderColor: "black",
     borderWidth: 1,
     marginHorizontal: 20,

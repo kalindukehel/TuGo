@@ -8,7 +8,9 @@ import {
   TouchableOpacity,
   Platform,
   Keyboard,
-  TouchableWithoutFeedback
+  TouchableWithoutFeedback,
+  KeyboardAvoidingView,
+  SafeAreaView
 } from "react-native";
 import * as ImagePicker from "expo-image-picker";
 import Constants from "expo-constants";
@@ -20,10 +22,12 @@ isValidEmail as isValidEmailAPI,
 isValidUsername as isValidUsernameAPI } from "../api";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { Colors, Length } from "../../constants"
-import { TextInput } from "react-native-gesture-handler";
+import { ScrollView, TextInput } from "react-native-gesture-handler";
 import { updateUser } from "../graphql/mutations"
 import { API, Auth, graphqlOperation } from "aws-amplify";
 import { AntDesign } from '@expo/vector-icons';
+import * as Haptics from "expo-haptics";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 var { width, height } = Dimensions.get("window");
 
@@ -38,16 +42,17 @@ const EditProfile = (props) => {
   const [emailCheck, setEmailCheck] = useState(true);
   const dispatch = useAuthDispatch();
   const [enabled, setEnabled] = useState(true)
+  const insets = useSafeAreaInsets();
 
   useEffect(() => {
-    if(username !== self.username || email !== self.email || name !== self.name) {
-      console.log((usernameCheck && emailCheck) || name)
-      setEnabled((usernameCheck && emailCheck) || name)
+    if(username !== self.username || email !== self.email || name !== self.name || image !== self.profile_picture) {
+      console.log((usernameCheck && emailCheck))
+      setEnabled((usernameCheck && emailCheck) && name)
     }
     else{
       setEnabled(false)
     }
-  },[username, email, usernameCheck, emailCheck, name])
+  },[username, email, usernameCheck, emailCheck, name, image])
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -70,7 +75,7 @@ const EditProfile = (props) => {
                   graphqlOperation(updateUser, { input: update })
                 );
               }
-              if (name != self.name || username != self.username){
+              if (name !== self.name || username !== self.username || email !== self.email){
                 const userRes = await editProfileAPI(username, name, email, userToken)
                 const update = {
                   id: userRes.data.id,
@@ -92,25 +97,11 @@ const EditProfile = (props) => {
             }
           }}
         >
-          <Text style={{ color: enabled ? Colors.primary : Colors.gray }}>SAVE</Text>
+          <Text style={{ color: enabled ? Colors.save : Colors.gray }}>SAVE</Text>
         </TouchableOpacity>
       ),
     });
   }, [navigation, username, name, image, enabled]);
-
-  // useEffect(() => {
-  //   (async () => {
-  //     let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
-
-  //     if (permissionResult.granted === false) {
-  
-  //       alert('Permission to access camera roll is required!');
-  
-  //       return;
-  
-  //     }
-  //   })();
-  // }, []);
 
   const pickImage = async () => {
     let permissionResult = await ImagePicker.requestCameraRollPermissionsAsync();
@@ -160,8 +151,17 @@ const EditProfile = (props) => {
   }
 
   return (
+    <SafeAreaView style={{flex: 1}}>
+    <KeyboardAvoidingView
+    behavior={"position"}
+    keyboardVerticalOffset={-insets.bottom - 75}
+    style={{
+      flex: 1,
+      backgroundColor: Colors.BG,
+    }}
+    >
     <TouchableWithoutFeedback onPress={Keyboard.dismiss} accessible={false}>
-    <View style={styles.container }>
+    <View >
       <View
         style={{
           width: width / 2,
@@ -191,7 +191,7 @@ const EditProfile = (props) => {
       </View>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <TextInput
-          style={styles.input}
+          style={{...styles.input, borderColor: usernameCheck ? Colors.primary : Colors.error}}
           onChangeText={onChangeUsername}
           value={username}
           placeholder={'Username'}
@@ -199,12 +199,23 @@ const EditProfile = (props) => {
           maxLength={Length.username}
         />
         {(username === self.username) ?  null : usernameCheck === true ? 
-        <AntDesign name="checkcircle" size={20} color={Colors.FG} /> : 
-        <AntDesign name="closecircle" size={20} color={Colors.FG} />}
+        <View style={{position: 'absolute', right: '5%'}}>
+          <AntDesign name="checkcircle" size={20} color={Colors.FG} /> 
+        </View> :
+        <TouchableWithoutFeedback 
+          onPress={()=>{
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            alert('Username is taken')  
+          }}
+        >
+          <View style={{position: 'absolute', right: '5%'}}>
+            <AntDesign name="exclamationcircle" size={20} color={Colors.FG} />
+          </View>
+        </TouchableWithoutFeedback>}
       </View>
       <View style={{flexDirection: 'row', alignItems: 'center'}}>
         <TextInput
-          style={styles.input}
+          style={{...styles.input, borderColor: emailCheck ? Colors.primary : Colors.error}}
           onChangeText={onChangeEmail}
           value={email}
           placeholder={'Email'}
@@ -212,18 +223,31 @@ const EditProfile = (props) => {
           maxLength={Length.email}
         />
         {(email === self.email) ? null : emailCheck === true ? 
-        <AntDesign name="checkcircle" size={20} color={Colors.FG} /> : 
-        <AntDesign name="closecircle" size={20} color={Colors.FG} />}
+        <View style={{position: 'absolute', right: '5%'}}>
+          <AntDesign name="checkcircle" size={20} color={Colors.FG} /> 
+        </View> :
+        <TouchableWithoutFeedback 
+          onPress={()=>{
+            Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+            alert('Email in use')  
+          }}
+        >
+          <View style={{position: 'absolute', right: '5%'}}>
+            <AntDesign name="exclamationcircle" size={20} color={Colors.FG} />
+          </View>
+        </TouchableWithoutFeedback> }
       </View>
     </View>
     </TouchableWithoutFeedback>
+    </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: Colors.BG
+    backgroundColor: Colors.BG,
   },
   profilePicture: {
     width: "100%",
