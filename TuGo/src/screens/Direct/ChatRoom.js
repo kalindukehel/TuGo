@@ -118,11 +118,12 @@ const ChatRoom = ({ navigation }) => {
   return (
     <View style={{ width: "100%", height: "100%", backgroundColor: Colors.BG }}>
       <FlatList
+        contentContainerStyle={{marginTop: 5}}
         ref={flatListRef}
         extraData={readTag}
         ListHeaderComponent={() => (
           readTag &&
-           <Text style={{color: Colors.gray, alignSelf: 'flex-end', position: 'absolute', bottom: -2, right: 12, fontSize: 10}}>R</Text>
+           <Text style={{color: Colors.gray, alignSelf: 'flex-end', position: 'absolute', bottom: -5, right: 12, fontSize: 10}}>R</Text>
         )}
         data={messages}
         renderItem={({ item }) => {
