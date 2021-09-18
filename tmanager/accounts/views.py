@@ -284,7 +284,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def favorites(self,request,*args,**kwargs):
-        favorites = request.user.favorites.all()
+        favorites = request.user.favorites.all().order_by('-id')
         serializer = FavoriteSerializer(favorites,many=True)
         return Response(serializer.data)
 
@@ -394,7 +394,10 @@ class PostViewSet(viewsets.ModelViewSet):
         elif(request.method=='DELETE'):
             tile = Tile.objects.get(pk=request.data.get('id'))
             if(request.user==tile.post.author):
+                post = tile.post
                 tile.delete()
+                post.video_count = len(post.tiles.all())
+                post.save()
                 return Response(status=status.HTTP_200_OK)
             else:
                 return Response({"detail":"Tile could not be deleted."},status=status.HTTP_400_BAD_REQUEST)
