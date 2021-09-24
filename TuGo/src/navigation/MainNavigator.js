@@ -53,7 +53,6 @@ const MainNavigator = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const userInfo = self;
-      console.log(self)
       if (userInfo) {
         const userData = await API.graphql(
           graphqlOperation(getUser, { id: self.id })
