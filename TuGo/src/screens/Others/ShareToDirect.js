@@ -24,6 +24,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   searchUsers as searchUsersAPI,
   getAccounts as getAccountsAPI,
+  viewableUsers as viewableUsersAPI
 } from "../../api";
 import { API, graphqlOperation } from "aws-amplify";
 import {
@@ -37,7 +38,7 @@ import { listUsers } from "../../graphql/queries";
 
 //icons
 import { Feather } from "@expo/vector-icons";
-import { Colors } from "../../../constants";
+import { Colors, API_URL } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -62,29 +63,41 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
     const fetchUsers = async () => {
       //get users from aws database
       try {
-        const allUsersData = await API.graphql(graphqlOperation(listUsers));
-        const filteredUsers = allUsersData.data.listUsers.items.filter(
-          (user) => user.id != self.id
-        );
-        setSuggestionList(filteredUsers);
+        const allUsersData = await viewableUsersAPI(userToken)
+        setSuggestionList(allUsersData.data);
+        setReceiverList(allUsersData.data)
       } catch (e) {
         console.log(e);
       }
     };
     fetchUsers();
   }, []);
-  useEffect(() => {
-    const getAccounts = async () => {
-      //check if searched text is not empty
-      if (query) {
-        const searchRes = await searchUsersAPI(query, userToken);
-        setReceiverList(searchRes.data);
-      } else {
-        setReceiverList([]);
-      }
-    };
-    getAccounts();
-  }, [query]);
+  
+  const searchFilterFunction = (text) => {
+    // Check if searched text is not blank
+    if (text) {
+      // Inserted text is not blank
+      // Filter the masterDataSource and update FilteredDataSource
+      const newData = suggestionlist.filter(function (item) {
+        // Applying filter for the inserted text in search bar
+        const usernameData = item.username
+          ? item.username.toUpperCase()
+          : "".toUpperCase();
+        const nameData = item.name ? item.name.toUpperCase() : "".toUpperCase();
+        const textData = text.toUpperCase();
+        return (
+          usernameData.indexOf(textData) > -1 || nameData.indexOf(textData) > -1
+        );
+      });
+      setReceiverList(newData);
+      setQuery(text);
+    } else {
+      // Inserted text is blank
+      // Update FilteredDataSource with masterData
+      setReceiverList(suggestionlist);
+      setQuery(text);
+    }
+  };
 
   const _onGestureEventHandler = ({ nativeEvent: { translationY } }) => {
     if (translationY < -(0.4 * height - STATUS_BAR_HEIGHT)) return;
@@ -255,7 +268,7 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
                 style={styles.searchInput}
                 onFocus={_onTxtInputFocus}
                 value={query}
-                onChangeText={setQuery}
+                onChangeText={searchFilterFunction}
                 placeholder="Search"
                 placeholderTextColor={"white"}
               />
@@ -266,7 +279,7 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
                 height: height * (showFull ? 1 : 0.6) - 83.5 - 36 - 50,
                 marginTop: 5,
               }}
-              data={receiverList.length === 0 ? suggestionlist : receiverList}
+              data={receiverList}
               renderItem={({ item, index }) => (
                 <ReceiverItem
                   shareItem={shareItem}
@@ -413,12 +426,15 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         let existingChatRoomId = null;
         for (var index in activeChatRooms) {
           const currChatRoom = activeChatRooms[index];
-          let otherUser;
-          if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
-            otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
-          } else {
-            otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
+          let otherUser = null;
+          if(currChatRoom.chatRoom.chatRoomUsers.items[0].user != null){
+            if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
+              otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
+            } else {
+              otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
+            }
           }
+          if (otherUser)
           if (otherUser.id == user.id) {
             existingChatRoomId = currChatRoom.chatRoomID;
             break;
@@ -477,9 +493,9 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           }
 
           const newChatRoom = newChatRoomData.data.createChatRoom;
-
+          console.log(newChatRoom)
           // 2. Add `user` to the Chat Room
-          console.log('add user to room')
+          console.log('add user to room', user.id)
           await API.graphql(
             graphqlOperation(createChatRoomUser, {
               input: {
@@ -490,7 +506,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           );
 
           //  3. Add authenticated user to the Chat Room
-          console.log('add auth user')
+          console.log('add auth user', self.id)
           await API.graphql(
             graphqlOperation(createChatRoomUser, {
               input: {
@@ -554,7 +570,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         <Image
           style={styles.avatar}
           source={{
-            uri: user.imageUri,
+            uri: API_URL + user.profile_picture,
           }}
         />
         <View

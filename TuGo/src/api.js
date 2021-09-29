@@ -19,6 +19,14 @@ export async function getAccountById(id, token) {
   });
 }
 
+export async function viewableUsers(token) {
+  return axios.get(`${API_URL}/api/accounts/viewable_users/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function signUp(data) {
   return axios.post(`${API_URL}/signup/`, {
     username: data.username,

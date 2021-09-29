@@ -66,7 +66,6 @@ const ChatListItem = (props) => {
       })
     );
     let seen = data.data.getChatRoom.seen
-    console.log(seen)
     setSeen(seen.includes(self.id))
   }
   useEffect(() => {
