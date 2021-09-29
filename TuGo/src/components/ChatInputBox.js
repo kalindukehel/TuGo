@@ -25,7 +25,9 @@ import {
 } from "@expo/vector-icons";
 import { useAuthState } from "../context/authContext";
 import { Colors, appTheme, Length } from "../../constants";
-
+import {
+  pushNotification as pushNotificationAPI
+} from "../api"
 //audio for recording messages
 import { Audio } from "expo-av";
 import { Dimensions } from "react-native";
@@ -33,24 +35,32 @@ import { Dimensions } from "react-native";
 const sound = new Audio.Sound();
 
 const ChatInputBox = (props) => {
-  const { chatRoomID } = props;
+  const { chatRoomID, scrollToTextInput } = props;
   const { self } = useAuthState();
   const insets = useSafeAreaInsets();
   let animation = useRef(new Animated.Value(0));
   const [recordedAnimation, setRecordingAnimated] = useState(
     new Animated.Value(0)
   );
-  console.log(chatRoomID);
   const [message, setMessage] = useState("");
   const [myUserId, setMyUserId] = useState(null);
   const [recording, setRecording] = useState();
   const [recordingUri, setRecordingUri] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [pushTokenReceiver, setPushTokenReceiver] = useState(null)
 
   useEffect(() => {
     const fetchUser = async () => {
       setMyUserId(self.id);
+      const chatRoomData = await API.graphql(
+        graphqlOperation( getChatRoom, {
+          id: chatRoomID
+        })
+      );
+      
+      let allUsersInChatRoom = chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(user => user.user.id != self.id)
+      setPushTokenReceiver(allUsersInChatRoom.length > 0 ? allUsersInChatRoom[0].user.expoPushToken : null)
     };
     fetchUser();
   }, []);
@@ -158,13 +168,16 @@ const ChatInputBox = (props) => {
     }
   }
 
-  const updateChatRoomLastMessage = async (messageId) => {
+  const updateChatRoomDetails = async (messageId) => {
     try {
+      let seen = []
+      seen.push(self.id)
       await API.graphql(
         graphqlOperation(updateChatRoom, {
           input: {
             id: chatRoomID,
             lastMessageID: messageId,
+            seen: seen
           },
         })
       );
@@ -207,26 +220,15 @@ const ChatInputBox = (props) => {
           },
         })
       );
-      await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
+      await updateChatRoomDetails(newMessageData.data.createMessage.id);
 
-      // update seen list
-      let seen = []
-      seen.push(self.id)
-      const chatRoomData = await API.graphql(
-        graphqlOperation(updateChatRoom, {
-          input: {
-            id: chatRoomID,
-            seen: seen
-          },
-        })
-      );
-
-
-      // const notifRes = await pushNotificationAPI(
-      //   author.notification_token,
-      //   {creator: self.username, content: message},
-      //   "message"
-      // );
+      if (pushTokenReceiver !== null){
+        const notifRes = await pushNotificationAPI(
+          pushTokenReceiver,
+          {creator: self.username, content: message},
+          "message"
+        );
+      }
     } catch (e) {
       console.log(e);
     }
@@ -292,17 +294,20 @@ const ChatInputBox = (props) => {
           <>
             <View style={styles.mainContainer}>
               <TextInput
+                onChangeText={(text) => {
+                  scrollToTextInput();
+                  setMessage(text);
+                }}
                 placeholder={"Send a message"}
                 placeholderTextColor={Colors.text}
                 style={styles.textInput}
                 multiline
                 value={message}
-                onChangeText={setMessage}
                 keyboardAppearance={appTheme}
                 color={Colors.text}
                 maxLength={Length.message}
               />
-              <TouchableOpacity onPress={onPress} style={{marginBottom: 3}}>
+              <TouchableOpacity disabled={!message} onPress={onSendText} style={{marginBottom: 3}}>
                 <View style={{ marginRight: 5 }}>
                     <MaterialCommunityIcons
                       name="send-circle"

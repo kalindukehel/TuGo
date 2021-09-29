@@ -82,8 +82,18 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
 
   //delete tile async function
   const deleteTile = async (tileId) => {
-    const res = await deleteTileAPI(postId, tileId, userToken);
-    if (res.status === 200) tileModal.current.close();
+    try{
+      const res = await deleteTileAPI(postId, tileId, userToken);
+      tileModal.current.close();
+    }
+    catch(e){
+      if (res.status === 400) {
+        errorDispatch({type: 'REPORT_ERROR', message: "Video tile could not be deleted"})
+      }
+      else{
+        errorDispatch({type: 'REPORT_ERROR', message: "Something went wrong, please try again."})
+      }
+    }
   };
 
   const _onGestureEventHandler = ({ nativeEvent: { translationY } }) => {

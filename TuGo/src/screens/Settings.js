@@ -17,6 +17,8 @@ import {
 import { onSignOut } from "../auth";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { Colors } from "../../constants";
+import { Auth, API, graphqlOperation } from "aws-amplify";
+import { updateUser } from "../graphql/mutations";
 
 /*Images*/
 import { FontAwesome5 } from "@expo/vector-icons";
@@ -140,6 +142,13 @@ const Settings = ({ navigation }) => {
           setLoading(true)
           onSignOut();
           try {
+            const update = {
+              id: self.id,
+              expoPushToken: null
+            }
+            const chatRoomData = await API.graphql(
+              graphqlOperation(updateUser, { input: update })
+            );
             await deleteNotificationTokenAPI(userToken, self.id);
             await signOutAPI(userToken);
             console.log("logout pressed");
@@ -177,7 +186,8 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: "center",
     alignItems: "center",
-    backgroundColor: Colors.gray
+    backgroundColor: Colors.gray,
+    marginBottom: 15
   },
   heading: {
     fontWeight: "bold",

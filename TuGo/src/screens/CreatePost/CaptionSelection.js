@@ -59,7 +59,7 @@ const CaptionSelection = (props) => {
       );
     } else {
       return (
-        <View style={{ marginHorizontal: 10 }}>
+        <View style={{ margin: (width - (3 * width) / 3.4) / 8 }}>
           <VideoTile videoId={item.video_id} />
         </View>
       );
@@ -72,9 +72,14 @@ const CaptionSelection = (props) => {
   //   }
   // },[])
 
-  const makePost = () => {
+  const makePost = async () => {
     //Call createPostAPI to create a new post
-    createPostAPI(caption, song, choreosAndCovers, userToken);
+    try{
+      await createPostAPI(caption, song, choreosAndCovers, userToken);
+    }
+    catch(e){
+      errorDispatch({type: 'REPORT_ERROR', message: "Something went wrong, could not create post"})
+    }
   };
 
   return (
@@ -122,7 +127,7 @@ const CaptionSelection = (props) => {
       />
       {choreosAndCovers.length != 0 && (
         <FlatList
-          showsHorizontalScrollIndicator={false}
+          scrollEnabled={false}
           data={choreosAndCovers}
           renderItem={renderTile}
           keyExtractor={(item, index) => index.toString()}
@@ -130,7 +135,11 @@ const CaptionSelection = (props) => {
             maxHeight: 200,
             marginTop: 15,
           }}
-          horizontal={true}
+          numColumns={3}
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: "center",
+          }}
         />
       )}
       <TextInput

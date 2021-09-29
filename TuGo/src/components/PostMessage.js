@@ -14,21 +14,27 @@ import {
   getPostById as getPostByIdAPI,
   getAccountById as getAccountByIdAPI,
 } from "../api";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 
 const PostMessage = ({ message, navigation }) => {
   const { userToken, self } = useAuthState();
-
   const [post, setPost] = useState(null);
+  const [error, setError] = useState(null)
   const [loadingPost, setLoadingPost] = useState(false);
   const [author, setAuthor] = useState(null);
 
   useEffect(() => {
     setLoadingPost(true);
     async function getPost() {
+      try{
       const postRes = await getPostByIdAPI(userToken, message.content);
       setPost(postRes.data);
       const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
       setAuthor(authorRes.data);
+      }
+      catch(e){
+        setError('Post has been Deleted.')
+      }
     }
     getPost();
     setLoadingPost(false);
@@ -36,6 +42,7 @@ const PostMessage = ({ message, navigation }) => {
   const isMyMessage = () => {
     return message.user.id == self.id;
   };
+  if (post) console.log(post.album_cover)
   return (
     <View
       style={{
@@ -43,16 +50,24 @@ const PostMessage = ({ message, navigation }) => {
         justifyContent: isMyMessage() ? "flex-end" : "flex-start",
       }}
     >
-      {!isMyMessage() && (
-        <Image
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 999,
-            marginRight: 10,
+      {!isMyMessage() && (            
+        <TouchableWithoutFeedback
+          onPress={()=>{
+            navigation.push("Profile", {
+              id: author.id,
+            });
           }}
-          source={{ uri: message.user.imageUri }}
-        />
+        >
+          <Image
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 999,
+              marginRight: 10,
+            }}
+            source={{ uri: message.user.imageUri }}
+          />
+        </TouchableWithoutFeedback>
       )}
       <View
         style={[
@@ -81,12 +96,7 @@ const PostMessage = ({ message, navigation }) => {
                 {author.username}
               </Text>
             </View>
-            <TouchableOpacity
-              style={{
-                ...styles.image,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            <TouchableWithoutFeedback
               onPress={() => {
                 navigation.push("Post", {
                   screen: "Post",
@@ -97,12 +107,25 @@ const PostMessage = ({ message, navigation }) => {
                 });
               }}
             >
-              <Image style={styles.image} source={{ uri: post.album_cover }} />
-            </TouchableOpacity>
+              <View 
+                style={{
+                  ...styles.image,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                <Image style={styles.image} source={{ uri: post.album_cover }} />
+              </View>
+            </TouchableWithoutFeedback>
             {/* <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text> */}
           </View>
+        ) : error ? (
+          <View 
+            style={styles.errorView}>
+            <Text style={{color: Colors.text, fontSize: 12}}>{error}</Text>
+          </View>
         ) : (
-          <View style={{ height: 190, width: 150 }}>
+          <View style={{ height: 190, width: 150, justifyContent: 'center' }}>
             <ActivityIndicator
               animating={true}
               size="small"
@@ -138,6 +161,14 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     color: "grey",
   },
+  errorView: {
+    height: 190, 
+    width: 150, 
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10, 
+    backgroundColor: Colors.contrastGray
+  }
 });
 
 export default PostMessage;

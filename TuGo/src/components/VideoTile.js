@@ -1,4 +1,4 @@
-import React, { useRef } from "react";
+import React, { useRef, useState } from "react";
 import {
   Image,
   View,
@@ -6,6 +6,7 @@ import {
   Dimensions,
   SafeAreaView,
   TouchableWithoutFeedback,
+  Animated
 } from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
 import WebView from "react-native-webview";
@@ -21,9 +22,27 @@ const VideoTile = (props) => {
   const url = "https://www.youtube.com/watch?v=" + videoId;
   const thumbnail = "https://i.ytimg.com/vi/" + videoId + "/mqdefault.jpg";
   const refRBSheet = useRef();
+  const [xy, setXY] = useState(new Animated.ValueXY({ x: width/3.4, y: width/5 }));
+
+  const imageAnimationIn = () => {
+    Animated.timing(xy, {
+      toValue: { x: width/3.4 - 10, y: width/5 - 5},
+      duration: 20,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  const imageAnimationOut = () => {
+    Animated.timing(xy, {
+      toValue: { x: width/3.4, y: width/5 },
+      duration: 20,
+      useNativeDriver: false,
+    }).start();
+  };
+
   return (
     <View>
-      <TouchableOpacity
+      {/* <TouchableOpacity
         onPress={() => {
           refRBSheet.current.open();
         }}
@@ -40,7 +59,18 @@ const VideoTile = (props) => {
             borderWidth: 1,
           }}
         />
-      </TouchableOpacity>
+      </TouchableOpacity> */}
+      <TouchableWithoutFeedback onPress={()=> {
+          // tilePlayerDispatch({type: 'SHOW_TILE', id: youtube_id})
+          refRBSheet.current.open()
+        }}
+        onPressIn={imageAnimationIn}
+        onPressOut={imageAnimationOut}
+      >
+          <View style={{width: width/3.4, height: width/5, alignItems: 'center', justifyContent: 'center'}}>
+            <Animated.Image style={{height: xy.y, width: xy.x, borderRadius: 10}} source={{uri: thumbnail}}/>
+          </View>
+      </TouchableWithoutFeedback>
       <RBSheet
         height={height * 0.8}
         ref={(ref) => {

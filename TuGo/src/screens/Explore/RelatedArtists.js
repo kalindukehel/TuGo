@@ -31,12 +31,7 @@ const RelatedArtists = (props) => {
     setRefreshing(true);
     async function getAlbums() {
       const res = await getSimilarArtistsAPI(artistId);
-      const artists = res.data.artists.map((artist) => {
-        return {
-          artistId: artist.id,
-          name: artist.name,
-        };
-      });
+      const artists = res.data.artists
       setSimilarArtists(artists);
     }
     getAlbums();
@@ -67,8 +62,8 @@ const RelatedArtists = (props) => {
       <ArtistBlock
         artist={item.name}
         navigation={navigation}
-        image={getArtistImage(item.artistId)}
-        id={item.artistId}
+        image={getArtistImage(item.id)}
+        id={item.id}
         similarArtist={true}
         columns={3}
       />

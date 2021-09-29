@@ -466,14 +466,19 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
               })
             );
           }
+          //update lastMessage and seen list
+          let seen = []
+          seen.push(self.id)
           await API.graphql(
             graphqlOperation(updateChatRoom, {
               input: {
                 id: existingChatRoomId,
                 lastMessageID: newMessageData.data.createMessage.id,
+                seen: seen
               },
             })
           );
+
         } else {
           console.log('creating) 1')
           //1. Create a new Chat Room

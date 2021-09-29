@@ -381,8 +381,8 @@ export async function pushNotification(expoPushToken, data, type) {
     message = {
       to: expoPushToken,
       sound: "default",
-      title: "New Message",
-      body: `${data.creator}\n${data.content}`,
+      title: `${data.creator} sent you a message`,
+      body: `${data.content}`,
       data: { type: "message" },
     };
   }
@@ -449,6 +449,32 @@ export async function editProfile(username, name, email, token) {
   });
 }
 
+export async function isValidEmail(email) {
+  return axios.post(`${API_URL}/valid/`, 
+    {
+      type: "email",
+      email: email
+    }  
+    , {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+export async function isValidUsername(username) {
+  return axios.post(`${API_URL}/valid/`, 
+    {
+      type: "username",
+      username: username
+    }  
+    , {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+
 /* Non-Django API Functions */
 
 export async function getYoutubeSearch(searchQuery) {
@@ -508,6 +534,30 @@ export async function getChartTracks(playlistId) {
   );
 }
 
+export async function getCharts() {
+  return axios.get(
+    `http://api.napster.com/v2.2/playlists/featured?limit=10&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
+export async function getAlbumImage(albumId) {
+  return axios.get(
+    `http://api.napster.com/v2.2/albums/${albumId}?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
+export async function getAlbumTracks(albumId) {
+  return axios.get(
+    `http://api.napster.com/v2.2/albums/${albumId}/tracks?limit=100&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
+export async function getNewAlbums() {
+  return axios.get(
+    `http://api.napster.com/v2.2/albums/new?limit=5&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
 export async function getTrackDetails(trackId) {
   return axios.get(
     `http://api.napster.com/v2.2/tracks/${trackId}?limit=100&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
@@ -535,6 +585,12 @@ export async function typeSongAheadSearch(searchQuery) {
 export async function searchArtist(searchQuery) {
   return axios.get(
     `http://api.napster.com/v2.2/search?type=artist&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}&per_type_limit=1`
+  );
+}
+
+export async function searchAlbum(searchQuery) {
+  return axios.get(
+    `http://api.napster.com/v2.2/search?type=album&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}&per_type_limit=1`
   );
 }
 
@@ -637,8 +693,6 @@ export async function createPost(caption, postDetails, tiles, token) {
         view_count: 0,
       };
     }
-
-    console.log(tileData);
     //Create tile object under created post
     await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, tileData, {
       headers: {

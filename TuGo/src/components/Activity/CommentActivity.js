@@ -17,6 +17,7 @@ import { replaceMentionValues } from "react-native-controlled-mentions";
 
 import moment from "moment";
 import { Colors } from "../../../constants";
+import { Truncate } from "../../Helpers/Truncate";
 
 var { width, height } = Dimensions.get("window");
 
@@ -82,7 +83,7 @@ const CommentActivity = (props) => {
               style={{ color: Colors.text }}
             >{` commented on your post: `}</Text>
             <Text style={{ color: Colors.text }}>
-              {replaceMentionValues(comment, ({ name }) => `@${name}`) + " "}
+              {replaceMentionValues(Truncate(comment, 50), ({ name }) => `@${name}`) + " "}
             </Text>
             <Text style={{ fontSize: 12, color: "#7D7D7D" }}>
               {moment(activity.created_at).fromNow(true)}

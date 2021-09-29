@@ -6,13 +6,14 @@ import {
   Text,
   Animated,
 } from "react-native";
-import { Colors } from "../../../constants";
+import { Colors, Length } from "../../../constants";
+import { Truncate } from "../../Helpers/Truncate";
 
-const outerWidth = 105;
-const outerHeight = 70;
+const outerWidth = 120;
+const outerHeight = 120;
 const animationWidth = 120;
 
-const ChartBlock = (props) => {
+const AlbumBlock = (props) => {
   const { id, navigation, image, text } = props;
 
   const [sizeValue, setSizeValue] = useState(new Animated.Value(outerWidth));
@@ -21,7 +22,7 @@ const ChartBlock = (props) => {
 
   const imageAnimationIn = () => {
     Animated.timing(xy, {
-      toValue: { x: 100, y: 65 },
+      toValue: { x: 115, y: 115 },
       duration: 20,
       useNativeDriver: false,
     }).start();
@@ -29,7 +30,7 @@ const ChartBlock = (props) => {
 
   const imageAnimationOut = () => {
     Animated.timing(xy, {
-      toValue: { x: outerWidth, y: outerHeight },
+      toValue: { x: outerWidth, y: outerHeight   },
       duration: 20,
       useNativeDriver: false,
     }).start();
@@ -38,31 +39,35 @@ const ChartBlock = (props) => {
   return (
     <TouchableWithoutFeedback
       onPress={() => {
-        navigation.push("Chart", {
-          chart: id,
+        navigation.push("Album", {
+          album: id,
         });
       }}
       onPressIn={imageAnimationIn}
       onPressOut={imageAnimationOut}
     >
-      <View
-        style={{
-          justifyContent: "center",
-          alignItems: "center",
-          height: outerHeight,
-          width: outerWidth,
-        }}
-      >
-        <Animated.View
-          style={{
-            ...styles.chartLabel,
-            width: xy.x,
-            height: xy.y,
-          }}
-        >
-          <Text style={styles.chartName}>{text}</Text>
-        </Animated.View>
-      </View>
+        <View style={{flexDirection: 'column' }}>
+            <View
+                style={{
+                justifyContent: "center",
+                alignItems: "center",
+                height: outerHeight,
+                width: outerWidth,
+                }}
+            >
+                <Animated.Image
+                style={{
+                    borderRadius: 10,
+                    width: xy.x,
+                    height: xy.y,
+                }}
+                source={{uri: image}}
+                />
+            </View>
+            <Text style={{ flexWrap: "wrap", width: 120, marginTop: 5 }}>
+              <Text style={{color: Colors.text}}>{text}</Text>
+            </Text>
+        </View>
     </TouchableWithoutFeedback>
   );
 };
@@ -86,4 +91,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default ChartBlock;
+export default AlbumBlock;

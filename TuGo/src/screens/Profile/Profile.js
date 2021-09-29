@@ -122,7 +122,6 @@ const Profile = (props) => {
   const firstRun = useRef(true);
   const [offset, setOffset] = useState(0);
   const errorDispatch = useErrorDispatch();
-  console.log(self)
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
   useScrollToTop(ref);
@@ -422,7 +421,7 @@ const Profile = (props) => {
           }}
         >
           <TouchableOpacity
-            disabled={error == 403}
+            disabled={error === 403}
             onPress={() => {
               navigation.push("Following", {
                 id: profileId,
@@ -498,7 +497,7 @@ const Profile = (props) => {
 
   const getFooter = () => {
     return (
-      error == 403 && (
+      error === 403 && (
         <Text
           style={{
             color: Colors.text,
@@ -508,7 +507,7 @@ const Profile = (props) => {
             marginTop: "20%",
           }}
         >
-          Forbidden! Follow to see.
+          Private Account! Follow to see.
         </Text>
       )
     );

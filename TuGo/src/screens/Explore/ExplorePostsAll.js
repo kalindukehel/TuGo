@@ -6,6 +6,9 @@ import SongBlock from "../../components/Explore/SongBlock";
 
 //api
 import { getExplorePosts as getExplorePostsAPI } from "../../api";
+import { Dimensions } from "react-native";
+
+let {width, height} = Dimensions.get('window')
 
 const ExplorePostsAll = (props) => {
   const { navigation } = props;
@@ -28,8 +31,8 @@ const ExplorePostsAll = (props) => {
 
   const renderItem = ({ item }) => {
     return (
-      <View style={{}}>
-        <SongBlock postId={item.post} navigation={navigation} columns={2} />
+      <View style={{height: width/2, width: width/2, }}>
+        <SongBlock postId={item.post} navigation={navigation} columns={2} blockHeight={160} blockWidth={160}/>
       </View>
     );
   };
@@ -37,12 +40,16 @@ const ExplorePostsAll = (props) => {
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
-        style={{}}
+        style={{ flexGrow: 1 }}
+        contentContainerStyle={{
+          flexGrow: 1,
+          alignItems: "center",
+        }}
         data={explorePosts}
         renderItem={renderItem}
         keyExtractor={(item, index) => item.id.toString()}
         onRefresh={loading}
-        numColumns={3}
+        numColumns={2}
       />
     </SafeAreaView>
   );

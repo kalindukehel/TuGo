@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   KeyboardAvoidingView,
   StyleSheet,
@@ -12,10 +12,14 @@ import {
   ActivityIndicator,
   SafeAreaView,
 } from "react-native";
-import { signUp as signUpAPI, signIn as SignInApi } from "../api";
+import { signUp as signUpAPI, 
+signIn as SignInApi,
+isValidEmail as isValidEmailAPI,
+isValidUsername as isValidUsernameAPI } from "../api";
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
 import { Colors, appTheme } from "../../constants";
+import { AntDesign } from '@expo/vector-icons';
 
 const styles = StyleSheet.create({
   container: {
@@ -42,6 +46,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     marginHorizontal: 10,
     backgroundColor: "#FFFFFF",
+    width: '90%'
   },
   button: {
     alignItems: "center",
@@ -60,6 +65,14 @@ const SignIn = ({ navigation }) => {
   const [name, setName] = useState(null);
   const [email, setEmail] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [usernameCheck, setUsernameCheck] = useState(true);
+  const [emailCheck, setEmailCheck] = useState(true);
+  const [enabled, setEnabled] = useState(true)
+
+  useEffect(() => {
+    setEnabled(usernameCheck && emailCheck && name && password && username && email)
+  },[username, email, usernameCheck, emailCheck, name, password])
+
   async function signup() {
     try {
       setLoading(true)
@@ -77,11 +90,36 @@ const SignIn = ({ navigation }) => {
       onSignIn(signInRes.data.token);
       dispatch({ type: "SIGN_IN", token: signInRes.data.token });
     } catch (error) {
-      console.log(error);
+      errorDispatch({type: 'REPORT_ERROR', message: "Something went wrong, please try again."})
       setLoading(false)
     }
     setLoading(false)
   }
+
+  const onChangeEmail = async (text) => {
+    if (text != self.email){
+      setEmail(text)
+      const res = await isValidEmailAPI(text)
+      setEmailCheck(res.data.available)
+    }
+    else {
+      setEmail(text)
+      setEmailCheck(true)
+    }
+  }
+  
+  const onChangeUsername = async (text) => {
+    if(text != self.username){
+      setUsername(text)
+      const res = await isValidUsernameAPI(text)
+      setUsernameCheck(res.data.available)
+    } 
+    else{
+      setUsername(text)
+      setUsernameCheck(true)
+    }
+  }
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
@@ -105,28 +143,40 @@ const SignIn = ({ navigation }) => {
               blurOnSubmit={false}
               style={styles.input}
             />
-            <TextInput
-              keyboardAppearance={appTheme}
-              onChangeText={(username) => setUsername(username)}
-              placeholder="Enter Username"
-              autoCapitalize="none"
-              keyboardType="default"
-              returnKeyType="done"
-              onSubmitEditing={Keyboard.dismiss}
-              blurOnSubmit={false}
-              style={styles.input}
-            />
-            <TextInput
-              keyboardAppearance={appTheme}
-              onChangeText={(email) => setEmail(email)}
-              placeholder="Enter Email"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              returnKeyType="done"
-              onSubmitEditing={Keyboard.dismiss}
-              blurOnSubmit={false}
-              style={styles.input}
-            />
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <TextInput
+                keyboardAppearance={appTheme}
+                onChangeText={onChangeUsername}
+                placeholder="Enter Username"
+                autoCapitalize="none"
+                keyboardType="default"
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+                blurOnSubmit={false}
+                style={styles.input}
+              />        
+              {usernameCheck === true ? 
+                <AntDesign name="checkcircle" size={20} color={"black"} /> : 
+                <AntDesign name="closecircle" size={20} color={"black"} />}
+            </View>
+            
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <TextInput
+                keyboardAppearance={appTheme}
+                onChangeText={onChangeEmail}
+                placeholder="Enter Email"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+                blurOnSubmit={false}
+                style={styles.input}
+              />        
+              {emailCheck === true ? 
+                <AntDesign name="checkcircle" size={20} color={"black"} /> : 
+                <AntDesign name="closecircle" size={20} color={"black"} />}
+            </View>
+            
             <TextInput
               keyboardAppearance={appTheme}
               onChangeText={(password) => setPassword(password)}
@@ -139,14 +189,14 @@ const SignIn = ({ navigation }) => {
               style={styles.input}
             />
             <TouchableOpacity
-              disabled={!password || !username || !name || !email}
+              disabled={!enabled}
               style={
-                password && username && name && email
+                enabled
                   ? { ...styles.button, backgroundColor: Colors.primary }
                   : { ...styles.button, backgroundColor: Colors.gray }
               }
               onPress={() => {
-                if (username && password && email && name) {
+                if (enabled) {
                   signup();
                 }
               }}

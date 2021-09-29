@@ -349,11 +349,6 @@ const PostComponent = ({
     getFavoriteStates();
   }
 
-  async function onClick() {
-    playerDispatch({ type: "UNLOAD_PLAYER" });
-    await soundObj.unloadAsync();
-  }
-
   //delete confirmation alert function
   const deleteConfirmation = () =>
     Alert.alert(
@@ -382,20 +377,6 @@ const PostComponent = ({
     const res = await deletePostAPI(postId, userToken);
   };
 
-  //delete tile async function
-  const deleteTile = async (tileId) => {
-    const res = await deleteTileAPI(postId, tileId, userToken);
-  };
-
-  const handleAnimation = () => {
-    Animated.timing(animatedTileValue, {
-      toValue: 1,
-      duration: 1000,
-      easing: Easing.ease,
-      useNativeDriver: true,
-    }).start();
-  };
-
   const renderTileTest = ({ item, index }) => {
     return (
       <View style={{ margin: (width - (3 * width) / 3.4) / 8 }}>
@@ -406,82 +387,6 @@ const PostComponent = ({
           tileId={item.id}
           postId={postId}
         />
-      </View>
-    );
-  };
-
-  const renderTile = ({ item, index }) => {
-    if (item.is_youtube)
-      var youtube_id = item.youtube_link.substr(item.youtube_link.length - 11);
-    return (
-      <View
-        style={{
-          marginHorizontal: 10,
-          marginVertical: 10,
-        }}
-      >
-        {/* <Video
-          ref={refRBSheet.current[item.id]}
-          style={{
-            ...styles.video,
-            borderColor: item.is_youtube ? "red" : Colors.FG,
-          }}
-          source={{
-            uri: item.is_youtube
-              ? item.youtube_video_url
-              : item.custom_video_url,
-          }} // Can be a URL or a local file.
-          useNativeControls
-          resizeMode="cover"
-          onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-        ></Video> */}
-        <View
-          style={{
-            width: "100%",
-            height: 400,
-            borderWidth: 2,
-          }}
-        >
-          <WebView
-            ref={(WEBVIEW_REF) => (WebViewRef[item.id] = WEBVIEW_REF)}
-            scrollEnabled={false}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            allowsInlineMediaPlayback={true}
-            source={{ uri: `https://www.youtube.com/watch?v=${youtube_id}` }}
-          />
-        </View>
-        <View
-          style={{
-            backgroundColor: Colors.contrastGray,
-            position: "absolute",
-            right: "3%",
-            top: "90%",
-            zIndex: 99,
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            paddingHorizontal: 8,
-            borderRadius: 5,
-          }}
-        >
-          {/* <TouchableOpacity
-            style={{ marginRight: 20 }}
-            onPress={() => {
-              deleteTileConfirmation(item.id);
-            }}
-          >
-            <Feather name="trash-2" size={24} color="red" />
-          </TouchableOpacity> */}
-          <TouchableOpacity
-            style={{}}
-            onPress={() => {
-              WebViewRef[item.id] && WebViewRef[item.id].reload();
-            }}
-          >
-            <Foundation name="refresh" size={30} color={Colors.primary} />
-          </TouchableOpacity>
-        </View>
       </View>
     );
   };
@@ -681,7 +586,7 @@ const PostComponent = ({
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
-                  height: 270,
+                  height: Math.ceil(post.video_count/3) * (width/5),
                   marginVertical: 10,
                 }}
               >
@@ -906,7 +811,7 @@ const PostComponent = ({
               });
             }}
           >
-            <Text style={{ color: Colors.text }}>
+            <Text style={{ color: Colors.text}}>
               {likes
                 ? likes.length == 1
                   ? likes.length + ` like`

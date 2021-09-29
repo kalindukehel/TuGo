@@ -15,6 +15,7 @@ import {
   typeSongAheadSearch as typeSongAheadSearchAPI,
   searchArtist as searchArtistAPI,
   fullTextSearch as fullTextSearchAPI,
+  searchAlbum as searchAlbumAPI
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import { TouchableOpacity } from "react-native-gesture-handler";
@@ -46,9 +47,11 @@ const SongsTabView = (props) => {
         isMounted && setLoading(true);
         const resArtist = await searchArtistAPI(searchQuery);
         const resTracks = await typeSongAheadSearchAPI(searchQuery);
+        const resAlbums = await searchAlbumAPI(searchQuery);
         isMounted &&
           setResults([
             ...resArtist.data.search.data.artists,
+            ...resAlbums.data.search.data.albums,
             ...resTracks.data.search.data.tracks,
           ]);
         isMounted && setLoading(false);
@@ -95,9 +98,10 @@ const SongsTabView = (props) => {
   }
 
   const renderSuggestion = ({ item }) => {
+    const type = item.type
     return (
       <>
-        {item.type === "track" && (
+        {type === "track" && (
           <SearchItem
             index={item.id}
             coverArt={getImage(item.albumId)}
@@ -113,19 +117,19 @@ const SongsTabView = (props) => {
             artistId={item.artistId}
           />
         )}
-        {item.type === "artist" && (
+        {type === "artist" && (
           <TouchableWithoutFeedback
             onPress={() => {
               navigation.push("Artist", {
                 artist: item.id,
-              });
+              })
             }}
           >
             <View
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                marginLeft: 8,
+                marginLeft: 10,
                 marginTop: 12,
                 marginBottom: 10,
               }}
@@ -138,7 +142,7 @@ const SongsTabView = (props) => {
                   alignItems: "center",
                 }}
                 source={{
-                  uri: getArtistImage(item.id),
+                  uri: type === "artist" ? getArtistImage(item.id) : getImage(item.id)
                 }}
               />
               <TextTicker
@@ -148,6 +152,55 @@ const SongsTabView = (props) => {
                   fontWeight: "bold",
                   height: 25,
                   fontSize: 20,
+                }}
+                duration={7000}
+                bounce
+                repeatSpacer={50}
+                marqueeDelay={1000}
+                shouldAnimateTreshold={40}
+              >
+                {item.name.length > 32
+                  ? item.name.substring(0, 32 - 3) + "..."
+                  : item.name}
+              </TextTicker>
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+        {type === 'album' && (
+          <TouchableWithoutFeedback
+            onPress={() => {
+              navigation.push("Album", {
+                album: item.id,
+              });
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginLeft: 10,
+                marginTop: 12,
+                marginBottom: 10,
+              }}
+            >
+              <Image
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 10,
+                  alignItems: "center",
+                }}
+                source={{
+                  uri: getImage(item.id)
+                }}
+              />
+              <TextTicker
+                style={{
+                  marginLeft: 20,
+                  color: Colors.text,
+                  fontWeight: "bold",
+                  height: 25,
+                  fontSize: 16,
                 }}
                 duration={7000}
                 bounce

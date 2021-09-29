@@ -20,12 +20,13 @@ const ArtistsAll = (props) => {
     setLoading(true);
     async function getArtists() {
       const artistsRes = await topArtistsAPI();
-      const filteredArtists = artistsRes.data.artists.map((artist) => {
-        return {
-          artistId: artist.id,
-          name: artist.name,
-        };
-      });
+      const filteredArtists = artistsRes.data.artists
+      // .map((artist) => {
+      //   return {
+      //     artistId: artist.id,
+      //     name: artist.name,
+      //   };
+      // });
       setArtists(filteredArtists);
     }
     getArtists();
@@ -45,8 +46,8 @@ const ArtistsAll = (props) => {
       <ArtistBlock
         artist={item.name}
         navigation={navigation}
-        image={getArtistImage(item.artistId)}
-        id={item.artistId}
+        image={getArtistImage(item.id)}
+        id={item.id}
         similarArtist={true}
         columns={3}
       />
