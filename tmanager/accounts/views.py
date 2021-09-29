@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer, TagSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, PrivatePostSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer, TagSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
@@ -304,6 +304,17 @@ class PostViewSet(viewsets.ModelViewSet):
     #     x = PostSerializer(data)
     #     if(x.is_valid()):
     #         x.save()
+    def get_serializer_class(self):
+        if(self.action == 'list'):
+            return PrivatePostSerializer
+        elif(self.action == 'retrieve'):
+            if(self.get_object().author.is_private == False or
+            self.get_object().author.followers.filter(follower=self.request.user).exists() or
+            self.get_object().author == self.request.user):
+                return PostSerializer
+            else:
+                return PrivatePostSerializer
+        return (PostSerializer)
     @action(detail=True, methods=['GET','POST'], serializer_class=LikeSerializer)
     def likes(self, request, *args, **kwargs):
         if(request.method == 'POST'):

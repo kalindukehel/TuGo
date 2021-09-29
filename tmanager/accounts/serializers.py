@@ -5,6 +5,9 @@ from django.core.exceptions import ValidationError
 
 
 class AccountSerializer(serializers.ModelSerializer):
+    isViewable = serializers.SerializerMethodField()
+    def get_isViewable(self,obj):
+        return True
     class Meta:
         model = Account
         fields = '__all__'
@@ -16,6 +19,9 @@ class AccountSerializer(serializers.ModelSerializer):
         return user
     
 class PrivateAccountSerializer(serializers.ModelSerializer):
+    isViewable = serializers.SerializerMethodField()
+    def get_isViewable(self,obj):
+        return False
     class Meta:
         model = Account
         fields = (
@@ -23,11 +29,14 @@ class PrivateAccountSerializer(serializers.ModelSerializer):
             'username',
             'profile_picture',
             'name',
-            'notification_token'
+            'notification_token',
+            'isViewable'
             )
 
 class PostSerializer(serializers.ModelSerializer):
-
+    isViewable = serializers.SerializerMethodField()
+    def get_isViewable(self,obj):
+        return True
     class Meta:
         model = Post
         fields = (
@@ -50,6 +59,18 @@ class PostSerializer(serializers.ModelSerializer):
             feed_item = Feed_Item(user=followerObject.follower,post=newPost,follow_relation=followerObject)
             feed_item.save()
         return newPost
+
+class PrivatePostSerializer(serializers.ModelSerializer):
+    isViewable = serializers.SerializerMethodField()
+    def get_isViewable(self,obj):
+        return False
+    class Meta:
+        model = Post
+        fields = (
+            'id',
+            'author',
+            'isViewable'
+        )
 
 class FeedSerializer(serializers.ModelSerializer):
     class Meta:
