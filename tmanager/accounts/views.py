@@ -29,9 +29,19 @@ class AccountViewSet(viewsets.ModelViewSet):
     ]
     serializer_class = AccountSerializer
     def update(self, request, *args, **kwargs):
-        if(request.data.get('is_private')):
-            for i in request.user.posts.all():
-                Explore_Item.objects.filter(post=i.id).delete()
+        if(request.data.get('is_private') == False):
+            for follow_request in request.user.requests.all():
+                print(follow_request.id)
+                #Create follower object then delete follower request item, push new activity item to user
+                follower = Follower.objects.create(follower=follow_request.requester,following=request.user)
+                follow_request.delete()
+                follower.save()
+                activity_item = Activity_Item(user=request.user,activity_type='FOLLOW',action_user=follow_request.requester, follower=follower)
+                try:
+                    activity_item.full_clean()
+                    activity_item.save()
+                except ValidationError as e:
+                    return Response({"detail":"Activity item could not be created."},status=status.HTTP_400_BAD_REQUEST)
         return super().update(request,*args,**kwargs)
 
     def get_serializer_class(self):
@@ -273,6 +283,9 @@ class AccountViewSet(viewsets.ModelViewSet):
                 ExploreItem,created = request.user.explore.all().get_or_create(user=request.user,post=post)
                 if(created):
                     ExploreItem.save()
+            else:
+                if Explore_Item.objects.filter(post=post,user=request.user).exists():
+                    Explore_Item.objects.get(post=post,user=request.user).delete()
         serializer = ExploreSerializer(request.user.explore.all().order_by('-post'),many=True)
         return Response(serializer.data)
 
