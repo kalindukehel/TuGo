@@ -6,6 +6,7 @@ from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
 from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from rest_framework import status
 from django.contrib.auth import authenticate
 from django.db.models import Q
@@ -483,6 +484,8 @@ class PostViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['POST'], serializer_class=PostSerializer)
     def search_by_post(self,request,*args,**kwargs):
         search_query = self.request.data.get('search_query')
+        if(search_query == ""):
+            return Response([])
         #Filters posts by if song name or artist contains search query
         post_list = Post.objects.filter(Q(song_name__contains=search_query) | Q(song_artist__contains=search_query))
         serialized = PostSerializer(post_list,many=True)
@@ -548,16 +551,29 @@ def signup(request, *args, **kwargs):
 @permission_classes([permissions.AllowAny])
 def valid(request, *args, **kwargs):
     valid_type = request.data.get('type')
-    if(valid_type == 'username' and request.data.get('username')):
-        if Account.objects.filter(username=request.data.get('username')).exists():
+    if(valid_type == 'username' and request.data.get('username') != None):
+        username = request.data.get('username')
+        if username == "" or Account.objects.filter(username=username).exists():
             return Response({"available":False},status=status.HTTP_200_OK)
         else:
             return Response({"available":True},status=status.HTTP_200_OK)
-    elif(valid_type == 'email' and request.data.get('email')):
-        if Account.objects.filter(email=request.data.get('email')).exists():
+    elif(valid_type == 'email' and request.data.get('email') != None):
+        email = request.data.get('email')
+        try:
+            validate_email(email)
+        except ValidationError as e:
             return Response({"available":False},status=status.HTTP_200_OK)
         else:
+            if Account.objects.filter(email=email).exists():
+                return Response({"available":False},status=status.HTTP_200_OK)
+            else:
+                return Response({"available":True},status=status.HTTP_200_OK)
+    elif(valid_type == 'password' and request.data.get('password') != None):
+        password = request.data.get('password')
+        if(len(password) >= 8 and password != password.lower()):
             return Response({"available":True},status=status.HTTP_200_OK)
+        else:
+            return Response({"available":False},status=status.HTTP_200_OK)
     else:
         return Response(status=status.HTTP_400_BAD_REQUEST)
 
