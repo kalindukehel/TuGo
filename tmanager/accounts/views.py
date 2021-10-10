@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag
+from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag, Requester
 from rest_framework import viewsets, permissions
 from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, PrivatePostSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer, TagSerializer
 from rest_framework.decorators import action, api_view, permission_classes
@@ -90,10 +90,16 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'])
     def details(self,request,*args,**kwargs):
+        you_follow = Follower.objects.filter(follower=request.user,following=self.get_object()).exists()
+        follows_you = Follower.objects.filter(follower=self.get_object(),following=request.user).exists()
+        requested = Requester.objects.filter(requester=request.user,to_request=self.get_object()).exists()
         return Response({
             'posts': self.get_object().posts.count(),
             'followers': self.get_object().followers.count(),
-            'following': self.get_object().following.count()
+            'following': self.get_object().following.count(),
+            'follows_you': follows_you,
+            'you_follow': you_follow,
+            'requested': requested
         })
     
     @action(detail=False, methods=['GET','POST'])
