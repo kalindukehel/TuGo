@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag
+from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag, Requester
 from rest_framework import viewsets, permissions
 from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, PrivatePostSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer, TagSerializer
 from rest_framework.decorators import action, api_view, permission_classes
@@ -9,7 +9,7 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from rest_framework import status
 from django.contrib.auth import authenticate
-from django.db.models import Q
+from django.db.models import Q, Count
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from copy import deepcopy
@@ -17,7 +17,7 @@ from django_pandas.io import read_frame
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
-from datetime import datetime, date, timezone
+from datetime import datetime, date, timezone, timedelta
 import requests
 import json
 
@@ -90,10 +90,16 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'])
     def details(self,request,*args,**kwargs):
+        you_follow = Follower.objects.filter(follower=request.user,following=self.get_object()).exists()
+        follows_you = Follower.objects.filter(follower=self.get_object(),following=request.user).exists()
+        requested = Requester.objects.filter(requester=request.user,to_request=self.get_object()).exists()
         return Response({
             'posts': self.get_object().posts.count(),
             'followers': self.get_object().followers.count(),
-            'following': self.get_object().following.count()
+            'following': self.get_object().following.count(),
+            'follows_you': follows_you,
+            'you_follow': you_follow,
+            'requested': requested
         })
     
     @action(detail=False, methods=['GET','POST'])
@@ -479,6 +485,14 @@ class PostViewSet(viewsets.ModelViewSet):
         #Shows posts user has liked
         liked = request.user.liked.all().order_by('-id')
         serializer = LikeSerializer(liked,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['GET'], serializer_class=PrivatePostSerializer)
+    def trending_posts(self, request, *args, **kwargs):
+        #Shows posts in the last 5 days with most likes
+        month = datetime.now() - timedelta(days=5)
+        trending = Post.objects.filter(created_at__gt=month).order_by('-id').annotate(num_likes=Count('likes')).order_by('-num_likes')[:5]
+        serializer = PrivatePostSerializer(trending,many=True)
         return Response(serializer.data)
 
     @action(detail=False, methods=['POST'], serializer_class=PostSerializer)
