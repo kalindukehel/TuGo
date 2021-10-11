@@ -107,10 +107,6 @@ const PlayerWidget = () => {
     directionalOffsetThreshold: 20,
   };
 
-  useEffect(() => {
-    console.log(xy.y)
-  }, [xy.y]);
-
   if (!show) return <></>;
   return (
     <GestureRecognizer

@@ -227,7 +227,7 @@ const SongsTabView = (props) => {
         </View>
       ) : (
         <FlatList
-          keyboardDismissMode="on-drag"
+          keyboardDismissMode="interactive"
           style={{}}
           data={results}
           renderItem={renderSuggestion}

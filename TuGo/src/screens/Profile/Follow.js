@@ -62,7 +62,7 @@ const styles = StyleSheet.create({
   },
   followElement: {
     flex: 1,
-    padding: 15,
+    padding: 8,
   },
 });
 
@@ -259,20 +259,6 @@ const Followers = (props) => {
     );
   };
 
-  const ItemSeparatorView = () => {
-    return (
-      // Flat List Item Separator
-      <View
-        style={{
-          height: 0.8,
-          width: "90%",
-          backgroundColor: "#C8C8C8",
-          alignSelf: "center",
-        }}
-      />
-    );
-  };
-
   // const header = () => (
   //   <TextInput
   //     keyboardAppearance={appTheme}
@@ -308,7 +294,6 @@ const Followers = (props) => {
             tintColor={Colors.FG}
           />
         }
-        ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode={"on-drag"}
         // ListHeaderComponent={header}

@@ -42,7 +42,6 @@ const PostMessage = ({ message, navigation }) => {
   const isMyMessage = () => {
     return message.user.id == self.id;
   };
-  if (post) console.log(post.album_cover)
   return (
     <View
       style={{

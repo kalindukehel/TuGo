@@ -64,8 +64,9 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
       //get users from aws database
       try {
         const allUsersData = await viewableUsersAPI(userToken)
-        setSuggestionList(allUsersData.data);
-        setReceiverList(allUsersData.data)
+        const filteredList = allUsersData.data.filter(item => item.id !== self.id)
+        setSuggestionList(filteredList);
+        setReceiverList(filteredList)
       } catch (e) {
         console.log(e);
       }

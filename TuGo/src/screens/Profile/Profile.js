@@ -117,7 +117,7 @@ const Profile = (props) => {
   const [postsLength, setPostsLength] = useState(0);
   const [refreshing, setRefreshing] = useState(false);
   const [user, setUser] = useState(null);
-  const [error, setError] = useState(200);
+  const [isViewable, setIsViewable] = useState(false)
   const [isFollowing, setIsFollowing] = useState(false);
   const firstRun = useRef(true);
   const [offset, setOffset] = useState(0);
@@ -168,12 +168,13 @@ const Profile = (props) => {
     //Update user data from API
     const userState = await getAccountByIdAPI(profileId, userToken);
     setUser(userState.data);
+    setIsViewable(userState.data.isViewable)
     const userInfo = await getUserInfoAPI(userToken, profileId);
     try {
       const postsState = await getPostsAPI(userToken, profileId);
       setPosts(postsState.data);
     } catch (err) {
-      setError(err.response.status);
+      console.log(err)
     }
     //Update follow status
     checkFollow();
@@ -421,7 +422,7 @@ const Profile = (props) => {
           }}
         >
           <TouchableOpacity
-            disabled={error === 403}
+            disabled={!isViewable}
             onPress={() => {
               navigation.push("Following", {
                 id: profileId,
@@ -441,7 +442,7 @@ const Profile = (props) => {
             </Text>
           </View>
           <TouchableOpacity
-            disabled={error == 403}
+            disabled={!isViewable}
             onPress={() => {
               navigation.push("Followers", {
                 id: profileId,
@@ -497,7 +498,7 @@ const Profile = (props) => {
 
   const getFooter = () => {
     return (
-      error === 403 && (
+      !isViewable && (
         <Text
           style={{
             color: Colors.text,

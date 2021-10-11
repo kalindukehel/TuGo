@@ -1,25 +1,30 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   KeyboardAvoidingView,
   StyleSheet,
   View,
   TouchableOpacity,
   Text,
-  Button,
+  Dimensions,
   TextInput,
   Keyboard,
   TouchableWithoutFeedback,
   ActivityIndicator,
   SafeAreaView,
+  Linking
 } from "react-native";
 import { signUp as signUpAPI, 
 signIn as SignInApi,
 isValidEmail as isValidEmailAPI,
-isValidUsername as isValidUsernameAPI } from "../api";
+isValidUsername as isValidUsernameAPI,
+isValidPassword as isValidPasswordAPI } from "../api";
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
 import { Colors, appTheme } from "../../constants";
 import { AntDesign } from '@expo/vector-icons';
+import * as Haptics from "expo-haptics";
+
+let {width, height} = Dimensions.get('window')
 
 const styles = StyleSheet.create({
   container: {
@@ -60,14 +65,18 @@ const styles = StyleSheet.create({
 
 const SignIn = ({ navigation }) => {
   const dispatch = useAuthDispatch();
-  const [username, setUsername] = useState(null);
-  const [password, setPassword] = useState(null);
-  const [name, setName] = useState(null);
-  const [email, setEmail] = useState(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
   const [loading, setLoading] = useState(false);
   const [usernameCheck, setUsernameCheck] = useState(true);
   const [emailCheck, setEmailCheck] = useState(true);
+  const [passwordCheck, setPasswordCheck] = useState(true);
   const [enabled, setEnabled] = useState(true)
+
+  const refRBSheet1 = useRef();
+  const refRBSheet2 = useRef();
 
   useEffect(() => {
     setEnabled(usernameCheck && emailCheck && name && password && username && email)
@@ -96,29 +105,52 @@ const SignIn = ({ navigation }) => {
     setLoading(false)
   }
 
+  useEffect(()=>{
+    onChangeEmail('')
+    onChangeUsername('')
+    onChangePassword('')
+  },[])
+
   const onChangeEmail = async (text) => {
-    if (text != self.email){
       setEmail(text)
       const res = await isValidEmailAPI(text)
+      console.log("email")
       setEmailCheck(res.data.available)
-    }
-    else {
-      setEmail(text)
-      setEmailCheck(true)
-    }
   }
   
   const onChangeUsername = async (text) => {
-    if(text != self.username){
       setUsername(text)
       const res = await isValidUsernameAPI(text)
+      console.log("username")
       setUsernameCheck(res.data.available)
-    } 
-    else{
-      setUsername(text)
-      setUsernameCheck(true)
-    }
   }
+
+  const onChangePassword = async (text) => {
+    setPassword(text)
+    console.log('password is: ', text)
+    const res = await isValidPasswordAPI(text)
+    console.log('password')
+    setPasswordCheck(res.data.available)
+}
+
+  const OpenURLButton = ({ url, children }) => {
+    const handlePress = React.useCallback(async () => {
+      // Checking if the link is supported for links with custom URL scheme.
+      const supported = await Linking.canOpenURL(url);
+
+      if (supported) {
+        // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+        // by some browser in the mobile
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(`Don't know how to open this URL: ${url}`);
+      }
+    }, [url]);
+
+    return (
+      <TouchableOpacity onPress={handlePress}><Text style={{color: Colors.primary}}>{children}</Text></TouchableOpacity>
+    );
+  };
 
   return (
     <KeyboardAvoidingView
@@ -155,7 +187,7 @@ const SignIn = ({ navigation }) => {
                 blurOnSubmit={false}
                 style={styles.input}
               />        
-              {usernameCheck === true ? 
+              {username === '' ? null : usernameCheck === true ? 
                 <AntDesign name="checkcircle" size={20} color={"black"} /> : 
                 <AntDesign name="closecircle" size={20} color={"black"} />}
             </View>
@@ -172,35 +204,53 @@ const SignIn = ({ navigation }) => {
                 blurOnSubmit={false}
                 style={styles.input}
               />        
-              {emailCheck === true ? 
+              {email === '' ? null : emailCheck === true ? 
                 <AntDesign name="checkcircle" size={20} color={"black"} /> : 
                 <AntDesign name="closecircle" size={20} color={"black"} />}
             </View>
-            
-            <TextInput
-              keyboardAppearance={appTheme}
-              onChangeText={(password) => setPassword(password)}
-              placeholder="Enter Password"
-              keyboardType="default"
-              returnKeyType="done"
-              onSubmitEditing={Keyboard.dismiss}
-              blurOnSubmit={false}
-              secureTextEntry={true}
-              style={styles.input}
-            />
-            <TouchableOpacity
-              disabled={!enabled}
-              style={
-                enabled
-                  ? { ...styles.button, backgroundColor: Colors.primary }
-                  : { ...styles.button, backgroundColor: Colors.gray }
-              }
-              onPress={() => {
-                if (enabled) {
-                  signup();
+            <View style={{flexDirection: 'row', alignItems: 'center',}}>
+              <TextInput
+                keyboardAppearance={appTheme}
+                onChangeText={onChangePassword}
+                placeholder="Enter Password"
+                keyboardType="default"
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+                blurOnSubmit={false}
+                secureTextEntry={true}
+                style={styles.input}
+              />
+                {password === '' ? null : passwordCheck === true ? 
+                  <AntDesign name="checkcircle" size={20} color={"black"} /> : 
+                  <TouchableWithoutFeedback 
+                    onPress={()=>{
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      alert('At least 8 characters\nAt least 1 capital letter')  
+                    }}
+                  >
+                    <View style={{}}>
+                      <AntDesign name="exclamationcircle" size={20} color={'black'} />
+                    </View>
+                  </TouchableWithoutFeedback>}
+            </View>
+              <Text style={{textAlign: 'center', color: 'gray'}}>By signing up, you agree to our
+                <OpenURLButton url={"https://www.youtube.com/t/terms"}>Youtube Terms of Service</OpenURLButton>
+                <Text>    </Text>
+                <OpenURLButton url={"https://policies.google.com/privacy"}>Google Privacy policy</OpenURLButton>
+              </Text>
+              <TouchableOpacity
+                disabled={!enabled}
+                style={
+                  enabled
+                    ? { ...styles.button, backgroundColor: Colors.primary }
+                    : { ...styles.button, backgroundColor: Colors.gray }
                 }
-              }}
-            >
+                onPress={() => {
+                  if (enabled) {
+                    signup();
+                  }
+                }}
+              >
               {loading ? (
                 <ActivityIndicator
                   animating={true}

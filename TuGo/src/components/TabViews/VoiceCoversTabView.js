@@ -22,11 +22,7 @@ const VoiceCoversTabView = (props) => {
   const [selectedVideos, setSelectedVideos] = useState(
     parentSelected ? parentSelected : new Set()
   );
-
-  useEffect(() => {
-    console.log(parentSelected);
-    console.log(selectedVideos);
-  }, []);
+  
   useEffect(() => {
     let isLoaded = true;
 

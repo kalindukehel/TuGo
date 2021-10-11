@@ -76,7 +76,6 @@ const CreatePost = ({ navigation }) => {
 
   //When user enters their search term, perform search
   const handleResults = async (search) => {
-    console.log(search);
     if (search != "") {
       setLoading(true);
       let response = await typeSongAheadSearchAPI(search);

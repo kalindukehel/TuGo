@@ -171,9 +171,6 @@ const PostComponent = ({
 
   useEffect(() => {
     let isMounted = true;
-    async function getPostStates() {
-      console.log(isMounted);
-    }
     async function onRefresh() {
       if (isMounted) {
         try {

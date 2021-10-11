@@ -17,6 +17,7 @@ import {
   PanGestureHandler,
   PanGestureHandlerGestureEvent,
   State,
+  TouchableWithoutFeedback,
 } from "react-native-gesture-handler";
 import Icon from "react-native-vector-icons/MaterialCommunityIcons";
 import { useAuthState } from "../../context/authContext";
@@ -36,7 +37,7 @@ import { listUsers } from "../../graphql/queries";
 import WebView from "react-native-webview";
 
 //icons
-import { Foundation, Feather } from "@expo/vector-icons";
+import { Foundation, Feather, AntDesign } from "@expo/vector-icons";
 import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
@@ -45,11 +46,9 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
   const insets = useSafeAreaInsets();
 
   const { userToken, self } = useAuthState();
-  const [query, setQuery] = useState("");
-  const [message, setMessage] = useState("");
   const [showFull, setShowFull] = useState(false);
-  const [suggestionlist, setSuggestionList] = useState([]);
-  const [receiverList, setReceiverList] = useState([]);
+  const [scrollEnable, setScrollEnable] = useState(false)
+  const [webViewY, setWebViewY] = useState(0)
   const _bottomSheetOffsetY = React.useMemo(() => new Animated.Value(0), []);
   const _bottomSheetAnim = React.useMemo(() => new Animated.Value(0), []);
   let WebViewRef;
@@ -123,6 +122,7 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
             useNativeDriver: true,
           }).start();
           setShowFull(true);
+          setScrollEnable(true)
           ref.current.preOffsetY = -height * 0.4 + STATUS_BAR_HEIGHT;
         } else {
           Animated.timing(_bottomSheetAnim, {
@@ -135,6 +135,7 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
             useNativeDriver: true,
           }).start();
           setShowFull(false);
+          setScrollEnable(false)
           ref.current.preOffsetY = 0;
           Keyboard.dismiss();
         }
@@ -153,33 +154,7 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
       }
     }
   };
-  const _onTxtInputFocus = () => {
-    Animated.timing(_bottomSheetAnim, {
-      toValue: 1,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-    setShowFull(true);
-    Animated.timing(_bottomSheetOffsetY, {
-      duration: 200,
-      toValue: -height * 0.4 + STATUS_BAR_HEIGHT,
-      useNativeDriver: true,
-    }).start();
-    ref.current.preOffsetY = -height * 0.4 + STATUS_BAR_HEIGHT;
-  };
-  const _onTxtInputBlur = () => {
-    Animated.timing(_bottomSheetAnim, {
-      toValue: 0,
-      duration: 200,
-      useNativeDriver: true,
-    }).start();
-    ref.current.preOffsetY = 0;
-    Animated.spring(_bottomSheetOffsetY, {
-      toValue: 0,
-      useNativeDriver: true,
-    }).start();
-  };
-
+  console.log(webViewY)
   return (
     <SafeAreaView>
       <TouchableOpacity
@@ -257,12 +232,17 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
                 </View>
                 <WebView
                     ref={(WEBVIEW_REF) => (WebViewRef = WEBVIEW_REF)}
-                    scrollEnabled={false}
+                    scrollEnabled={scrollEnable}
                     javaScriptEnabled={true}
                     domStorageEnabled={true}
                     allowsInlineMediaPlayback={true}
                     source={{ uri: url }}
-                />
+                    onScroll={syntheticEvent => {
+                      const { contentOffset } = syntheticEvent.nativeEvent
+                      setScrollEnable( showFull && webViewY === 0 && contentOffset.y < webViewY ? false : true)
+                    }}
+                >
+                </WebView>
                 </View>
             </View>
         </Animated.View>
