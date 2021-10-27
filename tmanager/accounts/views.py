@@ -75,7 +75,7 @@ class AccountViewSet(viewsets.ModelViewSet):
     
     @action(detail=False, methods=['GET'], serializer_class=AccountSerializer)
     def viewable_users(self,request,*args,**kwargs):
-        following_list = request.user.following.values_list('following',flat=True)
+        following_list = set(request.user.following.values_list('following',flat=True))
         user_list = Account.objects.filter(Q(is_private=False) | Q(id__in=following_list))
         serialized = PrivateAccountSerializer(user_list,many=True)
         return Response(serialized.data)
@@ -397,6 +397,9 @@ class PostViewSet(viewsets.ModelViewSet):
             tile_type = request.data.get('tile_type')
             if(tile_type not in ['posted_cover', 'posted_choreo', 'suggested_cover', 'suggested_choreo']):
                 return Response({"detail":"Invalid tile type."},status=status.HTTP_400_BAD_REQUEST)
+            tile_len = len(self.get_object().tiles.all())
+            if(tile_len >= 9):
+                return Response({"detail":"You can only have a maximum of 9 tiles."},status=status.HTTP_400_BAD_REQUEST)
             is_youtube = request.data.get('is_youtube')
             youtube_link = request.data.get('youtube_link')
             image = request.data.get('image')
@@ -501,7 +504,8 @@ class PostViewSet(viewsets.ModelViewSet):
         if(search_query == ""):
             return Response([])
         #Filters posts by if song name or artist contains search query
-        post_list = Post.objects.filter(Q(song_name__contains=search_query) | Q(song_artist__contains=search_query))
+        following_list = set(request.user.following.values_list('following',flat=True))
+        post_list = Post.objects.filter(Q(song_name__contains=search_query) | Q(song_artist__contains=search_query) & (Q(author__is_private=False) | Q(author__in=following_list)))
         serialized = PostSerializer(post_list,many=True)
         return Response(serialized.data)
 
