@@ -190,6 +190,19 @@ class AccountViewSet(viewsets.ModelViewSet):
             return Response(status=HTTP_403_FORBIDDEN)
 
     @action(detail=True, methods=['GET'])
+    def mutual(self,request,*args,**kwargs):
+        # get current users friends (assuming guid is unique for a friend?)
+        user_friend_guids = request.user.following.values_list('following',flat=True)
+        print(len(user_friend_guids))
+        # # get Friend objects where user not current user, is in user_friend_list, group and count by user
+        mutual_friends = self.get_object().followers \
+                                    .filter(follower_id__in=user_friend_guids).exclude(follower_id=self.get_object()) \
+                                    .annotate(number_mutual_friends=Count('follower_id')) \
+                                    .order_by('-number_mutual_friends')
+        serializer = FollowerSerializer(mutual_friends,many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['GET'])
     def posts(self,request,*args,**kwargs):
         if(self.get_object().is_private == False or
         self.get_object().followers.filter(follower=self.request.user).exists() or
@@ -494,7 +507,7 @@ class PostViewSet(viewsets.ModelViewSet):
     def trending_posts(self, request, *args, **kwargs):
         #Shows posts in the last 5 days with most likes
         month = datetime.now() - timedelta(days=5)
-        trending = Post.objects.filter(created_at__gt=month).order_by('-id').annotate(num_likes=Count('likes')).order_by('-num_likes')[:5]
+        trending = Post.objects.filter(created_at__gt=month).filter(author__is_private=False).order_by('-id').annotate(num_likes=Count('likes')).order_by('-num_likes')[:10]
         serializer = PrivatePostSerializer(trending,many=True)
         return Response(serializer.data)
 
@@ -502,10 +515,15 @@ class PostViewSet(viewsets.ModelViewSet):
     def search_by_post(self,request,*args,**kwargs):
         search_query = self.request.data.get('search_query')
         if(search_query == ""):
-            return Response([])
+            #Shows posts in the last 5 days with most likes
+            month = datetime.now() - timedelta(days=5)
+            trending = Post.objects.filter(created_at__gt=month).filter(author__is_private=False).order_by('-id').annotate(num_likes=Count('likes')).order_by('-num_likes')[:10]
+            serializer = PostSerializer(trending,many=True)
+            return Response(serializer.data)
         #Filters posts by if song name or artist contains search query
         following_list = set(request.user.following.values_list('following',flat=True))
-        post_list = Post.objects.filter(Q(song_name__contains=search_query) | Q(song_artist__contains=search_query) & (Q(author__is_private=False) | Q(author__in=following_list)))
+        print(following_list)
+        post_list = Post.objects.filter((Q(song_name__contains=search_query) | Q(song_artist__contains=search_query)) & (Q(author__is_private=False) | Q(author__in=following_list)))
         serialized = PostSerializer(post_list,many=True)
         return Response(serialized.data)
 
