@@ -1,5 +1,4 @@
 export const tilePlayerReducer = (prevState, action) => {
-  console.log(action.type)
     switch (action.type) {
       case "SHOW_TILE":
         return {

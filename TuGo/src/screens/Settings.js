@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
   Switch,
   StyleSheet,
   ScrollView,
@@ -21,7 +21,7 @@ import { Auth, API, graphqlOperation } from "aws-amplify";
 import { updateUser } from "../graphql/mutations";
 
 /*Images*/
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, FontAwesome, AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 const Settings = ({ navigation }) => {
@@ -49,8 +49,8 @@ const Settings = ({ navigation }) => {
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
         <Text style={styles.heading}>Account</Text>
-        <View style={{ margin: 10 }}>
-          <View style={styles.titleBreak} />
+        <View style={{ margin: 20 }}>
+          {/* <View style={styles.titleBreak} />
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <MaterialCommunityIcons
               name="account-settings"
@@ -58,21 +58,26 @@ const Settings = ({ navigation }) => {
               color={Colors.FG}
             />
             <Text style={styles.title}>Profile Settings</Text>
-          </View>
-          <View style={styles.titleBreak} />
+          </View> */}
+          {/* <View style={styles.titleBreak} /> */}
+          <TouchableWithoutFeedback 
+            onPress={() => {
+              navigation.push("Liked")}}
+            >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <FontAwesome5 name="fire" size={24} color={"red"} />
             <Text style={styles.title}>Liked Posts</Text>
           </View>
-          <View style={styles.titleBreak} />
+          </TouchableWithoutFeedback>
+          {/* <View style={styles.titleBreak} /> */}
         </View>
       </View>
 
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
         <Text style={styles.heading}>Privacy</Text>
-        <View style={{ margin: 10 }}>
-          <View style={styles.titleBreak} />
+        <View style={{ margin: 20 }}>
+          {/* <View style={styles.titleBreak} />
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <MaterialCommunityIcons
               name="eye-settings"
@@ -82,33 +87,33 @@ const Settings = ({ navigation }) => {
             <Text style={styles.title}>
               Manage who can view your profile and content
             </Text>
-          </View>
-          <View style={styles.titleBreak} />
+          </View> */}
+          {/* <View style={styles.titleBreak} /> */}
           <View
             style={{
-              flex: 1,
-              flexDirection: "row",
-              maxHeight: 40,
-              alignItems: "center",
-              justifyContent: "space-between",
+              flexDirection: "row", alignItems: "center" 
             }}
           >
-            <Text style={{ marginRight: 5, color: Colors.text }}>
+            <FontAwesome name="lock" size={24} color={Colors.FG} />
+            <Text style={styles.title}>
               Private Account
             </Text>
-            <Switch
-              value={isPrivate}
-              onValueChange={() => {
-                toggleAccountVisilibity();
-              }}
-            />
+            <View style={{ flex: 1, justifyContent: 'flex-end', flexDirection: 'row'}}>
+              <Switch
+                style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
+                value={isPrivate}
+                onValueChange={() => {
+                  toggleAccountVisilibity();
+                }}
+              />
+            </View>
           </View>
-          <View style={styles.titleBreak} />
+          {/* <View style={styles.titleBreak} /> */}
         </View>
       </View>
 
       {/* setting block */}
-      <View style={{ marginTop: 15, marginHorizontal: 10 }}>
+      {/* <View style={{ marginTop: 15, marginHorizontal: 10 }}>
         <Text style={styles.heading}>Search History</Text>
         <View style={{ margin: 10 }}>
           <View style={styles.titleBreak} />
@@ -122,22 +127,26 @@ const Settings = ({ navigation }) => {
           </View>
           <View style={styles.titleBreak} />
         </View>
-      </View>
+      </View> */}
 
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>Language</Text>
-        <View style={{ margin: 10 }}>
-          <View style={styles.titleBreak} />
+        <Text style={styles.heading}>About</Text>
+        <View style={{ margin: 20 }}>
+          {/* <View style={styles.titleBreak} /> */}
+          <TouchableWithoutFeedback 
+            onPress={() => {
+              navigation.push("Policies")}}
+            >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <MaterialIcons name="language" size={24} color={Colors.FG} />
-            <Text style={styles.title}>Choose your primary Language</Text>
+          <AntDesign name="infocirlce" size={24} color={Colors.FG} />
+            <Text style={styles.title}>Terms of use and privacy policy</Text>
           </View>
-          <View style={styles.titleBreak} />
+          </TouchableWithoutFeedback>
+          {/* <View style={styles.titleBreak} /> */}
         </View>
       </View>
-      <TouchableOpacity
-        style={styles.logout}
+      <TouchableWithoutFeedback
         onPress={async () => {
           setLoading(true)
           onSignOut();
@@ -159,17 +168,19 @@ const Settings = ({ navigation }) => {
           }
           setLoading(false)
         }}
-      >              
-      {loading ? (
-        <ActivityIndicator
-          animating={true}
-          size="small"
-          color={Colors.complimentText}
-        />
-      ) : (
-        <Text style={{ color: Colors.complimentText }}>Logout</Text>
-      )}
-      </TouchableOpacity>
+      >    
+      <View style={styles.logout}>
+        {loading ? (
+          <ActivityIndicator
+            animating={true}
+            size="small"
+            color={Colors.complimentText}
+          />
+        ) : (
+          <Text style={{ color: Colors.complimentText }}>Logout</Text>
+        )}
+      </View>          
+      </TouchableWithoutFeedback>
     </ScrollView>
   );
 };
@@ -187,7 +198,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: Colors.gray,
-    marginBottom: 15
+    marginVertical: 15,
   },
   heading: {
     fontWeight: "bold",

@@ -59,7 +59,6 @@ const Chart = (props) => {
         chartName: imageRes.data.playlists[0].name,
       });
       const tracksRes = await getChartTracksAPI(chart);
-      console.log(tracksRes.data.tracks.length)
       setChartData(tracksRes.data.tracks);
       setFilteredData(tracksRes.data.tracks);
       setMasterData(tracksRes.data.tracks);

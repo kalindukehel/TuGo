@@ -208,6 +208,25 @@ export async function addTag(token, id, data) {
   });
 }
 
+export async function userLikes(token) {
+  return axios.get(`${API_URL}/api/posts/liked/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function searchPosts(token, query) {
+  const data = {
+    search_query: query
+  }
+  return axios.post(`${API_URL}/api/posts/search_by_post/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function getUserInfo(token, id) {
   return axios.get(`${API_URL}/api/accounts/${id}/details/`, {
     headers: {
@@ -467,6 +486,19 @@ export async function isValidUsername(username) {
     {
       type: "username",
       username: username
+    }  
+    , {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+export async function isValidPassword(password) {
+  return axios.post(`${API_URL}/valid/`, 
+    {
+      type: "password",
+      password: password
     }  
     , {
     headers: {

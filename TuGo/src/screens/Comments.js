@@ -144,7 +144,6 @@ const Comments = (props) => {
               one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())
             )
             .map((one) => {
-              console.log(one);
               return (
                 <TouchableWithoutFeedback
                   key={one.id}
@@ -274,7 +273,6 @@ const Comments = (props) => {
       (accounts) => accounts.id == item.author
     );
     const isSelf = self.id === item.author;
-    console.log(isSelf)
     const { parts } = parseValue(item.value, [
       {
         trigger: "@",

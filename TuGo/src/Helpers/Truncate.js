@@ -6,7 +6,6 @@ import { MaterialIcons } from '@expo/vector-icons';
 
 export const Ticker = (props) => {
   const { string, maxLength, style, isExplicit } = props;
-  console.log(isExplicit)
   return (
     <View style={{flexDirection: 'row', alignItems: 'center'}}>
       <TextTicker

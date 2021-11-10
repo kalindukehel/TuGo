@@ -40,7 +40,6 @@ const DanceChoreosTabView = (props) => {
           };
         }
       );
-      console.log(res);
       if (isLoaded) setDanceChoreos(res);
     };
     loadDanceChoreos();

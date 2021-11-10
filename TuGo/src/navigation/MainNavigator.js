@@ -192,7 +192,7 @@ const MainNavigator = () => {
             iconName = focused ? "md-home" : "md-home";
           } else if (route.name === "Profile") {
             return (
-              <Image
+              self && <Image
                 source={{ uri: self.profile_picture }}
                 style={{
                   width: 20,

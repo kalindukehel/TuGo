@@ -46,7 +46,6 @@ const EditProfile = (props) => {
 
   useEffect(() => {
     if(username !== self.username || email !== self.email || name !== self.name || image !== self.profile_picture) {
-      console.log((usernameCheck && emailCheck))
       setEnabled((usernameCheck && emailCheck) && name)
     }
     else{
@@ -205,7 +204,7 @@ const EditProfile = (props) => {
         <TouchableWithoutFeedback 
           onPress={()=>{
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-            alert('Username is taken')  
+            alert(username === "" ? 'Username cannot be empty' : 'Username is taken')  
           }}
         >
           <View style={{position: 'absolute', right: '5%'}}>

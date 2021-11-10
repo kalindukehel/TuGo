@@ -192,9 +192,12 @@ const SongBlock = (props) => {
       console.log(error);
     }
   }
+  // if (post.isViewable === false) {
+  //   console.log(false)
+  // }
 
   return (
-    post && (
+    post && post.isViewable === true && (
       <ImageBackground 
         style={{
           height: '100%', 

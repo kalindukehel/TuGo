@@ -140,7 +140,7 @@ const ChatListItem = (props) => {
             moment(chatRoom.lastMessage.updatedAt).fromNow()}
           </Text>
           {!seen &&
-          <View style={{flex: 1, justifyContent: 'center', alignItems: "center"}}>
+          <View style={{flex: 1, justifyContent: 'center', alignItems: "flex-end"}}>
             <MaterialCommunityIcons name="chat" size={20} color={Colors.primary} />
           </View> }
         </View>
