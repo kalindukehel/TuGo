@@ -24,7 +24,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   searchUsers as searchUsersAPI,
   getAccounts as getAccountsAPI,
-  viewableUsers as viewableUsersAPI
+  viewableUsers as viewableUsersAPI,
+  pushNotification as pushNotificationAPI
 } from "../../api";
 import { API, graphqlOperation } from "aws-amplify";
 import {
@@ -33,7 +34,7 @@ import {
   createMessage,
   updateChatRoom,
 } from "../../graphql/mutations";
-import { getUser } from "../Direct/queries";
+import { getChatRoom, getUser } from "../Direct/queries";
 import { listUsers } from "../../graphql/queries";
 
 //icons
@@ -449,11 +450,32 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             type: "POST",
             seen: 0,
           };
+
+          // get receiver's push token
+          const chatRoomData = await API.graphql(
+            graphqlOperation( getChatRoom, {
+              id: existingChatRoomId
+            })
+          );
+          
+          let allUsersInChatRoom = chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(user => user.user.id != self.id)
+          const pushTokenReceiver = allUsersInChatRoom.length > 0 ? allUsersInChatRoom[0].user.expoPushToken : null
+
           let newMessageData = await API.graphql(
             graphqlOperation(createMessage, {
               input: msg,
             })
           );
+
+          //send push notification for post
+          if (pushTokenReceiver !== null){
+            const notifRes = await pushNotificationAPI(
+              pushTokenReceiver,
+              {creator: self.username},
+              "post"
+            );
+          }
+
           if (message != "") {
             newMessageData = await API.graphql(
               graphqlOperation(createMessage, {
@@ -466,6 +488,15 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
                 },
               })
             );
+
+            //send push notification for message
+            if (pushTokenReceiver !== null){
+              const notifRes = await pushNotificationAPI(
+                pushTokenReceiver,
+                {creator: self.username, content: message},
+                "message"
+              );
+            }
           }
           //update lastMessage and seen list
           let seen = []
@@ -481,7 +512,6 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           );
 
         } else {
-          console.log('creating) 1')
           //1. Create a new Chat Room
           const newChatRoomData = await API.graphql(
             graphqlOperation(createChatRoom, {
@@ -491,7 +521,6 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
               },
             })
           );
-          console.log('after create')
 
           if (!newChatRoomData.data) {
             // Failed to create a chat room
@@ -499,9 +528,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           }
 
           const newChatRoom = newChatRoomData.data.createChatRoom;
-          console.log(newChatRoom)
           // 2. Add `user` to the Chat Room
-          console.log('add user to room', user.id)
           await API.graphql(
             graphqlOperation(createChatRoomUser, {
               input: {
@@ -512,7 +539,6 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           );
 
           //  3. Add authenticated user to the Chat Room
-          console.log('add auth user', self.id)
           await API.graphql(
             graphqlOperation(createChatRoomUser, {
               input: {
@@ -521,6 +547,16 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
               },
             })
           );
+          // get receiver's push token
+          const chatRoomData = await API.graphql(
+            graphqlOperation( getChatRoom, {
+              id: newChatRoom.id
+            })
+          );
+          
+          let allUsersInChatRoom = chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(user => user.user.id != self.id)
+          const pushTokenReceiver = allUsersInChatRoom.length > 0 ? allUsersInChatRoom[0].user.expoPushToken : null
+
           const msg = {
             content: shareItem.id,
             userID: self.id,
@@ -528,25 +564,42 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             type: "POST",
             seen: 0,
           };
-          console.log('before create msg)')
           let newMessageData = await API.graphql(
             graphqlOperation(createMessage, {
               input: msg,
             })
           );
-          console.log('after create msg)')
+
+          //send push notification for post
+          if (pushTokenReceiver !== null){
+            const notifRes = await pushNotificationAPI(
+              pushTokenReceiver,
+              {creator: self.username},
+              "post"
+            );
+          }
+
           if (message != "") {
             newMessageData = await API.graphql(
               graphqlOperation(createMessage, {
                 input: {
                   content: message,
                   userID: self.id,
-                  chatRoomID: existingChatRoomId,
+                  chatRoomID: newChatRoom.id,
                   type: "TEXT",
                   seen: 0,
                 },
               })
             );
+
+            //send push notification for message
+            if (pushTokenReceiver !== null){
+              const notifRes = await pushNotificationAPI(
+                pushTokenReceiver,
+                {creator: self.username, content: message},
+                "message"
+              );
+            }
           }
           await API.graphql(
             graphqlOperation(updateChatRoom, {

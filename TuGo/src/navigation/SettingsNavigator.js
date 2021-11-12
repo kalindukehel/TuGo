@@ -4,6 +4,7 @@ import Settings from "../screens/Settings";
 import Liked from "../screens/Liked";
 import Policies from "../screens/Policies";
 import { useAuthState } from "../context/authContext";
+import {Colors} from "../../constants"
 
 const Stack = createStackNavigator();
 
@@ -32,6 +33,9 @@ const SettingsNavigator = () => {
           transitionSpec: {
             open: config,
             close: config,
+          },
+          gestureResponseDistance: {
+            horizontal: 300,
           },
         }}
       />

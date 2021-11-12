@@ -129,45 +129,27 @@ const PostComponent = ({
   const postRef = useRef();
   const playingIdRef = useRef();
   const tilesRef = useRef();
-  const tileWidth = width * 0.9;
-  const firstRun = useRef(true);
 
-  let WebViewRef = [];
 
-  // async function getPostStates() {
-  //   //Update post data from API
-  //   const postRes = await getPostByIdAPI(userToken, postId);
-  //   setPost(postRes.data);
-  //   postRef.current = postRes.data;
-  //   const likesRes = await getPostLikesAPI(userToken, postId);
-  //   setLikes(likesRes.data);
-  //   const commentsRes = await getPostCommentsAPI(userToken, postId);
-  //   setComments(commentsRes.data);
-  //   const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
-  //   setAuthor(authorRes.data);
+  async function getTileStates(){
+    const tilesRes = await getPostTilesAPI(userToken, postId);
+    setTiles(tilesRes.data);
+  }
 
-  //   //waiting for tiles to load
-  //   setTileLoading(true);
-  //   const tilesRes = await getPostTilesAPI(userToken, postId);
-  //   setTiles(tilesRes.data);
-  //   setTileLoading(false);
+  async function getCommentStates(){
+    const commentsRes = await getPostCommentsAPI(userToken, postId);
+    setComments(commentsRes.data);
+  }
 
-  //   const favRes = await getPostFavoriteAPI(userToken, postId);
-  //   setIsFavorite(favRes.data.favorited);
-  //   const postsState = await getPostsAPI(userToken, self.id);
-  //   const postIds = postsState.data.map((item) => item.id);
-  //   setIsSelf(postIds.includes(postRes.data.id));
-  // }
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // The screen is focused
+      getCommentStates()
+    });
 
-  const onRefresh = async () => {
-    try {
-      setRefreshing(true);
-      await getPostStates();
-      setRefreshing(false);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     let isMounted = true;
@@ -179,6 +161,7 @@ const PostComponent = ({
           const postRes = await getPostByIdAPI(userToken, postId);
           isMounted && setPost(postRes.data);
           postRef.current = postRes.data;
+          isMounted && setIsSelf(postRes.data.author === self.id ? true : false);
           const likesRes = await getPostLikesAPI(userToken, postId);
           isMounted && setLikes(likesRes.data);
           const commentsRes = await getPostCommentsAPI(userToken, postId);
@@ -197,9 +180,9 @@ const PostComponent = ({
 
           const favRes = await getPostFavoriteAPI(userToken, postId);
           isMounted && setIsFavorite(favRes.data.favorited);
-          const postsState = await getPostsAPI(userToken, self.id);
-          const postIds = postsState.data.map((item) => item.id);
-          isMounted && setIsSelf(postIds.includes(postRes.data.id));
+          // const postsState = await getPostsAPI(userToken, self.id);
+          // const postIds = postsState.data.map((item) => item.id);
+          // isMounted && setIsSelf(postIds.includes(postRes.data.id));
           isMounted && setRefreshing(false);
         } catch (e) {
           console.log(e);
@@ -260,45 +243,24 @@ const PostComponent = ({
   };
 
   //tab view for more page
-  const FirstRoute = () => {
-    if (index == 0) {
-      return <DanceChoreosTabView inCreatePost={false} song={post} />;
-    } else {
-      return null;
-    }
-  };
-
-  const SecondRoute = () => {
-    if (index == 1) {
-      return <VoiceCoversTabView inCreatePost={false} song={post} />;
-    } else {
-      return null;
-    }
-  };
-
-  const ThirdRoute = () =>
-    refreshing ? (
-      <ScrollView>
-        <Text style={{ color: Colors.text }}>{lyrics}</Text>
-      </ScrollView>
-    ) : (
-      <ActivityIndicator animating={true} size="large" color={Colors.FG} />
-    );
-
   const initialLayout = { width: Dimensions.get("window").width };
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: "first", title: "Dance Choreos" },
     { key: "second", title: "Voice Covers" },
-    { key: "third", title: "Lyrics" },
   ]);
 
-  const renderScene = SceneMap({
-    first: FirstRoute,
-    second: SecondRoute,
-    third: ThirdRoute,
-  });
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case 'first':
+        return <DanceChoreosTabView inCreatePost={false} song={post} />
+      case 'second':
+        return <VoiceCoversTabView inCreatePost={false} song={post} />
+      default:
+        return null;
+    }
+  };
 
   const renderTabBar = (props) => (
     <TabBar
@@ -383,6 +345,7 @@ const PostComponent = ({
           isAuthor={isSelf}
           tileId={item.id}
           postId={postId}
+          getTileStates={getTileStates}
         />
       </View>
     );
@@ -596,16 +559,6 @@ const PostComponent = ({
             ) : (
               tiles && (
                 <View>
-                  {/* <FlatList
-                      ref={tilesRef}
-                      data={tiles}
-                      renderItem={renderTile}
-                      horizontal={true} // row instead of column
-                      // Add the 4 properties below for snapping
-                      snapToInterval={tileWidth + 15} // Adjust to your content width
-                      decelerationRate="fast"
-                      pagingEnabled
-                  /> */}
                   <FlatList
                     contentContainerStyle={{
                       flexGrow: 1,
@@ -617,37 +570,6 @@ const PostComponent = ({
                     numColumns={3}
                     style={goBackOnDelete ? {} : { alignItems: "center" }}
                   />
-
-                  {/* <Carousel
-                    ref={tilesRef}
-                    data={tiles}
-                    renderItem={renderTile}
-                    sliderWidth={width}
-                    itemWidth={width}
-                    onSnapToItem={(index) => setActiveSlide(index)}
-                  />
-
-                  <Pagination
-                    carouselRef={tilesRef}
-                    dotsLength={tiles.length}
-                    activeDotIndex={activeSlide}
-                    containerStyle={{ height: 70 }}
-                    tappableDots={true}
-                    dotStyle={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: 5,
-                      marginHorizontal: 8,
-                      backgroundColor: Colors.FG,
-                    }}
-                    inactiveDotStyle={
-                      {
-                        // Define styles for inactive dots here
-                      }
-                    }
-                    inactiveDotOpacity={0.4}
-                    inactiveDotScale={0.6}
-                  /> */}
                 </View>
               )
             )}
@@ -758,7 +680,7 @@ const PostComponent = ({
                 height={0.8 * height}
                 ref={moreRef}
                 closeOnDragDown={true}
-                closeOnPressMask={false}
+                closeOnPressMask={true}
                 customStyles={{
                   wrapper: {
                     backgroundColor: "transparent",

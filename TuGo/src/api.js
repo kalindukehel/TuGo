@@ -19,6 +19,14 @@ export async function getAccountById(id, token) {
   });
 }
 
+export async function getAccountDetails(id, token) {
+  return axios.get(`${API_URL}/api/accounts/${id}/details/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function viewableUsers(token) {
   return axios.get(`${API_URL}/api/accounts/viewable_users/`, {
     headers: {
@@ -227,6 +235,14 @@ export async function searchPosts(token, query) {
   });
 }
 
+export async function trendingPosts(token) {
+  return axios.get(`${API_URL}/api/posts/trending_posts/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function getUserInfo(token, id) {
   return axios.get(`${API_URL}/api/accounts/${id}/details/`, {
     headers: {
@@ -404,6 +420,13 @@ export async function pushNotification(expoPushToken, data, type) {
       body: `${data.content}`,
       data: { type: "message" },
     };
+  } else if (type == "post") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: `${data.creator} shared a post`,
+      data: { type: "post" },
+    };
   }
   await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
@@ -459,7 +482,6 @@ export async function editProfile(username, name, email, token) {
   if (name){
     data = {...data, name: name}
   }
-  console.log(data)
   return axios.patch(`${API_URL}/api/accounts/self/`, data, {
     headers: {
       Authorization: "Token " + token,
@@ -511,7 +533,7 @@ export async function isValidPassword(password) {
 
 export async function getYoutubeSearch(searchQuery) {
   return axios.get(
-    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" +
+    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=" +
       searchQuery +
       "&key=AIzaSyB_h3y-lLNf7djjTiP4Kbzrkf1xzJPWgXI"
     //AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"

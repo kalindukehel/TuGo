@@ -21,12 +21,6 @@ const ArtistsAll = (props) => {
     async function getArtists() {
       const artistsRes = await topArtistsAPI();
       const filteredArtists = artistsRes.data.artists
-      // .map((artist) => {
-      //   return {
-      //     artistId: artist.id,
-      //     name: artist.name,
-      //   };
-      // });
       setArtists(filteredArtists);
     }
     getArtists();

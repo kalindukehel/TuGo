@@ -135,7 +135,7 @@ const Comments = (props) => {
             bottom: 40,
             left: 0,
             right: 0,
-            maxHeight: 300,
+            maxHeight: height * 0.60,
             borderRadius: 10,
           }}
         >
@@ -147,7 +147,9 @@ const Comments = (props) => {
               return (
                 <TouchableWithoutFeedback
                   key={one.id}
-                  onPress={() => onSuggestionPress(one)}
+                  onPress={() => {
+                    onSuggestionPress(one)}
+                  }
                   style={{
                     padding: 12,
                     flexDirection: "row",

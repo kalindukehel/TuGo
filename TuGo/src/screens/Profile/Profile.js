@@ -23,6 +23,7 @@ import {
   changeFollow as changeFollowAPI,
   getRequested as getRequestedAPI,
   pushNotification as pushNotificationAPI,
+  getAccountDetails as getAccountDetailsAPI
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
@@ -170,15 +171,15 @@ const Profile = (props) => {
     setUser(userState.data);
     setIsViewable(userState.data.isViewable)
     const userInfo = await getUserInfoAPI(userToken, profileId);
+    //Update follow status
+    const res = await getAccountDetailsAPI(profileId, userToken);
+    setIsFollowing(res.data.requested ? 'requested' : res.data.you_follow ? 'true' : 'false')
     try {
       const postsState = await getPostsAPI(userToken, profileId);
       setPosts(postsState.data);
-    } catch (err) {
-      console.log(err)
+    } catch (e) {
+      console.log('cannot view posts, must follow')
     }
-    //Update follow status
-    checkFollow();
-
     //Set target user followers, following and posts values
     setFollowers(userInfo.data.followers);
     setFollowing(userInfo.data.following);
@@ -247,20 +248,8 @@ const Profile = (props) => {
 
   async function checkFollow() {
     //Get everyone that user is following
-    const res = await getFollowingAPI(userToken, self.id);
-    const arrayIds = res.data.map((item) => item.following);
-
-    //Get everyone user has requested
-    const requestedRes = await getRequestedAPI(userToken);
-    const idsRequested = requestedRes.data.map((item) => item.to_request);
-    //Check if target user is in users's following or requested
-    if (idsRequested.includes(profileId)) {
-      setIsFollowing("requested");
-    } else if (arrayIds.includes(profileId)) {
-      setIsFollowing("true");
-    } else {
-      setIsFollowing("false");
-    }
+    const res = await getAccountDetailsAPI(profileId, userToken);
+    setIsFollowing(res.data.requested ? 'requested' : res.data.you_follow ? 'true' : 'false')
   }
   const onScroll = (event) => {
     const currentOffset = event.nativeEvent.contentOffset.y;
@@ -345,7 +334,7 @@ const Profile = (props) => {
                   ? user.profile_picture
                   : API_URL + "/media/default.jpg",
               }}
-              style={{ height: 150, width: 150, borderRadius: 40 }}
+              style={{ height: 150, width: 150, borderRadius: 999 }}
             />
           </View>
           <View

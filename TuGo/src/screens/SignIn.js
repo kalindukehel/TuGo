@@ -94,7 +94,6 @@ const SignIn = ({ navigation }) => {
               onChangeText={(username) => setUsername(username)}
               placeholder="Enter Username"
               autoCapitalize="none"
-              keyboardType="email-address"
               returnKeyType="done"
               onSubmitEditing={Keyboard.dismiss}
               blurOnSubmit={false}

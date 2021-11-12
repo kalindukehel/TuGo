@@ -2,12 +2,13 @@ import React from "react";
 import { Text, View, StyleSheet, Image } from "react-native";
 import moment from "moment";
 import { useAuthState } from "../context/authContext";
-import { Colors, API_URL } from "../../constants";
+import { Colors, API_URL, Length } from "../../constants";
 import { Dimensions } from "react-native";
-
+import { TouchableWithoutFeedback } from "react-native";
+import RenderProfileIcon from './RenderProfileIcon'
 const { width, height } = Dimensions.get('window')
 const TextMessage = (props) => {
-  const { message } = props;
+  const { message, navigation} = props;
   const { self } = useAuthState();
 
   const isMyMessage = () => {
@@ -21,15 +22,7 @@ const TextMessage = (props) => {
       }}
     >
       {!isMyMessage() && (
-        <Image
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 999,
-            marginRight: 10,
-          }}
-          source={{ uri: message.user.imageUri }}
-        />
+        <RenderProfileIcon navigation={navigation} message={message}/>
       )}
       <View
         style={[
@@ -60,13 +53,14 @@ const TextMessage = (props) => {
 
 const styles = StyleSheet.create({
   container: {
-    padding: 5,
+    paddingVertical: 5,
     flexDirection: "row",
     alignItems: "flex-end",
   },
   messageBox: {
     borderRadius: 20,
     padding: 10,
+    marginRight: Length.msgIndent / 2,
     flexDirection: 'row', alignItems: 'center', maxWidth: 0.8 * width
   },
   message: {

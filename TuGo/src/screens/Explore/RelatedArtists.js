@@ -58,6 +58,7 @@ const RelatedArtists = (props) => {
   };
 
   const renderAlbum = ({item}) => {
+    console.log(item.name)
     return (
       <ArtistBlock
         artist={item.name}
@@ -75,7 +76,7 @@ const RelatedArtists = (props) => {
       <SafeAreaView style={styles.container}>
         <FlatList
           ref={flatListRef}
-          style={{ flexGrow: 1 }}
+          style={{ flexGrow: 1}}
           ItemSeparatorComponent={() => <View style={{ margin: 30 }}></View>}
           contentContainerStyle={{
             width: width,

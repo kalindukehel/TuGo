@@ -14,7 +14,7 @@ import moment from "moment";
 import { useAuthState } from "../context/authContext";
 import { API, graphqlOperation } from "aws-amplify";
 import { deleteChatRoom } from "../graphql/mutations";
-import { Colors } from "../../constants";
+import { API_URL, Colors } from "../../constants";
 import { getChatRoom } from "../screens/Direct/queries";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { onUpdateChatRoom } from  "../graphql/subscriptions"
@@ -125,7 +125,7 @@ const ChatListItem = (props) => {
     >
       <View style={styles.container}>
         <View style={styles.lefContainer}>
-          <Image source={{ uri: otherUser.imageUri }} style={styles.avatar} />
+          <Image source={{ uri: API_URL + otherUser.imageUri }} style={styles.avatar} />
 
           <View style={styles.midContainer}>
             <Text style={styles.name}>{otherUser.name}</Text>

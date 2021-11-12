@@ -154,7 +154,6 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
       }
     }
   };
-  console.log(webViewY)
   return (
     <SafeAreaView>
       <TouchableOpacity
@@ -211,7 +210,7 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
                     height: "100%",
                 }}
                 >
-                <View style={{backgroundColor: Colors.contrastGray, height: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
+                <View style={{backgroundColor: Colors.contrastGray, borderRadius: 20, height: 30, flexDirection: 'row', justifyContent: 'space-around', alignItems: 'center'}}>
 
                 {isAuthor && <TouchableOpacity
                     style={{ }}

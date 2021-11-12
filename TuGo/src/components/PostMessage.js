@@ -9,7 +9,7 @@ import {
 } from "react-native";
 import moment from "moment";
 import { useAuthState } from "../context/authContext";
-import { Colors } from "../../constants";
+import { Colors, API_URL } from "../../constants";
 import {
   getPostById as getPostByIdAPI,
   getAccountById as getAccountByIdAPI,
@@ -22,12 +22,14 @@ const PostMessage = ({ message, navigation }) => {
   const [error, setError] = useState(null)
   const [loadingPost, setLoadingPost] = useState(false);
   const [author, setAuthor] = useState(null);
+  const [isViewable, setIsViewable] = useState(false)
 
   useEffect(() => {
     setLoadingPost(true);
     async function getPost() {
       try{
       const postRes = await getPostByIdAPI(userToken, message.content);
+      if (postRes.data.isViewable !== false) setIsViewable(true)
       setPost(postRes.data);
       const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
       setAuthor(authorRes.data);
@@ -64,7 +66,7 @@ const PostMessage = ({ message, navigation }) => {
               borderRadius: 999,
               marginRight: 10,
             }}
-            source={{ uri: message.user.imageUri }}
+            source={{ uri: API_URL + message.user.imageUri }}
           />
         </TouchableWithoutFeedback>
       )}
@@ -96,6 +98,7 @@ const PostMessage = ({ message, navigation }) => {
               </Text>
             </View>
             <TouchableWithoutFeedback
+              disabled={!isViewable}
               onPress={() => {
                 navigation.push("Post", {
                   screen: "Post",
@@ -113,7 +116,12 @@ const PostMessage = ({ message, navigation }) => {
                   justifyContent: "center",
                 }}
               >
-                <Image style={styles.image} source={{ uri: post.album_cover }} />
+                {isViewable ? 
+                <Image style={styles.image} source={{ uri: post.album_cover }} /> : 
+                <View 
+                style={styles.errorView}>
+                  <Text style={{color: Colors.text, fontSize: 12}}>Post is private, follow to see.</Text>
+                </View>}
               </View>
             </TouchableWithoutFeedback>
             {/* <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text> */}
@@ -161,7 +169,7 @@ const styles = StyleSheet.create({
     color: "grey",
   },
   errorView: {
-    height: 190, 
+    height: 150, 
     width: 150, 
     justifyContent: 'center',
     alignItems: 'center',

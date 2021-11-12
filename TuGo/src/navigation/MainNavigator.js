@@ -139,10 +139,14 @@ const MainNavigator = () => {
         }
       });
 
-    //aws create user if not in database
+    //check if user in database
     const fetchUser = async () => {
       const userInfo = self;
-      console.log(self.notification_token);
+      function getPosition(string, subString, index) {
+        return string.split(subString, index).join(subString).length;
+      }
+      const firstIndex = getPosition(self.profile_picture, ':', 2) 
+      const substring = self.profile_picture.substring(firstIndex + 5, self.profile_picture.length)
       if (userInfo) {
         const userData = await API.graphql(
           graphqlOperation(getUser, { id: self.id })
@@ -153,6 +157,7 @@ const MainNavigator = () => {
           const update = {
             id: userData.data.getUser.id,
             expoPushToken: token,
+            imageUri: substring
           };
           const chatRoomData = await API.graphql(
             graphqlOperation(updateUser, { input: update })
@@ -165,7 +170,7 @@ const MainNavigator = () => {
           id: self.id,
           name: userInfo.name,
           username: userInfo.username,
-          imageUri: userInfo.profile_picture,
+          imageUri: substring,
           status: "Hey, I am using Tugo",
           expoPushToken: self.notification_token,
         };

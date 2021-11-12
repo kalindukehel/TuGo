@@ -6,7 +6,8 @@ import {
   Switch,
   StyleSheet,
   ScrollView,
-  ActivityIndicator
+  ActivityIndicator,
+  Alert
 } from "react-native";
 import {
   getSelf as getSelfAPI,
@@ -38,6 +39,27 @@ const Settings = ({ navigation }) => {
     const res = await getSelfAPI(userToken);
     setIsPrivate(res.data.is_private);
   };
+
+    //toggle confirmation alert function
+    const toggleConfirmation = (desired) =>
+    Alert.alert(
+      "Confirmation",
+      `Are you sure you want to go ${desired}?`,
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            toggleAccountVisilibity();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
 
   const toggleAccountVisilibity = async () => {
     await toggleAccountVisilibityAPI(!isPrivate, userToken);
@@ -102,8 +124,8 @@ const Settings = ({ navigation }) => {
               <Switch
                 style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
                 value={isPrivate}
-                onValueChange={() => {
-                  toggleAccountVisilibity();
+                onChange={() => {
+                  toggleConfirmation(isPrivate ? 'public' : 'private');
                 }}
               />
             </View>

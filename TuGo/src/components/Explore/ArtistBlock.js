@@ -52,7 +52,6 @@ const ArtistBlock = (props) => {
       <View
         style={{
           width: width / (columns - 0.5),
-          height: width / (columns - 0.5),
           justifyContent: "center",
           alignItems: "center",
         }}

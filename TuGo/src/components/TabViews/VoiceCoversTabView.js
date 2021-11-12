@@ -11,13 +11,12 @@ import SearchItem from "../../components/SearchItem";
 import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { FlatList } from "react-native-gesture-handler";
 import { getYoutubeSearch } from "../../api";
-import { Image } from "react-native";
-import { Video } from "expo-av";
+import {Colors} from "../../../constants"
 import VideoSearchItem from "../VideoSearchItem";
 
 //TabView to display YouTube items in VideoSelection in CreatePost
 const VoiceCoversTabView = (props) => {
-  const { song, selectFinalCover, parentSelected, inCreatePost } = props;
+  const { song, selectFinalCover, parentSelected, inCreatePost, isMax=false } = props;
   const [voiceCovers, setVoiceCovers] = useState([]);
   const [selectedVideos, setSelectedVideos] = useState(
     parentSelected ? parentSelected : new Set()
@@ -25,7 +24,7 @@ const VoiceCoversTabView = (props) => {
   
   useEffect(() => {
     let isLoaded = true;
-
+    console.log('1 request')
     const loadVoiceCovers = async () => {
       //Get top 10 cover results from youtube for user's selected song and store in voiceCovers
       const searchQuery = inCreatePost
@@ -69,6 +68,7 @@ const VoiceCoversTabView = (props) => {
   const renderItem = (item) => {
     return inCreatePost ? (
       <VideoSearchItem
+        disabled={isMax}
         inCreatePost={inCreatePost}
         title={item.item.title}
         thumbnail={item.item.thumbnail}
@@ -100,11 +100,14 @@ const VoiceCoversTabView = (props) => {
       />
     );
   };
-
   return (
-    <View>
+    <View style={{marginTop: 10}}>
       <FlatList
-        contentContainerStyle={{ paddingBottom: 50, paddingTop: 10 }}
+        ListHeaderComponent={() => (
+          isMax &&
+            <Text style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15, marginBottom: 10}}>Sorry, max attachments reached</Text>
+        )}
+        contentContainerStyle={{ paddingBottom: 10}}
         data={voiceCovers}
         renderItem={renderItem}
         keyExtractor={(item, index) => {

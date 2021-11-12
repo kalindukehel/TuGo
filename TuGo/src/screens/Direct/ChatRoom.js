@@ -15,7 +15,7 @@ import ImageMessage from "../../components/ImageMessage";
 import PostMessage from "../../components/PostMessage";
 import ChatInputBox from "../../components/ChatInputBox";
 
-import { Colors } from "../../../constants";
+import { Colors, Length } from "../../../constants";
 import { useAuthState } from "../../context/authContext";
 
 const ChatRoom = ({ navigation }) => {
@@ -23,8 +23,31 @@ const ChatRoom = ({ navigation }) => {
   const [messages, setMessages] = useState([]);
   const [readTag, setReadTag] = useState(false)
   const flatListRef = useRef();
-
   const route = useRoute();
+
+  const onChat = useRef()
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // The screen is focused
+      onChat.current = true
+      updateSeen();
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('blur', () => {
+      // The screen is focused
+      onChat.current = false
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
+
   const fetchMessages = async () => {
     const messagesData = await API.graphql(
       graphqlOperation(messagesByChatRoom, {
@@ -89,7 +112,8 @@ const ChatRoom = ({ navigation }) => {
         if (newMessage.chatRoomID !== route.params.id) {
           return;
         }
-        updateSeen();
+        setReadTag(false)
+        if(onChat.current === true) updateSeen();
         fetchMessages();
       },
     });
@@ -107,7 +131,7 @@ const ChatRoom = ({ navigation }) => {
         if (updateChatRooms.id !== route.params.id) {
           return;
         }
-        updateSeen();
+        if(onChat.current === true) updateSeen();
         fetchMessages();
       },
     });
@@ -123,7 +147,7 @@ const ChatRoom = ({ navigation }) => {
         extraData={readTag}
         ListHeaderComponent={() => (
           readTag &&
-           <Text style={{color: Colors.gray, alignSelf: 'flex-end', position: 'absolute', bottom: -5, right: 12, fontSize: 10}}>R</Text>
+           <Text style={{color: Colors.gray, alignSelf: 'flex-end', fontSize: 10, marginRight: Length.msgIndent}}>Read</Text>
         )}
         data={messages}
         renderItem={({ item }) => {

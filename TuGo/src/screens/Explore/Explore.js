@@ -216,7 +216,7 @@ const Explore = ({ navigation }) => {
 
   const renderArtist = ({ item, index }) => {
     return (
-      <View style={{ height: 150 }}>
+      <View style={{ height: 170 }}>
         <ArtistBlock
           artist={item.name}
           navigation={navigation}
@@ -339,7 +339,7 @@ const Explore = ({ navigation }) => {
             onIndexChange={setIndex}
             initialLayout={initialLayout}
             renderTabBar={renderTabBar}
-            swipeEnabled={index == 0 ? false : true}
+            swipeEnabled={index === 0 || index === 1 ? false : true}
           />
         </View>
       )}

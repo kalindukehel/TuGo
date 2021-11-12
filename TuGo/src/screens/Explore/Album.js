@@ -24,10 +24,12 @@ import { useAuthState } from "../../context/authContext";
 import SearchItem from "../../components/SearchItem";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { Colors, appTheme } from "../../../constants";
+import styles from './commonStyles'
 
 var { width, height } = Dimensions.get("window");
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
+let maxlimit = 40;
 
 const Album = (props) => {
   const { navigation } = props;
@@ -187,9 +189,9 @@ const Album = (props) => {
           }}
         />
         <Animated.View
-          style={[styles.albumHeader, { transform: [{ translateY }] }]}
+          style={[albumStyles.albumHeader, { transform: [{ translateY }] }]}
         >
-          <View style={styles.albumImageView}>
+          <View style={albumStyles.albumImageView}>
             <Image
               style={{ height: positionY, width: positionY, borderRadius: 40 }}
               source={{ uri: albumImage.image }}
@@ -201,7 +203,7 @@ const Album = (props) => {
               searchBarRef.current = layout.y;
             }}
             style={{
-              ...styles.textInputStyle,
+              ...styles.textInputViewStyle,
               width: searchBarWidth,
               justifyContent: "center",
             }}
@@ -212,14 +214,10 @@ const Album = (props) => {
                 scrollToTextInput();
                 searchFilterFunction(text);
               }}
-              style={{
-                flex: 1,
-                paddingLeft: 20,
-                paddingRight: 5,
-              }}
+              style={styles.textInputStyle}
               defaultValue={search}
               placeholder="Search Top Songs..."
-              placeholderTextColor={"black"}
+              placeholderTextColor={"white"}
               clearButtonMode="always"
               onFocus={() => {
                 scrollToTextInput();
@@ -229,8 +227,10 @@ const Album = (props) => {
             />
           </Animated.View>
           <TouchableWithoutFeedback onPress={toTop}>
-            <View style={styles.albumNameView}>
-              <Text style={styles.albumName}>{albumImage.albumName}</Text>
+            <View style={albumStyles.albumNameView}>
+              <Text style={albumStyles.albumName}>{albumImage.albumName.length > styles.maxlimit
+            ? albumImage.albumName.substring(0, styles.maxlimit - 3) + "..."
+            : albumImage.albumName}</Text>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>
@@ -239,11 +239,7 @@ const Album = (props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.BG,
-  },
+const albumStyles = StyleSheet.create({
   albumImageView: {
     marginTop: 10,
 
@@ -274,21 +270,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#E8E8E8",
     padding: 10,
-  },
-  textInputStyle: {
-    height: 30,
-    borderRadius: 20,
-    color: Colors.text,
-    borderColor: "black",
-    borderWidth: 1,
-    marginHorizontal: 20,
-    marginTop: 15,
-    width: "50%",
-  },
-  box2: {
-    backgroundColor: "red",
-    height: "100%",
-    flexGrow: 1,
   },
 });
 

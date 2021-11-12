@@ -26,6 +26,8 @@ import Player from "../../components/Player";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { API_URL, Colors, appTheme } from "../../../constants";
 
+import styles from './commonStyles'
+
 var { width, height } = Dimensions.get("window");
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
@@ -173,7 +175,7 @@ const Artist = (props) => {
       setSearch(text);
     }
   };
-
+  console
   return (
     filteredData && (
       <SafeAreaView style={styles.container}>
@@ -199,9 +201,9 @@ const Artist = (props) => {
           }}
         />
         <Animated.View
-          style={[styles.chartHeader, { transform: [{ translateY }] }]}
+          style={[artistStyles.artistHeader, { transform: [{ translateY }] }]}
         >
-          <View style={styles.chartImageView}>
+          <View style={artistStyles.artistImageView}>
             <Image
               style={{
                 height: 140,
@@ -225,7 +227,9 @@ const Artist = (props) => {
                   });
                 }}
               >
-                <Text style={styles.button}>Related Artists</Text>
+                <View style={styles.buttonView}>
+                  <Text style={styles.button}>Related Artists</Text>
+                </View>
               </TouchableWithoutFeedback>
               {artistDetails.bios &&
               <TouchableWithoutFeedback
@@ -235,7 +239,9 @@ const Artist = (props) => {
                   });
                 }}
               >
-                <Text style={styles.button}>Info</Text>
+                <View style={styles.buttonView}>
+                  <Text style={styles.button}>Info</Text>
+                </View>
               </TouchableWithoutFeedback>
               }
             </View>
@@ -246,7 +252,7 @@ const Artist = (props) => {
               searchBarRef.current = layout.y;
             }}
             style={{
-              ...styles.textInputStyle,
+              ...styles.textInputViewStyle,
               width: searchBarWidth,
               justifyContent: "center",
               alignSelf: "center",
@@ -258,14 +264,10 @@ const Artist = (props) => {
                 scrollToTextInput();
                 searchFilterFunction(text);
               }}
-              style={{
-                flex: 1,
-                paddingLeft: 20,
-                paddingRight: 5,
-              }}
+              style={styles.textInputStyle}
               defaultValue={search}
               placeholder="Search Top Songs..."
-              placeholderTextColor={"black"}
+              placeholderTextColor={"white"}
               clearButtonMode="always"
               onFocus={() => {
                 scrollToTextInput();
@@ -274,23 +276,26 @@ const Artist = (props) => {
               onBlur={searchAnimationInactive}
             />
           </Animated.View>
+          {artistDetails.name &&
           <TouchableWithoutFeedback onPress={toTop}>
-            <View style={styles.chartNameView}>
-              <Text style={styles.chartName}>{artistDetails.name}</Text>
+            <View style={artistStyles.artistNameView}>
+              <Text style={artistStyles.artistName}>{artistDetails.name.length > styles.maxlimit 
+              ? artistDetails.name.substring(0, styles.maxlimit - 3) + `...` 
+              : artistDetails.name}</Text>
             </View>
-          </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback>}
         </Animated.View>
       </SafeAreaView>
     )
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.BG,
-  },
-  chartImageView: {
+const artistStyles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: Colors.BG,
+//   },
+  artistImageView: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 10,
@@ -304,7 +309,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6.68,
     elevation: 11,
   },
-  chartHeader: {
+  artistHeader: {
     height: 220,
     position: "absolute",
     width: width,
@@ -312,33 +317,36 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     borderBottomRightRadius: 50,
   },
-  chartName: {
+  artistName: {
     fontWeight: "bold",
   },
-  chartNameView: {
+  artistNameView: {
     alignSelf: "center",
     borderRadius: 10,
     backgroundColor: "#E8E8E8",
     padding: 10,
     marginTop: 30,
   },
-  button: {
-    borderColor: "black",
-    borderWidth: 1,
-    textAlign: "center",
-    width: 120,
-    borderRadius: 5,
-    paddingVertical: 5,
-  },
-  textInputStyle: {
-    height: 30,
-    borderRadius: 20,
-    borderColor: "black",
-    borderWidth: 1,
-    marginHorizontal: 20,
-    marginTop: 20,
-    width: "50%",
-  },
+//   button: {
+//     textAlign: "center",
+//     width: 120,
+//     paddingVertical: 5,
+//     color: Colors.text
+//   },
+//   textInputStyle: {
+//     height: 30,
+//     borderRadius: 7,
+//     borderColor: "black",
+//     borderWidth: 1,
+//     marginHorizontal: 20,
+//     marginTop: 20,
+//     width: "50%",
+//     backgroundColor: Colors.contrastGray,
+//   },
+//   buttonView: {
+//     borderRadius: 7, 
+//     backgroundColor: Colors.contrastGray
+//   }
 });
 
 export default Artist;

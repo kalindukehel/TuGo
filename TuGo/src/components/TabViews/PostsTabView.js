@@ -15,9 +15,8 @@ const PostsTabView = (props) => {
 
   async function getPosts() {
     const postsRes = await searchPostsAPI(userToken, searchQuery)
-    const filteredPosts = postsRes.data.filter(post => post.isViewable === true)
-    console.log(postsRes.data)
-    setPosts([])
+    const filteredPosts = postsRes.data
+    setPosts(filteredPosts)
   }
 
   const onRefresh = React.useCallback(() => {

@@ -54,14 +54,16 @@ const ContactListItem = (props) => {
       for (var index in activeChatRooms) {
         const currChatRoom = activeChatRooms[index];
         let otherUser;
-        if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
-          otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
-        } else {
-          otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
-        }
-        if (otherUser.id == account.id) {
-          existingChatRoomId = currChatRoom.chatRoomID;
-          break;
+        if (currChatRoom.chatRoom.chatRoomUsers.items[0].user !== null && currChatRoom.chatRoom.chatRoomUsers.items[1].user !== null){
+          if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
+            otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
+          } else {
+            otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
+          }
+          if (otherUser && (otherUser.id == account.id)) {
+            existingChatRoomId = currChatRoom.chatRoomID;
+            break;
+          }
         }
       }
       if (existingChatRoomId) {
@@ -127,7 +129,7 @@ const ContactListItem = (props) => {
         }}
       >
         <Image
-          source={{ uri: account.imageUri }}
+          source={{ uri: API_URL + account.profile_picture }}
           style={{
             width: height / 20,
             height: height / 20,

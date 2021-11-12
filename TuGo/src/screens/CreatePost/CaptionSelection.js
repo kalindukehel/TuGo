@@ -13,13 +13,13 @@ import { FlatList } from "react-native-gesture-handler";
 import RBSheet from "react-native-raw-bottom-sheet";
 import SearchItem from "../../components/SearchItem";
 import VideoTile from "../../components/VideoTile";
+import CustomVideoTile from "../../components/CustomVideoTile";
 import {
   createPost as createPostAPI,
   getSongLyrics as getSongLyricsAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import { Colors, appTheme, Length } from "../../../constants";
-import { Video } from "expo-av";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
 
 var { width, height } = Dimensions.get("window");
@@ -46,15 +46,8 @@ const CaptionSelection = (props) => {
   const renderTile = ({ item }) => {
     if (item.isCustom) {
       return (
-        <View style={{ marginHorizontal: 10 }}>
-          <Video
-            ref={videosRef.current[item.uri]}
-            style={styles.video}
-            source={{ uri: item.uri }} // Can be a URL or a local file.
-            useNativeControls
-            resizeMode="contain"
-            onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-          ></Video>
+        <View style={{ margin: (width - (3 * width) / 3.4) / 8  }}>
+          <CustomVideoTile videosRef={videosRef} item={item}/>
         </View>
       );
     } else {
@@ -132,7 +125,7 @@ const CaptionSelection = (props) => {
           renderItem={renderTile}
           keyExtractor={(item, index) => index.toString()}
           style={{
-            maxHeight: 200,
+            maxHeight: height/3,
             marginTop: 15,
           }}
           numColumns={3}
@@ -190,7 +183,7 @@ const styles = StyleSheet.create({
   },
   video: {
     alignSelf: "center",
-    width: 300,
+    width: 200,
     height: 200,
     borderColor: Colors.FG,
     borderWidth: 1,

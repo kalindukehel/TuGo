@@ -114,22 +114,18 @@ const SignIn = ({ navigation }) => {
   const onChangeEmail = async (text) => {
       setEmail(text)
       const res = await isValidEmailAPI(text)
-      console.log("email")
       setEmailCheck(res.data.available)
   }
   
   const onChangeUsername = async (text) => {
       setUsername(text)
       const res = await isValidUsernameAPI(text)
-      console.log("username")
       setUsernameCheck(res.data.available)
   }
 
   const onChangePassword = async (text) => {
     setPassword(text)
-    console.log('password is: ', text)
     const res = await isValidPasswordAPI(text)
-    console.log('password')
     setPasswordCheck(res.data.available)
 }
 

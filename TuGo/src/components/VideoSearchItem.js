@@ -21,18 +21,19 @@ var { width, height } = Dimensions.get("window");
 
 //Component used in DanceChoreoTabView to display YouTube video results
 const VideoSearchItem = (props) => {
-  const { title, thumbnail, videoId, selected, selectVideo, inCreatePost, outlineColor } =
+  const { title, thumbnail, videoId, selected, selectVideo, inCreatePost, outlineColor, disabled=false } =
     props;
   const refRBSheet = useRef();
 
   return (
     <View>
-      <TouchableOpacity
-        style={{ flex: 1, flexDirection: "row", paddingLeft: 5 }}
+      <TouchableWithoutFeedback
+        disabled={disabled && !selected}
         onPress={() => {
           inCreatePost ? selectVideo(videoId) : refRBSheet.current.open();
         }}
       >
+        <View style={{ flex: 1, flexDirection: "row", paddingLeft: 5 }}>
         <Image
           style={{
             width: 145,
@@ -76,7 +77,8 @@ const VideoSearchItem = (props) => {
             </TouchableOpacity>
           )}
         </View>
-      </TouchableOpacity>
+        </View>
+      </TouchableWithoutFeedback>
       <RBSheet
         height={height * 0.8}
         ref={(ref) => {

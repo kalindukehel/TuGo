@@ -21,11 +21,10 @@ var { width, height } = Dimensions.get("window");
 
 //Video Tile to display YouTube video linked to a post, or in CreatePost
 const PostedTile = (props) => {
-  const { url, thumbnail, tileId, postId, isAuthor } = props;
+  const { url, thumbnail, tileId, postId, isAuthor, getTileStates } = props;
   const refRBSheet = useRef();
   const insets = useSafeAreaInsets();
   const [xy, setXY] = useState(new Animated.ValueXY({ x: width/3.4, y: width/5 }));
-  let WebViewRef;
 
   const imageAnimationIn = () => {
     Animated.timing(xy, {
@@ -57,6 +56,7 @@ const PostedTile = (props) => {
           </View>
       </TouchableWithoutFeedback>
       <RBSheet
+          onClose={() => getTileStates()}
           height={height}
           ref={refRBSheet}
           closeOnDragDown={false}
