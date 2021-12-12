@@ -18,6 +18,7 @@ import { signIn as signInAPI, getSelf as getSelfAPI } from "../api";
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
 import { Colors, appTheme } from "../../constants";
+import GText from "../components/GText"
 
 const styles = StyleSheet.create({
   container: {
@@ -88,7 +89,7 @@ const SignIn = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inner}>
-            <Text style={styles.header}>Login</Text>
+            <GText style={styles.header}>Login</GText>
             <TextInput
               keyboardAppearance={appTheme}
               onChangeText={(username) => setUsername(username)}
@@ -130,7 +131,7 @@ const SignIn = ({ navigation }) => {
                   color={Colors.complimentText}
                 />
               ) : (
-                <Text style={{ color: Colors.complimentText }}>Login</Text>
+                <GText style={{ color: Colors.complimentText }}>Login</GText>
               )}
             </TouchableOpacity>
             <View style={{ flex: 1 }} />

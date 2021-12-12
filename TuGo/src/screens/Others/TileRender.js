@@ -35,6 +35,8 @@ import {
 import { getUser } from "../Direct/queries";
 import { listUsers } from "../../graphql/queries";
 import WebView from "react-native-webview";
+import { Video, AVPlaybackStatus } from 'expo-av';
+import GText from "../../components/GText"
 
 //icons
 import { Foundation, Feather, AntDesign } from "@expo/vector-icons";
@@ -42,15 +44,16 @@ import { Colors } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
-const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
+const TileRender = ({ url, tileModal, isAuthor, tileId, postId, isYoutube=true }) => {
   const insets = useSafeAreaInsets();
-
   const { userToken, self } = useAuthState();
   const [showFull, setShowFull] = useState(false);
   const [scrollEnable, setScrollEnable] = useState(false)
   const [webViewY, setWebViewY] = useState(0)
   const _bottomSheetOffsetY = React.useMemo(() => new Animated.Value(0), []);
   const _bottomSheetAnim = React.useMemo(() => new Animated.Value(0), []);
+  const video = useRef(null);
+  const [status, setStatus] = useState({});
   let WebViewRef;
   const ref = useRef({
     bottomSheetHeight: 0,
@@ -154,18 +157,10 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
       }
     }
   };
-  return (
-    <SafeAreaView>
-      <TouchableOpacity
-        onPress={() => {
-          tileModal.current.close();
-        }}
-        style={{
-          height: "100%",
-          width: "100%",
-        }}
-      ></TouchableOpacity>
-      <PanGestureHandler
+
+  const YouTubeTile = () => {
+    return (
+    <PanGestureHandler
         onGestureEvent={_onGestureEventHandler}
         onHandlerStateChange={_onStateChangeHandler}
       >
@@ -241,11 +236,47 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId }) => {
                       setScrollEnable( showFull && webViewY === 0 && contentOffset.y < webViewY ? false : true)
                     }}
                 >
-                </WebView>
+                </WebView> 
                 </View>
             </View>
         </Animated.View>
       </PanGestureHandler>
+    )
+  }
+
+  const CustomVideo = () => {
+    return (
+      <View style={styles.bottomSheet}>
+        <GText>hi</GText>
+        <Video
+          ref={video}
+          style={styles.video}
+          source={{
+            uri: 'http://d23dyxeqlo5psv.cloudfront.net/big_buck_bunny.mp4',
+          }}
+          useNativeControls
+          resizeMode="contain"
+          isLooping
+          onPlaybackStatusUpdate={status => setStatus(() => status)}
+        />
+        <GText>hi</GText>
+      </View>
+    )
+  }
+  return (
+    <SafeAreaView>
+      <TouchableOpacity
+        onPress={() => {
+          tileModal.current.close();
+        }}
+        style={{
+          height: "100%",
+          width: "100%",
+        }}
+      ></TouchableOpacity>
+      {isYoutube ? 
+      <YouTubeTile/> :
+      <CustomVideo />}
     </SafeAreaView>
   );
 };
@@ -350,4 +381,10 @@ const styles = StyleSheet.create({
     alignItems: "center",
     borderColor: "#ddd",
   },
+  video: {
+    alignSelf: 'center',
+    width: 300,
+    height: 300,
+    borderWidth: 2
+  }
 });

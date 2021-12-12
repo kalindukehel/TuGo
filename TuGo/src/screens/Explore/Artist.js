@@ -25,6 +25,7 @@ import SearchItem from "../../components/SearchItem";
 import Player from "../../components/Player";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { API_URL, Colors, appTheme } from "../../../constants";
+import GText from "../../components/GText"
 
 import styles from './commonStyles'
 
@@ -228,7 +229,7 @@ const Artist = (props) => {
                 }}
               >
                 <View style={styles.buttonView}>
-                  <Text style={styles.button}>Related Artists</Text>
+                  <GText style={styles.button}>Related Artists</GText>
                 </View>
               </TouchableWithoutFeedback>
               {artistDetails.bios &&
@@ -240,7 +241,7 @@ const Artist = (props) => {
                 }}
               >
                 <View style={styles.buttonView}>
-                  <Text style={styles.button}>Info</Text>
+                  <GText style={styles.button}>Info</GText>
                 </View>
               </TouchableWithoutFeedback>
               }
@@ -279,9 +280,9 @@ const Artist = (props) => {
           {artistDetails.name &&
           <TouchableWithoutFeedback onPress={toTop}>
             <View style={artistStyles.artistNameView}>
-              <Text style={artistStyles.artistName}>{artistDetails.name.length > styles.maxlimit 
+              <GText style={artistStyles.artistName}>{artistDetails.name.length > styles.maxlimit 
               ? artistDetails.name.substring(0, styles.maxlimit - 3) + `...` 
-              : artistDetails.name}</Text>
+              : artistDetails.name}</GText>
             </View>
           </TouchableWithoutFeedback>}
         </Animated.View>

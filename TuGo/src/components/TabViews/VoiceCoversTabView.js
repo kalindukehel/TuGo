@@ -13,6 +13,7 @@ import { FlatList } from "react-native-gesture-handler";
 import { getYoutubeSearch } from "../../api";
 import {Colors} from "../../../constants"
 import VideoSearchItem from "../VideoSearchItem";
+import GText from "../GText"
 
 //TabView to display YouTube items in VideoSelection in CreatePost
 const VoiceCoversTabView = (props) => {
@@ -105,7 +106,7 @@ const VoiceCoversTabView = (props) => {
       <FlatList
         ListHeaderComponent={() => (
           isMax &&
-            <Text style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15, marginBottom: 10}}>Sorry, max attachments reached</Text>
+            <GText style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15, marginBottom: 10}}>Sorry, max attachments reached</GText>
         )}
         contentContainerStyle={{ paddingBottom: 10}}
         data={voiceCovers}

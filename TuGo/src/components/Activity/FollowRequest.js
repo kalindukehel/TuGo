@@ -8,6 +8,7 @@ import {
 } from "../../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { API_URL, Colors } from "../../../constants";
+import GText from "../GText"
 
 const styles = StyleSheet.create({
   acceptButton: {
@@ -110,11 +111,11 @@ const FollowRequest = (props) => {
           }}
           style={{}}
         >
-          <Text style={styles.username}>
+          <GText style={styles.username}>
             {requester ? requester.username : null}
-          </Text>
+          </GText>
         </TouchableOpacity>
-        <Text style={styles.name}>{requester ? requester.name : null}</Text>
+        <GText style={styles.name}>{requester ? requester.name : null}</GText>
       </View>
       <View style={{ alignItems: "flex-end", flex: 1, alignContent: "center" }}>
         <View
@@ -123,10 +124,10 @@ const FollowRequest = (props) => {
           }}
         >
           <TouchableOpacity onPress={acceptRequest} style={styles.acceptButton}>
-            <Text style={styles.acceptButtonText}>Accept</Text>
+            <GText style={styles.acceptButtonText}>Accept</GText>
           </TouchableOpacity>
           <TouchableOpacity onPress={deleteRequest} style={styles.deleteButton}>
-            <Text style={styles.deleteButtonText}>Delete</Text>
+            <GText style={styles.deleteButtonText}>Delete</GText>
           </TouchableOpacity>
         </View>
       </View>

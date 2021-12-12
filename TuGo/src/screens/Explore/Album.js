@@ -25,6 +25,7 @@ import SearchItem from "../../components/SearchItem";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { Colors, appTheme } from "../../../constants";
 import styles from './commonStyles'
+import GText from "../../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -228,9 +229,9 @@ const Album = (props) => {
           </Animated.View>
           <TouchableWithoutFeedback onPress={toTop}>
             <View style={albumStyles.albumNameView}>
-              <Text style={albumStyles.albumName}>{albumImage.albumName.length > styles.maxlimit
+              <GText style={albumStyles.albumName}>{albumImage.albumName.length > styles.maxlimit
             ? albumImage.albumName.substring(0, styles.maxlimit - 3) + "..."
-            : albumImage.albumName}</Text>
+            : albumImage.albumName}</GText>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>

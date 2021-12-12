@@ -35,6 +35,14 @@ export async function viewableUsers(token) {
   });
 }
 
+export async function mutualUsers(token, id) {
+  return axios.get(`${API_URL}/api/accounts/${id}/mutual/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function signUp(data) {
   return axios.post(`${API_URL}/signup/`, {
     username: data.username,
@@ -590,7 +598,7 @@ export async function getChartTracks(playlistId) {
 
 export async function getCharts() {
   return axios.get(
-    `http://api.napster.com/v2.2/playlists/featured?limit=10&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+    `http://api.napster.com/v2.2/playlists/featured?limit=9&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
   );
 }
 
@@ -608,7 +616,7 @@ export async function getAlbumTracks(albumId) {
 
 export async function getNewAlbums() {
   return axios.get(
-    `http://api.napster.com/v2.2/albums/new?limit=5&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+    `http://api.napster.com/v2.2/albums/top?limit=5&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
   );
 }
 

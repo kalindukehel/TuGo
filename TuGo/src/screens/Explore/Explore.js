@@ -43,6 +43,7 @@ import Animated from "react-native-reanimated";
 
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
 import AlbumBlock from "../../components/Explore/AlbumBlock";
+import GText from "../../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -169,7 +170,7 @@ const Explore = ({ navigation }) => {
       indicatorStyle={{ backgroundColor: Colors.FG }}
       style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: Colors.text }}>{route.title}</Text>
+        <GText style={{ color: Colors.text }}>{route.title}</GText>
       )}
     />
   );
@@ -192,14 +193,14 @@ const Explore = ({ navigation }) => {
           width: width - 40,
           justifyContent: "center",
           alignItems: "center",
-          height: 200,
+          height: 150,
           borderRadius: 20,
           backgroundColor: "#DFDFDF",
         }}
       >
-        <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+        <GText style={{ fontWeight: "bold", fontSize: 20 }}>
           No new posts...
-        </Text>
+        </GText>
       </ImageBackground>
     ) : (
       <View
@@ -330,7 +331,7 @@ const Explore = ({ navigation }) => {
               }}
             />
             <TouchableOpacity onPress={() => setMode("")}>
-              <Text style={{ color: Colors.text }}>Cancel</Text>
+              <GText style={{ color: Colors.text }}>Cancel</GText>
             </TouchableOpacity>
           </View>
           <TabView
@@ -363,14 +364,14 @@ const Explore = ({ navigation }) => {
               paddingTop: 10,
             }}
           >
-            <Text
+            <GText
               style={{
                 fontSize: 35,
                 color: Colors.FG,
               }}
             >
               Browse
-            </Text>
+            </GText>
             <TouchableWithoutFeedback
               onPress={() => {
                 navigation.push("Explore Posts");
@@ -383,7 +384,7 @@ const Explore = ({ navigation }) => {
                 }}
               >
                 {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
-                <Text style={{color: Colors.close}}>See All</Text>
+                <GText style={{color: Colors.close}}>See All</GText>
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -408,7 +409,7 @@ const Explore = ({ navigation }) => {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 25, color: Colors.FG }}>Artists</Text>
+            <GText style={{ fontSize: 25, color: Colors.FG }}>Artists</GText>
             <TouchableWithoutFeedback
               onPress={() => {
                 navigation.push("All Artists");
@@ -421,7 +422,7 @@ const Explore = ({ navigation }) => {
                 }}
               > 
                 {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
-                <Text style={{color: Colors.close}}>See All</Text>
+                <GText style={{color: Colors.close}}>See All</GText>
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -444,33 +445,9 @@ const Explore = ({ navigation }) => {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 25, color: Colors.FG }}>Charts</Text>
+            <GText style={{ fontSize: 25, color: Colors.FG }}>Top Albums</GText>
             {/* <TouchableWithoutFeedback>
-              <Text style={{color: Colors.close}}>See All</Text>
-            </TouchableWithoutFeedback> */}
-          </View>
-
-          <FlatList
-            showsHorizontalScrollIndicator={false}
-            contentContainerStyle={{ padding: 20 }}
-            ItemSeparatorComponent={ItemSeparatorComponent}
-            data={charts}
-            horizontal={true}
-            renderItem={renderChart}
-            keyExtractor={(item) => item.id}
-            ListEmptyComponent={ListEmptyComponentArtist}
-          />
-          <View
-            style={{
-              flexDirection: "row",
-              marginHorizontal: leftSpacing,
-              alignItems: "center",
-              justifyContent: "space-between",
-            }}
-          >
-            <Text style={{ fontSize: 25, color: Colors.FG }}>Latest</Text>
-            {/* <TouchableWithoutFeedback>
-              <Text style={{color: Colors.close}}>See All</Text>
+              <GText style={{color: Colors.close}}>See All</GText>
             </TouchableWithoutFeedback> */}
           </View>
 
@@ -483,6 +460,30 @@ const Explore = ({ navigation }) => {
             renderItem={renderAlbum}
             keyExtractor={(item) => item.id}
             ListEmptyComponent={ListEmptyComponentArtist}
+          />
+          <View
+            style={{
+              flexDirection: "row",
+              marginHorizontal: leftSpacing,
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <GText style={{ fontSize: 25, color: Colors.FG }}>Charts</GText>
+            {/* <TouchableWithoutFeedback>
+              <GText style={{color: Colors.close}}>See All</GText>
+            </TouchableWithoutFeedback> */}
+          </View>
+
+          <FlatList
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ padding: 20, alignItems: 'center'}}
+            ItemSeparatorComponent={ItemSeparatorComponent}
+            data={charts}
+            renderItem={renderChart}
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={ListEmptyComponentArtist}
+            numColumns={3}
           />
         </ScrollView>
       )}

@@ -8,6 +8,7 @@
     "test": "jest"
   },
   "dependencies": {
+    "@expo-google-fonts/ubuntu": "^0.2.0",
     "@react-native-community/masked-view": "0.1.10",
     "@react-native-community/netinfo": "5.9.6",
     "@react-native-community/slider": "3.0.3",
@@ -20,7 +21,9 @@
     "axios": "^0.21.0",
     "expo": "^39.0.0",
     "expo-av": "~8.6.0",
+    "expo-cli": "^4.10.0",
     "expo-contacts": "~8.5.0",
+    "expo-font": "~8.3.0",
     "expo-haptics": "~8.3.0",
     "expo-image-picker": "~9.1.1",
     "expo-notifications": "~0.7.2",

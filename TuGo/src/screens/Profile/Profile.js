@@ -23,7 +23,9 @@ import {
   changeFollow as changeFollowAPI,
   getRequested as getRequestedAPI,
   pushNotification as pushNotificationAPI,
-  getAccountDetails as getAccountDetailsAPI
+  getAccountDetails as getAccountDetailsAPI,
+  mutualUsers as mutualUsersAPI,
+  by_ids as by_idsAPI
 } from "../../api";
 import { onSignOut } from "../../auth";
 import { useAuthState, useAuthDispatch } from "../../context/authContext";
@@ -34,11 +36,7 @@ import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import { useScrollToTop } from "@react-navigation/native";
 import { Colors } from "../../../constants";
-
-//images
-import SoundcloudIcon from "../../../assets/soundcloud.svg";
-import SpotifyIcon from "../../../assets/spotify.svg";
-import YoutubeIcon from "../../../assets/youtube.svg";
+import GText from '../../components/GText'
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -69,15 +67,18 @@ const styles = StyleSheet.create({
     margin: 10,
   },
   userStatsNumber: {
-    fontSize: 30,
+    fontSize: 25,
     alignSelf: "center",
     color: Colors.text,
   },
   userStatsText: {
-    backgroundColor: "#EDEDED",
     paddingHorizontal: 5,
     overflow: "hidden",
-    borderRadius: 10,
+    borderRadius: 7,
+    fontSize: 11,
+    color: Colors.text,
+    fontWeight: 'bold'
+    // color: Colors.text
   },
   settingsIcon: {
     flexDirection: "row-reverse",
@@ -87,12 +88,11 @@ const styles = StyleSheet.create({
     position: "absolute",
   },
   actionButton: {
-    borderWidth: 1,
-    borderRadius: 10,
-    borderColor: "#ffffff00",
-    width: "70%",
+    borderRadius: 7,
+    width: "50%",
     paddingVertical: 7,
     alignSelf: "center",
+    marginRight: 10
   },
   actionButtonText: {
     alignSelf: "center",
@@ -122,6 +122,8 @@ const Profile = (props) => {
   const [isFollowing, setIsFollowing] = useState(false);
   const firstRun = useRef(true);
   const [offset, setOffset] = useState(0);
+  const [topArtists, setTopArtists] = useState([])
+  const [mutuals, setMutuals] = useState([])
   const errorDispatch = useErrorDispatch();
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
@@ -174,9 +176,25 @@ const Profile = (props) => {
     //Update follow status
     const res = await getAccountDetailsAPI(profileId, userToken);
     setIsFollowing(res.data.requested ? 'requested' : res.data.you_follow ? 'true' : 'false')
+    if (!isSelf){
+      const idRes = await mutualUsersAPI(userToken, profileId)
+      const mutualsRes = await by_idsAPI(idRes.data.map(item => item.follower), userToken)
+      setMutuals(mutualsRes.data)
+    }
     try {
       const postsState = await getPostsAPI(userToken, profileId);
       setPosts(postsState.data);
+      const allArtistArr = postsState.data.map(post=>post.artist_id)
+      const uniqueArtistArr = [...new Set(allArtistArr)]
+      const artistobj = uniqueArtistArr.map(id => {
+        return (
+        {id: id, count: allArtistArr.filter(x => x === id).length}
+        )
+      })
+      const sortedArtists = artistobj.sort((a,b) => a.count < b.count)
+      setTopArtists(sortedArtists.length <= 3 ? sortedArtists : sortedArtists.slice(0,3))
+
+
     } catch (e) {
       console.log('cannot view posts, must follow')
     }
@@ -246,6 +264,16 @@ const Profile = (props) => {
     );
   };
 
+  const getArtistImage = (artistId) => {
+    return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
+  };
+
+  const renderTopArtist = ({item}) => {
+    return (
+      <Image style={{height: 50, width: 50, borderRadius: 999}} source={{uri: getArtistImage(item.id)}} />
+    )
+  }
+
   async function checkFollow() {
     //Get everyone that user is following
     const res = await getAccountDetailsAPI(profileId, userToken);
@@ -312,10 +340,11 @@ const Profile = (props) => {
         return "Requested";
       }
     };
+
     return (
       <>
         {isSelf && (
-          <Text
+          <GText
             style={{
               marginLeft: leftSpacing,
               fontSize: 30,
@@ -324,7 +353,7 @@ const Profile = (props) => {
             }}
           >
             My Profile
-          </Text>
+          </GText>
         )}
         <View style={styles.ProfileHeaderView}>
           <View style={styles.profilePicture}>
@@ -334,20 +363,67 @@ const Profile = (props) => {
                   ? user.profile_picture
                   : API_URL + "/media/default.jpg",
               }}
-              style={{ height: 150, width: 150, borderRadius: 999 }}
+              style={{ height: 100, width: 100, borderRadius: 999 }}
             />
           </View>
           <View
-            style={{
-              justifyContent: "space-between",
-              height: 120,
-              flex: 1,
-              alignItems: "center",
+          style={{
+            flexDirection: "row",
+            justifyContent: "space-between",
+            flex: 1,
+            marginHorizontal: 20
+          }}
+        >
+          <TouchableWithoutFeedback
+            disabled={!isViewable}
+            onPress={() => {
+              navigation.push("Following", {
+                id: profileId,
+                type: "following",
+              });
             }}
           >
+            <View>
+              <GText style={styles.userStatsNumber}>{following}</GText>
+              <GText style={styles.userStatsText}>Following</GText>
+            </View>
+          </TouchableWithoutFeedback>
+          <View style={{ }}>
+            <GText style={styles.userStatsNumber}>{postsLength}</GText>
+            <GText
+              style={styles.userStatsText}
+            >
+              Songs
+            </GText>
+          </View>
+          <TouchableWithoutFeedback
+            disabled={!isViewable}
+            onPress={() => {
+              navigation.push("Followers", {
+                id: profileId,
+                type: "followers",
+              });
+            }}
+          >
+            <View>
+              <GText style={styles.userStatsNumber}>{followers}</GText>
+              <GText style={styles.userStatsText}>Followers</GText>
+            </View>
+          </TouchableWithoutFeedback>
+        </View>
+        </View>
+        <View
+            style={{
+              justifyContent: "space-between",
+              flex: 1,
+              alignItems: "center",
+              flexDirection: 'row',
+              marginVertical: 20
+            }}
+        >
             {user && (
               <>
-                <Text
+                <GText
                   style={{
                     marginVertical: 10,
                     marginHorizontal: 20,
@@ -357,111 +433,95 @@ const Profile = (props) => {
                   }}
                 >
                   {user.name}
-                </Text>
+                </GText>
                 {!isSelf ? (
-                  <TouchableOpacity
-                    style={{
+                  <TouchableWithoutFeedback
+                    onPress={() => changeFollow()}
+                  >
+                    <View style={{
                       ...styles.actionButton,
                       backgroundColor:
                         isFollowing == "true" ? "#065581" : "#DCDCDC",
-                    }}
-                    onPress={() => changeFollow()}
-                  >
-                    <Text
-                      style={{
-                        ...styles.actionButtonText,
-                        color: isFollowing == "true" ? "white" : "black",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      {isFollowing != "" && renderFollowingType()}
-                    </Text>
-                  </TouchableOpacity>
+                    }}>
+                      <GText
+                        style={{
+                          ...styles.actionButtonText,
+                          color: isFollowing == "true" ? "white" : "black",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        {isFollowing != "" && renderFollowingType()}
+                      </GText>
+                    </View>
+                  </TouchableWithoutFeedback>
                 ) : (
-                  <TouchableOpacity
-                    style={{
-                      ...styles.actionButton,
-                      backgroundColor: "#DCDCDC",
-                    }}
+                  <TouchableWithoutFeedback
                     onPress={() => {
                       navigation.push("Edit Profile", {
                         self: user
                       });
                     }}
                   >
-                    <Text
-                      style={{
-                        ...styles.actionButtonText,
-                        fontWeight: "bold",
-                      }}
-                    >
-                      Edit Profile
-                    </Text>
-                  </TouchableOpacity>
+                    <View style={{
+                      ...styles.actionButton,
+                      backgroundColor: "#DCDCDC",
+                    }}>
+                      <GText
+                        style={{
+                          ...styles.actionButtonText,
+                          fontWeight: "bold",
+                        }}
+                      >
+                        Edit Profile
+                      </GText>
+                    </View>
+                  </TouchableWithoutFeedback>
                 )}
               </>
             )}
           </View>
-        </View>
-        <View
-          style={{
-            flexDirection: "row",
-            justifyContent: "space-around",
-            marginBottom: 20
-          }}
-        >
-          <TouchableOpacity
-            disabled={!isViewable}
-            onPress={() => {
-              navigation.push("Following", {
-                id: profileId,
-                type: "following",
-              });
-            }}
-          >
-            <Text style={styles.userStatsNumber}>{following}</Text>
-            <Text style={styles.userStatsText}>Following</Text>
-          </TouchableOpacity>
-          <View style={{ }}>
-            <Text style={styles.userStatsNumber}>{postsLength}</Text>
-            <Text
-              style={styles.userStatsText}
-            >
-              Songs
-            </Text>
-          </View>
-          <TouchableOpacity
-            disabled={!isViewable}
-            onPress={() => {
-              navigation.push("Followers", {
-                id: profileId,
-                type: "followers",
-              });
-            }}
-          >
-            <Text style={styles.userStatsNumber}>{followers}</Text>
-            <Text style={styles.userStatsText}>Followers</Text>
-          </TouchableOpacity>
-        </View>
-        <View
-          style={{
-            borderBottom: "solid",
-            borderWidth: 2,
-            marginTop: 10,
-            borderColor: "#EDEDED",
-          }}
-        />
+        {!isSelf && mutuals.length > 0 &&
+        <View style={{flexDirection: 'row', marginVertical: 10}}>
+          <GText style={{color: Colors.text, marginLeft: leftSpacing}}>
+            <GText>Followed by </GText>
+            <GText 
+              style={{fontWeight: 'bold'}}
+              onPress={()=>{
+                navigation.push("Profile", {
+                  id: mutuals[0].id,
+                })
+              }}>{mutuals[0].username}</GText>
+            {mutuals.length > 1 &&
+              <GText style={{color: Colors.text}}>
+                {mutuals.length > 2 ? <GText>,</GText> : <GText> and </GText>}
+                <GText 
+                  style={{fontWeight: 'bold'}}
+                  onPress={()=>{
+                    navigation.push("Profile", {
+                      id: mutuals[1].id,
+                    })
+                  }}>{mutuals[1].username}</GText>
+                {mutuals.length > 2 && <GText> and {mutuals.length - 2} more</GText>}
+              </GText>
+            }
+          </GText>
+        </View>}
         <View
           style={{
             flexDirection: "row",
             justifyContent: "space-between",
-            margin: 10,
             alignItems: "center",
+            borderColor: Colors.gray,
+            borderWidth: 1,
+            borderRadius: 30,
+            marginVertical: 20,
+            height: 70,
+            paddingLeft: leftSpacing
           }}
         >
-          <Text style={{ fontWeight: "bold", color: Colors.text }}>
+         <GText style={{ fontWeight: "bold", color: Colors.text }}>
             Portfolio
-          </Text>
+          </GText>
           <View
             style={{
               flexDirection: "row",
@@ -470,15 +530,20 @@ const Profile = (props) => {
               justifyContent: "space-evenly",
             }}
           >
-            <OpenURLButton url={"https://soundcloud.com/discover"}>
-              <SoundcloudIcon width={40} height={40} />
-            </OpenURLButton>
-            <OpenURLButton url={"https://open.spotify.com/user/kush_p567"}>
-              <SpotifyIcon width={40} height={40} />
-            </OpenURLButton>
-            <OpenURLButton url={"https://www.youtube.com/"}>
-              <YoutubeIcon width={40} height={40} />
-            </OpenURLButton>
+            {topArtists.length === 0 ? <GText style={{color: Colors.primary}}>Post to create portfolio.</GText>:
+            <FlatList
+              scrollEnabled={false}
+              contentContainerStyle={{
+                flexDirection: "row",
+                flex: 1,
+                marginLeft: 20,
+                justifyContent: "space-evenly",
+              }}
+              horizontal
+              data={topArtists}
+              renderItem={renderTopArtist}
+              keyExtractor={item => item.id}
+            />}
           </View>
         </View>
       </>
@@ -488,7 +553,7 @@ const Profile = (props) => {
   const getFooter = () => {
     return (
       !isViewable && (
-        <Text
+        <GText
           style={{
             color: Colors.text,
             fontSize: 20,
@@ -498,7 +563,7 @@ const Profile = (props) => {
           }}
         >
           Private Account! Follow to see.
-        </Text>
+        </GText>
       )
     );
   };
@@ -511,7 +576,7 @@ const Profile = (props) => {
     >
       <FlatList
         ref={ref}
-        style={{ flexDirection: "column" }}
+        style={{ flexDirection: "column"}}
         contentContainerStyle={styles.list}
         refreshControl={
           <RefreshControl
@@ -526,6 +591,7 @@ const Profile = (props) => {
         renderItem={renderSection}
         keyExtractor={(item) => item.id.toString()}
         numColumns={3}
+        ListHeaderComponentStyle={{backgroundColor: Colors.BG}}
       />
     </View>
   );

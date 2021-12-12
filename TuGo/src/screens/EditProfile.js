@@ -28,6 +28,7 @@ import { API, Auth, graphqlOperation } from "aws-amplify";
 import { AntDesign } from '@expo/vector-icons';
 import * as Haptics from "expo-haptics";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import GText from "../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -96,7 +97,7 @@ const EditProfile = (props) => {
             }
           }}
         >
-          <Text style={{ color: enabled ? Colors.save : Colors.gray }}>SAVE</Text>
+          <GText style={{ color: enabled ? Colors.save : Colors.gray }}>SAVE</GText>
         </TouchableOpacity>
       ),
     });
@@ -252,8 +253,6 @@ const styles = StyleSheet.create({
     width: "100%",
     height: "100%",
     alignSelf: "center",
-    borderColor: Colors.primary,
-    borderWidth: 2,
     borderRadius: 999,
     zIndex: 1,
     position: "absolute",

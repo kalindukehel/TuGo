@@ -4,6 +4,7 @@ import moment from "moment";
 import { useAuthState } from "../context/authContext";
 import { Colors } from "../../constants";
 import { Audio } from "expo-av";
+import GText from "./GText"
 
 const sound = new Audio.Sound();
 
@@ -28,9 +29,9 @@ const ImageMessage = (props) => {
           },
         ]}
       >
-        {!isMyMessage() && <Text style={styles.name}>{message.user.name}</Text>}
-        <Text style={styles.message}>{message.content}</Text>
-        <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text>
+        {!isMyMessage() && <GText style={styles.name}>{message.user.name}</GText>}
+        <GText style={styles.message}>{message.content}</GText>
+        <GText style={styles.time}>{moment(message.createdAt).fromNow()}</GText>
       </View>
     </View>
   );

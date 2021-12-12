@@ -35,7 +35,7 @@ const Player = (props) => {
     color,
     artistId,
     navigation,
-    setDisableScroll,
+    setDisableScroll=()=>{},
   } = props;
   let tileColor = color ? color : "#ffffff00";
   const { playingId, stopAll, trackId } = usePlayerState();
@@ -164,7 +164,6 @@ const Player = (props) => {
     setDisableScroll(false);
   }
   stateRef.current = isSeeking;
-
   return (
     <View
       style={{

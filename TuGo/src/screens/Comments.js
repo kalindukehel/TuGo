@@ -48,6 +48,8 @@ import {
 } from "react-native-controlled-mentions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
+import GText from "../components/GText"
+import { useKeyboard } from "../components/UseKeyboard";
 
 var { width, height } = Dimensions.get("window");
 
@@ -66,6 +68,7 @@ const Comments = (props) => {
   const [message, setMessage] = useState("");
   const [accounts, setAccounts] = useState([]);
   const [sizeValue, setSizeValue] = useState(200);
+  const [keyboardHeight] = useKeyboard();
 
   const insets = useSafeAreaInsets();
 
@@ -90,15 +93,15 @@ const Comments = (props) => {
   const renderPart = (part: Part, index: number) => {
     // Just plain text
     if (!part.partType) {
-      return <Text key={index}>{part.text}</Text>;
+      return <GText key={index}>{part.text}</GText>;
     }
 
     // Mention type part
     if (isMentionPartType(part.partType)) {
       return (
-        <Text
+        <GText
           key={`${index}-${part.data?.trigger}`}
-          style={{ color: "aqua" }}
+          style={{ color: Colors.primary }}
           onPress={() => {
             navigation.push("Profile", {
               id: parseInt(part.data.id, 10),
@@ -106,15 +109,15 @@ const Comments = (props) => {
           }}
         >
           {part.text}
-        </Text>
+        </GText>
       );
     }
 
     // Other styled part types
     return (
-      <Text key={`${index}-pattern`} style={part.partType.textStyle}>
+      <GText key={`${index}-pattern`} style={part.partType.textStyle}>
         {part.text}
-      </Text>
+      </GText>
     );
   };
 
@@ -129,13 +132,14 @@ const Comments = (props) => {
 
       return (
         <ScrollView
+          keyboardShouldPersistTaps={'always'}
           style={{
             backgroundColor: Colors.contrastGray,
             position: "absolute",
             bottom: 40,
             left: 0,
             right: 0,
-            maxHeight: height * 0.60,
+            maxHeight: (height - keyboardHeight) * 0.7,
             borderRadius: 10,
           }}
         >
@@ -165,7 +169,7 @@ const Comments = (props) => {
                       marginRight: 10,
                     }}
                   />
-                  <Text style={{ color: Colors.FG }}>{one.name}</Text>
+                  <GText style={{ color: Colors.FG }}>{one.name}</GText>
                 </TouchableWithoutFeedback>
               );
             })}
@@ -302,7 +306,7 @@ const Comments = (props) => {
               style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
             ></Image>
           </TouchableOpacity>
-          <Text
+          <GText
             style={{
               flexWrap: "wrap",
               marginRight: 20,
@@ -310,9 +314,9 @@ const Comments = (props) => {
               color: Colors.text,
             }}
           >
-            <Text style={styles.authorName}>{curAccount.username + `: `}</Text>
-            <Text style={{ color: Colors.text }}>{parts.map(renderPart)}</Text>
-          </Text>
+            <GText style={styles.authorName}>{curAccount.username + `: `}</GText>
+            <GText style={{ color: Colors.text }}>{parts.map(renderPart)}</GText>
+          </GText>
         </View>
         {isSelf &&
         <TouchableWithoutFeedback style={{}} onPress={() => {
@@ -332,6 +336,7 @@ const Comments = (props) => {
 
   const header = () => {
     return (
+      post.caption !== '' &&
       <View style={styles.caption}>
         <TouchableOpacity
           style={{ flexDirection: "row", alignItems: "center" }}
@@ -350,10 +355,10 @@ const Comments = (props) => {
             style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
           ></Image>
         </TouchableOpacity>
-        <Text style={{ flexWrap: "wrap", marginRight: 20, marginLeft: 10 }}>
-          <Text style={styles.authorName}>{author.username + `: `}</Text>
-          <Text style={{ color: Colors.text }}>{post.caption}</Text>
-        </Text>
+        <GText style={{ flexWrap: "wrap", marginRight: 20, marginLeft: 10 }}>
+          <GText style={styles.authorName}>{author.username + `: `}</GText>
+          <GText style={{ color: Colors.text }}>{post.caption}</GText>
+        </GText>
       </View>
     );
   };

@@ -7,12 +7,13 @@ pushNotification as pushNotificationAPI } from "../api"
 import { useAuthState } from "../context/authContext"
 import { API_URL, Colors } from '../../constants'
 import * as Haptics from "expo-haptics";
+import GText from "./GText"
 
 let {width, height} = Dimensions.get('window')
 const maxlimit = 20;
 
 const FollowTile = ({user, navigation}) => {
-    const { userToken } = useAuthState();
+    const { userToken, self } = useAuthState();
     const [relation, setRelation] = useState()
     const isSelf = user.id == self.id;
     async function getFollowStatus () {
@@ -64,16 +65,16 @@ const FollowTile = ({user, navigation}) => {
             }}
           ></Image>
           <View style={{ flexDirection: "column", flex: 1, marginLeft: 10 }}>
-            <Text style={{ fontWeight: "bold", color: Colors.text }}>
+            <GText style={{ fontWeight: "bold", color: Colors.text }}>
               {user.username.length > maxlimit
                 ? user.username.substring(0, maxlimit - 3) + "..."
                 : user.username}
-            </Text>
-            <Text style={{ color: Colors.text }}>
+            </GText>
+            <GText style={{ color: Colors.text }}>
               {user.username.length > maxlimit
                 ? user.name.substring(0, maxlimit - 3) + "..."
                 : user.name}
-            </Text>
+            </GText>
           </View>
           <TouchableOpacity
             style={{
@@ -92,7 +93,7 @@ const FollowTile = ({user, navigation}) => {
                   })
             }
           >
-            <Text
+            <GText
               style={{
                 ...styles.followButtonText,
                 color: isSelf
@@ -104,7 +105,7 @@ const FollowTile = ({user, navigation}) => {
               }}
             >
               {isSelf ? `View` : renderFollowingType()}
-            </Text>
+            </GText>
           </TouchableOpacity>
         </View>
       </TouchableOpacity>

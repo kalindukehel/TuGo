@@ -8,6 +8,7 @@ import {
 } from "react-native";
 import { Colors, Length } from "../../../constants";
 import { Truncate } from "../../Helpers/Truncate";
+import GText from "../GText"
 
 const outerWidth = 120;
 const outerHeight = 120;
@@ -64,9 +65,9 @@ const AlbumBlock = (props) => {
                 source={{uri: image}}
                 />
             </View>
-            <Text style={{ flexWrap: "wrap", width: 120, marginTop: 5 }}>
-              <Text style={{color: Colors.text}}>{text}</Text>
-            </Text>
+            <GText style={{ flexWrap: "wrap", width: 120, marginTop: 5 }}>
+              <GText style={{color: Colors.text}}>{text}</GText>
+            </GText>
         </View>
     </TouchableWithoutFeedback>
   );

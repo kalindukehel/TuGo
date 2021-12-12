@@ -18,6 +18,7 @@ import { API_URL, Colors } from "../../constants";
 import { getChatRoom } from "../screens/Direct/queries";
 import { MaterialCommunityIcons } from '@expo/vector-icons';
 import { onUpdateChatRoom } from  "../graphql/subscriptions"
+import GText from "./GText"
 
 const ChatListItem = (props) => {
   const { chatRoom, navigation } = props;
@@ -117,6 +118,7 @@ const ChatListItem = (props) => {
       return "";
     }
   };
+  console.log(otherUser)
   return (
     seen != null &&
     <TouchableWithoutFeedback
@@ -128,17 +130,17 @@ const ChatListItem = (props) => {
           <Image source={{ uri: API_URL + otherUser.imageUri }} style={styles.avatar} />
 
           <View style={styles.midContainer}>
-            <Text style={styles.name}>{otherUser.name}</Text>
-            <Text numberOfLines={2} style={styles.lastMessage}>
+            <GText style={styles.name}>{otherUser.name}</GText>
+            <GText numberOfLines={2} style={styles.lastMessage}>
               {renderLastMessage()}
-            </Text>
+            </GText>
           </View>
         </View>
         <View>
-          <Text style={styles.time}>
+          <GText style={styles.time}>
             {chatRoom.lastMessage &&
             moment(chatRoom.lastMessage.updatedAt).fromNow()}
-          </Text>
+          </GText>
           {!seen &&
           <View style={{flex: 1, justifyContent: 'center', alignItems: "flex-end"}}>
             <MaterialCommunityIcons name="chat" size={20} color={Colors.primary} />

@@ -17,6 +17,7 @@ import {
 import { NavigationContainer } from "@react-navigation/native";
 // import "react-native-gesture-handler";
 import { Colors } from "../../constants";
+import GText from "../components/GText"
 
 const Home = ({ navigation }) => {
   const [accounts, setAccounts] = useState();
@@ -48,11 +49,11 @@ const Home = ({ navigation }) => {
   return (
     <>
       <View style={styles.MainContainer}>
-        <Text style={{ fontSize: 50, textAlign: "center", marginBottom: 40 }}>
+        <GText style={{ fontSize: 50, textAlign: "center", marginBottom: 40 }}>
           TuGo
-        </Text>
+        </GText>
 
-        {/* <Text>{accounts ? accounts.username : null}</Text>
+        {/* <GText>{accounts ? accounts.username : null}</GText>
         <Button title="click me" onPress={createAccount}></Button>
         <TextInput
           onChangeText={handleChange}
@@ -64,7 +65,7 @@ const Home = ({ navigation }) => {
             navigation.navigate("SignUp");
           }}
         >
-          <Text>Sign Up</Text>
+          <GText>Sign Up</GText>
         </TouchableOpacity>
       </View>
       <View
@@ -81,13 +82,13 @@ const Home = ({ navigation }) => {
           marginBottom: 40,
         }}
       >
-        <Text>Already have an account?</Text>
+        <GText>Already have an account?</GText>
         <TouchableOpacity
           onPress={() => {
             navigation.navigate("SignIn");
           }}
         >
-          <Text style={{ color: "blue", marginLeft: 3 }}>Sign In.</Text>
+          <GText style={{ color: "blue", marginLeft: 3 }}>Sign In.</GText>
         </TouchableOpacity>
       </View>
     </>

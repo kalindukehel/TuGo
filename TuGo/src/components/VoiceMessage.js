@@ -14,6 +14,7 @@ import { Colors } from "../../constants";
 import { Audio } from "expo-av";
 import { Entypo, AntDesign } from "@expo/vector-icons";
 import ProgressCircle from "react-native-progress-circle";
+import GText from "./GText"
 
 const VoiceMessage = (props) => {
   const { message } = props;
@@ -152,7 +153,7 @@ const VoiceMessage = (props) => {
             </ProgressCircle>
           </TouchableOpacity>
         </View>
-        {/* <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text> */}
+        {/* <GText style={styles.time}>{moment(message.createdAt).fromNow()}</GText> */}
       </View>
     </View>
   );

@@ -16,6 +16,7 @@ import {
 
 import moment from "moment";
 import { Colors } from "../../../constants";
+import GText from "../GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -71,7 +72,7 @@ const TagActivity = (props) => {
               }}
             ></Image>
           </TouchableOpacity>
-          <Text
+          <GText
             style={{
               flexWrap: "wrap",
               flex: 1,
@@ -79,16 +80,16 @@ const TagActivity = (props) => {
               alignSelf: "center",
             }}
           >
-            <Text style={{ fontWeight: "bold", color: Colors.text }}>
+            <GText style={{ fontWeight: "bold", color: Colors.text }}>
               {tagger.username}
-            </Text>
-            <Text
+            </GText>
+            <GText
               style={{ color: Colors.text }}
-            >{` tagged you in ${postAuthor.username}'s post `}</Text>
-            <Text style={{ fontSize: 12, color: "#7D7D7D" }}>
+            >{` tagged you in ${postAuthor.username}'s post `}</GText>
+            <GText style={{ fontSize: 12, color: "#7D7D7D" }}>
               {moment(activity.created_at).fromNow(true)}
-            </Text>
-          </Text>
+            </GText>
+          </GText>
 
           <TouchableOpacity
             style={{}}

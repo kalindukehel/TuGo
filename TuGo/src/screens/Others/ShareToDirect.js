@@ -36,6 +36,7 @@ import {
 } from "../../graphql/mutations";
 import { getChatRoom, getUser } from "../Direct/queries";
 import { listUsers } from "../../graphql/queries";
+import GText from "../../components/GText"
 
 //icons
 import { Feather } from "@expo/vector-icons";
@@ -637,15 +638,15 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             marginLeft: 10,
           }}
         >
-          <Text style={{ color: Colors.text }}>{user.name}</Text>
-          <Text
+          <GText style={{ color: Colors.text }}>{user.name}</GText>
+          <GText
             style={{
               fontWeight: "500",
               color: "#666",
             }}
           >
             {user.username}
-          </Text>
+          </GText>
         </View>
       </View>
       <TouchableOpacity
@@ -662,7 +663,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         {loadingShare ? (
           <ActivityIndicator animating={true} size="small" color={Colors.FG} />
         ) : (
-          <Text
+          <GText
             style={{
               color: "black",
               fontSize: 12,
@@ -670,7 +671,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             }}
           >
             {sent ? "Sent" : "Send"}
-          </Text>
+          </GText>
         )}
       </TouchableOpacity>
     </View>

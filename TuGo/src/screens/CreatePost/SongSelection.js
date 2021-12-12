@@ -20,6 +20,7 @@ import { render } from "react-dom";
 import { FlatList } from "react-native-gesture-handler";
 import { Colors, appTheme } from "../../../constants";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+import GText from "../../components/GText"
 
 const CreatePost = ({ navigation }) => {
   const [search, setSearch] = useState();
@@ -135,7 +136,7 @@ const CreatePost = ({ navigation }) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: Colors.close }}>CANCEL</Text>
+          <GText style={{ color: Colors.close }}>CANCEL</GText>
         </TouchableOpacity>
         <TouchableOpacity
           disabled={
@@ -148,7 +149,7 @@ const CreatePost = ({ navigation }) => {
             });
           }}
         >
-          <Text
+          <GText
             style={{
               color:
                 Object.keys(selectedItem).length === 0 ||
@@ -158,7 +159,7 @@ const CreatePost = ({ navigation }) => {
             }}
           >
             NEXT
-          </Text>
+          </GText>
         </TouchableOpacity>
       </View>
       <View style={{ margin: 8 }}>

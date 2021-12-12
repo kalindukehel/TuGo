@@ -19,6 +19,7 @@ import GestureRecognizer, {
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { MaterialIcons } from '@expo/vector-icons';
+import GText from "./GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -125,7 +126,7 @@ const PlayerWidget = () => {
         <View style={styles.row}>
           <MaterialIcons name="error-outline" size={45} color={Colors.FG} />
           <View style={{marginLeft: 20}}>
-            <Text style={{color: Colors.text }}>{errorMessage}</Text>
+            <GText style={{color: Colors.text }}>{errorMessage}</GText>
           </View>
         </View>
       </Animated.View>

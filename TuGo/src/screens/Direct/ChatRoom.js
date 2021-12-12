@@ -17,6 +17,7 @@ import ChatInputBox from "../../components/ChatInputBox";
 
 import { Colors, Length } from "../../../constants";
 import { useAuthState } from "../../context/authContext";
+import GText from "../../components/GText"
 
 const ChatRoom = ({ navigation }) => {
   const { self } = useAuthState()
@@ -147,7 +148,7 @@ const ChatRoom = ({ navigation }) => {
         extraData={readTag}
         ListHeaderComponent={() => (
           readTag &&
-           <Text style={{color: Colors.gray, alignSelf: 'flex-end', fontSize: 10, marginRight: Length.msgIndent}}>Read</Text>
+           <GText style={{color: Colors.gray, alignSelf: 'flex-end', fontSize: 10, marginRight: Length.msgIndent}}>Read</GText>
         )}
         data={messages}
         renderItem={({ item }) => {

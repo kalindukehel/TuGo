@@ -13,6 +13,7 @@ import * as ImagePicker from "expo-image-picker";
 import { Video } from "expo-av";
 import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import GText from "../GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -94,7 +95,7 @@ const CustomVideoTabView = (props) => {
   return (
     <View style={styles.container}>
       {isMax &&
-      <Text style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15}}>Sorry, max attachments reached</Text>}
+      <GText style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15}}>Sorry, max attachments reached</GText>}
       <FlatList
         data={customVideos}
         renderItem={renderVideo}
@@ -114,7 +115,7 @@ const CustomVideoTabView = (props) => {
         }}
       >
         <View style={{...styles.actionButton, backgroundColor: isMax ? Colors.contrastGray:Colors.gray}}>
-          <Text style={{...styles.actionButtonText, color: isMax ? Colors.gray :Colors.complimentText,}}>View Gallery</Text>
+          <GText style={{...styles.actionButtonText, color: isMax ? Colors.gray :Colors.complimentText,}}>View Gallery</GText>
         </View>
       </TouchableWithoutFeedback>
     </View>

@@ -14,6 +14,7 @@ import { useAuthState } from "../context/authContext";
 import { Dimensions } from "react-native";
 import RBSheet from "react-native-raw-bottom-sheet";
 import WebView from "react-native-webview";
+import GText from "../components/GText"
 
 
 const { width, height } = Dimensions.get('window')
@@ -55,14 +56,14 @@ const Policies = ({navigation}) => {
                     refRBSheet1.current.open();
                     }}
                 >
-                    <Text style={{color: Colors.primary, marginBottom: 10, fontSize: 18}}>Youtube Terms of Service</Text>
+                    <GText style={{color: Colors.primary, marginBottom: 10, fontSize: 18}}>Youtube Terms of Service</GText>
                 </TouchableWithoutFeedback>
                 <TouchableWithoutFeedback
                     onPress={() => {
                         refRBSheet2.current.open();
                     }}
                 >
-                    <Text style={{color: Colors.primary, fontSize: 18}}>Google Privacy policy</Text>
+                    <GText style={{color: Colors.primary, fontSize: 18}}>Google Privacy policy</GText>
                 </TouchableWithoutFeedback>
                 <RBSheet
                     height={height * 0.8}

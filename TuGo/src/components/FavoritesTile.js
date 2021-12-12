@@ -22,7 +22,7 @@ import { Colors } from "../../constants";
 //components
 import Player from "../components/Player";
 import * as Haptics from "expo-haptics";
-
+import GText from "./GText"
 import { Audio } from "expo-av";
 
 //icons
@@ -193,6 +193,7 @@ const FavoritesTile = (props) => {
       console.log(error);
     }
   }
+
   return (
     post && (
       <ImageBackground
@@ -252,7 +253,7 @@ const FavoritesTile = (props) => {
               });
             }}
           >
-            <Text style={styles.viewPostButtonText}>View Post</Text>
+            <GText style={styles.viewPostButtonText}>View Post</GText>
           </TouchableOpacity>
         </View>
       </ImageBackground>

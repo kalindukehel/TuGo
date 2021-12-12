@@ -23,6 +23,7 @@ import { useAuthDispatch } from "../context/authContext";
 import { Colors, appTheme } from "../../constants";
 import { AntDesign } from '@expo/vector-icons';
 import * as Haptics from "expo-haptics";
+import GText from "../components/GText"
 
 let {width, height} = Dimensions.get('window')
 
@@ -144,7 +145,7 @@ const SignIn = ({ navigation }) => {
     }, [url]);
 
     return (
-      <TouchableOpacity onPress={handlePress}><Text style={{color: Colors.primary}}>{children}</Text></TouchableOpacity>
+      <TouchableOpacity onPress={handlePress}><GText style={{color: Colors.primary}}>{children}</GText></TouchableOpacity>
     );
   };
 
@@ -159,7 +160,7 @@ const SignIn = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inner}>
-            <Text style={styles.header}>SignUp</Text>
+            <GText style={styles.header}>SignUp</GText>
             <TextInput
               keyboardAppearance={appTheme}
               onChangeText={(name) => setName(name)}
@@ -229,11 +230,11 @@ const SignIn = ({ navigation }) => {
                     </View>
                   </TouchableWithoutFeedback>}
             </View>
-              <Text style={{textAlign: 'center', color: 'gray'}}>By signing up, you agree to our
+              <GText style={{textAlign: 'center', color: 'gray'}}>By signing up, you agree to our
                 <OpenURLButton url={"https://www.youtube.com/t/terms"}>Youtube Terms of Service</OpenURLButton>
-                <Text>    </Text>
+                <GText>    </GText>
                 <OpenURLButton url={"https://policies.google.com/privacy"}>Google Privacy policy</OpenURLButton>
-              </Text>
+              </GText>
               <TouchableOpacity
                 disabled={!enabled}
                 style={
@@ -254,7 +255,7 @@ const SignIn = ({ navigation }) => {
                   color={Colors.complimentText}
                 />
               ) : (
-                <Text style={{ color: Colors.complimentText }}>SignUp</Text>
+                <GText style={{ color: Colors.complimentText }}>SignUp</GText>
               )}
             </TouchableOpacity>
             <View style={{ flex: 1 }} />

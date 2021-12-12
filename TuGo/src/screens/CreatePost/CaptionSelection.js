@@ -21,6 +21,7 @@ import {
 import { useAuthState } from "../../context/authContext";
 import { Colors, appTheme, Length } from "../../../constants";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+import GText from "../../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -91,7 +92,7 @@ const CaptionSelection = (props) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: Colors.close }}>BACK</Text>
+          <GText style={{ color: Colors.close }}>BACK</GText>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
@@ -102,13 +103,13 @@ const CaptionSelection = (props) => {
             navigation.navigate("Explore");
           }}
         >
-          <Text
+          <GText
             style={{
               color: Colors.close,
             }}
           >
             POST
-          </Text>
+          </GText>
         </TouchableOpacity>
       </View>
       <SearchItem

@@ -6,6 +6,8 @@ import { Colors, API_URL, Length } from "../../constants";
 import { Dimensions } from "react-native";
 import { TouchableWithoutFeedback } from "react-native";
 import RenderProfileIcon from './RenderProfileIcon'
+import GText from "./GText"
+
 const { width, height } = Dimensions.get('window')
 const TextMessage = (props) => {
   const { message, navigation} = props;
@@ -34,7 +36,7 @@ const TextMessage = (props) => {
           },
         ]}
       >
-          <Text
+          <GText
             style={{
               flexWrap: "wrap",
               marginRight: 5,
@@ -42,10 +44,10 @@ const TextMessage = (props) => {
               color: Colors.text,
             }}
           >
-            <Text style={styles.message}>{message.content}</Text>
-          </Text>
-        {/* <Text style={styles.message}>{message.content}</Text> */}
-        {/* <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text> */}
+            <GText style={styles.message}>{message.content}</GText>
+          </GText>
+        {/* <GText style={styles.message}>{message.content}</GText> */}
+        {/* <GText style={styles.time}>{moment(message.createdAt).fromNow()}</GText> */}
       </View>
     </View>
   );

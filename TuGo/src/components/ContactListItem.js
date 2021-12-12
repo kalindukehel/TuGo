@@ -16,6 +16,7 @@ import {
 import { listUsers } from "../../src/graphql/queries";
 import { useAuthState } from "../context/authContext";
 import { getUser } from "../screens/Direct/queries";
+import GText from "./GText"
 
 var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
@@ -144,16 +145,16 @@ const ContactListItem = (props) => {
             marginLeft: 15,
           }}
         >
-          <Text style={{ fontWeight: "bold", color: Colors.text }}>
+          <GText style={{ fontWeight: "bold", color: Colors.text }}>
             {account.username.length > maxlimit
               ? account.username.substring(0, maxlimit - 3) + "..."
               : account.username}
-          </Text>
-          <Text style={{ color: Colors.text }}>
+          </GText>
+          <GText style={{ color: Colors.text }}>
             {account.username.length > maxlimit
               ? account.name.substring(0, maxlimit - 3) + "..."
               : account.name}
-          </Text>
+          </GText>
         </View>
       </View>
     </TouchableOpacity>

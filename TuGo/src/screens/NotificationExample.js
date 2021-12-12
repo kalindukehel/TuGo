@@ -51,16 +51,16 @@ export default function App({ navigation }) {
         justifyContent: "space-around",
       }}
     >
-      <Text>Your expo push token: {expoPushToken}</Text>
+      <GText>Your expo push token: {expoPushToken}</GText>
       <View style={{ alignItems: "center", justifyContent: "center" }}>
-        <Text>
+        <GText>
           Title: {notification && notification.request.content.title}{" "}
-        </Text>
-        <Text>Body: {notification && notification.request.content.body}</Text>
-        <Text>
+        </GText>
+        <GText>Body: {notification && notification.request.content.body}</GText>
+        <GText>
           Data:{" "}
           {notification && JSON.stringify(notification.request.content.data)}
-        </Text>
+        </GText>
       </View>
       <Button
         title="Press to Send Notification"

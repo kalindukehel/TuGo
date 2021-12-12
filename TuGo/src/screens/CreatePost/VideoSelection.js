@@ -15,7 +15,7 @@ import VoiceCoversTabView from "../../components/TabViews/VoiceCoversTabView";
 import CustomVideoTabView from "../../components/TabViews/CustomVideoTabView";
 import { Colors } from "../../../constants";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
-import { AntDesign } from '@expo/vector-icons';
+import GText from "../../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -144,7 +144,7 @@ const VideoSelection = (props) => {
       style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
         <>
-          <Text style={{ color: Colors.text }}>{route.title}</Text>
+          <GText style={{ color: Colors.text }}>{route.title}</GText>
         </>
       )}
     />
@@ -165,7 +165,7 @@ const VideoSelection = (props) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: Colors.close }}>BACK</Text>
+          <GText style={{ color: Colors.close }}>BACK</GText>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
@@ -178,13 +178,13 @@ const VideoSelection = (props) => {
             });
           }}
         >
-          <Text
+          <GText
             style={{
               color: Colors.close,
             }}
           >
             NEXT
-          </Text>
+          </GText>
         </TouchableOpacity>
       </View>
       <SearchItem

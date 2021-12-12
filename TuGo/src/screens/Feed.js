@@ -23,6 +23,9 @@ import PostComponent from "../components/PostComponent";
 import { useScrollToTop } from "@react-navigation/native";
 import { Avatar, Badge, Icon, withBadge } from "react-native-elements";
 import { Colors } from "../../constants";
+import TrendingItem from "../components/TrendingItem";
+import { AntDesign } from '@expo/vector-icons';
+import GText from "../components/GText"
 
 let {height, width} = Dimensions.get('window')
 
@@ -49,12 +52,9 @@ const Feed = ({ navigation }) => {
     setRefreshing(true);
     async function getFeedState() {
       const feedState = await getFeedPostsAPI(userToken);
-      if (feedState.data.length === 0) {
-        const trendingRes = await trendingPostsAPI(userToken)
-        setTrending(trendingRes.data);
-      }else{
-        setFeed(feedState.data);
-      }
+      const trendingRes = await trendingPostsAPI(userToken)
+      setTrending(trendingRes.data);
+      setFeed(feedState.data);
     }
     getFeedState();
     setRefreshing(false);
@@ -77,9 +77,10 @@ const Feed = ({ navigation }) => {
   };
 
   return (
+    trending && 
     <SafeAreaView style={styles.container}>
       <FlatList
-        ListHeaderComponent={() => trending && <Text style={styles.header}>Trending</Text>}
+        contentContainerStyle={{paddingVertical: 10}}
         scrollEnabled={!disableScroll}
         ref={ref}
         data={feed}
@@ -99,29 +100,34 @@ const Feed = ({ navigation }) => {
             tintColor={Colors.FG}
           />
         }
+        ListEmptyComponent={() => {
+          return (
+            trending.length > 0 ? <View>
+              <GText style={styles.header}>Trending</GText>
+              <FlatList
+                horizontal
+                data={trending}
+                renderItem={({ item }) => {
+                  return (
+                  <TrendingItem
+                    postId={item.id}
+                    navigation={navigation}
+                  />
+                )}}
+                keyExtractor={(item, index) => item.id.toString()}
+                onRefresh={refreshing}
+                ItemSeparatorComponent={ItemSeparatorView}
+                contentContainerStyle={{marginBottom: 20, marginHorizontal: leftSpacing}}
+              />
+          </View> : 
+          <View style={styles.emptyTrending}>
+            <GText style={{color: Colors.text, marginBottom: 20}}>Follow users to add to feed</GText>
+            <AntDesign name="adduser" size={24} color={Colors.FG} />
+          </View>
+          )
+        }}
         onRefresh={refreshing}
         ItemSeparatorComponent={ItemSeparatorView}
-        ListFooterComponent={
-          () => trending && 
-          <View style={{
-            backgroundColor: Colors.contrastGray, 
-            paddingLeft: leftSpacing, 
-            paddingVertical: 10, 
-            marginVertical: 20, 
-            borderRadius: 20,
-          }}>
-            <Text style={styles.footer}>
-              Follow to personalize feed
-            </Text>
-            <View style={{marginTop: 20, flexDirection: 'row', borderRadius: 999, backgroundColor: Colors.gray, width: 0.5 * width }}>
-              <Image style={{height: 70, width: 70, borderRadius: 999}} source={{uri: self.profile_picture}} />
-              <View style={{flexDirection: 'column', marginTop: 10, marginLeft: 15,}}>
-                <Text style={{color: Colors.complimentText, fontWeight: 'bold'}}>{self.name}</Text>
-                <Text style={{color: Colors.complimentText, fontWeight: '400'}}>{self.username}</Text>
-              </View>
-            </View>
-          </View>
-        }
       />
     </SafeAreaView>
   );
@@ -137,11 +143,20 @@ const styles = StyleSheet.create({
     fontWeight: 'bold', 
     color: Colors.text, 
     marginLeft: leftSpacing, 
-    marginVertical: 20
+    marginVertical: 10
   },
   footer: {
     fontSize: 20, 
     color: Colors.text, 
+  },
+  emptyTrending: {
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    backgroundColor: Colors.contrastGray, 
+    flexDirection: 'column',
+    margin: 50,
+    padding: 50,
+    borderRadius: 20
   }
 });
 

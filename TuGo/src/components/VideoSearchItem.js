@@ -16,6 +16,7 @@ import YoutubePlayer from "react-native-yt-player";
 import { Colors } from "../../constants";
 import { AntDesign } from "@expo/vector-icons";
 import HTML from "react-native-render-html";
+import GText from "./GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -46,9 +47,9 @@ const VideoSearchItem = (props) => {
           source={{ uri: thumbnail }}
         />
         <View style={{ justifyContent: "space-between" }}>
-          {/* <Text style={{ width: 200, paddingBottom: 5, color: Colors.FG }}>
+          {/* <GText style={{ width: 200, paddingBottom: 5, color: Colors.FG }}>
             {title}
-          </Text> */}
+          </GText> */}
           <HTML
             source={{
               html: `<p style="color: ${Colors.text}; width: 200;"> ${title}`,
@@ -61,7 +62,7 @@ const VideoSearchItem = (props) => {
                 refRBSheet.current.open();
               }}
             >
-              <Text
+              <GText
                 style={{
                   borderWidth: 1,
                   width: 60,
@@ -73,7 +74,7 @@ const VideoSearchItem = (props) => {
                 }}
               >
                 Preview
-              </Text>
+              </GText>
             </TouchableOpacity>
           )}
         </View>

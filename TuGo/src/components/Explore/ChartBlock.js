@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Dimensions } from "react-native";
 import {
   View,
   TouchableWithoutFeedback,
@@ -7,9 +8,12 @@ import {
   Animated,
 } from "react-native";
 import { Colors } from "../../../constants";
+import GText from "../GText"
 
-const outerWidth = 105;
-const outerHeight = 70;
+let {width, height} = Dimensions.get('window')
+
+const outerWidth = width/3-15;
+const outerHeight = 100;
 const animationWidth = 120;
 
 const ChartBlock = (props) => {
@@ -21,7 +25,7 @@ const ChartBlock = (props) => {
 
   const imageAnimationIn = () => {
     Animated.timing(xy, {
-      toValue: { x: 100, y: 65 },
+      toValue: { x: width/3-20, y: 95 },
       duration: 20,
       useNativeDriver: false,
     }).start();
@@ -51,6 +55,7 @@ const ChartBlock = (props) => {
           alignItems: "center",
           height: outerHeight,
           width: outerWidth,
+          margin: 5
         }}
       >
         <Animated.View
@@ -60,7 +65,7 @@ const ChartBlock = (props) => {
             height: xy.y,
           }}
         >
-          <Text style={styles.chartName}>{text}</Text>
+          <GText style={styles.chartName}>{text}</GText>
         </Animated.View>
       </View>
     </TouchableWithoutFeedback>
@@ -72,13 +77,11 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     borderRadius: 10,
-    backgroundColor: Colors.BG,
-    borderColor: Colors.FG,
-    borderWidth: 1,
+    backgroundColor: Colors.contrastGray,
     alignSelf: "center",
   },
   chartName: {
-    fontWeight: "bold",
+    fontWeight: 'bold',
     fontSize: 13,
     textAlign: "center",
     color: Colors.text,

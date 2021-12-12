@@ -24,6 +24,7 @@ import { useAuthState } from "../../context/authContext";
 import SearchItem from "../../components/SearchItem";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { Colors, appTheme } from "../../../constants";
+import GText from "../../components/GText"
 
 import styles from "./commonStyles"
 
@@ -228,9 +229,9 @@ const Chart = (props) => {
           </Animated.View>
           <TouchableWithoutFeedback onPress={toTop}>
             <View style={chartStyles.chartNameView}>
-              <Text style={chartStyles.chartName}>{chartImage.chartName.length > styles.maxlimit
+              <GText style={chartStyles.chartName}>{chartImage.chartName.length > styles.maxlimit
             ? chartImage.chartName.substring(0, styles.maxlimit - 3) + "..."
-            : chartImage.chartName}</Text>
+            : chartImage.chartName}</GText>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>

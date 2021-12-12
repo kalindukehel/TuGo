@@ -15,6 +15,7 @@ import {
   getAccountById as getAccountByIdAPI,
 } from "../api";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import GText from "./GText"
 
 const PostMessage = ({ message, navigation }) => {
   const { userToken, self } = useAuthState();
@@ -93,9 +94,9 @@ const PostMessage = ({ message, navigation }) => {
                 source={{ uri: author.profile_picture }}
                 style={{ borderRadius: 999, height: 25, width: 25 }}
               />
-              <Text style={{ color: Colors.text, marginLeft: 10 }}>
+              <GText style={{ color: Colors.text, marginLeft: 10 }}>
                 {author.username}
-              </Text>
+              </GText>
             </View>
             <TouchableWithoutFeedback
               disabled={!isViewable}
@@ -120,16 +121,16 @@ const PostMessage = ({ message, navigation }) => {
                 <Image style={styles.image} source={{ uri: post.album_cover }} /> : 
                 <View 
                 style={styles.errorView}>
-                  <Text style={{color: Colors.text, fontSize: 12}}>Post is private, follow to see.</Text>
+                  <GText style={{color: Colors.text, fontSize: 12}}>Post is private, follow to see.</GText>
                 </View>}
               </View>
             </TouchableWithoutFeedback>
-            {/* <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text> */}
+            {/* <GText style={styles.time}>{moment(message.createdAt).fromNow()}</GText> */}
           </View>
         ) : error ? (
           <View 
             style={styles.errorView}>
-            <Text style={{color: Colors.text, fontSize: 12}}>{error}</Text>
+            <GText style={{color: Colors.text, fontSize: 12}}>{error}</GText>
           </View>
         ) : (
           <View style={{ height: 190, width: 150, justifyContent: 'center' }}>

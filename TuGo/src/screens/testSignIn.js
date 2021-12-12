@@ -15,6 +15,7 @@ import { signUp as signUpAPI, signIn as SignInApi } from "../api";
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
 import { Colors } from "../../constants";
+import GText from "../components/GText"
 
 const styles = StyleSheet.create({
   container: {
@@ -106,9 +107,9 @@ const SignUp = ({ navigation }) => {
   return (
     <View style={{ flex: 1, alignItems: "center", justifyContent: "center" }}>
       <KeyboardAvoidingView enabled>
-        <Text style={{ marginBottom: 40, fontSize: 50, textAlign: "center" }}>
+        <GText style={{ marginBottom: 40, fontSize: 50, textAlign: "center" }}>
           SignUp
-        </Text>
+        </GText>
         <View style={styles.SectionStyle}>
           <TextInput
             style={styles.inputStyle}
@@ -173,7 +174,7 @@ const SignUp = ({ navigation }) => {
             }
           }}
         >
-          <Text style={{ color: Colors.complimentText }}>Sign Up</Text>
+          <GText style={{ color: Colors.complimentText }}>Sign Up</GText>
         </TouchableOpacity>
       </KeyboardAvoidingView>
     </View>

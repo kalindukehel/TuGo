@@ -1,18 +1,12 @@
 import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  Text,
   View,
-  TouchableOpacity,
-  Dimensions,
-  SafeAreaView,
 } from "react-native";
-import SearchItem from "../../components/SearchItem";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { FlatList } from "react-native-gesture-handler";
-import { createPost, getYoutubeSearch } from "../../api";
+import { getYoutubeSearch } from "../../api";
 import {Colors} from "../../../constants"
 import VideoSearchItem from "../VideoSearchItem";
+import GText from "../GText"
 
 //TabView to display YouTube items in VideoSelection in CreatePost
 const DanceChoreosTabView = (props) => {
@@ -105,7 +99,7 @@ const DanceChoreosTabView = (props) => {
       <FlatList
         ListHeaderComponent={() => (
           isMax ?
-            <Text style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15, marginBottom: 10}}>Sorry, max attachments reached</Text> : <></>
+            <GText style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15, marginBottom: 10}}>Sorry, max attachments reached</GText> : <></>
         )}
         contentContainerStyle={{ paddingBottom: 10 }}
         data={danceChoreos}

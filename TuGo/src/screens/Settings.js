@@ -20,6 +20,7 @@ import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { Colors } from "../../constants";
 import { Auth, API, graphqlOperation } from "aws-amplify";
 import { updateUser } from "../graphql/mutations";
+import GText from "../components/GText"
 
 /*Images*/
 import { FontAwesome5, FontAwesome, AntDesign } from "@expo/vector-icons";
@@ -70,7 +71,7 @@ const Settings = ({ navigation }) => {
     <ScrollView style={styles.container}>
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>Account</Text>
+        <GText style={styles.heading}>Account</GText>
         <View style={{ margin: 20 }}>
           {/* <View style={styles.titleBreak} />
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -79,7 +80,7 @@ const Settings = ({ navigation }) => {
               size={24}
               color={Colors.FG}
             />
-            <Text style={styles.title}>Profile Settings</Text>
+            <GText style={styles.title}>Profile Settings</GText>
           </View> */}
           {/* <View style={styles.titleBreak} /> */}
           <TouchableWithoutFeedback 
@@ -88,7 +89,7 @@ const Settings = ({ navigation }) => {
             >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <FontAwesome5 name="fire" size={24} color={"red"} />
-            <Text style={styles.title}>Liked Posts</Text>
+            <GText style={styles.title}>Liked Posts</GText>
           </View>
           </TouchableWithoutFeedback>
           {/* <View style={styles.titleBreak} /> */}
@@ -97,7 +98,7 @@ const Settings = ({ navigation }) => {
 
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>Privacy</Text>
+        <GText style={styles.heading}>Privacy</GText>
         <View style={{ margin: 20 }}>
           {/* <View style={styles.titleBreak} />
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -106,9 +107,9 @@ const Settings = ({ navigation }) => {
               size={24}
               color={Colors.FG}
             />
-            <Text style={styles.title}>
+            <GText style={styles.title}>
               Manage who can view your profile and content
-            </Text>
+            </GText>
           </View> */}
           {/* <View style={styles.titleBreak} /> */}
           <View
@@ -117,9 +118,9 @@ const Settings = ({ navigation }) => {
             }}
           >
             <FontAwesome name="lock" size={24} color={Colors.FG} />
-            <Text style={styles.title}>
+            <GText style={styles.title}>
               Private Account
-            </Text>
+            </GText>
             <View style={{ flex: 1, justifyContent: 'flex-end', flexDirection: 'row'}}>
               <Switch
                 style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
@@ -136,7 +137,7 @@ const Settings = ({ navigation }) => {
 
       {/* setting block */}
       {/* <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>Search History</Text>
+        <GText style={styles.heading}>Search History</GText>
         <View style={{ margin: 10 }}>
           <View style={styles.titleBreak} />
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -145,7 +146,7 @@ const Settings = ({ navigation }) => {
               size={24}
               color={Colors.FG}
             />
-            <Text style={styles.title}>Manage your search history</Text>
+            <GText style={styles.title}>Manage your search history</GText>
           </View>
           <View style={styles.titleBreak} />
         </View>
@@ -153,7 +154,7 @@ const Settings = ({ navigation }) => {
 
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>About</Text>
+        <GText style={styles.heading}>About</GText>
         <View style={{ margin: 20 }}>
           {/* <View style={styles.titleBreak} /> */}
           <TouchableWithoutFeedback 
@@ -162,7 +163,7 @@ const Settings = ({ navigation }) => {
             >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
           <AntDesign name="infocirlce" size={24} color={Colors.FG} />
-            <Text style={styles.title}>Terms of use and privacy policy</Text>
+            <GText style={styles.title}>Terms of use and privacy policy</GText>
           </View>
           </TouchableWithoutFeedback>
           {/* <View style={styles.titleBreak} /> */}
@@ -199,7 +200,7 @@ const Settings = ({ navigation }) => {
             color={Colors.complimentText}
           />
         ) : (
-          <Text style={{ color: Colors.complimentText }}>Logout</Text>
+          <GText style={{ color: Colors.complimentText }}>Logout</GText>
         )}
       </View>          
       </TouchableWithoutFeedback>

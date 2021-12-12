@@ -76,6 +76,7 @@ import ShareToDirect from "../screens/Others/ShareToDirect";
 import TileRender from "../screens/Others/TileRender";
 import { useTilePlayerDispatch } from "../context/tilePlayerContext";
 import PostedTile from "./PostedTile";
+import GText from "./GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -268,7 +269,7 @@ const PostComponent = ({
       indicatorStyle={{ backgroundColor: Colors.FG }}
       style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: Colors.text }}>{route.title}</Text>
+        <GText style={{ color: Colors.text }}>{route.title}</GText>
       )}
     />
   );
@@ -340,11 +341,9 @@ const PostComponent = ({
     return (
       <View style={{ margin: (width - (3 * width) / 3.4) / 8 }}>
         <PostedTile
-          url={item.youtube_link}
-          thumbnail={item.image}
           isAuthor={isSelf}
-          tileId={item.id}
           postId={postId}
+          tile={item}
           getTileStates={getTileStates}
         />
       </View>
@@ -386,9 +385,9 @@ const PostComponent = ({
                   marginRight: 5,
                 }}
               ></Image>
-              <Text style={{ fontWeight: "bold", color: Colors.text }}>
+              <GText style={{ fontWeight: "bold", color: Colors.text }}>
                 {author ? author.username : ""}
-              </Text>
+              </GText>
             </View>
           </TouchableOpacity>
           <View
@@ -397,9 +396,9 @@ const PostComponent = ({
               alignItems: "center",
             }}
           >
-            <Text style={{ color: Colors.text }}>
+            <GText style={{ color: Colors.text }}>
               {post ? moment(post.created_at).fromNow() : ""}
-            </Text>
+            </GText>
             <TouchableOpacity
               style={{
                 paddingRight: 15,
@@ -441,14 +440,14 @@ const PostComponent = ({
               }}
               onPress={onShare}
             >
-              <Text
+              <GText
                 style={{
                   fontSize: 15,
                   fontWeight: "bold",
                 }}
               >
                 Share
-              </Text>
+              </GText>
             </TouchableOpacity>
             {isSelf ? (
               <TouchableOpacity
@@ -460,7 +459,7 @@ const PostComponent = ({
                 }}
                 onPress={deleteConfirmation}
               >
-                <Text
+                <GText
                   style={{
                     fontSize: 15,
                     color: "red",
@@ -468,7 +467,7 @@ const PostComponent = ({
                   }}
                 >
                   Delete
-                </Text>
+                </GText>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -480,7 +479,7 @@ const PostComponent = ({
                 }}
                 onPress={() => {}}
               >
-                <Text
+                <GText
                   style={{
                     fontSize: 15,
                     color: "red",
@@ -488,7 +487,7 @@ const PostComponent = ({
                   }}
                 >
                   Report
-                </Text>
+                </GText>
               </TouchableOpacity>
             )}
             <TouchableOpacity
@@ -501,14 +500,14 @@ const PostComponent = ({
                 optionsRef.current.close();
               }}
             >
-              <Text
+              <GText
                 style={{
                   fontSize: 15,
                   fontWeight: "bold",
                 }}
               >
                 Cancel
-              </Text>
+              </GText>
             </TouchableOpacity>
           </RBSheet>
         </View>
@@ -623,9 +622,9 @@ const PostComponent = ({
                   }}
                 >
                   <FontAwesome5 name="comment" size={25} color={Colors.FG} />
-                  <Text style={{ color: Colors.text, marginLeft: 10 }}>
+                  <GText style={{ color: Colors.text, marginLeft: 10 }}>
                     {comments ? `${comments.length}` : `loading`}
-                  </Text>
+                  </GText>
                 </View>
               </TouchableOpacity>
 
@@ -710,7 +709,7 @@ const PostComponent = ({
                 moreRef.current.open();
               }}
             >
-              <Text style={styles.moreButtonText}>More</Text>
+              <GText style={styles.moreButtonText}>More</GText>
             </TouchableOpacity>
           </View>
         </ImageBackground>
@@ -730,13 +729,13 @@ const PostComponent = ({
               });
             }}
           >
-            <Text style={{ color: Colors.text}}>
+            <GText style={{ color: Colors.text}}>
               {likes
                 ? likes.length == 1
                   ? likes.length + ` like`
                   : likes.length + ` likes`
                 : `loading`}
-            </Text>
+            </GText>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ alignSelf: "flex-end", marginRight: 22 }}
@@ -761,16 +760,16 @@ const PostComponent = ({
               marginVertical: 10,
             }}
           >
-            <Text style={{ flexWrap: "wrap", color: Colors.text }}>
-              <Text style={{ fontWeight: "bold" }}>
+            <GText style={{ flexWrap: "wrap", color: Colors.text }}>
+              <GText style={{ fontWeight: "bold" }}>
                 {author.username + `: `}
-              </Text>
-              <Text style={{}}>
+              </GText>
+              <GText style={{}}>
                 {post.caption.length > maxlimit
                   ? post.caption.substring(0, maxlimit - 3) + "..."
                   : post.caption}
-              </Text>
-            </Text>
+              </GText>
+            </GText>
           </View>
         )}
       </View>
@@ -844,7 +843,7 @@ const Preview = ({ style, item, imageKey, onPress, index, active, local }) => {
           source={{ uri: item[imageKey] }}
         />
       </View>
-      <Text style={styles.desc}>{item.desc}</Text>
+      <GText style={styles.desc}>{item.desc}</GText>
     </TouchableOpacity>
   );
 };
