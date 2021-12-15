@@ -32,7 +32,6 @@ class AccountViewSet(viewsets.ModelViewSet):
     def update(self, request, *args, **kwargs):
         if(request.data.get('is_private') == False):
             for follow_request in request.user.requests.all():
-                print(follow_request.id)
                 #Create follower object then delete follower request item, push new activity item to user
                 follower = Follower.objects.create(follower=follow_request.requester,following=request.user)
                 follow_request.delete()
@@ -420,7 +419,7 @@ class PostViewSet(viewsets.ModelViewSet):
             #get video url
             youtube_video_url = None
             custom_video_url = None
-            if(not is_youtube):
+            if is_youtube == 'False':
                 custom_video_url = request.data.get('custom_video_url')
             # if(is_youtube):
             #     # video = pafy.new(youtube_link)
@@ -431,11 +430,11 @@ class PostViewSet(viewsets.ModelViewSet):
             #     custom_video_url = request.data.get('custom_video_url')
             #     print(custom_video_url)
             tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,youtube_link=youtube_link,image=image,youtube_video_url=youtube_video_url, custom_video_url=custom_video_url)
-            print(tile)
             try:
                 tile.full_clean()
                 tile.save()
             except ValidationError as e:
+                print(e)
                 return Response({"detail":"Tile could not be created"},status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
         elif(request.method=='DELETE'):
@@ -506,7 +505,7 @@ class PostViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'], serializer_class=PrivatePostSerializer)
     def trending_posts(self, request, *args, **kwargs):
         #Shows posts in the last 5 days with most likes
-        month = datetime.now() - timedelta(days=5)
+        month = datetime.now() - timedelta(days=10)
         trending = Post.objects.filter(created_at__gt=month).filter(author__is_private=False).order_by('-id').annotate(num_likes=Count('likes')).order_by('-num_likes')[:10]
         serializer = PrivatePostSerializer(trending,many=True)
         return Response(serializer.data)
