@@ -16,6 +16,7 @@ import {
 
 import moment from "moment";
 import { Colors } from "../../../constants";
+import GText from "../GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -56,7 +57,7 @@ const FollowActivity = (props) => {
               }}
             ></Image>
           </TouchableOpacity>
-          <Text
+          <GText
             style={{
               flexWrap: "wrap",
               flex: 1,
@@ -65,12 +66,12 @@ const FollowActivity = (props) => {
               color: Colors.FG,
             }}
           >
-            <Text style={{ fontWeight: "bold" }}>{follower.username}</Text>
-            <Text style={{}}>{` started following you. `}</Text>
-            <Text style={{ fontSize: 12, color: "#7D7D7D" }}>
+            <GText style={{ fontWeight: "bold" }}>{follower.username}</GText>
+            <GText style={{}}>{` started following you. `}</GText>
+            <GText style={{ fontSize: 12, color: "#7D7D7D" }}>
               {moment(activity.created_at).fromNow(true)}
-            </Text>
-          </Text>
+            </GText>
+          </GText>
         </View>
       </View>
     )

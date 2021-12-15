@@ -16,40 +16,43 @@ import YoutubePlayer from "react-native-yt-player";
 import { Colors } from "../../constants";
 import { AntDesign } from "@expo/vector-icons";
 import HTML from "react-native-render-html";
+import GText from "./GText"
 
 var { width, height } = Dimensions.get("window");
 
 //Component used in DanceChoreoTabView to display YouTube video results
 const VideoSearchItem = (props) => {
-  const { title, thumbnail, videoId, selected, selectVideo, inCreatePost } =
+  const { title, thumbnail, videoId, selected, selectVideo, inCreatePost, outlineColor, disabled=false } =
     props;
   const refRBSheet = useRef();
+
   return (
     <View>
-      <TouchableOpacity
-        style={{ flex: 1, flexDirection: "row", paddingLeft: 5 }}
+      <TouchableWithoutFeedback
+        disabled={disabled && !selected}
         onPress={() => {
           inCreatePost ? selectVideo(videoId) : refRBSheet.current.open();
         }}
       >
+        <View style={{ flex: 1, flexDirection: "row", paddingLeft: 5 }}>
         <Image
           style={{
             width: 145,
             height: 90,
-            borderWidth: selected ? 5 : 2,
+            borderWidth: selected ? 3 : 0,
             borderRadius: 10,
-            borderColor: selected ? "turquoise" : "black",
+            borderColor: selected ? outlineColor : "black",
             marginEnd: 10,
           }}
           source={{ uri: thumbnail }}
         />
         <View style={{ justifyContent: "space-between" }}>
-          {/* <Text style={{ width: 200, paddingBottom: 5, color: Colors.FG }}>
+          {/* <GText style={{ width: 200, paddingBottom: 5, color: Colors.FG }}>
             {title}
-          </Text> */}
+          </GText> */}
           <HTML
             source={{
-              html: `<p style="color: ${Colors.text}; width: 200"> ${title}`,
+              html: `<p style="color: ${Colors.text}; width: 200;"> ${title}`,
             }}
             contentWidth={50}
           />
@@ -59,7 +62,7 @@ const VideoSearchItem = (props) => {
                 refRBSheet.current.open();
               }}
             >
-              <Text
+              <GText
                 style={{
                   borderWidth: 1,
                   width: 60,
@@ -71,11 +74,12 @@ const VideoSearchItem = (props) => {
                 }}
               >
                 Preview
-              </Text>
+              </GText>
             </TouchableOpacity>
           )}
         </View>
-      </TouchableOpacity>
+        </View>
+      </TouchableWithoutFeedback>
       <RBSheet
         height={height * 0.8}
         ref={(ref) => {

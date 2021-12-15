@@ -14,6 +14,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { API, Auth, graphqlOperation } from "aws-amplify";
 
 import { createMessage, updateChatRoom } from "../graphql/mutations";
+import { getChatRoom, getUser } from "../screens/Direct/queries";
 
 import {
   MaterialCommunityIcons,
@@ -23,8 +24,10 @@ import {
   Fontisto,
 } from "@expo/vector-icons";
 import { useAuthState } from "../context/authContext";
-import { Colors, appTheme } from "../../constants";
-
+import { Colors, appTheme, Length } from "../../constants";
+import {
+  pushNotification as pushNotificationAPI
+} from "../api"
 //audio for recording messages
 import { Audio } from "expo-av";
 import { Dimensions } from "react-native";
@@ -32,24 +35,32 @@ import { Dimensions } from "react-native";
 const sound = new Audio.Sound();
 
 const ChatInputBox = (props) => {
-  const { chatRoomID } = props;
+  const { chatRoomID, scrollToTextInput } = props;
   const { self } = useAuthState();
   const insets = useSafeAreaInsets();
   let animation = useRef(new Animated.Value(0));
   const [recordedAnimation, setRecordingAnimated] = useState(
     new Animated.Value(0)
   );
-  console.log(chatRoomID);
   const [message, setMessage] = useState("");
   const [myUserId, setMyUserId] = useState(null);
   const [recording, setRecording] = useState();
   const [recordingUri, setRecordingUri] = useState(null);
   const [isPlaying, setIsPlaying] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [pushTokenReceiver, setPushTokenReceiver] = useState(null)
 
   useEffect(() => {
     const fetchUser = async () => {
       setMyUserId(self.id);
+      const chatRoomData = await API.graphql(
+        graphqlOperation( getChatRoom, {
+          id: chatRoomID
+        })
+      );
+      
+      let allUsersInChatRoom = chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(user => user.user.id != self.id)
+      setPushTokenReceiver(allUsersInChatRoom.length > 0 ? allUsersInChatRoom[0].user.expoPushToken : null)
     };
     fetchUser();
   }, []);
@@ -157,13 +168,16 @@ const ChatInputBox = (props) => {
     }
   }
 
-  const updateChatRoomLastMessage = async (messageId) => {
+  const updateChatRoomDetails = async (messageId) => {
     try {
+      let seen = []
+      seen.push(self.id)
       await API.graphql(
         graphqlOperation(updateChatRoom, {
           input: {
             id: chatRoomID,
             lastMessageID: messageId,
+            seen: seen
           },
         })
       );
@@ -206,28 +220,15 @@ const ChatInputBox = (props) => {
           },
         })
       );
-      await updateChatRoomLastMessage(newMessageData.data.createMessage.id);
-      // update seen list
-      const chatRoomData = await API.graphql(
-        graphqlOperation(updateChatRoom, {
-          input: {
-            id: chatRoomID,
-            seen: {
-              item: [{
-                id: self.id,
-                username: self.username,
-                name: self.name,
-              }]
-            },
-          },
-        })
-      );
+      await updateChatRoomDetails(newMessageData.data.createMessage.id);
 
-      // const notifRes = await pushNotificationAPI(
-      //   author.notification_token,
-      //   self.username,
-      //   "comment"
-      // );
+      if (pushTokenReceiver !== null){
+        const notifRes = await pushNotificationAPI(
+          pushTokenReceiver,
+          {creator: self.username, content: message},
+          "message"
+        );
+      }
     } catch (e) {
       console.log(e);
     }
@@ -257,7 +258,7 @@ const ChatInputBox = (props) => {
       keyboardVerticalOffset={65 + insets.bottom}
     >
       <View style={styles.container}>
-        {recordingUri ? (
+        {/* {recordingUri ? (
           <>
             <TouchableOpacity onPress={clearRecording}>
               <AntDesign name="closecircle" size={24} color={Colors.FG} />
@@ -289,44 +290,35 @@ const ChatInputBox = (props) => {
               )}
             </TouchableOpacity>
           </>
-        ) : (
+        ) : ( */}
           <>
-            <Fontisto
-              name="camera"
-              size={24}
-              color="grey"
-              style={styles.icon}
-            />
             <View style={styles.mainContainer}>
               <TextInput
+                onChangeText={(text) => {
+                  scrollToTextInput();
+                  setMessage(text);
+                }}
                 placeholder={"Send a message"}
+                placeholderTextColor={Colors.text}
                 style={styles.textInput}
                 multiline
                 value={message}
-                onChangeText={setMessage}
                 keyboardAppearance={appTheme}
                 color={Colors.text}
+                maxLength={Length.message}
               />
+              <TouchableOpacity disabled={!message} onPress={onSendText} style={{marginBottom: 3}}>
+                <View style={{ marginRight: 5 }}>
+                    <MaterialCommunityIcons
+                      name="send-circle"
+                      size={30}
+                      color={message ? Colors.primary : Colors.FG}
+                    />
+                </View>
+              </TouchableOpacity>
             </View>
           </>
-        )}
-        <TouchableOpacity onPress={onPress}>
-          <View style={styles.buttonContainer}>
-            {!(message || recordingUri) ? (
-              <MaterialCommunityIcons
-                name="microphone"
-                size={28}
-                color={recording ? "red" : Colors.FG}
-              />
-            ) : (
-              <MaterialCommunityIcons
-                name="send-circle"
-                size={30}
-                color={Colors.FG}
-              />
-            )}
-          </View>
-        </TouchableOpacity>
+        {/* )} */}
       </View>
     </KeyboardAvoidingView>
   );
@@ -337,27 +329,22 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     marginHorizontal: 5,
-    paddingTop: 5,
-    paddingBottom: 5,
-    borderTopWidth: 1,
-    borderColor: Colors.gray,
     justifyContent: "space-between",
   },
   mainContainer: {
     flexDirection: "row",
-    backgroundColor: Colors.BG,
-    paddingHorizontal: 10,
-    borderRadius: 25,
-    marginHorizontal: 5,
-    flex: 1,
-    borderColor: Colors.gray,
-    borderWidth: 1,
+    alignItems: "flex-end",
+    backgroundColor: Colors.contrastGray,
+    borderRadius: 20,
+    margin: 5,
+    maxHeight: 100
   },
   textInput: {
     flex: 1,
     marginHorizontal: 10,
-    paddingTop: 8,
-    paddingBottom: 8,
+    paddingTop: 10,
+    paddingBottom: 10,
+    paddingHorizontal: 10
   },
   icon: {
     marginHorizontal: 5,

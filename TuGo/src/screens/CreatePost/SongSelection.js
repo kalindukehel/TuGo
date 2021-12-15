@@ -19,6 +19,8 @@ import SearchItem from "../../components/SearchItem";
 import { render } from "react-dom";
 import { FlatList } from "react-native-gesture-handler";
 import { Colors, appTheme } from "../../../constants";
+import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+import GText from "../../components/GText"
 
 const CreatePost = ({ navigation }) => {
   const [search, setSearch] = useState();
@@ -26,6 +28,12 @@ const CreatePost = ({ navigation }) => {
   const [selectedItem, setSelectedItem] = useState({});
   const [loading, setLoading] = useState(false);
   const [disableScroll, setDisableScroll] = useState(false);
+  const playerDispatch = usePlayerDispatch();
+  //Update current text state when user types
+  const handleChange = (text) => {
+    setSearch(text);
+    handleResults(text);
+  };
 
   //Function passed into SearchItem as a propr to select that item
   const selectItem = (
@@ -69,7 +77,6 @@ const CreatePost = ({ navigation }) => {
 
   //When user enters their search term, perform search
   const handleResults = async (search) => {
-    console.log(search);
     if (search != "") {
       setLoading(true);
       let response = await typeSongAheadSearchAPI(search);
@@ -129,19 +136,20 @@ const CreatePost = ({ navigation }) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: Colors.close }}>CANCEL</Text>
+          <GText style={{ color: Colors.close }}>CANCEL</GText>
         </TouchableOpacity>
         <TouchableOpacity
           disabled={
             Object.keys(selectedItem).length === 0 || !selectedItem.audioLink
           }
           onPress={() => {
+            playerDispatch({ type: "UNLOAD_PLAYER" });
             navigation.navigate("Video Selection", {
               song: selectedItem,
             });
           }}
         >
-          <Text
+          <GText
             style={{
               color:
                 Object.keys(selectedItem).length === 0 ||
@@ -151,7 +159,7 @@ const CreatePost = ({ navigation }) => {
             }}
           >
             NEXT
-          </Text>
+          </GText>
         </TouchableOpacity>
       </View>
       <View style={{ margin: 8 }}>

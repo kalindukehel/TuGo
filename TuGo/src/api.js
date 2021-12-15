@@ -19,6 +19,30 @@ export async function getAccountById(id, token) {
   });
 }
 
+export async function getAccountDetails(id, token) {
+  return axios.get(`${API_URL}/api/accounts/${id}/details/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function viewableUsers(token) {
+  return axios.get(`${API_URL}/api/accounts/viewable_users/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function mutualUsers(token, id) {
+  return axios.get(`${API_URL}/api/accounts/${id}/mutual/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 export async function signUp(data) {
   return axios.post(`${API_URL}/signup/`, {
     username: data.username,
@@ -177,11 +201,52 @@ export async function addComment(token, id, data) {
   });
 }
 
+export async function deleteComment(postId, commentId, token) {
+  const data = {
+    id: commentId
+  }
+  return axios.delete(`${API_URL}/api/posts/${postId}/comments/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+    data: {
+      id: commentId
+    }
+  });
+}
+
 export async function addTag(token, id, data) {
   return axios.post(`${API_URL}/api/posts/${id}/tags/`, data, {
     headers: {
       Authorization: "Token " + token,
       "Content-Type": "application/json",
+    },
+  });
+}
+
+export async function userLikes(token) {
+  return axios.get(`${API_URL}/api/posts/liked/`, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function searchPosts(token, query) {
+  const data = {
+    search_query: query
+  }
+  return axios.post(`${API_URL}/api/posts/search_by_post/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
+export async function trendingPosts(token) {
+  return axios.get(`${API_URL}/api/posts/trending_posts/`, {
+    headers: {
+      Authorization: "Token " + token,
     },
   });
 }
@@ -269,6 +334,7 @@ export async function searchUsers(data, token) {
   });
 }
 
+//check error for this
 export async function postNotificationToken(data, token, id) {
   return axios.patch(
     `${API_URL}/api/accounts/${id}/`,
@@ -284,16 +350,15 @@ export async function postNotificationToken(data, token, id) {
 }
 
 export async function postProfilePicture(data, token, id) {
-  console.log(data);
+  let formdata = new FormData();
+  formdata.append("profile_picture", {uri: data, name: 'image.jpg', type: 'image/jpeg'})
   return axios.patch(
     `${API_URL}/api/accounts/${id}/`,
-    {
-      profile_picture: data,
-    },
+    formdata,
     {
       headers: {
         Authorization: "Token " + token,
-        "Content-Type": "image/jpeg",
+        "Content-Type": "multipart/form-data",
       },
     }
   );
@@ -315,13 +380,13 @@ export async function deleteNotificationToken(token, id) {
 
 /* Push Notification functions */
 
-export async function pushNotification(expoPushToken, creator, type) {
+export async function pushNotification(expoPushToken, data, type) {
   let message;
   if (type == "like") {
     message = {
       to: expoPushToken,
       sound: "default",
-      body: `${creator} liked your post`,
+      body: `${data.creator} liked your post`,
       data: { type: "like" },
     };
   } else if (type == "follow") {
@@ -329,7 +394,7 @@ export async function pushNotification(expoPushToken, creator, type) {
       to: expoPushToken,
       sound: "default",
       title: "New Follower",
-      body: `${creator} started following you`,
+      body: `${data.creator} started following you`,
       data: { type: "follow" },
     };
   } else if (type == "request") {
@@ -337,7 +402,7 @@ export async function pushNotification(expoPushToken, creator, type) {
       to: expoPushToken,
       sound: "default",
       title: "New Follower",
-      body: `${creator} requested to following you`,
+      body: `${data.creator} requested to following you`,
       data: { type: "request" },
     };
   } else if (type == "comment") {
@@ -345,7 +410,7 @@ export async function pushNotification(expoPushToken, creator, type) {
       to: expoPushToken,
       sound: "default",
       title: "New Comment",
-      body: `${creator} commented on your post`,
+      body: `${data.creator} commented on your post`,
       data: { type: "comment" },
     };
   } else if (type == "tag") {
@@ -353,19 +418,25 @@ export async function pushNotification(expoPushToken, creator, type) {
       to: expoPushToken,
       sound: "default",
       title: "New Tag",
-      body: `${creator} tagged you in a post`,
+      body: `${data.creator} tagged you in a post`,
       data: { type: "tag" },
     };
+  } else if (type == "message") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: `${data.creator} sent you a message`,
+      body: `${data.content}`,
+      data: { type: "message" },
+    };
+  } else if (type == "post") {
+    message = {
+      to: expoPushToken,
+      sound: "default",
+      title: `${data.creator} shared a post`,
+      data: { type: "post" },
+    };
   }
-  // } else if (type == "message") {
-  //   message = {
-  //     to: expoPushToken,
-  //     sound: "default",
-  //     title: "New Tag",
-  //     body: `${creator} sent you in a message`,
-  //     data: { type: "message" },
-  //   };
-  // }
   await fetch("https://exp.host/--/api/v2/push/send", {
     method: "POST",
     headers: {
@@ -386,10 +457,13 @@ export async function deletePost(postId, token) {
 }
 
 export async function deleteTile(postId, tileId, token) {
-  return axios.delete(`${API_URL}/api/posts/${postId}/tiles/${tileId}`, {
+  return axios.delete(`${API_URL}/api/posts/${postId}/tiles/`, {
     headers: {
       Authorization: "Token " + token,
     },
+    data: {
+      id: tileId
+    }
   });
 }
 
@@ -405,10 +479,11 @@ export async function toggleAccountVisilibity(isPrivate, token) {
   });
 }
 
-export async function editProfile(username, name, token) {
+export async function editProfile(username, name, email, token) {
   let data = {
     username: username,
     name: name,
+    email: email
   };
   if (username) {
     data = { ...data, username: username };
@@ -416,7 +491,6 @@ export async function editProfile(username, name, token) {
   if (name) {
     data = { ...data, name: name };
   }
-  console.log(data);
   return axios.patch(`${API_URL}/api/accounts/self/`, data, {
     headers: {
       Authorization: "Token " + token,
@@ -425,11 +499,50 @@ export async function editProfile(username, name, token) {
   });
 }
 
+export async function isValidEmail(email) {
+  return axios.post(`${API_URL}/valid/`, 
+    {
+      type: "email",
+      email: email
+    }  
+    , {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+export async function isValidUsername(username) {
+  return axios.post(`${API_URL}/valid/`, 
+    {
+      type: "username",
+      username: username
+    }  
+    , {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+
+export async function isValidPassword(password) {
+  return axios.post(`${API_URL}/valid/`, 
+    {
+      type: "password",
+      password: password
+    }  
+    , {
+    headers: {
+      "Content-Type": "application/json",
+    },
+  })
+}
+
 /* Non-Django API Functions */
 
 export async function getYoutubeSearch(searchQuery) {
   return axios.get(
-    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=10&q=" +
+    "https://youtube.googleapis.com/youtube/v3/search?part=snippet&maxResults=20&q=" +
       searchQuery +
       "&key=AIzaSyB_h3y-lLNf7djjTiP4Kbzrkf1xzJPWgXI"
     //AIzaSyD4PveZNEi_D3PmpYuwJ8fub1zp65Clieg"
@@ -484,6 +597,30 @@ export async function getChartTracks(playlistId) {
   );
 }
 
+export async function getCharts() {
+  return axios.get(
+    `http://api.napster.com/v2.2/playlists/featured?limit=9&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
+export async function getAlbumImage(albumId) {
+  return axios.get(
+    `http://api.napster.com/v2.2/albums/${albumId}?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
+export async function getAlbumTracks(albumId) {
+  return axios.get(
+    `http://api.napster.com/v2.2/albums/${albumId}/tracks?limit=100&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
+export async function getNewAlbums() {
+  return axios.get(
+    `http://api.napster.com/v2.2/albums/top?limit=5&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
+  );
+}
+
 export async function getTrackDetails(trackId) {
   return axios.get(
     `http://api.napster.com/v2.2/tracks/${trackId}?limit=100&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3`
@@ -511,6 +648,12 @@ export async function typeSongAheadSearch(searchQuery) {
 export async function searchArtist(searchQuery) {
   return axios.get(
     `http://api.napster.com/v2.2/search?type=artist&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}&per_type_limit=1`
+  );
+}
+
+export async function searchAlbum(searchQuery) {
+  return axios.get(
+    `http://api.napster.com/v2.2/search?type=album&apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&query=${searchQuery}&per_type_limit=1`
   );
 }
 
@@ -613,8 +756,6 @@ export async function createPost(caption, postDetails, tiles, token) {
         view_count: 0,
       };
     }
-
-    console.log(tileData);
     //Create tile object under created post
     await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, tileData, {
       headers: {

@@ -9,6 +9,7 @@ export const onCreateUser = /* GraphQL */ `
       username
       imageUri
       status
+      expoPushToken
       chatRoomUser {
         items {
           id
@@ -32,6 +33,7 @@ export const onUpdateUser = /* GraphQL */ `
       username
       imageUri
       status
+      expoPushToken
       chatRoomUser {
         items {
           id
@@ -55,6 +57,7 @@ export const onDeleteUser = /* GraphQL */ `
       username
       imageUri
       status
+      expoPushToken
       chatRoomUser {
         items {
           id
@@ -82,6 +85,7 @@ export const onCreateChatRoomUser = /* GraphQL */ `
         username
         imageUri
         status
+        expoPushToken
         chatRoomUser {
           nextToken
         }
@@ -107,9 +111,7 @@ export const onCreateChatRoomUser = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -130,6 +132,7 @@ export const onUpdateChatRoomUser = /* GraphQL */ `
         username
         imageUri
         status
+        expoPushToken
         chatRoomUser {
           nextToken
         }
@@ -155,9 +158,7 @@ export const onUpdateChatRoomUser = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -178,6 +179,7 @@ export const onDeleteChatRoomUser = /* GraphQL */ `
         username
         imageUri
         status
+        expoPushToken
         chatRoomUser {
           nextToken
         }
@@ -203,9 +205,7 @@ export const onDeleteChatRoomUser = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -255,28 +255,21 @@ export const onCreateChatRoom = /* GraphQL */ `
           username
           imageUri
           status
+          expoPushToken
           createdAt
           updatedAt
         }
         chatRoom {
           id
           lastMessageID
+          seen
           createdAt
           updatedAt
         }
         type
         updatedAt
       }
-      seen {
-        items {
-          id
-          userID
-          chatRoomID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      seen
       createdAt
       updatedAt
     }
@@ -323,28 +316,21 @@ export const onUpdateChatRoom = /* GraphQL */ `
           username
           imageUri
           status
+          expoPushToken
           createdAt
           updatedAt
         }
         chatRoom {
           id
           lastMessageID
+          seen
           createdAt
           updatedAt
         }
         type
         updatedAt
       }
-      seen {
-        items {
-          id
-          userID
-          chatRoomID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      seen
       createdAt
       updatedAt
     }
@@ -391,28 +377,21 @@ export const onDeleteChatRoom = /* GraphQL */ `
           username
           imageUri
           status
+          expoPushToken
           createdAt
           updatedAt
         }
         chatRoom {
           id
           lastMessageID
+          seen
           createdAt
           updatedAt
         }
         type
         updatedAt
       }
-      seen {
-        items {
-          id
-          userID
-          chatRoomID
-          createdAt
-          updatedAt
-        }
-        nextToken
-      }
+      seen
       createdAt
       updatedAt
     }
@@ -433,6 +412,7 @@ export const onCreateMessage = /* GraphQL */ `
         username
         imageUri
         status
+        expoPushToken
         chatRoomUser {
           nextToken
         }
@@ -458,9 +438,7 @@ export const onCreateMessage = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -484,6 +462,7 @@ export const onUpdateMessage = /* GraphQL */ `
         username
         imageUri
         status
+        expoPushToken
         chatRoomUser {
           nextToken
         }
@@ -509,9 +488,7 @@ export const onUpdateMessage = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }
@@ -535,6 +512,7 @@ export const onDeleteMessage = /* GraphQL */ `
         username
         imageUri
         status
+        expoPushToken
         chatRoomUser {
           nextToken
         }
@@ -560,9 +538,7 @@ export const onDeleteMessage = /* GraphQL */ `
           type
           updatedAt
         }
-        seen {
-          nextToken
-        }
+        seen
         createdAt
         updatedAt
       }

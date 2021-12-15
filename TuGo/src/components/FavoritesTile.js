@@ -22,7 +22,7 @@ import { Colors } from "../../constants";
 //components
 import Player from "../components/Player";
 import * as Haptics from "expo-haptics";
-
+import GText from "./GText"
 import { Audio } from "expo-av";
 
 //icons
@@ -158,8 +158,8 @@ const FavoritesTile = (props) => {
   }, [navigation]);
 
   async function favoritePost() {
-    const favRes = await getPostFavoriteAPI(userToken, postId);
-    setIsFavorite(favRes.data.favorited);
+    const favRes = await favoritePostAPI(userToken, postId);
+    if (favRes.status === 201) setIsFavorite(!isFavorite);
   }
 
   async function doPlay() {
@@ -242,6 +242,7 @@ const FavoritesTile = (props) => {
           <TouchableOpacity
             style={styles.viewPostButton}
             onPress={() => {
+              playerDispatch({ type: "UNLOAD_PLAYER" });
               isPlaying && doPlay(); //if sound is playing toggle it off when going to a profile
               Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
               navigation.push("Post", {
@@ -252,7 +253,7 @@ const FavoritesTile = (props) => {
               });
             }}
           >
-            <Text style={styles.viewPostButtonText}>View Post</Text>
+            <GText style={styles.viewPostButtonText}>View Post</GText>
           </TouchableOpacity>
         </View>
       </ImageBackground>

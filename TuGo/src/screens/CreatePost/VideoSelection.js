@@ -14,12 +14,16 @@ import DanceChoreosTabView from "../../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../../components/TabViews/VoiceCoversTabView";
 import CustomVideoTabView from "../../components/TabViews/CustomVideoTabView";
 import { Colors } from "../../../constants";
+import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+import GText from "../../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
 const VideoSelection = (props) => {
   const { song } = props.route.params;
   const [customVideos, setCustomVideos] = useState([]);
+  const [isMax, setIsMax] = useState(false)
+  const playerDispatch = usePlayerDispatch();
 
   const { navigation } = props;
 
@@ -27,23 +31,28 @@ const VideoSelection = (props) => {
   const finalChoreos = useRef([]);
 
   const finalCovers = useRef([]);
-
   const selectFinalChoreo = (newSet) => {
     //Function to send into child components to set finalChoreos, set is taken as a parameter
     finalChoreos.current = Array.from(newSet);
+    setIsMax(customVideos.length + finalChoreos.current.length + finalCovers.current.length < 9 ? false : true)
   };
 
   const selectFinalCover = (newSet) => {
     //Function to send into child components to set finalChoreos, set is taken as a parameter
     finalCovers.current = Array.from(newSet);
+    setIsMax(customVideos.length + finalChoreos.current.length + finalCovers.current.length < 9 ? false : true)
   };
 
+  const selectCustomVideos = (newVids) => {
+    setCustomVideos(newVids)
+    setIsMax(newVids.length + finalChoreos.current.length + finalCovers.current.length < 9 ? false : true)
+  }
   //Tab view for Dance Choreos
   const FirstRoute = () => {
     if (index == 0) {
       return (
         <CustomVideoTabView
-          setCustomVideos={setCustomVideos}
+          setCustomVideos={selectCustomVideos}
           customVideos={customVideos}
         />
       );
@@ -59,6 +68,7 @@ const VideoSelection = (props) => {
         <DanceChoreosTabView
           inCreatePost={true}
           selectFinalChoreo={selectFinalChoreo}
+          parentSelected={new Set(finalChoreos.current)}
           song={song}
         />
       );
@@ -74,6 +84,7 @@ const VideoSelection = (props) => {
         <VoiceCoversTabView
           inCreatePost={true}
           selectFinalCover={selectFinalCover}
+          parentSelected={new Set(finalCovers.current)}
           song={song}
         />
       );
@@ -91,11 +102,40 @@ const VideoSelection = (props) => {
     { key: "third", title: "Voice Covers" },
   ]);
 
-  const renderScene = SceneMap({
-    first: FirstRoute,
-    second: SecondRoute,
-    third: ThirdRoute,
-  });
+  // const renderScene = SceneMap({
+  //   first: FirstRoute,
+  //   second: SecondRoute,
+  //   third: ThirdRoute,
+  // });
+
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case 'first':
+        return <CustomVideoTabView
+        setCustomVideos={selectCustomVideos}
+        customVideos={customVideos}
+        isMax={isMax}
+      />
+      case 'second':
+        return <DanceChoreosTabView
+        inCreatePost={true}
+        selectFinalChoreo={selectFinalChoreo}
+        parentSelected={new Set(finalChoreos.current)}
+        song={song}
+        isMax={isMax}
+      />;
+      case 'third':
+        return <VoiceCoversTabView
+        inCreatePost={true}
+        selectFinalCover={selectFinalCover}
+        parentSelected={new Set(finalCovers.current)}
+        song={song}
+        isMax={isMax}
+      />;
+      default:
+        return null;
+    }
+  };
 
   const renderTabBar = (props) => (
     <TabBar
@@ -103,7 +143,9 @@ const VideoSelection = (props) => {
       indicatorStyle={{ backgroundColor: Colors.FG }}
       style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: Colors.text }}>{route.title}</Text>
+        <>
+          <GText style={{ color: Colors.text }}>{route.title}</GText>
+        </>
       )}
     />
   );
@@ -123,10 +165,11 @@ const VideoSelection = (props) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: Colors.close }}>BACK</Text>
+          <GText style={{ color: Colors.close }}>BACK</GText>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            playerDispatch({ type: "UNLOAD_PLAYER" });
             navigation.navigate("Caption Selection", {
               song: song,
               danceChoreos: finalChoreos.current,
@@ -135,13 +178,13 @@ const VideoSelection = (props) => {
             });
           }}
         >
-          <Text
+          <GText
             style={{
               color: Colors.close,
             }}
           >
             NEXT
-          </Text>
+          </GText>
         </TouchableOpacity>
       </View>
       <SearchItem

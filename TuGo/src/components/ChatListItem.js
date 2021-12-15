@@ -14,11 +14,16 @@ import moment from "moment";
 import { useAuthState } from "../context/authContext";
 import { API, graphqlOperation } from "aws-amplify";
 import { deleteChatRoom } from "../graphql/mutations";
-import { Colors } from "../../constants";
+import { API_URL, Colors } from "../../constants";
+import { getChatRoom } from "../screens/Direct/queries";
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import { onUpdateChatRoom } from  "../graphql/subscriptions"
+import GText from "./GText"
 
 const ChatListItem = (props) => {
   const { chatRoom, navigation } = props;
   const { self } = useAuthState();
+  const [seen, setSeen] = useState(null)
 
   const [otherUser, setOtherUser] = useState(null);
 
@@ -55,7 +60,26 @@ const ChatListItem = (props) => {
       console.log(e);
     }
   };
+  const isViewed = async () => {
+    const data = await API.graphql(
+      graphqlOperation(getChatRoom, {
+        id: chatRoom.id,
+      })
+    );
+    let seen = data.data.getChatRoom.seen
+    setSeen(seen.includes(self.id))
+  }
+  useEffect(() => {
+    const subscription = API.graphql(
+      graphqlOperation(onUpdateChatRoom)
+    ).subscribe({
+      next: (data) => {
+        isViewed();
+      },
+    });
 
+    return () => subscription.unsubscribe();
+  }, []);
   useEffect(() => {
     const getOtherUser = async () => {
       if (chatRoom.chatRoomUsers.items[0].user.id == self.id) {
@@ -65,6 +89,7 @@ const ChatListItem = (props) => {
       }
     };
     getOtherUser();
+    isViewed();
   }, []);
 
   const onClick = () => {
@@ -93,27 +118,35 @@ const ChatListItem = (props) => {
       return "";
     }
   };
+  console.log(otherUser)
   return (
+    seen != null &&
     <TouchableWithoutFeedback
       onPress={onClick}
       onLongPress={deleteConfirmation}
     >
       <View style={styles.container}>
         <View style={styles.lefContainer}>
-          <Image source={{ uri: otherUser.imageUri }} style={styles.avatar} />
+          <Image source={{ uri: API_URL + otherUser.imageUri }} style={styles.avatar} />
 
           <View style={styles.midContainer}>
-            <Text style={styles.name}>{otherUser.name}</Text>
-            <Text numberOfLines={2} style={styles.lastMessage}>
+            <GText style={styles.name}>{otherUser.name}</GText>
+            <GText numberOfLines={2} style={styles.lastMessage}>
               {renderLastMessage()}
-            </Text>
+            </GText>
           </View>
         </View>
+        <View>
+          <GText style={styles.time}>
+            {chatRoom.lastMessage &&
+            moment(chatRoom.lastMessage.updatedAt).fromNow()}
+          </GText>
+          {!seen &&
+          <View style={{flex: 1, justifyContent: 'center', alignItems: "flex-end"}}>
+            <MaterialCommunityIcons name="chat" size={20} color={Colors.primary} />
+          </View> }
+        </View>
 
-        <Text style={styles.time}>
-          {chatRoom.lastMessage &&
-            moment(chatRoom.lastMessage.createdAt).format("DD/MM/YYYY")}
-        </Text>
       </View>
     </TouchableWithoutFeedback>
   );

@@ -7,22 +7,22 @@ import {
   StyleSheet,
   TouchableWithoutFeedback,
   ActivityIndicator,
-  TouchableHighlight,
 } from "react-native";
 import { Slider } from "react-native-elements";
 import ImageModal from "react-native-image-modal";
 var { width, height } = Dimensions.get("window");
-import Play from "../../assets/PlayButton.svg";
-import Pause from "../../assets/PauseButton.svg";
-import { useAuthState } from "../context/authContext";
 import { usePlayerState, usePlayerDispatch } from "../context/playerContext";
 import { Audio } from "expo-av";
-import { getAudioLink as getAudioLinkAPI } from "../api";
-import TextTicker from "react-native-text-ticker";
-import { Entypo } from "@expo/vector-icons";
-import { Colors } from "../../constants";
-import * as Haptics from "expo-haptics";
-import { Ticker } from "../Helpers/Truncate";
+import { Colors, Length } from "../../constants";
+import { Ticker, Truncate } from "../Helpers/Truncate";
+import { getTrackDetails as getTrackDetailsAPI } from "../api"
+import GText from "./GText"
+
+//icons
+import {
+  AntDesign,
+  Entypo
+} from "@expo/vector-icons";
 
 Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 
@@ -52,6 +52,7 @@ const SearchItem = (props) => {
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
   const [loadingPlayer, setLoadingPlayer] = useState(false);
+  const [isExplicit, setIsExplicit] = useState(false);
 
   const [isPlaying, setIsPlaying] = useState(false);
 
@@ -91,6 +92,11 @@ const SearchItem = (props) => {
   };
 
   useEffect(() => {
+    async function getTrack () {
+      const res = await getTrackDetailsAPI(index)
+      setIsExplicit(res.data.tracks[0].isExplicit)
+    }
+    getTrack()
     return () => {
       //When component exits
       try {
@@ -175,24 +181,6 @@ const SearchItem = (props) => {
         flexDirection: "row",
         alignItems: "center",
       }}
-      delayLongPress={250}
-      onLongPress={() => {
-        if (postable) {
-          navigation.navigate("Video Selection", {
-            song: {
-              id: index,
-              artist: artist,
-              audioLink: audioLink,
-              title: title,
-              coverArt: coverArt,
-              trackId: props.trackId,
-              artistId: artistId,
-              genre: genre,
-            },
-          });
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-        }
-      }}
       onPress={() => {
         selectItem
           ? selectItem(
@@ -213,7 +201,7 @@ const SearchItem = (props) => {
         style={{
           width: width,
           height: 80,
-          backgroundColor: selected ? "purple" : tileColor,
+          backgroundColor: selected ? Colors.primaryDark : tileColor,
           flexDirection: "row",
           alignItems: "center",
           justifyContent: "space-between",
@@ -236,28 +224,54 @@ const SearchItem = (props) => {
               }}
             />
           </View>
-          <View
-            style={{
-              flexDirection: "column",
-              marginLeft: 20,
-              marginTop: 15,
-              width: 220,
-              marginBottom: 30,
-            }}
-          >
-            <Ticker
-              string={artist}
-              maxLength={32}
-              style={{ color: selected ? Colors.BG : Colors.FG }}
-            />
-            <Ticker
-              string={title}
-              maxLength={32}
+          <View style={{ flexDirection: 'row', width: '70%', justifyContent: 'space-between', alignItems: 'center'}}>
+            <View
               style={{
-                fontWeight: "bold",
-                color: selected ? Colors.BG : Colors.FG,
+                flexDirection: "column",
+                marginLeft: 20,
+                marginTop: 15,
+                width: '75%',
+                marginBottom: 30,
               }}
-            />
+            >
+              <GText style={{color: Colors.text, fontWeight: "200"}}>
+                {Truncate(artist, Length.song.artist)}
+              </GText>
+                <Ticker
+                  string={title}
+                  maxLength={Length.song.title}
+                  style={{
+                    fontWeight: "700",
+                    color:
+                      isPlaying && trackId === props.trackId
+                        ? "#FF4343"
+                        : Colors.text,
+                  }}
+                  isExplicit={isExplicit}
+                />
+            </View>
+            {postable &&
+            <TouchableWithoutFeedback
+              onPress={() => {
+                if (postable) {
+                  playerDispatch({ type: "UNLOAD_PLAYER" });
+                  navigation.navigate("Video Selection", {
+                    song: {
+                      id: index,
+                      artist: artist,
+                      audioLink: audioLink,
+                      title: title,
+                      coverArt: coverArt,
+                      trackId: props.trackId,
+                      artistId: artistId,
+                      genre: genre,
+                    },
+                  });
+                }
+              }}
+            >
+              <AntDesign name="retweet" size={20} color={Colors.FG} />
+            </TouchableWithoutFeedback>}
           </View>
         </View>
         <Slider
@@ -284,7 +298,7 @@ const SearchItem = (props) => {
           trackStyle={{ height: 1.5 }}
         />
         {loadingPlayer ? (
-          <View style={{ marginLeft: "auto", marginRight: 16 }}>
+          <View style={{ marginLeft: "auto", marginRight: 20 }}>
             <ActivityIndicator
               animating={true}
               size="small"
@@ -292,17 +306,18 @@ const SearchItem = (props) => {
             />
           </View>
         ) : (
-          <TouchableOpacity
+          <TouchableWithoutFeedback
             disabled={refreshing ? true : false}
             onPress={doPlay}
-            style={{ marginLeft: "auto", marginRight: 10 }}
           >
-            {isPlaying && trackId === props.trackId ? (
-              <Entypo name="controller-paus" size={30} color={Colors.FG} />
-            ) : (
-              <Entypo name="controller-play" size={30} color={Colors.FG} />
-            )}
-          </TouchableOpacity>
+            <View style={{ marginLeft: "auto", marginRight: 10}}>
+              {isPlaying && trackId === props.trackId ? (
+                <Entypo name="controller-paus" size={30} color={Colors.gray} />
+              ) : (
+                <Entypo name="controller-play" size={30} color={Colors.gray} />
+              )}
+            </View>
+          </TouchableWithoutFeedback>
         )}
       </View>
     </TouchableWithoutFeedback>

@@ -25,15 +25,12 @@ import { FlatList } from "react-native-gesture-handler";
 import { API_URL } from "../../../constants";
 import * as Haptics from "expo-haptics";
 import { Colors, appTheme } from "../../../constants";
-
-var { width, height } = Dimensions.get("window");
+import FollowTile from "../../components/FollowTile"
 
 const options = {
   enableVibrateFallback: true,
   ignoreAndroidSystemSettings: false,
 };
-
-const maxlimit = 20;
 
 const styles = StyleSheet.create({
   container: {
@@ -48,21 +45,6 @@ const styles = StyleSheet.create({
     color: Colors.text,
     borderColor: Colors.FG,
     borderWidth: 1,
-  },
-  followButton: {
-    borderWidth: 1,
-    borderRadius: 5,
-    borderColor: Colors.complimentText,
-    width: 90,
-    paddingVertical: 3,
-    alignSelf: "center",
-  },
-  followButtonText: {
-    alignSelf: "center",
-  },
-  followElement: {
-    flex: 1,
-    padding: 15,
   },
 });
 
@@ -93,26 +75,6 @@ const Followers = (props) => {
       const res = await by_idsAPI(list, userToken);
       setFilteredData(res.data);
       setMasterData(res.data);
-      getIsFollowing();
-    }
-    async function getIsFollowing() {
-      const res = await getFollowingAPI(userToken, self.id);
-      const requestedRes = await getRequestedAPI(userToken);
-      const ids = res.data.map((item) => item.following);
-      const idsRequested = requestedRes.data.map((item) => item.to_request);
-      let tempFollowingStatus = {};
-      for (let i = 0; i < list.length; i++) {
-        let followStatus;
-        if (idsRequested.includes(list[i])) {
-          followStatus = "requested";
-        } else if (ids.includes(list[i])) {
-          followStatus = "true";
-        } else {
-          followStatus = "false";
-        }
-        tempFollowingStatus[list[i]] = followStatus;
-      }
-      setFollowingStatus(tempFollowingStatus);
     }
     setLoading(true);
     await getUserStates();
@@ -162,129 +124,12 @@ const Followers = (props) => {
     }
   };
 
-  async function changeFollow(id, notification_token) {
-    const res = await changeFollowAPI(userToken, id);
-    let newFollowingStatus;
-    if (res.status == 201) {
-      newFollowingStatus = "true";
-      await pushNotificationAPI(notification_token, self.username, "follow");
-    } else if (res.status == 202) {
-      newFollowingStatus = "requested";
-      await pushNotificationAPI(notification_token, self.username, "request");
-    } else if (res.status == 204) {
-      newFollowingStatus = "false";
-    }
-    let tempFollowingStatus = Object.assign({}, followingStatus);
-    tempFollowingStatus[id] = newFollowingStatus;
-    setFollowingStatus(tempFollowingStatus);
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-  }
-
-  const renderItem = (item) => {
-    let follow = item.item;
-    const isSelf = follow.id == self.id;
-    const renderFollowingType = () => {
-      if (followingStatus[follow.id] == "true") {
-        return "Following";
-      } else if (followingStatus[follow.id] == "false") {
-        return "Follow";
-      } else if (followingStatus[follow.id] == "requested") {
-        return "Requested";
-      }
-    };
+  const renderItem = ({item}) => {
     return (
-      <TouchableOpacity
-        style={styles.followElement}
-        onPress={() => {
-          navigation.push("Profile", {
-            id: follow.id,
-          });
-        }}
-      >
-        <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Image
-            source={{ uri: API_URL + follow.profile_picture }}
-            style={{
-              width: height / 20,
-              height: height / 20,
-              borderRadius: "50%",
-              borderWidth: 1,
-            }}
-          ></Image>
-          <View style={{ flexDirection: "column", flex: 1, marginLeft: 10 }}>
-            <Text style={{ fontWeight: "bold", color: Colors.text }}>
-              {follow.username.length > maxlimit
-                ? follow.username.substring(0, maxlimit - 3) + "..."
-                : follow.username}
-            </Text>
-            <Text style={{ color: Colors.text }}>
-              {follow.username.length > maxlimit
-                ? follow.name.substring(0, maxlimit - 3) + "..."
-                : follow.name}
-            </Text>
-          </View>
-          <TouchableOpacity
-            style={{
-              ...styles.followButton,
-              backgroundColor: isSelf
-                ? "black"
-                : followingStatus[follow.id] == "true"
-                ? "#065581"
-                : "#DCDCDC",
-            }}
-            onPress={() =>
-              !isSelf
-                ? changeFollow(follow.id, follow.notification_token)
-                : navigation.push("Profile", {
-                    id: follow.id,
-                  })
-            }
-          >
-            <Text
-              style={{
-                ...styles.followButtonText,
-                color: isSelf
-                  ? "white"
-                  : followingStatus[follow.id] == "true"
-                  ? "white"
-                  : "black",
-                fontWeight: "bold",
-              }}
-            >
-              {isSelf ? `View` : renderFollowingType()}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      </TouchableOpacity>
-    );
+    <FollowTile user={item} navigation={navigation}/>
+    )
   };
-
-  const ItemSeparatorView = () => {
-    return (
-      // Flat List Item Separator
-      <View
-        style={{
-          height: 0.8,
-          width: "90%",
-          backgroundColor: "#C8C8C8",
-          alignSelf: "center",
-        }}
-      />
-    );
-  };
-
-  // const header = () => (
-  //   <TextInput
-  //     keyboardAppearance={appTheme}
-  //     style={styles.textInputStyle}
-  //     onChangeText={(text) => searchFilterFunction(text)}
-  //     value={search}
-  //     placeholder="Search"
-  //     placeholderTextColor={Colors.text}
-  //     clearButtonMode="always"
-  //   />
-  // );
-
+  
   return (
     <View style={styles.container}>
       <TextInput
@@ -308,7 +153,6 @@ const Followers = (props) => {
             tintColor={Colors.FG}
           />
         }
-        ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode={"on-drag"}
         // ListHeaderComponent={header}

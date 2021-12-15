@@ -12,7 +12,8 @@ import {
   Share,
   ScrollView,
   ActivityIndicator,
-  Button,
+  Animated,
+  Easing,
 } from "react-native";
 import {
   getPostById as getPostByIdAPI,
@@ -66,9 +67,16 @@ import Player from "./Player";
 import { Colors } from "../../constants";
 import DanceChoreosTabView from "../components/TabViews/DanceChoreosTabView";
 import VoiceCoversTabView from "../components/TabViews/VoiceCoversTabView";
-import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import {
+  TouchableHighlight,
+  TouchableWithoutFeedback,
+} from "react-native-gesture-handler";
 import Carousel, { Pagination } from "react-native-snap-carousel";
 import ShareToDirect from "../screens/Others/ShareToDirect";
+import TileRender from "../screens/Others/TileRender";
+import { useTilePlayerDispatch } from "../context/tilePlayerContext";
+import PostedTile from "./PostedTile";
+import GText from "./GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -90,13 +98,13 @@ const PostComponent = ({
   const { userToken, self } = useAuthState();
   const { playingId, stopAll } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
-
+  const tilePlayerDispatch = useTilePlayerDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [post, setPost] = useState(null);
 
   const [likes, setLikes] = useState(null);
   const [comments, setComments] = useState(null);
-  const [tiles, setTiles] = useState(null);
+  const [tiles, setTiles] = useState([]);
   const [author, setAuthor] = useState(null);
   const [maxlimit, setMaxlimit] = useState(95);
   const [isPlaying, setIsPlaying] = useState(false);
@@ -106,11 +114,14 @@ const PostComponent = ({
   const [lyrics, setLyrics] = useState("");
   const [status, setStatus] = useState({});
   const [activeSlide, setActiveSlide] = useState(0);
-
+  const [animatedTileValue, setAnimatedTileValue] = useState(
+    new Animated.Value(0)
+  );
   const [isSelf, setIsSelf] = useState(false);
 
   const insets = useSafeAreaInsets();
 
+  const tileModal = useRef();
   const shareModal = useRef();
   const refRBSheet = useRef([]);
   const moreRef = useRef();
@@ -120,49 +131,69 @@ const PostComponent = ({
   const playingIdRef = useRef();
   const tilesRef = useRef();
 
-  const firstRun = useRef(true);
 
-  let WebViewRef = [];
-
-  async function getPostStates() {
-    //Update post data from API
-    console.log("hi");
-    const postRes = await getPostByIdAPI(userToken, postId);
-    setPost(postRes.data);
-    postRef.current = postRes.data;
-    const likesRes = await getPostLikesAPI(userToken, postId);
-    setLikes(likesRes.data);
-    const commentsRes = await getPostCommentsAPI(userToken, postId);
-    setComments(commentsRes.data);
-    const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
-    setAuthor(authorRes.data);
-
-    //waiting for tiles to load
-    setTileLoading(true);
+  async function getTileStates(){
     const tilesRes = await getPostTilesAPI(userToken, postId);
     setTiles(tilesRes.data);
-    setTileLoading(false);
-
-    const favRes = await getPostFavoriteAPI(userToken, postId);
-    setIsFavorite(favRes.data.favorited);
-    const postsState = await getPostsAPI(userToken, self.id);
-    const postIds = postsState.data.map((item) => item.id);
-    setIsSelf(postIds.includes(postRes.data.id));
   }
 
-  const onRefresh = async () => {
-    try {
-      setRefreshing(true);
-      await getPostStates();
-      setRefreshing(false);
-    } catch (e) {
-      console.log(e);
-    }
-  };
+  async function getCommentStates(){
+    const commentsRes = await getPostCommentsAPI(userToken, postId);
+    setComments(commentsRes.data);
+  }
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+      // The screen is focused
+      getCommentStates()
+    });
+
+    // Return the function to unsubscribe from the event so it gets removed on unmount
+    return unsubscribe;
+  }, [navigation]);
 
   useEffect(() => {
     let isMounted = true;
-    if (isMounted) onRefresh();
+    async function onRefresh() {
+      if (isMounted) {
+        try {
+          isMounted && setRefreshing(true);
+          //Update post data from API
+          const postRes = await getPostByIdAPI(userToken, postId);
+          isMounted && setPost(postRes.data);
+          postRef.current = postRes.data;
+          isMounted && setIsSelf(postRes.data.author === self.id ? true : false);
+          const likesRes = await getPostLikesAPI(userToken, postId);
+          isMounted && setLikes(likesRes.data);
+          const commentsRes = await getPostCommentsAPI(userToken, postId);
+          isMounted && setComments(commentsRes.data);
+          const authorRes = await getAccountByIdAPI(
+            postRes.data.author,
+            userToken
+          );
+          isMounted && setAuthor(authorRes.data);
+
+          //waiting for tiles to load
+          isMounted && setTileLoading(true);
+          const tilesRes = await getPostTilesAPI(userToken, postId);
+          isMounted && setTiles(tilesRes.data);
+          isMounted && setTileLoading(false);
+
+          const favRes = await getPostFavoriteAPI(userToken, postId);
+          isMounted && setIsFavorite(favRes.data.favorited);
+          // const postsState = await getPostsAPI(userToken, self.id);
+          // const postIds = postsState.data.map((item) => item.id);
+          // isMounted && setIsSelf(postIds.includes(postRes.data.id));
+          isMounted && setRefreshing(false);
+        } catch (e) {
+          console.log(e);
+        }
+      }
+    }
+
+    if (isMounted) {
+      onRefresh();
+    }
     return () => {
       //When component exits
       try {
@@ -176,6 +207,7 @@ const PostComponent = ({
       } catch (error) {
         console.log("Error");
       }
+      isMounted = false;
     };
   }, []);
 
@@ -184,7 +216,11 @@ const PostComponent = ({
   }, [playingId]);
 
   useEffect(() => {
-    setIsPlaying(false);
+    let isMounted = true;
+    isMounted && setIsPlaying(false);
+    return () => {
+      isMounted = false;
+    };
   }, [stopAll]);
 
   //share button function to share posts cross-platforms
@@ -208,45 +244,24 @@ const PostComponent = ({
   };
 
   //tab view for more page
-  const FirstRoute = () => {
-    if (index == 0) {
-      return <DanceChoreosTabView inCreatePost={false} song={post} />;
-    } else {
-      return null;
-    }
-  };
-
-  const SecondRoute = () => {
-    if (index == 1) {
-      return <VoiceCoversTabView inCreatePost={false} song={post} />;
-    } else {
-      return null;
-    }
-  };
-
-  const ThirdRoute = () =>
-    refreshing ? (
-      <ScrollView>
-        <Text style={{ color: Colors.text }}>{lyrics}</Text>
-      </ScrollView>
-    ) : (
-      <ActivityIndicator animating={true} size="large" color={Colors.FG} />
-    );
-
   const initialLayout = { width: Dimensions.get("window").width };
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
     { key: "first", title: "Dance Choreos" },
     { key: "second", title: "Voice Covers" },
-    { key: "third", title: "Lyrics" },
   ]);
 
-  const renderScene = SceneMap({
-    first: FirstRoute,
-    second: SecondRoute,
-    third: ThirdRoute,
-  });
+  const renderScene = ({ route }) => {
+    switch (route.key) {
+      case 'first':
+        return <DanceChoreosTabView inCreatePost={false} song={post} />
+      case 'second':
+        return <VoiceCoversTabView inCreatePost={false} song={post} />
+      default:
+        return null;
+    }
+  };
 
   const renderTabBar = (props) => (
     <TabBar
@@ -254,7 +269,7 @@ const PostComponent = ({
       indicatorStyle={{ backgroundColor: Colors.FG }}
       style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: Colors.text }}>{route.title}</Text>
+        <GText style={{ color: Colors.text }}>{route.title}</GText>
       )}
     />
   );
@@ -278,7 +293,7 @@ const PostComponent = ({
     ) {
       const notifRes = await pushNotificationAPI(
         author.notification_token,
-        self.username,
+        { creator: self.username },
         "like"
       );
     }
@@ -317,109 +332,20 @@ const PostComponent = ({
       { cancelable: false }
     );
 
-  //delete tile confirmation alert function
-  const deleteTileConfirmation = (tileId) =>
-    Alert.alert(
-      "Confirmation",
-      "Are you sure?",
-      [
-        {
-          text: "Cancel",
-          onPress: () => {},
-          style: "cancel",
-        },
-        {
-          text: "Delete",
-          onPress: () => {
-            deleteTile(tileId);
-          },
-        },
-      ],
-      { cancelable: false }
-    );
-
   //delete post async function
   const deletePost = async () => {
     const res = await deletePostAPI(postId, userToken);
   };
 
-  //delete tile async function
-  const deleteTile = async (tileId) => {
-    const res = await deleteTileAPI(postId, tileId, userToken);
-  };
-
-  const renderTile = ({ item, index }) => {
-    if (item.is_youtube)
-      var youtube_id = item.youtube_link.substr(item.youtube_link.length - 11);
+  const renderTileTest = ({ item, index }) => {
     return (
-      <View
-        style={{
-          marginHorizontal: 10,
-          marginVertical: 10,
-        }}
-      >
-        {/* <Video
-          ref={refRBSheet.current[item.id]}
-          style={{
-            ...styles.video,
-            borderColor: item.is_youtube ? "red" : Colors.FG,
-          }}
-          source={{
-            uri: item.is_youtube
-              ? item.youtube_video_url
-              : item.custom_video_url,
-          }} // Can be a URL or a local file.
-          useNativeControls
-          resizeMode="cover"
-          onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-        ></Video> */}
-        <View
-          style={{
-            width: "100%",
-            height: 400,
-            borderWidth: 2,
-          }}
-        >
-          <WebView
-            ref={(WEBVIEW_REF) => (WebViewRef[item.id] = WEBVIEW_REF)}
-            scrollEnabled={false}
-            javaScriptEnabled={true}
-            domStorageEnabled={true}
-            allowsInlineMediaPlayback={true}
-            source={{ uri: `https://www.youtube.com/watch?v=${youtube_id}` }}
-          />
-        </View>
-        <View
-          style={{
-            backgroundColor: Colors.contrastGray,
-            position: "absolute",
-            right: "3%",
-            top: "90%",
-            zIndex: 99,
-            flexDirection: "row",
-            justifyContent: "center",
-            alignItems: "center",
-            paddingHorizontal: 8,
-            borderRadius: 5,
-          }}
-        >
-          {/* <TouchableOpacity
-            style={{ marginRight: 20 }}
-            onPress={() => {
-              deleteTileConfirmation(item.id);
-            }}
-          >
-            <Feather name="trash-2" size={24} color="red" />
-          </TouchableOpacity> */}
-          <TouchableOpacity
-            style={{}}
-            onPress={() => {
-              WebViewRef[item.id] && WebViewRef[item.id].reload();
-            }}
-          >
-            <Foundation name="refresh" size={30} color={Colors.primary} />
-          </TouchableOpacity>
-        </View>
+      <View style={{ margin: (width - (3 * width) / 3.4) / 8 }}>
+        <PostedTile
+          isAuthor={isSelf}
+          postId={postId}
+          tile={item}
+          getTileStates={getTileStates}
+        />
       </View>
     );
   };
@@ -459,9 +385,9 @@ const PostComponent = ({
                   marginRight: 5,
                 }}
               ></Image>
-              <Text style={{ fontWeight: "bold", color: Colors.text }}>
+              <GText style={{ fontWeight: "bold", color: Colors.text }}>
                 {author ? author.username : ""}
-              </Text>
+              </GText>
             </View>
           </TouchableOpacity>
           <View
@@ -470,9 +396,9 @@ const PostComponent = ({
               alignItems: "center",
             }}
           >
-            <Text style={{ color: Colors.text }}>
+            <GText style={{ color: Colors.text }}>
               {post ? moment(post.created_at).fromNow() : ""}
-            </Text>
+            </GText>
             <TouchableOpacity
               style={{
                 paddingRight: 15,
@@ -514,14 +440,14 @@ const PostComponent = ({
               }}
               onPress={onShare}
             >
-              <Text
+              <GText
                 style={{
                   fontSize: 15,
                   fontWeight: "bold",
                 }}
               >
                 Share
-              </Text>
+              </GText>
             </TouchableOpacity>
             {isSelf ? (
               <TouchableOpacity
@@ -533,7 +459,7 @@ const PostComponent = ({
                 }}
                 onPress={deleteConfirmation}
               >
-                <Text
+                <GText
                   style={{
                     fontSize: 15,
                     color: "red",
@@ -541,7 +467,7 @@ const PostComponent = ({
                   }}
                 >
                   Delete
-                </Text>
+                </GText>
               </TouchableOpacity>
             ) : (
               <TouchableOpacity
@@ -553,7 +479,7 @@ const PostComponent = ({
                 }}
                 onPress={() => {}}
               >
-                <Text
+                <GText
                   style={{
                     fontSize: 15,
                     color: "red",
@@ -561,7 +487,7 @@ const PostComponent = ({
                   }}
                 >
                   Report
-                </Text>
+                </GText>
               </TouchableOpacity>
             )}
             <TouchableOpacity
@@ -574,14 +500,14 @@ const PostComponent = ({
                 optionsRef.current.close();
               }}
             >
-              <Text
+              <GText
                 style={{
                   fontSize: 15,
                   fontWeight: "bold",
                 }}
               >
                 Cancel
-              </Text>
+              </GText>
             </TouchableOpacity>
           </RBSheet>
         </View>
@@ -619,7 +545,7 @@ const PostComponent = ({
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
-                  height: 270,
+                  height: Math.ceil(post.video_count/3) * (width/5),
                   marginVertical: 10,
                 }}
               >
@@ -632,35 +558,16 @@ const PostComponent = ({
             ) : (
               tiles && (
                 <View>
-                  <Carousel
+                  <FlatList
+                    contentContainerStyle={{
+                      flexGrow: 1,
+                      alignItems: "center",
+                    }}
                     ref={tilesRef}
                     data={tiles}
-                    renderItem={renderTile}
-                    sliderWidth={width}
-                    itemWidth={width}
-                    onSnapToItem={(index) => setActiveSlide(index)}
-                  />
-
-                  <Pagination
-                    carouselRef={tilesRef}
-                    dotsLength={tiles.length}
-                    activeDotIndex={activeSlide}
-                    containerStyle={{ height: 70 }}
-                    tappableDots={true}
-                    dotStyle={{
-                      width: 10,
-                      height: 10,
-                      borderRadius: 5,
-                      marginHorizontal: 8,
-                      backgroundColor: Colors.FG,
-                    }}
-                    inactiveDotStyle={
-                      {
-                        // Define styles for inactive dots here
-                      }
-                    }
-                    inactiveDotOpacity={0.4}
-                    inactiveDotScale={0.6}
+                    renderItem={renderTileTest}
+                    numColumns={3}
+                    style={goBackOnDelete ? {} : { alignItems: "center" }}
                   />
                 </View>
               )
@@ -715,21 +622,30 @@ const PostComponent = ({
                   }}
                 >
                   <FontAwesome5 name="comment" size={25} color={Colors.FG} />
-                  <Text style={{ color: Colors.text, marginLeft: 10 }}>
+                  <GText style={{ color: Colors.text, marginLeft: 10 }}>
                     {comments ? `${comments.length}` : `loading`}
-                  </Text>
+                  </GText>
                 </View>
               </TouchableOpacity>
 
-              <TouchableOpacity
-                style={styles.moreButton}
+              <TouchableWithoutFeedback
                 onPress={() => {
-                  Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-                  moreRef.current.open();
+                  navigation.navigate("Video Selection", {
+                    song: {
+                      id: post.song_id,
+                      artist: post.song_artist,
+                      audioLink: post.audio_url,
+                      title: post.song_name,
+                      coverArt: post.album_cover,
+                      trackId: post.song_id,
+                      artistId: post.artist_id,
+                      genre: post.song_tags,
+                    },
+                  });
                 }}
               >
-                <Text style={styles.moreButtonText}>More</Text>
-              </TouchableOpacity>
+                <AntDesign name="retweet" size={25} color={Colors.FG} />
+              </TouchableWithoutFeedback>
 
               <TouchableOpacity
                 onPress={() => {
@@ -758,11 +674,12 @@ const PostComponent = ({
               >
                 <ShareToDirect shareItem={post} shareModal={shareModal} />
               </RBSheet>
+
               <RBSheet
                 height={0.8 * height}
                 ref={moreRef}
                 closeOnDragDown={true}
-                closeOnPressMask={false}
+                closeOnPressMask={true}
                 customStyles={{
                   wrapper: {
                     backgroundColor: "transparent",
@@ -785,24 +702,15 @@ const PostComponent = ({
                 />
               </RBSheet>
             </View>
-            <TouchableWithoutFeedback
+            <TouchableOpacity
+              style={styles.moreButton}
               onPress={() => {
-                navigation.navigate("Video Selection", {
-                  song: {
-                    id: post.song_id,
-                    artist: post.song_artist,
-                    audioLink: post.audio_url,
-                    title: post.song_name,
-                    coverArt: post.album_cover,
-                    trackId: post.song_id,
-                    artistId: post.artist_id,
-                    genre: post.song_tags,
-                  },
-                });
+                Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                moreRef.current.open();
               }}
             >
-              <Fontisto name="arrow-return-right" size={25} color={Colors.FG} />
-            </TouchableWithoutFeedback>
+              <GText style={styles.moreButtonText}>More</GText>
+            </TouchableOpacity>
           </View>
         </ImageBackground>
 
@@ -821,13 +729,13 @@ const PostComponent = ({
               });
             }}
           >
-            <Text style={{ color: Colors.text }}>
+            <GText style={{ color: Colors.text}}>
               {likes
                 ? likes.length == 1
                   ? likes.length + ` like`
                   : likes.length + ` likes`
                 : `loading`}
-            </Text>
+            </GText>
           </TouchableOpacity>
           <TouchableOpacity
             style={{ alignSelf: "flex-end", marginRight: 22 }}
@@ -852,16 +760,16 @@ const PostComponent = ({
               marginVertical: 10,
             }}
           >
-            <Text style={{ flexWrap: "wrap", color: Colors.text }}>
-              <Text style={{ fontWeight: "bold" }}>
+            <GText style={{ flexWrap: "wrap", color: Colors.text }}>
+              <GText style={{ fontWeight: "bold" }}>
                 {author.username + `: `}
-              </Text>
-              <Text style={{}}>
+              </GText>
+              <GText style={{}}>
                 {post.caption.length > maxlimit
                   ? post.caption.substring(0, maxlimit - 3) + "..."
                   : post.caption}
-              </Text>
-            </Text>
+              </GText>
+            </GText>
           </View>
         )}
       </View>
@@ -878,12 +786,13 @@ const styles = StyleSheet.create({
     borderRadius: 5,
     paddingHorizontal: 10,
     paddingVertical: 5,
-    backgroundColor: "#CDCDCD",
     alignSelf: "center",
+    marginRight: 5,
   },
   moreButtonText: {
     alignSelf: "center",
-    color: Colors.complimentText,
+    color: Colors.close,
+    fontWeight: "bold",
   },
   imageViewNotPlaying: {
     marginLeft: 8,
@@ -921,3 +830,20 @@ const styles = StyleSheet.create({
 });
 
 export default React.memo(PostComponent);
+
+const Preview = ({ style, item, imageKey, onPress, index, active, local }) => {
+  return (
+    <TouchableOpacity
+      style={[styles.videoContainer]}
+      onPress={() => onPress(item)}
+    >
+      <View style={[styles.imageContainer, styles.shadow]}>
+        <Image
+          style={[styles.videoPreview, active ? {} : { height: 120 }]}
+          source={{ uri: item[imageKey] }}
+        />
+      </View>
+      <GText style={styles.desc}>{item.desc}</GText>
+    </TouchableOpacity>
+  );
+};

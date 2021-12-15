@@ -7,6 +7,8 @@ import {
   ActivityIndicator,
   TouchableOpacity,
   Dimensions,
+  Animated,
+  Image
 } from "react-native";
 import { getPostById as getPostByIdAPI } from "../../api";
 import { useAuthState } from "../../context/authContext";
@@ -28,10 +30,13 @@ Audio.setAudioModeAsync({ playsInSilentModeIOS: true });
 const optionHeight = 60;
 
 //PostComponent is a post by a user
-export default SongBlock = (props) => {
+const SongBlock = (props) => {
   let tileColor = "#065581";
   const { soundObj } = usePlayerState(); //Use global soundObj from Redux state
-  const { postId, navigation, columns } = props;
+  const { postId, navigation, columns, blockHeight, blockWidth } = props;
+  const outerWidth = blockWidth;
+  const outerHeight = blockHeight;
+  const [xy, setXY] = useState(new Animated.ValueXY({ x: outerWidth, y: outerHeight }));
   const { userToken } = useAuthState();
   const { playingId, stopAll, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
@@ -51,24 +56,23 @@ export default SongBlock = (props) => {
 
   stateRef.current = isSeeking;
 
-  async function getPostStates() {
-    //Update post data from API
-    setRefreshing(true);
-    const postRes = await getPostByIdAPI(userToken, postId);
-    setPost(postRes.data);
-    postRef.current = postRes.data;
-    setRefreshing(false);
-  }
-
-  const onRefresh = async () => {
-    try {
-      setRefreshing(true);
-      await getPostStates();
-      setRefreshing(false);
-    } catch (e) {
-      console.log(e);
-    }
+  const imageAnimationIn = () => {
+    Animated.timing(xy, {
+      toValue: { x: outerWidth - 10, y: outerHeight - 10},
+      duration: 20,
+      useNativeDriver: false,
+    }).start();
   };
+
+  const imageAnimationOut = () => {
+    Animated.timing(xy, {
+      toValue: { x: outerWidth, y: outerHeight   },
+      duration: 20,
+      useNativeDriver: false,
+    }).start();
+  };
+
+  async function getPostStates() {}
 
   const loadSound = async () => {
     const sound_url = postRef.current.audio_url;
@@ -102,19 +106,36 @@ export default SongBlock = (props) => {
 
   useEffect(() => {
     let isMounted = true;
-    if (isMounted) onRefresh();
-    return () => {
-      //When component exits
+    async function onRefresh() {
       try {
-        if (postRef.current.id == playingIdRef.current && isMounted) {
-          //If current playing song is same as current post
-          isLoaded.current = false;
-          soundObj.unloadAsync();
-          playerDispatch({ type: "UNLOAD_PLAYER" });
-        }
-      } catch (error) {
-        console.log("Error");
+        isMounted && setRefreshing(true);
+        //Update post data from API
+        const postRes = await getPostByIdAPI(userToken, postId);
+        isMounted && setPost(postRes.data);
+        postRef.current = postRes.data;
+        isMounted && setRefreshing(false);
+      } catch (e) {
+        console.log(e);
       }
+    }
+    if (isMounted) {
+      onRefresh();
+    }
+    return () => {
+      if (isMounted == true) {
+        //When component exits
+        try {
+          if (postRef.current.id == playingIdRef.current && isMounted) {
+            //If current playing song is same as current post
+            isLoaded.current = false;
+            soundObj.unloadAsync();
+            playerDispatch({ type: "UNLOAD_PLAYER" });
+          }
+        } catch (error) {
+          console.log("Error");
+        }
+      }
+      isMounted = false;
     };
   }, []);
 
@@ -171,13 +192,29 @@ export default SongBlock = (props) => {
       console.log(error);
     }
   }
+  // if (post.isViewable === false) {
+  //   console.log(false)
+  // }
 
   return (
-    post && (
-      <View style={{ flex: 1, marginVertical: 5 }}>
+    post && post.isViewable === true && (
+      <ImageBackground 
+        style={{
+          height: '100%', 
+          width: '100%', 
+          justifyContent: 'center', 
+          alignItems: 'center'
+        }}
+        imageStyle={{
+          opacity: 0.3
+        }}
+        source={{
+          uri: post.album_cover
+        }}
+      >
         <TouchableWithoutFeedback
           onPress={() => {
-            isPlaying && doPlay(); //if sound is playing toggle it off when going to a profile
+            playerDispatch({ type: "UNLOAD_PLAYER" });
             Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
             navigation.push("Post", {
               screen: "Post",
@@ -186,34 +223,36 @@ export default SongBlock = (props) => {
               },
             });
           }}
+          onPressIn={imageAnimationIn}
+          onPressOut={imageAnimationOut}
         >
-          <ImageBackground
+          <View style={{width: '100%', height: '100%', justifyContent: 'center', alignItems: 'center'}}>
+          <Animated.Image
             source={{
               uri: post.album_cover,
             }}
-            imageStyle={{
-              opacity: isPlaying && trackId === post.song_id ? 0.2 : 0.9,
+            style={{
+              width: xy.x,
+              height: xy.y,
+              opacity: isPlaying && trackId === post.song_id ? 0.3 : 0.9,
               borderRadius: 20,
-              flex: 1,
               paddingRight: 2,
               paddingLeft: 2,
             }}
-            style={{
-              width: width / columns,
-              height: width / columns,
-              justifyContent: "flex-end",
-            }}
-          >
+          />
             <View
               style={{
                 backgroundColor: Colors.BG,
-                opacity: 0.8,
+                opacity: 0.9,
                 height: 40,
                 flexDirection: "row",
                 paddingLeft: 15,
                 borderRadius: 20,
                 justifyContent: "space-between",
                 alignItems: "center",
+                position: 'absolute',
+                bottom: 0,
+                width: '100%'
               }}
             >
               <View style={{ flex: 1 }}>
@@ -271,9 +310,9 @@ export default SongBlock = (props) => {
                 </TouchableOpacity>
               )}
             </View>
-          </ImageBackground>
+            </View>
         </TouchableWithoutFeedback>
-      </View>
+      </ImageBackground>
     )
   );
 };
@@ -321,3 +360,5 @@ const styles = StyleSheet.create({
     flex: 1,
   },
 });
+
+export default React.memo(SongBlock);

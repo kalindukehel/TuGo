@@ -64,10 +64,12 @@ const Likes = (props) => {
         );
       });
       setFilteredData(newData);
+      setSearch(text);
     } else {
       // Inserted text is blank
       // Update FilteredDataSource with masterData
       setFilteredData(masterData);
+      setSearch(text);
     }
   };
 
@@ -90,23 +92,32 @@ const Likes = (props) => {
     );
   };
 
-  const header = () => (
-    <TextInput
-      keyboardAppearance={appTheme}
-      style={styles.textInputStyle}
-      onChangeText={(text) => {
-        setSearch(text);
-        searchFilterFunction(text);
-      }}
-      value={search}
-      placeholder="Search"
-      placeholderTextColor={Colors.text}
-      clearButtonMode="always"
-    />
-  );
+  // const header = () => (
+  //   <TextInput
+  //     keyboardAppearance={appTheme}
+  //     style={styles.textInputStyle}
+  //     onChangeText={(text) => {
+  //       setSearch(text);
+  //       searchFilterFunction(text);
+  //     }}
+  //     value={search}
+  //     placeholder="Search"
+  //     placeholderTextColor={Colors.text}
+  //     clearButtonMode="always"
+  //   />
+  // );
 
   return (
     <View style={styles.container}>
+      <TextInput
+        keyboardAppearance={appTheme}
+        style={styles.textInputStyle}
+        onChangeText={(text) => searchFilterFunction(text)}
+        value={search}
+        placeholder="Search"
+        placeholderTextColor={Colors.text}
+        clearButtonMode="always"
+      />
       <FlatList
         contentContainerStyle={{ flexGrow: 1 }}
         data={filteredData}
@@ -121,7 +132,6 @@ const Likes = (props) => {
         ItemSeparatorComponent={ItemSeparatorView}
         renderItem={renderItem}
         keyboardDismissMode={"on-drag"}
-        ListHeaderComponent={header}
         ListHeaderComponentStyle={{ margin: 10 }}
       />
     </View>
@@ -134,6 +144,7 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.BG,
   },
   textInputStyle: {
+    marginTop: 10,
     height: 40,
     borderWidth: 1,
     paddingLeft: 20,

@@ -1,30 +1,24 @@
 import React, { useEffect, useState } from "react";
 import {
-  StyleSheet,
-  Text,
   View,
-  TouchableOpacity,
-  Dimensions,
-  SafeAreaView,
 } from "react-native";
-import SearchItem from "../../components/SearchItem";
-import { TabView, SceneMap, TabBar } from "react-native-tab-view";
 import { FlatList } from "react-native-gesture-handler";
-import { createPost, getYoutubeSearch } from "../../api";
-import { Image } from "react-native";
-import { Video } from "expo-av";
+import { getYoutubeSearch } from "../../api";
+import {Colors} from "../../../constants"
 import VideoSearchItem from "../VideoSearchItem";
+import GText from "../GText"
 
 //TabView to display YouTube items in VideoSelection in CreatePost
 const DanceChoreosTabView = (props) => {
+  const { song, selectFinalChoreo, parentSelected, inCreatePost, isMax=false } = props;
   const [danceChoreos, setDanceChoreos] = useState([]);
-  const [selectedVideos, setSelectedVideos] = useState(new Set());
-
-  const { song, selectFinalChoreo, inCreatePost } = props;
+  const [selectedVideos, setSelectedVideos] = useState(
+    parentSelected ? parentSelected : new Set()
+  );
 
   useEffect(() => {
     let isLoaded = true;
-
+    console.log('1 request')
     const loadDanceChoreos = async () => {
       //Get top 10 choreo results from youtube for user's selected song and store in danceChoreos
       const searchQuery = inCreatePost
@@ -39,7 +33,6 @@ const DanceChoreosTabView = (props) => {
           };
         }
       );
-      console.log(res);
       if (isLoaded) setDanceChoreos(res);
     };
     loadDanceChoreos();
@@ -69,6 +62,7 @@ const DanceChoreosTabView = (props) => {
   const renderItem = (item) => {
     return inCreatePost ? (
       <VideoSearchItem
+        disabled={isMax}
         title={item.item.title}
         thumbnail={item.item.thumbnail}
         videoId={item.item.videoId}
@@ -76,6 +70,7 @@ const DanceChoreosTabView = (props) => {
         inCreatePost={inCreatePost}
         selected={selectedVideos.has(item.item.videoId)}
         key={item.item.videoId}
+        outlineColor={"maroon"}
       />
     ) : (
       <VideoSearchItem
@@ -99,11 +94,14 @@ const DanceChoreosTabView = (props) => {
       />
     );
   };
-
   return (
-    <View>
+    <View style={{marginTop: 10}}> 
       <FlatList
-        contentContainerStyle={{ paddingBottom: 50, paddingTop: 10 }}
+        ListHeaderComponent={() => (
+          isMax ?
+            <GText style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15, marginBottom: 10}}>Sorry, max attachments reached</GText> : <></>
+        )}
+        contentContainerStyle={{ paddingBottom: 10 }}
         data={danceChoreos}
         renderItem={renderItem}
         keyExtractor={(item, index) => {

@@ -4,6 +4,7 @@ type User @model {
   username: String!
   imageUri: String
   status: String
+  expoPushToken: String
   chatRoomUser: [ChatRoomUser] @connection(keyName: "byUser", fields: ["id"])
 }
 
@@ -25,7 +26,7 @@ type ChatRoom @model {
   messages: [Message] @connection(keyName: "byChatRoom", fields: ["id"])
   lastMessageID: ID!
   lastMessage: Message @connection(fields: ["lastMessageID"])
-  seen: [ChatRoomUser!]! @connection(keyName: "byChatRoom", fields: ["id"])
+  seen: [Int]!
 }
 
 type Message

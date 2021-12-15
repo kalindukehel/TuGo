@@ -34,6 +34,7 @@ export const getUser = /* GraphQL */ `
                 name
               }
             }
+            seen
           }
         }
         nextToken
@@ -43,3 +44,20 @@ export const getUser = /* GraphQL */ `
     }
   }
 `;
+
+export const getChatRoom = /* GraphQL */ `
+  query getChatRoom($id: ID!) {
+    getChatRoom(id: $id) {
+      chatRoomUsers {
+        items {
+          user {
+            id
+            expoPushToken
+          }
+        }
+      }
+      seen
+    }
+  }
+`;
+

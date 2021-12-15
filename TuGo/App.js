@@ -7,10 +7,13 @@ import { isSignedIn, signed } from "./src/auth";
 import AppNavigator from "./src/navigation/AppNavigator";
 import { AuthProvider } from "./src/context/authContext";
 import { PlayerProvider } from "./src/context/playerContext";
+import { ErrorProvider } from "./src/context/errorContext";
+import { TilePlayerProvider } from "./src/context/tilePlayerContext";
 import { NotificationProvider } from "./src/context/notificationContext";
 import { SafeAreaProvider, SafeAreaView } from "react-native-safe-area-context";
 import { changeColors, Colors } from "./constants";
 import PlayerWidgets from "./src/components/PlayerWidget";
+import ShowTile from "./src/components/ShowTile"
 
 import Amplify from "aws-amplify";
 import config from "./aws-exports";
@@ -25,10 +28,15 @@ export default App = () => {
       <SafeAreaProvider>
         <AuthProvider>
           <PlayerProvider>
-            <NotificationProvider>
-              <AppNavigator />
-              {/* <PlayerWidgets /> */}
-            </NotificationProvider>
+            <ErrorProvider>
+              <TilePlayerProvider>
+                <NotificationProvider>
+                  <AppNavigator />
+                  <PlayerWidgets />
+                  <ShowTile/>
+                </NotificationProvider>
+              </TilePlayerProvider>
+            </ErrorProvider>
           </PlayerProvider>
         </AuthProvider>
       </SafeAreaProvider>

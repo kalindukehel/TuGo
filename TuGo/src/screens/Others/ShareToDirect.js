@@ -24,6 +24,8 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import {
   searchUsers as searchUsersAPI,
   getAccounts as getAccountsAPI,
+  viewableUsers as viewableUsersAPI,
+  pushNotification as pushNotificationAPI
 } from "../../api";
 import { API, graphqlOperation } from "aws-amplify";
 import {
@@ -32,12 +34,13 @@ import {
   createMessage,
   updateChatRoom,
 } from "../../graphql/mutations";
-import { getUser } from "../Direct/queries";
+import { getChatRoom, getUser } from "../Direct/queries";
 import { listUsers } from "../../graphql/queries";
+import GText from "../../components/GText"
 
 //icons
 import { Feather } from "@expo/vector-icons";
-import { Colors } from "../../../constants";
+import { Colors, API_URL } from "../../../constants";
 
 var { width, height } = Dimensions.get("window");
 
@@ -62,29 +65,42 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
     const fetchUsers = async () => {
       //get users from aws database
       try {
-        const allUsersData = await API.graphql(graphqlOperation(listUsers));
-        const filteredUsers = allUsersData.data.listUsers.items.filter(
-          (user) => user.id != self.id
-        );
-        setSuggestionList(filteredUsers);
+        const allUsersData = await viewableUsersAPI(userToken)
+        const filteredList = allUsersData.data.filter(item => item.id !== self.id)
+        setSuggestionList(filteredList);
+        setReceiverList(filteredList)
       } catch (e) {
         console.log(e);
       }
     };
     fetchUsers();
   }, []);
-  useEffect(() => {
-    const getAccounts = async () => {
-      //check if searched text is not empty
-      if (query) {
-        const searchRes = await searchUsersAPI(query, userToken);
-        setReceiverList(searchRes.data);
-      } else {
-        setReceiverList([]);
-      }
-    };
-    getAccounts();
-  }, [query]);
+  
+  const searchFilterFunction = (text) => {
+    // Check if searched text is not blank
+    if (text) {
+      // Inserted text is not blank
+      // Filter the masterDataSource and update FilteredDataSource
+      const newData = suggestionlist.filter(function (item) {
+        // Applying filter for the inserted text in search bar
+        const usernameData = item.username
+          ? item.username.toUpperCase()
+          : "".toUpperCase();
+        const nameData = item.name ? item.name.toUpperCase() : "".toUpperCase();
+        const textData = text.toUpperCase();
+        return (
+          usernameData.indexOf(textData) > -1 || nameData.indexOf(textData) > -1
+        );
+      });
+      setReceiverList(newData);
+      setQuery(text);
+    } else {
+      // Inserted text is blank
+      // Update FilteredDataSource with masterData
+      setReceiverList(suggestionlist);
+      setQuery(text);
+    }
+  };
 
   const _onGestureEventHandler = ({ nativeEvent: { translationY } }) => {
     if (translationY < -(0.4 * height - STATUS_BAR_HEIGHT)) return;
@@ -255,7 +271,7 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
                 style={styles.searchInput}
                 onFocus={_onTxtInputFocus}
                 value={query}
-                onChangeText={setQuery}
+                onChangeText={searchFilterFunction}
                 placeholder="Search"
                 placeholderTextColor={"white"}
               />
@@ -266,7 +282,7 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
                 height: height * (showFull ? 1 : 0.6) - 83.5 - 36 - 50,
                 marginTop: 5,
               }}
-              data={receiverList.length === 0 ? suggestionlist : receiverList}
+              data={receiverList}
               renderItem={({ item, index }) => (
                 <ReceiverItem
                   shareItem={shareItem}
@@ -413,12 +429,15 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         let existingChatRoomId = null;
         for (var index in activeChatRooms) {
           const currChatRoom = activeChatRooms[index];
-          let otherUser;
-          if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
-            otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
-          } else {
-            otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
+          let otherUser = null;
+          if(currChatRoom.chatRoom.chatRoomUsers.items[0].user != null){
+            if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
+              otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
+            } else {
+              otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
+            }
           }
+          if (otherUser)
           if (otherUser.id == user.id) {
             existingChatRoomId = currChatRoom.chatRoomID;
             break;
@@ -432,11 +451,32 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             type: "POST",
             seen: 0,
           };
+
+          // get receiver's push token
+          const chatRoomData = await API.graphql(
+            graphqlOperation( getChatRoom, {
+              id: existingChatRoomId
+            })
+          );
+          
+          let allUsersInChatRoom = chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(user => user.user.id != self.id)
+          const pushTokenReceiver = allUsersInChatRoom.length > 0 ? allUsersInChatRoom[0].user.expoPushToken : null
+
           let newMessageData = await API.graphql(
             graphqlOperation(createMessage, {
               input: msg,
             })
           );
+
+          //send push notification for post
+          if (pushTokenReceiver !== null){
+            const notifRes = await pushNotificationAPI(
+              pushTokenReceiver,
+              {creator: self.username},
+              "post"
+            );
+          }
+
           if (message != "") {
             newMessageData = await API.graphql(
               graphqlOperation(createMessage, {
@@ -449,21 +489,36 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
                 },
               })
             );
+
+            //send push notification for message
+            if (pushTokenReceiver !== null){
+              const notifRes = await pushNotificationAPI(
+                pushTokenReceiver,
+                {creator: self.username, content: message},
+                "message"
+              );
+            }
           }
+          //update lastMessage and seen list
+          let seen = []
+          seen.push(self.id)
           await API.graphql(
             graphqlOperation(updateChatRoom, {
               input: {
                 id: existingChatRoomId,
                 lastMessageID: newMessageData.data.createMessage.id,
+                seen: seen
               },
             })
           );
+
         } else {
           //1. Create a new Chat Room
           const newChatRoomData = await API.graphql(
             graphqlOperation(createChatRoom, {
               input: {
                 lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
+                seen: [self.id]
               },
             })
           );
@@ -474,7 +529,6 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           }
 
           const newChatRoom = newChatRoomData.data.createChatRoom;
-
           // 2. Add `user` to the Chat Room
           await API.graphql(
             graphqlOperation(createChatRoomUser, {
@@ -494,6 +548,16 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
               },
             })
           );
+          // get receiver's push token
+          const chatRoomData = await API.graphql(
+            graphqlOperation( getChatRoom, {
+              id: newChatRoom.id
+            })
+          );
+          
+          let allUsersInChatRoom = chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(user => user.user.id != self.id)
+          const pushTokenReceiver = allUsersInChatRoom.length > 0 ? allUsersInChatRoom[0].user.expoPushToken : null
+
           const msg = {
             content: shareItem.id,
             userID: self.id,
@@ -506,18 +570,37 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
               input: msg,
             })
           );
+
+          //send push notification for post
+          if (pushTokenReceiver !== null){
+            const notifRes = await pushNotificationAPI(
+              pushTokenReceiver,
+              {creator: self.username},
+              "post"
+            );
+          }
+
           if (message != "") {
             newMessageData = await API.graphql(
               graphqlOperation(createMessage, {
                 input: {
                   content: message,
                   userID: self.id,
-                  chatRoomID: existingChatRoomId,
+                  chatRoomID: newChatRoom.id,
                   type: "TEXT",
                   seen: 0,
                 },
               })
             );
+
+            //send push notification for message
+            if (pushTokenReceiver !== null){
+              const notifRes = await pushNotificationAPI(
+                pushTokenReceiver,
+                {creator: self.username, content: message},
+                "message"
+              );
+            }
           }
           await API.graphql(
             graphqlOperation(updateChatRoom, {
@@ -547,7 +630,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         <Image
           style={styles.avatar}
           source={{
-            uri: user.imageUri,
+            uri: API_URL + user.profile_picture,
           }}
         />
         <View
@@ -555,15 +638,15 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             marginLeft: 10,
           }}
         >
-          <Text style={{ color: Colors.text }}>{user.name}</Text>
-          <Text
+          <GText style={{ color: Colors.text }}>{user.name}</GText>
+          <GText
             style={{
               fontWeight: "500",
               color: "#666",
             }}
           >
             {user.username}
-          </Text>
+          </GText>
         </View>
       </View>
       <TouchableOpacity
@@ -580,7 +663,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         {loadingShare ? (
           <ActivityIndicator animating={true} size="small" color={Colors.FG} />
         ) : (
-          <Text
+          <GText
             style={{
               color: "black",
               fontSize: 12,
@@ -588,7 +671,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             }}
           >
             {sent ? "Sent" : "Send"}
-          </Text>
+          </GText>
         )}
       </TouchableOpacity>
     </View>

@@ -16,6 +16,7 @@ import {
 import { listUsers } from "../../src/graphql/queries";
 import { useAuthState } from "../context/authContext";
 import { getUser } from "../screens/Direct/queries";
+import GText from "./GText"
 
 var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
@@ -54,14 +55,16 @@ const ContactListItem = (props) => {
       for (var index in activeChatRooms) {
         const currChatRoom = activeChatRooms[index];
         let otherUser;
-        if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
-          otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
-        } else {
-          otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
-        }
-        if (otherUser.id == account.id) {
-          existingChatRoomId = currChatRoom.chatRoomID;
-          break;
+        if (currChatRoom.chatRoom.chatRoomUsers.items[0].user !== null && currChatRoom.chatRoom.chatRoomUsers.items[1].user !== null){
+          if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
+            otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
+          } else {
+            otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
+          }
+          if (otherUser && (otherUser.id == account.id)) {
+            existingChatRoomId = currChatRoom.chatRoomID;
+            break;
+          }
         }
       }
       if (existingChatRoomId) {
@@ -76,6 +79,7 @@ const ContactListItem = (props) => {
           graphqlOperation(createChatRoom, {
             input: {
               lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
+              seen: []
             },
           })
         );
@@ -126,7 +130,7 @@ const ContactListItem = (props) => {
         }}
       >
         <Image
-          source={{ uri: account.imageUri }}
+          source={{ uri: API_URL + account.profile_picture }}
           style={{
             width: height / 20,
             height: height / 20,
@@ -141,16 +145,16 @@ const ContactListItem = (props) => {
             marginLeft: 15,
           }}
         >
-          <Text style={{ fontWeight: "bold", color: Colors.text }}>
+          <GText style={{ fontWeight: "bold", color: Colors.text }}>
             {account.username.length > maxlimit
               ? account.username.substring(0, maxlimit - 3) + "..."
               : account.username}
-          </Text>
-          <Text style={{ color: Colors.text }}>
+          </GText>
+          <GText style={{ color: Colors.text }}>
             {account.username.length > maxlimit
               ? account.name.substring(0, maxlimit - 3) + "..."
               : account.name}
-          </Text>
+          </GText>
         </View>
       </View>
     </TouchableOpacity>

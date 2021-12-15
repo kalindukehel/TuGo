@@ -13,13 +13,15 @@ import { FlatList } from "react-native-gesture-handler";
 import RBSheet from "react-native-raw-bottom-sheet";
 import SearchItem from "../../components/SearchItem";
 import VideoTile from "../../components/VideoTile";
+import CustomVideoTile from "../../components/CustomVideoTile";
 import {
   createPost as createPostAPI,
   getSongLyrics as getSongLyricsAPI,
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
-import { Colors, appTheme } from "../../../constants";
-import { Video } from "expo-av";
+import { Colors, appTheme, Length } from "../../../constants";
+import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+import GText from "../../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -40,24 +42,18 @@ const CaptionSelection = (props) => {
   const [caption, setCaption] = useState("");
   const [status, setStatus] = useState({});
   const videosRef = useRef([]);
+  const playerDispatch = usePlayerDispatch();
 
   const renderTile = ({ item }) => {
     if (item.isCustom) {
       return (
-        <View style={{ marginHorizontal: 10 }}>
-          <Video
-            ref={videosRef.current[item.uri]}
-            style={styles.video}
-            source={{ uri: item.uri }} // Can be a URL or a local file.
-            useNativeControls
-            resizeMode="contain"
-            onPlaybackStatusUpdate={(status) => setStatus(() => status)}
-          ></Video>
+        <View style={{ margin: (width - (3 * width) / 3.4) / 8  }}>
+          <CustomVideoTile videosRef={videosRef} item={item}/>
         </View>
       );
     } else {
       return (
-        <View style={{ marginHorizontal: 10 }}>
+        <View style={{ margin: (width - (3 * width) / 3.4) / 8 }}>
           <VideoTile videoId={item.video_id} />
         </View>
       );
@@ -70,9 +66,14 @@ const CaptionSelection = (props) => {
   //   }
   // },[])
 
-  const makePost = () => {
+  const makePost = async () => {
     //Call createPostAPI to create a new post
-    createPostAPI(caption, song, choreosAndCovers, userToken);
+    try{
+      await createPostAPI(caption, song, choreosAndCovers, userToken);
+    }
+    catch(e){
+      errorDispatch({type: 'REPORT_ERROR', message: "Something went wrong, could not create post"})
+    }
   };
 
   return (
@@ -91,23 +92,24 @@ const CaptionSelection = (props) => {
             navigation.goBack();
           }}
         >
-          <Text style={{ color: Colors.close }}>BACK</Text>
+          <GText style={{ color: Colors.close }}>BACK</GText>
         </TouchableOpacity>
         <TouchableOpacity
           onPress={() => {
+            playerDispatch({ type: "UNLOAD_PLAYER" });
             makePost();
             navigation.pop();
             navigation.pop();
             navigation.navigate("Explore");
           }}
         >
-          <Text
+          <GText
             style={{
               color: Colors.close,
             }}
           >
             POST
-          </Text>
+          </GText>
         </TouchableOpacity>
       </View>
       <SearchItem
@@ -119,19 +121,23 @@ const CaptionSelection = (props) => {
       />
       {choreosAndCovers.length != 0 && (
         <FlatList
-          showsHorizontalScrollIndicator={false}
+          scrollEnabled={false}
           data={choreosAndCovers}
           renderItem={renderTile}
           keyExtractor={(item, index) => index.toString()}
           style={{
-            maxHeight: 200,
+            maxHeight: height/3,
             marginTop: 15,
           }}
-          horizontal={true}
+          numColumns={3}
+          contentContainerStyle={{
+            flexGrow: 1,
+            alignItems: "center",
+          }}
         />
       )}
       <TextInput
-        maxLength={200}
+        maxLength={Length.caption}
         keyboardAppearance={appTheme}
         style={{ ...styles.commentBar }}
         placeholder={"Add caption..."}
@@ -178,7 +184,7 @@ const styles = StyleSheet.create({
   },
   video: {
     alignSelf: "center",
-    width: 300,
+    width: 200,
     height: 200,
     borderColor: Colors.FG,
     borderWidth: 1,

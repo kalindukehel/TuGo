@@ -3,7 +3,7 @@ import {
   FlatList,
   View,
   StyleSheet,
-  Text,
+  Image,
   ActivityIndicator,
   TouchableWithoutFeedback,
   ImageBackground,
@@ -15,12 +15,13 @@ import {
   typeSongAheadSearch as typeSongAheadSearchAPI,
   searchArtist as searchArtistAPI,
   fullTextSearch as fullTextSearchAPI,
+  searchAlbum as searchAlbumAPI
 } from "../../api";
 import { useAuthState } from "../../context/authContext";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import SearchItem from "../SearchItem";
 import TextTicker from "react-native-text-ticker";
-import { Colors } from "../../../constants";
+import { API_URL, Colors } from "../../../constants";
 
 const styles = StyleSheet.create({
   activityIndicator: {
@@ -31,30 +32,31 @@ const styles = StyleSheet.create({
 
 const SongsTabView = (props) => {
   const { userToken } = useAuthState();
-  const {
-    searchQuery,
-    isEditing,
-    handleChange,
-    handleEditing,
-    navigation,
-  } = props;
+  const { searchQuery, isEditing, handleChange, handleEditing, navigation } =
+    props;
   const [results, setResults] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [profileImage, setProfileImage] = useState(
+    API_URL + "/media/default.jpg"
+  );
 
   useEffect(() => {
     let isMounted = true;
     const loadsongs = async () => {
       if (isEditing && searchQuery != "") {
-        setLoading(true);
+        isMounted && setLoading(true);
         const resArtist = await searchArtistAPI(searchQuery);
         const resTracks = await typeSongAheadSearchAPI(searchQuery);
-        setResults([
-          ...resArtist.data.search.data.artists,
-          ...resTracks.data.search.data.tracks,
-        ]);
-        setLoading(false);
+        const resAlbums = await searchAlbumAPI(searchQuery);
+        isMounted &&
+          setResults([
+            ...resArtist.data.search.data.artists,
+            ...resAlbums.data.search.data.albums,
+            ...resTracks.data.search.data.tracks,
+          ]);
+        isMounted && setLoading(false);
       } else if (searchQuery != "") {
-        setLoading(true);
+        isMounted && setLoading(true);
         //const res = await songSearchAPI(searchQuery, userToken);
         const res = await fullTextSearchAPI(searchQuery);
         const resArray = [
@@ -62,40 +64,8 @@ const SongsTabView = (props) => {
           ...res.data.search.data.albums,
           ...res.data.search.data.tracks,
         ];
-        setResults(resArray);
-        setLoading(false);
-      }
-    };
-    const loadSuggestions = async () => {
-      if (isEditing && searchQuery != "") {
-        //If user is still typing, get suggested song names as results
-        const tempSuggestions = (
-          await getSoundCloudSuggestionsAPI(searchQuery)
-        ).data.collection.map((item) => {
-          return item.output;
-        });
-        if (isMounted) setResults(tempSuggestions);
-      } else if (searchQuery != "") {
-        //If editing is finished and searchQuery is valid, get song items as results
-        let response = await getSoundCloudSearchAPI(searchQuery);
-        let topData = response.data.collection.slice(
-          0,
-          response.data.collection.length
-        );
-
-        //Function to see if result has required attributes
-        const checkValidPost = (item) => {
-          if (item.media && item.artwork_url && item.title) {
-            if (item.media.transcodings) {
-              return true;
-            }
-          }
-          return false;
-        };
-
-        //Filter results with filter and keep only valid
-        let tempResults = topData.filter((item) => checkValidPost(item));
-        if (isMounted) setResults(tempResults);
+        isMounted && setResults(resArray);
+        isMounted && setLoading(false);
       }
     };
     loadsongs();
@@ -103,17 +73,6 @@ const SongsTabView = (props) => {
       isMounted = false;
     };
   }, []);
-
-  const ItemSeparatorView = () => {
-    return (
-      // Flat List Item Separator
-      <View
-        style={{
-          alignSelf: "center",
-        }}
-      />
-    );
-  };
 
   const getImage = (albumId) => {
     return `https://api.napster.com/imageserver/v2/albums/${albumId}/images/500x500.jpg`;
@@ -123,10 +82,26 @@ const SongsTabView = (props) => {
     return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
   };
 
+  function checkImageURL(artistId) {
+    const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
+    fetch(url)
+      .then((res) => {
+        if (res.status == 404) {
+          return null;
+        } else {
+          return url;
+        }
+      })
+      .catch((err) => {
+        console.log(err);
+      });
+  }
+
   const renderSuggestion = ({ item }) => {
+    const type = item.type
     return (
       <>
-        {item.type === "track" && (
+        {type === "track" && (
           <SearchItem
             index={item.id}
             coverArt={getImage(item.albumId)}
@@ -142,28 +117,24 @@ const SongsTabView = (props) => {
             artistId={item.artistId}
           />
         )}
-        {item.type === "artist" && (
+        {type === "artist" && (
           <TouchableWithoutFeedback
             onPress={() => {
               navigation.push("Artist", {
                 artist: item.id,
-              });
+              })
             }}
           >
             <View
               style={{
                 flexDirection: "row",
                 alignItems: "center",
-                marginLeft: 8,
-                marginTop: 8,
+                marginLeft: 10,
+                marginTop: 12,
+                marginBottom: 10,
               }}
             >
-              <ImageBackground
-                imageStyle={{
-                  width: 60,
-                  height: 60,
-                  borderRadius: 999,
-                }}
+              <Image
                 style={{
                   width: 60,
                   height: 60,
@@ -171,15 +142,65 @@ const SongsTabView = (props) => {
                   alignItems: "center",
                 }}
                 source={{
-                  uri: getArtistImage(item.id),
+                  uri: type === "artist" ? getArtistImage(item.id) : getImage(item.id)
                 }}
-              ></ImageBackground>
+              />
               <TextTicker
                 style={{
                   marginLeft: 20,
                   color: Colors.text,
                   fontWeight: "bold",
-                  height: 20,
+                  height: 25,
+                  fontSize: 20,
+                }}
+                duration={7000}
+                bounce
+                repeatSpacer={50}
+                marqueeDelay={1000}
+                shouldAnimateTreshold={40}
+              >
+                {item.name.length > 32
+                  ? item.name.substring(0, 32 - 3) + "..."
+                  : item.name}
+              </TextTicker>
+            </View>
+          </TouchableWithoutFeedback>
+        )}
+        {type === 'album' && (
+          <TouchableWithoutFeedback
+            onPress={() => {
+              navigation.push("Album", {
+                album: item.id,
+              });
+            }}
+          >
+            <View
+              style={{
+                flexDirection: "row",
+                alignItems: "center",
+                marginLeft: 10,
+                marginTop: 12,
+                marginBottom: 10,
+              }}
+            >
+              <Image
+                style={{
+                  width: 60,
+                  height: 60,
+                  borderRadius: 10,
+                  alignItems: "center",
+                }}
+                source={{
+                  uri: getImage(item.id)
+                }}
+              />
+              <TextTicker
+                style={{
+                  marginLeft: 20,
+                  color: Colors.text,
+                  fontWeight: "bold",
+                  height: 25,
+                  fontSize: 16,
                 }}
                 duration={7000}
                 bounce
@@ -206,7 +227,7 @@ const SongsTabView = (props) => {
         </View>
       ) : (
         <FlatList
-          keyboardDismissMode="on-drag"
+          keyboardDismissMode="interactive"
           style={{}}
           data={results}
           renderItem={renderSuggestion}

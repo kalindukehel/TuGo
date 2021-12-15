@@ -24,7 +24,10 @@ import { useAuthState } from "../../context/authContext";
 import SearchItem from "../../components/SearchItem";
 import Player from "../../components/Player";
 import { TouchableHighlight } from "react-native-gesture-handler";
-import { Colors, appTheme } from "../../../constants";
+import { API_URL, Colors, appTheme } from "../../../constants";
+import GText from "../../components/GText"
+
+import styles from './commonStyles'
 
 var { width, height } = Dimensions.get("window");
 
@@ -38,8 +41,9 @@ const Artist = (props) => {
   const [artistSongs, setArtistSongs] = useState(null);
   const flatListRef = React.useRef();
   const searchBarRef = React.useRef();
-  const [artistName, setArtistName] = useState("");
+  const [artistDetails, setArtistDetails] = useState("");
   const [disableScroll, setDisableScroll] = useState(false);
+  const [profileImage, setProfileImage] = useState(API_URL + "/media/default.jpg")
 
   //filter search
   const [filteredData, setFilteredData] = useState([]);
@@ -55,7 +59,7 @@ const Artist = (props) => {
     setRefreshing(true);
     async function getSongList() {
       const infoRes = await getArtistInfoAPI(artist);
-      setArtistName(infoRes.data.artists[0].name);
+      setArtistDetails(infoRes.data.artists[0]);
       let res = await artistSongsTopAPI(artist);
       if (res.data.tracks.length < 10) {
         res = await artistSongsAPI(artist);
@@ -64,7 +68,20 @@ const Artist = (props) => {
       setFilteredData(res.data.tracks);
       setMasterData(res.data.tracks);
     }
+    function checkImageURL(artistId){
+      const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`
+      fetch(url)
+         .then(res => {
+         if(res.status == 404){
+           if(masterData.length > 0) setProfileImage(getImage(masterData[0].albumId))
+         }else{
+           setProfileImage(`https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`)
+        }
+      })
+     .catch(err=>{console.log(err)})
+    }
     getSongList();
+    checkImageURL(artist);
     setRefreshing(false);
   }, []);
 
@@ -159,7 +176,7 @@ const Artist = (props) => {
       setSearch(text);
     }
   };
-
+  console
   return (
     filteredData && (
       <SafeAreaView style={styles.container}>
@@ -185,16 +202,16 @@ const Artist = (props) => {
           }}
         />
         <Animated.View
-          style={[styles.chartHeader, { transform: [{ translateY }] }]}
+          style={[artistStyles.artistHeader, { transform: [{ translateY }] }]}
         >
-          <View style={styles.chartImageView}>
+          <View style={artistStyles.artistImageView}>
             <Image
               style={{
                 height: 140,
                 width: 140,
                 borderRadius: 40,
               }}
-              source={{ uri: getArtistImage(artist) }}
+              source={{ uri: profileImage}}
             />
             <View
               style={{
@@ -211,9 +228,11 @@ const Artist = (props) => {
                   });
                 }}
               >
-                <Text style={styles.button}>Related Artists</Text>
+                <View style={styles.buttonView}>
+                  <GText style={styles.button}>Related Artists</GText>
+                </View>
               </TouchableWithoutFeedback>
-
+              {artistDetails.bios &&
               <TouchableWithoutFeedback
                 onPress={() => {
                   navigation.push("ArtistInfo", {
@@ -221,8 +240,11 @@ const Artist = (props) => {
                   });
                 }}
               >
-                <Text style={styles.button}>Info</Text>
+                <View style={styles.buttonView}>
+                  <GText style={styles.button}>Info</GText>
+                </View>
               </TouchableWithoutFeedback>
+              }
             </View>
           </View>
           <Animated.View
@@ -231,7 +253,7 @@ const Artist = (props) => {
               searchBarRef.current = layout.y;
             }}
             style={{
-              ...styles.textInputStyle,
+              ...styles.textInputViewStyle,
               width: searchBarWidth,
               justifyContent: "center",
               alignSelf: "center",
@@ -243,14 +265,10 @@ const Artist = (props) => {
                 scrollToTextInput();
                 searchFilterFunction(text);
               }}
-              style={{
-                flex: 1,
-                paddingLeft: 20,
-                paddingRight: 5,
-              }}
+              style={styles.textInputStyle}
               defaultValue={search}
               placeholder="Search Top Songs..."
-              placeholderTextColor={"black"}
+              placeholderTextColor={"white"}
               clearButtonMode="always"
               onFocus={() => {
                 scrollToTextInput();
@@ -259,23 +277,26 @@ const Artist = (props) => {
               onBlur={searchAnimationInactive}
             />
           </Animated.View>
+          {artistDetails.name &&
           <TouchableWithoutFeedback onPress={toTop}>
-            <View style={styles.chartNameView}>
-              <Text style={styles.chartName}>{artistName}</Text>
+            <View style={artistStyles.artistNameView}>
+              <GText style={artistStyles.artistName}>{artistDetails.name.length > styles.maxlimit 
+              ? artistDetails.name.substring(0, styles.maxlimit - 3) + `...` 
+              : artistDetails.name}</GText>
             </View>
-          </TouchableWithoutFeedback>
+          </TouchableWithoutFeedback>}
         </Animated.View>
       </SafeAreaView>
     )
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.BG,
-  },
-  chartImageView: {
+const artistStyles = StyleSheet.create({
+//   container: {
+//     flex: 1,
+//     backgroundColor: Colors.BG,
+//   },
+  artistImageView: {
     flexDirection: "row",
     alignItems: "center",
     marginTop: 10,
@@ -289,7 +310,7 @@ const styles = StyleSheet.create({
     shadowRadius: 6.68,
     elevation: 11,
   },
-  chartHeader: {
+  artistHeader: {
     height: 220,
     position: "absolute",
     width: width,
@@ -297,33 +318,36 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.primary,
     borderBottomRightRadius: 50,
   },
-  chartName: {
+  artistName: {
     fontWeight: "bold",
   },
-  chartNameView: {
+  artistNameView: {
     alignSelf: "center",
     borderRadius: 10,
     backgroundColor: "#E8E8E8",
     padding: 10,
     marginTop: 30,
   },
-  button: {
-    borderColor: "black",
-    borderWidth: 1,
-    textAlign: "center",
-    width: 120,
-    borderRadius: 5,
-    paddingVertical: 5,
-  },
-  textInputStyle: {
-    height: 30,
-    borderRadius: 20,
-    borderColor: "black",
-    borderWidth: 1,
-    marginHorizontal: 20,
-    marginTop: 20,
-    width: "50%",
-  },
+//   button: {
+//     textAlign: "center",
+//     width: 120,
+//     paddingVertical: 5,
+//     color: Colors.text
+//   },
+//   textInputStyle: {
+//     height: 30,
+//     borderRadius: 7,
+//     borderColor: "black",
+//     borderWidth: 1,
+//     marginHorizontal: 20,
+//     marginTop: 20,
+//     width: "50%",
+//     backgroundColor: Colors.contrastGray,
+//   },
+//   buttonView: {
+//     borderRadius: 7, 
+//     backgroundColor: Colors.contrastGray
+//   }
 });
 
 export default Artist;

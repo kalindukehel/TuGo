@@ -9,6 +9,7 @@ import {
   Animated,
 } from "react-native";
 import { Colors } from "../../../constants";
+import GText from "../GText"
 
 var { width } = Dimensions.get("window");
 let maxlimit = 15;
@@ -20,7 +21,7 @@ const ArtistBlock = (props) => {
 
   const [sizeValue, setSizeValue] = useState(new Animated.Value(size));
 
-  const name = topFive ? `${index} ${artist}` : `${artist}`;
+  const name = `${artist}`;
 
   const imageAnimationIn = () => {
     Animated.timing(sizeValue, {
@@ -52,7 +53,6 @@ const ArtistBlock = (props) => {
       <View
         style={{
           width: width / (columns - 0.5),
-          height: width / (columns - 0.5),
           justifyContent: "center",
           alignItems: "center",
         }}
@@ -76,11 +76,11 @@ const ArtistBlock = (props) => {
             }}
           />
         </View>
-        <Text style={styles.chartName}>
+        <GText style={styles.chartName}>
           {name.length > maxlimit
             ? name.substring(0, maxlimit - 3) + "..."
             : name}
-        </Text>
+        </GText>
       </View>
     </TouchableWithoutFeedback>
   );

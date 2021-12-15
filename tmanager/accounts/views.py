@@ -1,13 +1,15 @@
 from django.shortcuts import render
-from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag
+from accounts.models import Account, Follower, Post, Like, Comment, Tile, Activity_Item, Feed_Item, Explore_Item, Song, Tag, Requester
 from rest_framework import viewsets, permissions
-from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer, TagSerializer
+from .serializers import AccountSerializer, PrivateAccountSerializer, FollowRequestSerializer, PostSerializer, FollowerSerializer, FollowingSerializer, CommentSerializer, LikeSerializer, PrivatePostSerializer, TileSerializer, FeedSerializer, ExploreSerializer, ActivitySerializer, FavoriteSerializer, SongSerializer, TagSerializer
 from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.status import HTTP_401_UNAUTHORIZED, HTTP_403_FORBIDDEN
+from django.core.exceptions import ValidationError
+from django.core.validators import validate_email
 from rest_framework import status
 from django.contrib.auth import authenticate
-from django.db.models import Q
+from django.db.models import Q, Count
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.pagination import PageNumberPagination
@@ -16,8 +18,7 @@ from django_pandas.io import read_frame
 import numpy as np
 from sklearn.metrics.pairwise import cosine_similarity
 from sklearn.feature_extraction.text import CountVectorizer
-import pafy
-from datetime import datetime, date, timezone
+from datetime import datetime, date, timezone, timedelta
 import requests
 import json
 
@@ -34,6 +35,20 @@ class AccountViewSet(viewsets.ModelViewSet):
         permissions.IsAuthenticated
     ]
     serializer_class = AccountSerializer
+    def update(self, request, *args, **kwargs):
+        if(request.data.get('is_private') == False):
+            for follow_request in request.user.requests.all():
+                #Create follower object then delete follower request item, push new activity item to user
+                follower = Follower.objects.create(follower=follow_request.requester,following=request.user)
+                follow_request.delete()
+                follower.save()
+                activity_item = Activity_Item(user=request.user,activity_type='FOLLOW',action_user=follow_request.requester, follower=follower)
+                try:
+                    activity_item.full_clean()
+                    activity_item.save()
+                except ValidationError as e:
+                    return Response({"detail":"Activity item could not be created."},status=status.HTTP_400_BAD_REQUEST)
+        return super().update(request,*args,**kwargs)
 
     def get_serializer_class(self):
         if(self.action == 'list'):
@@ -62,6 +77,13 @@ class AccountViewSet(viewsets.ModelViewSet):
         user_list = Account.objects.filter(id__in=id_set if id_set !=None else [])
         serialized = PrivateAccountSerializer(user_list,many=True)
         return Response(serialized.data)
+    
+    @action(detail=False, methods=['GET'], serializer_class=AccountSerializer)
+    def viewable_users(self,request,*args,**kwargs):
+        following_list = set(request.user.following.values_list('following',flat=True))
+        user_list = Account.objects.filter(Q(is_private=False) | Q(id__in=following_list))
+        serialized = PrivateAccountSerializer(user_list,many=True)
+        return Response(serialized.data)
 
     @action(detail=False, methods=['POST'], serializer_class=AccountSerializer)
     def search_by_username(self,request,*args,**kwargs):
@@ -73,10 +95,16 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     @action(detail=True, methods=['GET'])
     def details(self,request,*args,**kwargs):
+        you_follow = Follower.objects.filter(follower=request.user,following=self.get_object()).exists()
+        follows_you = Follower.objects.filter(follower=self.get_object(),following=request.user).exists()
+        requested = Requester.objects.filter(requester=request.user,to_request=self.get_object()).exists()
         return Response({
             'posts': self.get_object().posts.count(),
             'followers': self.get_object().followers.count(),
-            'following': self.get_object().following.count()
+            'following': self.get_object().following.count(),
+            'follows_you': follows_you,
+            'you_follow': you_follow,
+            'requested': requested
         })
     
     @action(detail=False, methods=['GET','POST'])
@@ -91,7 +119,11 @@ class AccountViewSet(viewsets.ModelViewSet):
                 follow_request.delete()
                 follower.save()
                 activity_item = Activity_Item(user=request.user,activity_type='FOLLOW',action_user=follow_request.requester, follower=follower)
-                activity_item.save()
+                try:
+                    activity_item.full_clean()
+                    activity_item.save()
+                except ValidationError as e:
+                    return Response({"detail":"Activity item could not be created."},status=status.HTTP_400_BAD_REQUEST)
             elif(action == 'delete'):
                 follow_request = request.user.requests.filter(requester=requester)
                 follow_request.delete()
@@ -135,7 +167,11 @@ class AccountViewSet(viewsets.ModelViewSet):
                         feed_item = Feed_Item(user=request.user,post=post,follow_relation=follower)
                         feed_item.save()
                     activity_item = Activity_Item(user=self.get_object(),activity_type='FOLLOW',action_user=request.user, follower=follower)
-                    activity_item.save()
+                    try:
+                        activity_item.full_clean()
+                        activity_item.save()
+                    except ValidationError as e:
+                        return Response(status=status.HTTP_400_BAD_REQUEST)
                     return Response(status=status.HTTP_201_CREATED)
         else: #if user is getting followers list
             if(self.get_object().is_private == False or
@@ -159,6 +195,19 @@ class AccountViewSet(viewsets.ModelViewSet):
             return Response(status=HTTP_403_FORBIDDEN)
 
     @action(detail=True, methods=['GET'])
+    def mutual(self,request,*args,**kwargs):
+        # get current users friends (assuming guid is unique for a friend?)
+        user_friend_guids = request.user.following.values_list('following',flat=True)
+        print(len(user_friend_guids))
+        # # get Friend objects where user not current user, is in user_friend_list, group and count by user
+        mutual_friends = self.get_object().followers \
+                                    .filter(follower_id__in=user_friend_guids).exclude(follower_id=self.get_object()) \
+                                    .annotate(number_mutual_friends=Count('follower_id')) \
+                                    .order_by('-number_mutual_friends')
+        serializer = FollowerSerializer(mutual_friends,many=True)
+        return Response(serializer.data)
+
+    @action(detail=True, methods=['GET'])
     def posts(self,request,*args,**kwargs):
         if(self.get_object().is_private == False or
         self.get_object().followers.filter(follower=self.request.user).exists() or
@@ -167,7 +216,7 @@ class AccountViewSet(viewsets.ModelViewSet):
             serializer = PostSerializer(all_posts,many=True)
             return Response(serializer.data)
         else:
-            return Response(status=HTTP_403_FORBIDDEN)
+            return Response({"detail":"Private account."},status=HTTP_403_FORBIDDEN)
 
     @action(detail=False, methods=['GET'])
     def feed(self,request,*args,**kwargs):
@@ -255,10 +304,13 @@ class AccountViewSet(viewsets.ModelViewSet):
 
         #for every post in filtered ids, create an explore item
         for post in Post.objects.filter(id__in=filtered_id_list):
-            if(post.author.id not in user_following_list):
+            if(post.author.id not in user_following_list and not post.author.is_private):
                 ExploreItem,created = request.user.explore.all().get_or_create(user=request.user,post=post)
                 if(created):
                     ExploreItem.save()
+            else:
+                if Explore_Item.objects.filter(post=post,user=request.user).exists():
+                    Explore_Item.objects.get(post=post,user=request.user).delete()
         serializer = ExploreSerializer(request.user.explore.all().order_by('-post'),many=True)
         return Response(serializer.data)
 
@@ -274,7 +326,7 @@ class AccountViewSet(viewsets.ModelViewSet):
 
     @action(detail=False, methods=['GET'])
     def favorites(self,request,*args,**kwargs):
-        favorites = request.user.favorites.all()
+        favorites = request.user.favorites.all().order_by('-id')
         serializer = FavoriteSerializer(favorites,many=True)
         return Response(serializer.data)
 
@@ -294,7 +346,17 @@ class PostViewSet(viewsets.ModelViewSet):
     #     x = PostSerializer(data)
     #     if(x.is_valid()):
     #         x.save()
-        
+    def get_serializer_class(self):
+        if(self.action == 'list'):
+            return PrivatePostSerializer
+        elif(self.action == 'retrieve'):
+            if(self.get_object().author.is_private == False or
+            self.get_object().author.followers.filter(follower=self.request.user).exists() or
+            self.get_object().author == self.request.user):
+                return PostSerializer
+            else:
+                return PrivatePostSerializer
+        return (PostSerializer)
     @action(detail=True, methods=['GET','POST'], serializer_class=LikeSerializer)
     def likes(self, request, *args, **kwargs):
         if(request.method == 'POST'):
@@ -309,35 +371,57 @@ class PostViewSet(viewsets.ModelViewSet):
                 #If user is not liking own post, push activity item to the user receiving the like
                 if(request.user != self.get_object().author):
                     activity_item = Activity_Item(user=self.get_object().author,activity_type='LIKE',action_user=request.user,post=self.get_object(),like=like)
-                    activity_item.save()
+                    try:
+                        activity_item.full_clean()
+                        activity_item.save()
+                    except ValidationError as e:
+                        return Response(status=status.HTTP_400_BAD_REQUEST)
                 return Response(status=status.HTTP_201_CREATED)
         else:
             all_likes = self.get_object().likes.all()
             serializer = LikeSerializer(all_likes,many=True)
             return Response(serializer.data)
     
-    @action(detail=True, methods=['GET','POST'], serializer_class=CommentSerializer,pagination_class = StandardResultsSetPagination)
+    @action(detail=True, methods=['GET','POST', 'DELETE'], serializer_class=CommentSerializer,pagination_class = StandardResultsSetPagination)
     def comments(self, request, *args, **kwargs): 
         if(request.method=='POST'):
             value = request.data.get('value')
             comment = Comment(author=request.user,post=self.get_object(),value=value)
-            comment.save()
+            try:
+                comment.full_clean()
+                comment.save()
+            except ValidationError as e:
+                return Response({"detail":"Comment exceeds 200 characters."},status=status.HTTP_400_BAD_REQUEST)
             #If user is not commenting on own post, push activity item to the user receiving the comment
             if(request.user != self.get_object().author):
                 activity_item = Activity_Item(user=self.get_object().author,activity_type='COMMENT',action_user=request.user,comment=comment, post=self.get_object())
-                activity_item.save()
+                try:
+                    activity_item.full_clean()
+                    activity_item.save()
+                except ValidationError as e:
+                    return Response({"detail":"Activity item could not be created."},status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
+        elif(request.method=='DELETE'):
+            comment = Comment.objects.get(pk=request.data.get('id'))
+            if(request.user==comment.author):
+                comment.delete()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response({"detail":"Comment could not be deleted."},status=status.HTTP_400_BAD_REQUEST)
         else:
             all_comments = self.get_object().comments.all()
             serializer = CommentSerializer(all_comments,many=True)
             return Response(serializer.data)
 
-    @action(detail=True, methods=['GET','POST'], serializer_class=TileSerializer )
+    @action(detail=True, methods=['GET','POST','DELETE'], serializer_class=TileSerializer )
     def tiles(self, request, *args, **kwargs): 
         if(request.method=='POST'):
             tile_type = request.data.get('tile_type')
             if(tile_type not in ['posted_cover', 'posted_choreo', 'suggested_cover', 'suggested_choreo']):
-                return Response(status=status.HTTP_400_BAD_REQUEST)
+                return Response({"detail":"Invalid tile type."},status=status.HTTP_400_BAD_REQUEST)
+            tile_len = len(self.get_object().tiles.all())
+            if(tile_len >= 9):
+                return Response({"detail":"You can only have a maximum of 9 tiles."},status=status.HTTP_400_BAD_REQUEST)
             is_youtube = request.data.get('is_youtube')
             youtube_link = request.data.get('youtube_link')
             image = request.data.get('image')
@@ -345,6 +429,8 @@ class PostViewSet(viewsets.ModelViewSet):
             #get video url
             youtube_video_url = None
             custom_video_url = None
+            if is_youtube == 'False':
+                custom_video_url = request.data.get('custom_video_url')
             # if(is_youtube):
             #     # video = pafy.new(youtube_link)
             #     # best = video.getbest()
@@ -354,9 +440,23 @@ class PostViewSet(viewsets.ModelViewSet):
             #     custom_video_url = request.data.get('custom_video_url')
             #     print(custom_video_url)
             tile = Tile(post=self.get_object(),tile_type=tile_type,is_youtube=is_youtube,youtube_link=youtube_link,image=image,youtube_video_url=youtube_video_url, custom_video_url=custom_video_url)
-            print(tile)
-            tile.save()
+            try:
+                tile.full_clean()
+                tile.save()
+            except ValidationError as e:
+                print(e)
+                return Response({"detail":"Tile could not be created"},status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
+        elif(request.method=='DELETE'):
+            tile = Tile.objects.get(pk=request.data.get('id'))
+            if(request.user==tile.post.author):
+                post = tile.post
+                tile.delete()
+                post.video_count = len(post.tiles.all())
+                post.save()
+                return Response(status=status.HTTP_200_OK)
+            else:
+                return Response({"detail":"Tile could not be deleted."},status=status.HTTP_400_BAD_REQUEST)
         else:
             tiles = self.get_object().tiles.all()
             # for i in tiles:
@@ -404,6 +504,37 @@ class PostViewSet(viewsets.ModelViewSet):
                 return Response({"favorited":True})
             else:
                 return Response({"favorited":False})
+    
+    @action(detail=False, methods=['GET'], serializer_class=LikeSerializer)
+    def liked(self, request, *args, **kwargs):
+        #Shows posts user has liked
+        liked = request.user.liked.all().order_by('-id')
+        serializer = LikeSerializer(liked,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['GET'], serializer_class=PrivatePostSerializer)
+    def trending_posts(self, request, *args, **kwargs):
+        #Shows posts in the last 5 days with most likes
+        month = datetime.now() - timedelta(days=10)
+        trending = Post.objects.filter(created_at__gt=month).filter(author__is_private=False).order_by('-id').annotate(num_likes=Count('likes')).order_by('-num_likes')[:10]
+        serializer = PrivatePostSerializer(trending,many=True)
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['POST'], serializer_class=PostSerializer)
+    def search_by_post(self,request,*args,**kwargs):
+        search_query = self.request.data.get('search_query')
+        if(search_query == ""):
+            #Shows posts in the last 5 days with most likes
+            month = datetime.now() - timedelta(days=5)
+            trending = Post.objects.filter(created_at__gt=month).filter(author__is_private=False).order_by('-id').annotate(num_likes=Count('likes')).order_by('-num_likes')[:10]
+            serializer = PostSerializer(trending,many=True)
+            return Response(serializer.data)
+        #Filters posts by if song name or artist contains search query
+        following_list = set(request.user.following.values_list('following',flat=True))
+        print(following_list)
+        post_list = Post.objects.filter((Q(song_name__contains=search_query) | Q(song_artist__contains=search_query)) & (Q(author__is_private=False) | Q(author__in=following_list)))
+        serialized = PostSerializer(post_list,many=True)
+        return Response(serialized.data)
 
     @action(detail=True, methods=['GET','POST'], serializer_class=TagSerializer )
     def tags(self, request, *args, **kwargs): 
@@ -413,11 +544,19 @@ class PostViewSet(viewsets.ModelViewSet):
             #account being tagged
             tagged_account = Account.objects.filter(id=tagged_id)[0]
             tag = Tag(author=request.user,post=self.get_object(),value=value,tagged=tagged_account)
-            tag.save()
+            try:
+                tag.full_clean()
+                tag.save()
+            except ValidationError as e:
+                return Response({"detail":"User could not be tagged."},status=status.HTTP_400_BAD_REQUEST)
             #If user is not commenting on own post, push activity item to the user receiving the comment
             if(request.user != tagged_account):
                 activity_item = Activity_Item(user=tagged_account,activity_type='TAG',action_user=request.user,tag=tag, post=self.get_object())
-                activity_item.save()
+                try:
+                    activity_item.full_clean()
+                    activity_item.save()
+                except ValidationError as e:
+                    return Response({"detail":"Activity item could not be created."},status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_201_CREATED)
         else:
             all_tags = self.get_object().tags.all()
@@ -452,6 +591,36 @@ def signup(request, *args, **kwargs):
     serializer.save()
 
     return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+@api_view(['POST'])
+@permission_classes([permissions.AllowAny])
+def valid(request, *args, **kwargs):
+    valid_type = request.data.get('type')
+    if(valid_type == 'username' and request.data.get('username') != None):
+        username = request.data.get('username')
+        if username == "" or Account.objects.filter(username=username).exists():
+            return Response({"available":False},status=status.HTTP_200_OK)
+        else:
+            return Response({"available":True},status=status.HTTP_200_OK)
+    elif(valid_type == 'email' and request.data.get('email') != None):
+        email = request.data.get('email')
+        try:
+            validate_email(email)
+        except ValidationError as e:
+            return Response({"available":False},status=status.HTTP_200_OK)
+        else:
+            if Account.objects.filter(email=email).exists():
+                return Response({"available":False},status=status.HTTP_200_OK)
+            else:
+                return Response({"available":True},status=status.HTTP_200_OK)
+    elif(valid_type == 'password' and request.data.get('password') != None):
+        password = request.data.get('password')
+        if(len(password) >= 8 and password != password.lower()):
+            return Response({"available":True},status=status.HTTP_200_OK)
+        else:
+            return Response({"available":False},status=status.HTTP_200_OK)
+    else:
+        return Response(status=status.HTTP_400_BAD_REQUEST)
 
 @api_view(['POST'])
 @permission_classes([permissions.IsAuthenticated])

@@ -13,12 +13,12 @@ import * as ImagePicker from "expo-image-picker";
 import { Video } from "expo-av";
 import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
+import GText from "../GText"
 
 var { width, height } = Dimensions.get("window");
 
 const CustomVideoTabView = (props) => {
-  const { setCustomVideos, customVideos } = props;
-
+  const { setCustomVideos, customVideos, isMax } = props;
   const [videos, setVideos] = useState([]);
   const [status, setStatus] = useState({});
 
@@ -94,6 +94,8 @@ const CustomVideoTabView = (props) => {
 
   return (
     <View style={styles.container}>
+      {isMax &&
+      <GText style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15}}>Sorry, max attachments reached</GText>}
       <FlatList
         data={customVideos}
         renderItem={renderVideo}
@@ -101,18 +103,19 @@ const CustomVideoTabView = (props) => {
         numColumns={3}
         contentContainerStyle={{
           alignItems: "center",
-          marginTop: 20,
+          marginTop: 10,
           paddingBottom: 95,
         }}
       />
       <TouchableWithoutFeedback
+        disabled={isMax}
         onPress={() => {
           pickVideo();
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }}
       >
-        <View style={styles.actionButton}>
-          <Text style={styles.actionButtonText}>View Gallery</Text>
+        <View style={{...styles.actionButton, backgroundColor: isMax ? Colors.contrastGray:Colors.gray}}>
+          <GText style={{...styles.actionButtonText, color: isMax ? Colors.gray :Colors.complimentText,}}>View Gallery</GText>
         </View>
       </TouchableWithoutFeedback>
     </View>
@@ -122,6 +125,7 @@ const CustomVideoTabView = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    marginTop: 10
   },
   video: {
     alignSelf: "center",
@@ -134,11 +138,9 @@ const styles = StyleSheet.create({
   actionButton: {
     borderWidth: 1,
     borderRadius: 10,
-    borderColor: "#ffffff00",
     width: "90%",
     paddingVertical: 15,
     alignSelf: "center",
-    backgroundColor: "#DCDCDC",
     marginBottom: 10,
     position: "absolute",
     bottom: 0,

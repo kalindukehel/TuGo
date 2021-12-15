@@ -17,6 +17,8 @@ import { replaceMentionValues } from "react-native-controlled-mentions";
 
 import moment from "moment";
 import { Colors } from "../../../constants";
+import { Truncate } from "../../Helpers/Truncate";
+import GText from "../GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -67,7 +69,7 @@ const CommentActivity = (props) => {
               }}
             ></Image>
           </TouchableOpacity>
-          <Text
+          <GText
             style={{
               flexWrap: "wrap",
               flex: 1,
@@ -75,19 +77,19 @@ const CommentActivity = (props) => {
               alignSelf: "center",
             }}
           >
-            <Text style={{ fontWeight: "bold", color: Colors.text }}>
+            <GText style={{ fontWeight: "bold", color: Colors.text }}>
               {commenter.username}
-            </Text>
-            <Text
+            </GText>
+            <GText
               style={{ color: Colors.text }}
-            >{` commented on your post: `}</Text>
-            <Text style={{ color: Colors.text }}>
-              {replaceMentionValues(comment, ({ name }) => `@${name}`) + " "}
-            </Text>
-            <Text style={{ fontSize: 12, color: "#7D7D7D" }}>
+            >{` commented on your post: `}</GText>
+            <GText style={{ color: Colors.text }}>
+              {replaceMentionValues(Truncate(comment, 50), ({ name }) => `@${name}`) + " "}
+            </GText>
+            <GText style={{ fontSize: 12, color: "#7D7D7D" }}>
               {moment(activity.created_at).fromNow(true)}
-            </Text>
-          </Text>
+            </GText>
+          </GText>
 
           <TouchableOpacity
             style={{}}

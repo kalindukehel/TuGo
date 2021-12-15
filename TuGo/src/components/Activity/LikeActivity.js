@@ -16,6 +16,7 @@ import {
 
 import moment from "moment";
 import { Colors } from "../../../constants";
+import GText from "../GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -57,7 +58,7 @@ const LikeActivity = (props) => {
               }}
             ></Image>
           </TouchableOpacity>
-          <Text
+          <GText
             style={{
               flexWrap: "wrap",
               flex: 1,
@@ -66,12 +67,12 @@ const LikeActivity = (props) => {
               color: Colors.FG,
             }}
           >
-            <Text style={{ fontWeight: "bold" }}>{liker.username}</Text>
-            <Text style={{}}>{` liked your post. `}</Text>
-            <Text style={{ fontSize: 12, color: "#7D7D7D" }}>
+            <GText style={{ fontWeight: "bold" }}>{liker.username}</GText>
+            <GText style={{}}>{` liked your post. `}</GText>
+            <GText style={{ fontSize: 12, color: "#7D7D7D" }}>
               {moment(activity.created_at).fromNow(true)}
-            </Text>
-          </Text>
+            </GText>
+          </GText>
 
           <TouchableOpacity
             style={{}}

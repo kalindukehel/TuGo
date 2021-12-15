@@ -1,21 +1,31 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   KeyboardAvoidingView,
   StyleSheet,
   View,
   TouchableOpacity,
   Text,
-  Button,
+  Dimensions,
   TextInput,
   Keyboard,
   TouchableWithoutFeedback,
-  Alert,
+  ActivityIndicator,
   SafeAreaView,
+  Linking
 } from "react-native";
-import { signUp as signUpAPI, signIn as SignInApi } from "../api";
+import { signUp as signUpAPI, 
+signIn as SignInApi,
+isValidEmail as isValidEmailAPI,
+isValidUsername as isValidUsernameAPI,
+isValidPassword as isValidPasswordAPI } from "../api";
 import { onSignIn } from "../auth";
 import { useAuthDispatch } from "../context/authContext";
 import { Colors, appTheme } from "../../constants";
+import { AntDesign } from '@expo/vector-icons';
+import * as Haptics from "expo-haptics";
+import GText from "../components/GText"
+
+let {width, height} = Dimensions.get('window')
 
 const styles = StyleSheet.create({
   container: {
@@ -35,13 +45,14 @@ const styles = StyleSheet.create({
   input: {
     height: 40,
     borderColor: "gray",
-    color: Colors.text,
+    color: Colors.complimentText,
     borderWidth: 1,
     borderRadius: 10,
     marginBottom: 10,
     paddingHorizontal: 20,
     marginHorizontal: 10,
     backgroundColor: "#FFFFFF",
+    width: '90%'
   },
   button: {
     alignItems: "center",
@@ -55,12 +66,26 @@ const styles = StyleSheet.create({
 
 const SignIn = ({ navigation }) => {
   const dispatch = useAuthDispatch();
-  const [username, setUsername] = useState(null);
-  const [password, setPassword] = useState(null);
-  const [name, setName] = useState(null);
-  const [email, setEmail] = useState(null);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [usernameCheck, setUsernameCheck] = useState(true);
+  const [emailCheck, setEmailCheck] = useState(true);
+  const [passwordCheck, setPasswordCheck] = useState(true);
+  const [enabled, setEnabled] = useState(true)
+
+  const refRBSheet1 = useRef();
+  const refRBSheet2 = useRef();
+
+  useEffect(() => {
+    setEnabled(usernameCheck && emailCheck && name && password && username && email)
+  },[username, email, usernameCheck, emailCheck, name, password])
+
   async function signup() {
     try {
+      setLoading(true)
       const data = {
         username: username,
         password: password,
@@ -75,13 +100,59 @@ const SignIn = ({ navigation }) => {
       onSignIn(signInRes.data.token);
       dispatch({ type: "SIGN_IN", token: signInRes.data.token });
     } catch (error) {
-      console.log(error);
+      errorDispatch({type: 'REPORT_ERROR', message: "Something went wrong, please try again."})
+      setLoading(false)
     }
+    setLoading(false)
   }
+
+  useEffect(()=>{
+    onChangeEmail('')
+    onChangeUsername('')
+    onChangePassword('')
+  },[])
+
+  const onChangeEmail = async (text) => {
+      setEmail(text)
+      const res = await isValidEmailAPI(text)
+      setEmailCheck(res.data.available)
+  }
+  
+  const onChangeUsername = async (text) => {
+      setUsername(text)
+      const res = await isValidUsernameAPI(text)
+      setUsernameCheck(res.data.available)
+  }
+
+  const onChangePassword = async (text) => {
+    setPassword(text)
+    const res = await isValidPasswordAPI(text)
+    setPasswordCheck(res.data.available)
+}
+
+  const OpenURLButton = ({ url, children }) => {
+    const handlePress = React.useCallback(async () => {
+      // Checking if the link is supported for links with custom URL scheme.
+      const supported = await Linking.canOpenURL(url);
+
+      if (supported) {
+        // Opening the link with some app, if the URL scheme is "http" the web link should be opened
+        // by some browser in the mobile
+        await Linking.openURL(url);
+      } else {
+        Alert.alert(`Don't know how to open this URL: ${url}`);
+      }
+    }, [url]);
+
+    return (
+      <TouchableOpacity onPress={handlePress}><GText style={{color: Colors.primary}}>{children}</GText></TouchableOpacity>
+    );
+  };
+
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === "ios" ? "padding" : "height"}
-      keyboardVerticalOffset={-15}
+      keyboardVerticalOffset={50}
       style={{
         flex: 1,
       }}
@@ -89,7 +160,7 @@ const SignIn = ({ navigation }) => {
       <SafeAreaView style={styles.container}>
         <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
           <View style={styles.inner}>
-            <Text style={styles.header}>SignUp</Text>
+            <GText style={styles.header}>SignUp</GText>
             <TextInput
               keyboardAppearance={appTheme}
               onChangeText={(name) => setName(name)}
@@ -101,54 +172,91 @@ const SignIn = ({ navigation }) => {
               blurOnSubmit={false}
               style={styles.input}
             />
-            <TextInput
-              keyboardAppearance={appTheme}
-              onChangeText={(username) => setUsername(username)}
-              placeholder="Enter Username"
-              autoCapitalize="none"
-              keyboardType="default"
-              returnKeyType="done"
-              onSubmitEditing={Keyboard.dismiss}
-              blurOnSubmit={false}
-              style={styles.input}
-            />
-            <TextInput
-              keyboardAppearance={appTheme}
-              onChangeText={(email) => setEmail(email)}
-              placeholder="Enter Email"
-              autoCapitalize="none"
-              keyboardType="email-address"
-              returnKeyType="done"
-              onSubmitEditing={Keyboard.dismiss}
-              blurOnSubmit={false}
-              style={styles.input}
-            />
-            <TextInput
-              keyboardAppearance={appTheme}
-              onChangeText={(password) => setPassword(password)}
-              placeholder="Enter Password"
-              keyboardType="default"
-              returnKeyType="done"
-              onSubmitEditing={Keyboard.dismiss}
-              blurOnSubmit={false}
-              secureTextEntry={true}
-              style={styles.input}
-            />
-            <TouchableOpacity
-              disabled={!password || !username || !name || !email}
-              style={
-                password && username && name && email
-                  ? { ...styles.button, backgroundColor: "gray" }
-                  : { ...styles.button, backgroundColor: "#d3d3d3" }
-              }
-              onPress={() => {
-                if (username && password && email && name) {
-                  console.log("new sign up");
-                  signup();
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <TextInput
+                keyboardAppearance={appTheme}
+                onChangeText={onChangeUsername}
+                placeholder="Enter Username"
+                autoCapitalize="none"
+                keyboardType="default"
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+                blurOnSubmit={false}
+                style={styles.input}
+              />        
+              {username === '' ? null : usernameCheck === true ? 
+                <AntDesign name="checkcircle" size={20} color={"black"} /> : 
+                <AntDesign name="closecircle" size={20} color={"black"} />}
+            </View>
+            
+            <View style={{flexDirection: 'row', alignItems: 'center'}}>
+              <TextInput
+                keyboardAppearance={appTheme}
+                onChangeText={onChangeEmail}
+                placeholder="Enter Email"
+                autoCapitalize="none"
+                keyboardType="email-address"
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+                blurOnSubmit={false}
+                style={styles.input}
+              />        
+              {email === '' ? null : emailCheck === true ? 
+                <AntDesign name="checkcircle" size={20} color={"black"} /> : 
+                <AntDesign name="closecircle" size={20} color={"black"} />}
+            </View>
+            <View style={{flexDirection: 'row', alignItems: 'center',}}>
+              <TextInput
+                keyboardAppearance={appTheme}
+                onChangeText={onChangePassword}
+                placeholder="Enter Password"
+                keyboardType="default"
+                returnKeyType="done"
+                onSubmitEditing={Keyboard.dismiss}
+                blurOnSubmit={false}
+                secureTextEntry={true}
+                style={styles.input}
+              />
+                {password === '' ? null : passwordCheck === true ? 
+                  <AntDesign name="checkcircle" size={20} color={"black"} /> : 
+                  <TouchableWithoutFeedback 
+                    onPress={()=>{
+                      Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+                      alert('At least 8 characters\nAt least 1 capital letter')  
+                    }}
+                  >
+                    <View style={{}}>
+                      <AntDesign name="exclamationcircle" size={20} color={'black'} />
+                    </View>
+                  </TouchableWithoutFeedback>}
+            </View>
+              <GText style={{textAlign: 'center', color: 'gray'}}>By signing up, you agree to our
+                <OpenURLButton url={"https://www.youtube.com/t/terms"}>Youtube Terms of Service</OpenURLButton>
+                <GText>    </GText>
+                <OpenURLButton url={"https://policies.google.com/privacy"}>Google Privacy policy</OpenURLButton>
+              </GText>
+              <TouchableOpacity
+                disabled={!enabled}
+                style={
+                  enabled
+                    ? { ...styles.button, backgroundColor: Colors.primary }
+                    : { ...styles.button, backgroundColor: Colors.gray }
                 }
-              }}
-            >
-              <Text style={{ color: Colors.complimentText }}>SignUp</Text>
+                onPress={() => {
+                  if (enabled) {
+                    signup();
+                  }
+                }}
+              >
+              {loading ? (
+                <ActivityIndicator
+                  animating={true}
+                  size="small"
+                  color={Colors.complimentText}
+                />
+              ) : (
+                <GText style={{ color: Colors.complimentText }}>SignUp</GText>
+              )}
             </TouchableOpacity>
             <View style={{ flex: 1 }} />
           </View>

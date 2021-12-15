@@ -5,6 +5,7 @@ import ChatScreen from "../screens/Direct/ChatScreen";
 import ContactList from "../screens/Direct/ContactList";
 import ChatRoom from "../screens/Direct/ChatRoom";
 import PostNavigator from "./PostNavigator";
+import ProfileNavigator from "./ProfileNavigator"
 
 const Stack = createStackNavigator();
 
@@ -31,7 +32,7 @@ const DirectNavigator = () => {
             horizontal: 300,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
@@ -54,7 +55,7 @@ const DirectNavigator = () => {
             horizontal: 300,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
@@ -77,7 +78,7 @@ const DirectNavigator = () => {
             horizontal: 300,
           },
           headerStyle: {
-            backgroundColor: Colors.BG,
+            backgroundColor: Colors.Header,
           },
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
@@ -96,6 +97,18 @@ const DirectNavigator = () => {
           headerTintColor: Colors.text,
         }}
       />
+      <Stack.Screen
+        name="Profile"
+        options={{
+          headerBackTitleVisible: false,
+          headerTintColor: Colors.text,
+          headerShown: false,
+        }}
+      >
+          {(props) => {
+            return <ProfileNavigator {...props} id={props.route.params.id} />;
+          }}
+      </Stack.Screen>
     </Stack.Navigator>
   );
 };

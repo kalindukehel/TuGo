@@ -13,6 +13,7 @@ import {
   Keyboard,
   Platform,
   GestureResponderHandlers,
+  Alert
 } from "react-native";
 import {
   getPostComments as getPostCommentsAPI,
@@ -23,9 +24,10 @@ import {
   pushNotification as pushNotificationAPI,
   getAccounts as getAccountsAPI,
   addTag as addTagAPI,
+  deleteComment as deleteCommentAPI
 } from "../api";
 import { useAuthState } from "../context/authContext";
-import { API_URL } from "../../constants";
+import { API_URL, Length } from "../../constants";
 import {
   FlatList,
   ScrollView,
@@ -33,7 +35,7 @@ import {
 } from "react-native-gesture-handler";
 import Send from "../../assets/sendButton.svg";
 import { Colors, appTheme } from "../../constants";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { MaterialCommunityIcons, AntDesign } from "@expo/vector-icons";
 import {
   MentionInput,
   Suggestion,
@@ -45,6 +47,9 @@ import {
   isMentionPartType,
 } from "react-native-controlled-mentions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
+import * as Haptics from "expo-haptics";
+import GText from "../components/GText"
+import { useKeyboard } from "../components/UseKeyboard";
 
 var { width, height } = Dimensions.get("window");
 
@@ -63,6 +68,7 @@ const Comments = (props) => {
   const [message, setMessage] = useState("");
   const [accounts, setAccounts] = useState([]);
   const [sizeValue, setSizeValue] = useState(200);
+  const [keyboardHeight] = useKeyboard();
 
   const insets = useSafeAreaInsets();
 
@@ -87,15 +93,15 @@ const Comments = (props) => {
   const renderPart = (part: Part, index: number) => {
     // Just plain text
     if (!part.partType) {
-      return <Text key={index}>{part.text}</Text>;
+      return <GText key={index}>{part.text}</GText>;
     }
 
     // Mention type part
     if (isMentionPartType(part.partType)) {
       return (
-        <Text
+        <GText
           key={`${index}-${part.data?.trigger}`}
-          style={{ color: "aqua" }}
+          style={{ color: Colors.primary }}
           onPress={() => {
             navigation.push("Profile", {
               id: parseInt(part.data.id, 10),
@@ -103,15 +109,15 @@ const Comments = (props) => {
           }}
         >
           {part.text}
-        </Text>
+        </GText>
       );
     }
 
     // Other styled part types
     return (
-      <Text key={`${index}-pattern`} style={part.partType.textStyle}>
+      <GText key={`${index}-pattern`} style={part.partType.textStyle}>
         {part.text}
-      </Text>
+      </GText>
     );
   };
 
@@ -126,13 +132,14 @@ const Comments = (props) => {
 
       return (
         <ScrollView
+          keyboardShouldPersistTaps={'always'}
           style={{
             backgroundColor: Colors.contrastGray,
             position: "absolute",
             bottom: 40,
             left: 0,
             right: 0,
-            maxHeight: 300,
+            maxHeight: (height - keyboardHeight) * 0.7,
             borderRadius: 10,
           }}
         >
@@ -141,11 +148,12 @@ const Comments = (props) => {
               one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())
             )
             .map((one) => {
-              console.log(one);
               return (
                 <TouchableWithoutFeedback
                   key={one.id}
-                  onPress={() => onSuggestionPress(one)}
+                  onPress={() => {
+                    onSuggestionPress(one)}
+                  }
                   style={{
                     padding: 12,
                     flexDirection: "row",
@@ -161,7 +169,7 @@ const Comments = (props) => {
                       marginRight: 10,
                     }}
                   />
-                  <Text style={{ color: Colors.FG }}>{one.name}</Text>
+                  <GText style={{ color: Colors.FG }}>{one.name}</GText>
                 </TouchableWithoutFeedback>
               );
             })}
@@ -169,9 +177,6 @@ const Comments = (props) => {
       );
     };
 
-  const onRefresh = React.useCallback(async () => {
-    setRefreshing(true);
-    setCanSendComment(false);
     async function getPostStates() {
       const postRes = await getPostByIdAPI(userToken, postId);
       setPost(postRes.data);
@@ -183,6 +188,10 @@ const Comments = (props) => {
       const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
       setAuthor(authorRes.data);
     }
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true);
+    setCanSendComment(false);
     await getPostStates();
     setRefreshing(false);
     setCanSendComment(true);
@@ -195,13 +204,18 @@ const Comments = (props) => {
     return accounts.find((account) => account.id == id);
   };
 
+  async function onDeleteComment(commentId) {
+    const res = await deleteCommentAPI(postId, commentId, userToken);
+    await getPostStates()
+  }
+
   async function sendComment() {
     if (message != "") {
       const res = await addCommentAPI(userToken, post.id, { value: message });
       if (author.notification_token != self.notification_token) {
         const notifRes = await pushNotificationAPI(
           author.notification_token,
-          self.username,
+          {creator: self.username},
           "comment"
         );
       }
@@ -224,7 +238,7 @@ const Comments = (props) => {
           ) {
             const notifRes = await pushNotificationAPI(
               account.notification_token,
-              self.username,
+              {creator: self.username},
               "tag"
             );
           }
@@ -240,10 +254,31 @@ const Comments = (props) => {
     }
   }
 
+  const deleteConfirmation = (commentId) =>
+    Alert.alert(
+      "Delete Comment\n",
+      "Are you sure?",
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Delete",
+          onPress: () => {
+            onDeleteComment(commentId);
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+
   const renderItem = ({ item }) => {
     const curAccount = commentAccounts.find(
       (accounts) => accounts.id == item.author
     );
+    const isSelf = self.id === item.author;
     const { parts } = parseValue(item.value, [
       {
         trigger: "@",
@@ -257,36 +292,51 @@ const Comments = (props) => {
     ]);
     return (
       <View style={styles.comment}>
-        <TouchableOpacity
-          style={{ flexDirection: "row", alignItems: "center" }}
-          onPress={() => {
-            navigation.push("Profile", {
-              id: curAccount.id,
-            });
-          }}
-        >
-          <Image
-            source={{ uri: API_URL + curAccount.profile_picture }}
-            style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
-          ></Image>
-        </TouchableOpacity>
-        <Text
-          style={{
-            flexWrap: "wrap",
-            marginRight: 20,
-            marginLeft: 10,
-            color: Colors.text,
-          }}
-        >
-          <Text style={styles.authorName}>{curAccount.username + `: `}</Text>
-          <Text style={{ color: Colors.text }}>{parts.map(renderPart)}</Text>
-        </Text>
+        <View style={{flexDirection: 'row', alignItems: 'center', width: isSelf ? 0.8*width : 0.9*width}}>
+          <TouchableOpacity
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={() => {
+              navigation.push("Profile", {
+                id: curAccount.id,
+              });
+            }}
+          >
+            <Image
+              source={{ uri: API_URL + curAccount.profile_picture }}
+              style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
+            ></Image>
+          </TouchableOpacity>
+          <GText
+            style={{
+              flexWrap: "wrap",
+              marginRight: 20,
+              marginLeft: 10,
+              color: Colors.text,
+            }}
+          >
+            <GText style={styles.authorName}>{curAccount.username + `: `}</GText>
+            <GText style={{ color: Colors.text }}>{parts.map(renderPart)}</GText>
+          </GText>
+        </View>
+        {isSelf &&
+        <TouchableWithoutFeedback style={{}} onPress={() => {
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+          deleteConfirmation(item.id)
+        }}>
+          <View
+            style={{paddingHorizontal: 5}}>
+            <AntDesign name="close" size={16} color={Colors.FG} />
+          </View>
+        </TouchableWithoutFeedback>
+        
+        }
       </View>
     );
   };
 
   const header = () => {
     return (
+      post.caption !== '' &&
       <View style={styles.caption}>
         <TouchableOpacity
           style={{ flexDirection: "row", alignItems: "center" }}
@@ -305,10 +355,10 @@ const Comments = (props) => {
             style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
           ></Image>
         </TouchableOpacity>
-        <Text style={{ flexWrap: "wrap", marginRight: 20, marginLeft: 10 }}>
-          <Text style={styles.authorName}>{author.username + `: `}</Text>
-          <Text style={{ color: Colors.text }}>{post.caption}</Text>
-        </Text>
+        <GText style={{ flexWrap: "wrap", marginRight: 20, marginLeft: 10 }}>
+          <GText style={styles.authorName}>{author.username + `: `}</GText>
+          <GText style={{ color: Colors.text }}>{post.caption}</GText>
+        </GText>
       </View>
     );
   };
@@ -321,7 +371,7 @@ const Comments = (props) => {
       <View style={styles.container}>
         <FlatList
           keyboardDismissMode="interactive"
-          contentContainerStyle={{ flexGrow: 1 }}
+          contentContainerStyle={{ flexGrow: 1}}
           data={masterData}
           keyExtractor={(item, index) => index.toString()}
           refreshControl={
@@ -340,7 +390,8 @@ const Comments = (props) => {
         >
           <View style={styles.commentBarBackground}>
             <MentionInput
-              maxLength={200}
+              maxHeight={400}
+              maxLength={Length.comment}
               keyboardAppearance={appTheme}
               containerStyle={{ borderRadius: 15, flex: 1, color: Colors.FG }}
               autoFocus
@@ -366,6 +417,7 @@ const Comments = (props) => {
               disabled={!canSendComment}
               style={{
                 opacity: canSendComment ? 1 : 0.5,
+                marginBottom: 3
               }}
               onPress={sendComment}
             >
@@ -403,12 +455,12 @@ const styles = StyleSheet.create({
     color: Colors.text,
   },
   comment: {
-    borderColor: "#C8C8C8",
     flexDirection: "row",
     alignItems: "center",
-    paddingHorizontal: 15,
+    paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 20,
+    justifyContent: 'space-between'
   },
   commentBar: {
     color: Colors.text,
@@ -418,12 +470,11 @@ const styles = StyleSheet.create({
   },
   commentBarBackground: {
     flexDirection: "row",
-    alignItems: "center",
-    borderColor: Colors.FG,
-    borderWidth: 1,
-    borderRadius: 10,
+    alignItems: "flex-end",
+    backgroundColor: Colors.contrastGray,
+    borderRadius: 20,
     margin: 5,
-    height: 40,
+    maxHeight: 100
   },
 });
 

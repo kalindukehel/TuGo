@@ -31,12 +31,7 @@ const RelatedArtists = (props) => {
     setRefreshing(true);
     async function getAlbums() {
       const res = await getSimilarArtistsAPI(artistId);
-      const artists = res.data.artists.map((artist) => {
-        return {
-          artistId: artist.id,
-          name: artist.name,
-        };
-      });
+      const artists = res.data.artists
       setSimilarArtists(artists);
     }
     getAlbums();
@@ -62,14 +57,14 @@ const RelatedArtists = (props) => {
     return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
   };
 
-  const renderAlbum = (item) => {
-    console.log(item);
+  const renderAlbum = ({item}) => {
+    console.log(item.name)
     return (
       <ArtistBlock
-        artist={item.item.name}
+        artist={item.name}
         navigation={navigation}
-        image={getArtistImage(item.item.artistId)}
-        id={item.item.artistId}
+        image={getArtistImage(item.id)}
+        id={item.id}
         similarArtist={true}
         columns={3}
       />
@@ -81,7 +76,7 @@ const RelatedArtists = (props) => {
       <SafeAreaView style={styles.container}>
         <FlatList
           ref={flatListRef}
-          style={{ flexGrow: 1 }}
+          style={{ flexGrow: 1}}
           ItemSeparatorComponent={() => <View style={{ margin: 30 }}></View>}
           contentContainerStyle={{
             width: width,

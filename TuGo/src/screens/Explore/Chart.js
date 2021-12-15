@@ -24,6 +24,9 @@ import { useAuthState } from "../../context/authContext";
 import SearchItem from "../../components/SearchItem";
 import { TouchableHighlight } from "react-native-gesture-handler";
 import { Colors, appTheme } from "../../../constants";
+import GText from "../../components/GText"
+
+import styles from "./commonStyles"
 
 var { width, height } = Dimensions.get("window");
 
@@ -34,8 +37,8 @@ const Chart = (props) => {
   const { chart } = props.route.params;
   const [refreshing, setRefreshing] = useState(false);
   const [chartData, setChartData] = useState(null);
-  const flatListRef = React.useRef();
-  const searchBarRef = React.useRef();
+  const flatListRef = useRef();
+  const searchBarRef = useRef();
   const [chartImage, setChartImage] = useState(null);
   const [disableScroll, setDisableScroll] = useState(false);
 
@@ -114,7 +117,7 @@ const Chart = (props) => {
         audioLink={item.previewURL}
         postable={true}
         navigation={navigation}
-        genre={item.links.genres.ids}
+        genre={item.links.genres ? item.links.genres.ids : []}
         trackId={item.id}
         artistId={item.artistId}
         setDisableScroll={setDisableScroll}
@@ -156,7 +159,7 @@ const Chart = (props) => {
       offset: searchBarRef.current,
     });
   };
-
+  console.log(styles.maxlimit)
   return (
     chartData &&
     chartImage && (
@@ -187,9 +190,9 @@ const Chart = (props) => {
           }}
         />
         <Animated.View
-          style={[styles.chartHeader, { transform: [{ translateY }] }]}
+          style={[chartStyles.chartHeader, { transform: [{ translateY }] }]}
         >
-          <View style={styles.chartImageView}>
+          <View style={chartStyles.chartImageView}>
             <Image
               style={{ height: positionY, width: positionY, borderRadius: 40 }}
               source={{ uri: chartImage.image }}
@@ -201,7 +204,7 @@ const Chart = (props) => {
               searchBarRef.current = layout.y;
             }}
             style={{
-              ...styles.textInputStyle,
+              ...styles.textInputViewStyle,
               width: searchBarWidth,
               justifyContent: "center",
             }}
@@ -212,14 +215,10 @@ const Chart = (props) => {
                 scrollToTextInput();
                 searchFilterFunction(text);
               }}
-              style={{
-                flex: 1,
-                paddingLeft: 20,
-                paddingRight: 5,
-              }}
+              style={styles.textInputStyle}
               defaultValue={search}
               placeholder="Search Top Songs..."
-              placeholderTextColor={"black"}
+              placeholderTextColor={"white"}
               clearButtonMode="always"
               onFocus={() => {
                 scrollToTextInput();
@@ -229,8 +228,10 @@ const Chart = (props) => {
             />
           </Animated.View>
           <TouchableWithoutFeedback onPress={toTop}>
-            <View style={styles.chartNameView}>
-              <Text style={styles.chartName}>{chartImage.chartName}</Text>
+            <View style={chartStyles.chartNameView}>
+              <GText style={chartStyles.chartName}>{chartImage.chartName.length > styles.maxlimit
+            ? chartImage.chartName.substring(0, styles.maxlimit - 3) + "..."
+            : chartImage.chartName}</GText>
             </View>
           </TouchableWithoutFeedback>
         </Animated.View>
@@ -239,11 +240,7 @@ const Chart = (props) => {
   );
 };
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: Colors.BG,
-  },
+const chartStyles = StyleSheet.create({
   chartImageView: {
     marginTop: 10,
 
@@ -274,21 +271,6 @@ const styles = StyleSheet.create({
     borderRadius: 10,
     backgroundColor: "#E8E8E8",
     padding: 10,
-  },
-  textInputStyle: {
-    height: 30,
-    borderRadius: 20,
-    color: Colors.text,
-    borderColor: "black",
-    borderWidth: 1,
-    marginHorizontal: 20,
-    marginTop: 15,
-    width: "50%",
-  },
-  box2: {
-    backgroundColor: "red",
-    height: "100%",
-    flexGrow: 1,
   },
 });
 

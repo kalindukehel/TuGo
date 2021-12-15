@@ -11,6 +11,7 @@ import {
 import { getArtistInfo as getArtistInfoAPI } from "../../api";
 import HTML from "react-native-render-html";
 import { Colors } from "../../../constants";
+import GText from "../../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -52,7 +53,7 @@ const ArtistInfo = (props) => {
           </View>
         </View>
         <View style={styles.chartNameView}>
-          <Text style={styles.chartName}>{artistDetails.name}</Text>
+          <GText style={styles.chartName}>{artistDetails.name}</GText>
         </View>
         <ScrollView>
           <View style={styles.infoView}>

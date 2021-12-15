@@ -2,10 +2,12 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  TouchableOpacity,
+  TouchableWithoutFeedback,
   Switch,
   StyleSheet,
   ScrollView,
+  ActivityIndicator,
+  Alert
 } from "react-native";
 import {
   getSelf as getSelfAPI,
@@ -16,14 +18,18 @@ import {
 import { onSignOut } from "../auth";
 import { useAuthState, useAuthDispatch } from "../context/authContext";
 import { Colors } from "../../constants";
+import { Auth, API, graphqlOperation } from "aws-amplify";
+import { updateUser } from "../graphql/mutations";
+import GText from "../components/GText"
 
 /*Images*/
-import { FontAwesome5 } from "@expo/vector-icons";
+import { FontAwesome5, FontAwesome, AntDesign } from "@expo/vector-icons";
 import { MaterialCommunityIcons, MaterialIcons } from "@expo/vector-icons";
 
 const Settings = ({ navigation }) => {
   const { userToken, self } = useAuthState();
   const [isPrivate, setIsPrivate] = useState();
+  const [loading, setLoading] = useState(false);
   const dispatch = useAuthDispatch();
 
   useEffect(() => {
@@ -35,6 +41,27 @@ const Settings = ({ navigation }) => {
     setIsPrivate(res.data.is_private);
   };
 
+    //toggle confirmation alert function
+    const toggleConfirmation = (desired) =>
+    Alert.alert(
+      "Confirmation",
+      `Are you sure you want to go ${desired}?`,
+      [
+        {
+          text: "Cancel",
+          onPress: () => {},
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          onPress: () => {
+            toggleAccountVisilibity();
+          },
+        },
+      ],
+      { cancelable: false }
+    );
+
   const toggleAccountVisilibity = async () => {
     await toggleAccountVisilibityAPI(!isPrivate, userToken);
     getSelf();
@@ -44,68 +71,73 @@ const Settings = ({ navigation }) => {
     <ScrollView style={styles.container}>
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>Account</Text>
-        <View style={{ margin: 10 }}>
-          <View style={styles.titleBreak} />
+        <GText style={styles.heading}>Account</GText>
+        <View style={{ margin: 20 }}>
+          {/* <View style={styles.titleBreak} />
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <MaterialCommunityIcons
               name="account-settings"
               size={24}
               color={Colors.FG}
             />
-            <Text style={styles.title}>Profile Settings</Text>
-          </View>
-          <View style={styles.titleBreak} />
+            <GText style={styles.title}>Profile Settings</GText>
+          </View> */}
+          {/* <View style={styles.titleBreak} /> */}
+          <TouchableWithoutFeedback 
+            onPress={() => {
+              navigation.push("Liked")}}
+            >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <FontAwesome5 name="fire" size={24} color={"red"} />
-            <Text style={styles.title}>Liked Posts</Text>
+            <GText style={styles.title}>Liked Posts</GText>
           </View>
-          <View style={styles.titleBreak} />
+          </TouchableWithoutFeedback>
+          {/* <View style={styles.titleBreak} /> */}
         </View>
       </View>
 
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>Privacy</Text>
-        <View style={{ margin: 10 }}>
-          <View style={styles.titleBreak} />
+        <GText style={styles.heading}>Privacy</GText>
+        <View style={{ margin: 20 }}>
+          {/* <View style={styles.titleBreak} />
           <View style={{ flexDirection: "row", alignItems: "center" }}>
             <MaterialCommunityIcons
               name="eye-settings"
               size={24}
               color={Colors.FG}
             />
-            <Text style={styles.title}>
+            <GText style={styles.title}>
               Manage who can view your profile and content
-            </Text>
-          </View>
-          <View style={styles.titleBreak} />
+            </GText>
+          </View> */}
+          {/* <View style={styles.titleBreak} /> */}
           <View
             style={{
-              flex: 1,
-              flexDirection: "row",
-              maxHeight: 40,
-              alignItems: "center",
-              justifyContent: "space-between",
+              flexDirection: "row", alignItems: "center" 
             }}
           >
-            <Text style={{ marginRight: 5, color: Colors.text }}>
+            <FontAwesome name="lock" size={24} color={Colors.FG} />
+            <GText style={styles.title}>
               Private Account
-            </Text>
-            <Switch
-              value={isPrivate}
-              onValueChange={() => {
-                toggleAccountVisilibity();
-              }}
-            />
+            </GText>
+            <View style={{ flex: 1, justifyContent: 'flex-end', flexDirection: 'row'}}>
+              <Switch
+                style={{ transform: [{ scaleX: .8 }, { scaleY: .8 }] }}
+                value={isPrivate}
+                onChange={() => {
+                  toggleConfirmation(isPrivate ? 'public' : 'private');
+                }}
+              />
+            </View>
           </View>
-          <View style={styles.titleBreak} />
+          {/* <View style={styles.titleBreak} /> */}
         </View>
       </View>
 
       {/* setting block */}
-      <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>Search History</Text>
+      {/* <View style={{ marginTop: 15, marginHorizontal: 10 }}>
+        <GText style={styles.heading}>Search History</GText>
         <View style={{ margin: 10 }}>
           <View style={styles.titleBreak} />
           <View style={{ flexDirection: "row", alignItems: "center" }}>
@@ -114,41 +146,64 @@ const Settings = ({ navigation }) => {
               size={24}
               color={Colors.FG}
             />
-            <Text style={styles.title}>Manage your search history</Text>
+            <GText style={styles.title}>Manage your search history</GText>
           </View>
           <View style={styles.titleBreak} />
         </View>
-      </View>
+      </View> */}
 
       {/* setting block */}
       <View style={{ marginTop: 15, marginHorizontal: 10 }}>
-        <Text style={styles.heading}>Language</Text>
-        <View style={{ margin: 10 }}>
-          <View style={styles.titleBreak} />
+        <GText style={styles.heading}>About</GText>
+        <View style={{ margin: 20 }}>
+          {/* <View style={styles.titleBreak} /> */}
+          <TouchableWithoutFeedback 
+            onPress={() => {
+              navigation.push("Policies")}}
+            >
           <View style={{ flexDirection: "row", alignItems: "center" }}>
-            <MaterialIcons name="language" size={24} color={Colors.FG} />
-            <Text style={styles.title}>Choose your primary Language</Text>
+          <AntDesign name="infocirlce" size={24} color={Colors.FG} />
+            <GText style={styles.title}>Terms of use and privacy policy</GText>
           </View>
-          <View style={styles.titleBreak} />
+          </TouchableWithoutFeedback>
+          {/* <View style={styles.titleBreak} /> */}
         </View>
       </View>
-
-      <TouchableOpacity
-        style={styles.logout}
+      <TouchableWithoutFeedback
         onPress={async () => {
+          setLoading(true)
           onSignOut();
           try {
+            const update = {
+              id: self.id,
+              expoPushToken: null
+            }
+            const chatRoomData = await API.graphql(
+              graphqlOperation(updateUser, { input: update })
+            );
             await deleteNotificationTokenAPI(userToken, self.id);
             await signOutAPI(userToken);
             console.log("logout pressed");
             dispatch({ type: "SIGN_OUT" });
           } catch (e) {
             console.log(e);
+            setLoading(false)
           }
+          setLoading(false)
         }}
-      >
-        <Text>Logout</Text>
-      </TouchableOpacity>
+      >    
+      <View style={styles.logout}>
+        {loading ? (
+          <ActivityIndicator
+            animating={true}
+            size="small"
+            color={Colors.complimentText}
+          />
+        ) : (
+          <GText style={{ color: Colors.complimentText }}>Logout</GText>
+        )}
+      </View>          
+      </TouchableWithoutFeedback>
     </ScrollView>
   );
 };
@@ -159,13 +214,14 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.BG,
   },
   logout: {
-    backgroundColor: "#DCDCDC",
-    paddingVertical: 15,
-    paddingHorizontal: 80,
-    alignSelf: "center",
-    borderRadius: 10,
-    marginTop: 40,
-    marginBottom: 20,
+    height: 40,
+    marginHorizontal: 60,
+    padding: 10,
+    borderRadius: 30,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: Colors.gray,
+    marginVertical: 15,
   },
   heading: {
     fontWeight: "bold",

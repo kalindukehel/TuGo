@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   View,
   Text,
@@ -22,11 +22,13 @@ import AccountsTabView from "../../components/TabViews/AccountsTabView";
 import PostsTabView from "../../components/TabViews/PostsTabView";
 import SongsTabView from "../../components/TabViews/SongsTabView";
 import { SafeAreaView } from "react-native-safe-area-context";
-import { useScrollToTop } from "@react-navigation/native";
+import { useScrollToTop } from '@react-navigation/native';
 import {
   getExplorePosts as getExplorePostsAPI,
   topFiveArtists as topFiveArtistsAPI,
   artistImage as artistImageAPI,
+  getCharts as getChartsAPI,
+  getNewAlbums as getNewAlbumsAPI
 } from "../../api";
 import SongBlock from "../../components/Explore/SongBlock";
 import { AntDesign, Octicons } from "@expo/vector-icons";
@@ -38,6 +40,10 @@ import { Feather } from "@expo/vector-icons";
 import ChartBlock from "../../components/Explore/ChartBlock";
 import ArtistBlock from "../../components/Explore/ArtistBlock";
 import Animated from "react-native-reanimated";
+
+import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
+import AlbumBlock from "../../components/Explore/AlbumBlock";
+import GText from "../../components/GText"
 
 var { width, height } = Dimensions.get("window");
 
@@ -54,38 +60,13 @@ const Explore = ({ navigation }) => {
   const [status, setStatus] = useState({});
   const [isLoading, setIsLoading] = useState(false);
   const [mode, setMode] = useState("");
-
-  const charts = [
-    {
-      navigation: navigation,
-      id: "pp.180234724",
-      text: "HipHop",
-      image: "http://i.imgur.com/DbUle6M.png",
-    },
-    {
-      navigation: navigation,
-      id: "pp.214725454",
-      text: "Pop",
-      image: "http://i.imgur.com/DbUle6M.png",
-    },
-    {
-      navigation: navigation,
-      id: "pp.225974698",
-      text: "New Music",
-      image: "http://i.imgur.com/DbUle6M.png",
-    },
-    {
-      navigation: navigation,
-      id: "pp.323137423",
-      text: "Top 100 US",
-      image: "http://i.imgur.com/DbUle6M.png",
-    },
-  ];
+  const [charts, setCharts] = useState(null);
+  const [albums, setAlbums] = useState(null);
+  const playerDispatch = usePlayerDispatch();
 
   const insets = useSafeAreaInsets();
 
   //scroll to top
-  let player = React.useRef(null);
   const ref = React.useRef(null);
   useScrollToTop(ref);
 
@@ -95,6 +76,10 @@ const Explore = ({ navigation }) => {
       setIsLoading(true);
       const exploreState = await getExplorePostsAPI(userToken);
       const topArtistsRes = await topFiveArtistsAPI();
+      const charts = await getChartsAPI();
+      const albums = await getNewAlbumsAPI();
+      setCharts(charts.data.playlists)
+      setAlbums(albums.data.albums)
       setIsLoading(false);
       const filteredArtists = topArtistsRes.data.artists.map((artist) => {
         return {
@@ -168,7 +153,7 @@ const Explore = ({ navigation }) => {
 
   const [index, setIndex] = React.useState(0);
   const [routes] = React.useState([
-    { key: "first", title: "Songs" },
+    { key: "first", title: "Music" },
     { key: "second", title: "Posts" },
     { key: "third", title: "Accounts" },
   ]);
@@ -185,7 +170,7 @@ const Explore = ({ navigation }) => {
       indicatorStyle={{ backgroundColor: Colors.FG }}
       style={{ backgroundColor: Colors.BG }}
       renderLabel={({ route, focused, color }) => (
-        <Text style={{ color: Colors.text }}>{route.title}</Text>
+        <GText style={{ color: Colors.text }}>{route.title}</GText>
       )}
     />
   );
@@ -193,8 +178,8 @@ const Explore = ({ navigation }) => {
   const renderItem = (component) => {
     const postId = component.item.post;
     return (
-      <View style={{ height: 200 }}>
-        <SongBlock postId={postId} navigation={navigation} columns={2} />
+      <View style={{ height: 150, width: 150 }}>
+        <SongBlock postId={postId} navigation={navigation} columns={2} blockHeight={150} blockWidth={150}/>
       </View>
     );
   };
@@ -208,19 +193,19 @@ const Explore = ({ navigation }) => {
           width: width - 40,
           justifyContent: "center",
           alignItems: "center",
-          height: 200,
+          height: 150,
           borderRadius: 20,
           backgroundColor: "#DFDFDF",
         }}
       >
-        <Text style={{ fontWeight: "bold", fontSize: 20 }}>
+        <GText style={{ fontWeight: "bold", fontSize: 20 }}>
           No new posts...
-        </Text>
+        </GText>
       </ImageBackground>
     ) : (
       <View
         style={{
-          height: 200,
+          height: 150,
           justifyContent: "center",
           width: width - 40,
         }}
@@ -232,7 +217,7 @@ const Explore = ({ navigation }) => {
 
   const renderArtist = ({ item, index }) => {
     return (
-      <View style={{ height: 150 }}>
+      <View style={{ height: 170 }}>
         <ArtistBlock
           artist={item.name}
           navigation={navigation}
@@ -249,10 +234,21 @@ const Explore = ({ navigation }) => {
   const renderChart = ({ item, index }) => {
     return (
       <ChartBlock
-        navigation={item.navigation}
+        navigation={navigation}
         id={item.id}
-        text={item.text}
-        image={item.iamge}
+        text={item.name}
+        image={`http://direct.napster.com/imageserver/v2/playlists/${item.id}/artists/images/230x153.jpg`}
+      />
+    );
+  };
+
+  const renderAlbum = ({ item, index }) => {
+    return (
+      <AlbumBlock
+        navigation={navigation}
+        id={item.id}
+        text={item.name}
+        image={`https://api.napster.com/imageserver/v2/albums/${item.id}/images/230x153.jpg`}
       />
     );
   };
@@ -295,6 +291,7 @@ const Explore = ({ navigation }) => {
           <TouchableOpacity
             style={{}}
             onPress={() => {
+              playerDispatch({ type: "UNLOAD_PLAYER" });
               navigation.push("New Post");
             }}
           >
@@ -334,7 +331,7 @@ const Explore = ({ navigation }) => {
               }}
             />
             <TouchableOpacity onPress={() => setMode("")}>
-              <Text style={{ color: Colors.text }}>Cancel</Text>
+              <GText style={{ color: Colors.text }}>Cancel</GText>
             </TouchableOpacity>
           </View>
           <TabView
@@ -343,12 +340,13 @@ const Explore = ({ navigation }) => {
             onIndexChange={setIndex}
             initialLayout={initialLayout}
             renderTabBar={renderTabBar}
-            swipeEnabled={index == 2 ? false : true}
+            swipeEnabled={index === 0 || index === 1 ? false : true}
           />
         </View>
       )}
       {mode != "search" && (
         <ScrollView
+          ref={ref}
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -366,14 +364,14 @@ const Explore = ({ navigation }) => {
               paddingTop: 10,
             }}
           >
-            <Text
+            <GText
               style={{
                 fontSize: 35,
                 color: Colors.FG,
               }}
             >
               Browse
-            </Text>
+            </GText>
             <TouchableWithoutFeedback
               onPress={() => {
                 navigation.push("Explore Posts");
@@ -381,11 +379,12 @@ const Explore = ({ navigation }) => {
             >
               <View
                 style={{
-                  flex: 1,
+                  padding: 5,
                   alignItems: "flex-end",
                 }}
               >
-                <Octicons name="chevron-right" size={24} color={Colors.FG} />
+                {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
+                <GText style={{color: Colors.close}}>See All</GText>
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -395,7 +394,6 @@ const Explore = ({ navigation }) => {
             contentContainerStyle={{ padding: 20 }}
             ItemSeparatorComponent={ItemSeparatorComponent}
             horizontal={true}
-            ref={ref}
             style={{}}
             data={explore}
             renderItem={renderItem}
@@ -411,7 +409,7 @@ const Explore = ({ navigation }) => {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 25, color: Colors.FG }}>Artists</Text>
+            <GText style={{ fontSize: 25, color: Colors.FG }}>Artists</GText>
             <TouchableWithoutFeedback
               onPress={() => {
                 navigation.push("All Artists");
@@ -419,11 +417,12 @@ const Explore = ({ navigation }) => {
             >
               <View
                 style={{
-                  flex: 1,
+                  padding: 5,
                   alignItems: "flex-end",
                 }}
-              >
-                <Octicons name="chevron-right" size={24} color={Colors.FG} />
+              > 
+                {/* <Octicons name="chevron-right" size={24} color={Colors.FG} /> */}
+                <GText style={{color: Colors.close}}>See All</GText>
               </View>
             </TouchableWithoutFeedback>
           </View>
@@ -446,21 +445,45 @@ const Explore = ({ navigation }) => {
               justifyContent: "space-between",
             }}
           >
-            <Text style={{ fontSize: 25, color: Colors.FG }}>Charts</Text>
-            <TouchableWithoutFeedback>
-              <Octicons name="chevron-right" size={24} color={Colors.FG} />
-            </TouchableWithoutFeedback>
+            <GText style={{ fontSize: 25, color: Colors.FG }}>Top Albums</GText>
+            {/* <TouchableWithoutFeedback>
+              <GText style={{color: Colors.close}}>See All</GText>
+            </TouchableWithoutFeedback> */}
           </View>
 
           <FlatList
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ padding: 20 }}
             ItemSeparatorComponent={ItemSeparatorComponent}
-            data={charts}
+            data={albums}
             horizontal={true}
+            renderItem={renderAlbum}
+            keyExtractor={(item) => item.id}
+            ListEmptyComponent={ListEmptyComponentArtist}
+          />
+          <View
+            style={{
+              flexDirection: "row",
+              marginHorizontal: leftSpacing,
+              alignItems: "center",
+              justifyContent: "space-between",
+            }}
+          >
+            <GText style={{ fontSize: 25, color: Colors.FG }}>Charts</GText>
+            {/* <TouchableWithoutFeedback>
+              <GText style={{color: Colors.close}}>See All</GText>
+            </TouchableWithoutFeedback> */}
+          </View>
+
+          <FlatList
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{ padding: 20, alignItems: 'center'}}
+            ItemSeparatorComponent={ItemSeparatorComponent}
+            data={charts}
             renderItem={renderChart}
             keyExtractor={(item) => item.id}
             ListEmptyComponent={ListEmptyComponentArtist}
+            numColumns={3}
           />
         </ScrollView>
       )}

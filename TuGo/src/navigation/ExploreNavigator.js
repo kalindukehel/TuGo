@@ -6,6 +6,7 @@ import { useAuthState } from "../context/authContext";
 import ProfileNavigator from "../navigation/ProfileNavigator";
 import PostNavigator from "../navigation/PostNavigator";
 import Chart from "../screens/Explore/Chart.js";
+import Album from "../screens/Explore/Album.js";
 import Artist from "../screens/Explore/Artist.js";
 import RelatedArtists from "../screens/Explore/RelatedArtists.js";
 import ExplorePostsAll from "../screens/Explore/ExplorePostsAll.js";
@@ -63,6 +64,22 @@ const explorerNavigator = () => {
       <Stack.Screen
         name="Chart"
         component={Chart}
+        options={{
+          headerShown: true,
+          headerBackTitleVisible: false,
+          headerTintColor: "black",
+          headerStyle: {
+            backgroundColor: Colors.primary,
+            shadowRadius: 0,
+            shadowOffset: {
+              height: 0,
+            },
+          },
+        }}
+      />
+      <Stack.Screen
+        name="Album"
+        component={Album}
         options={{
           headerShown: true,
           headerBackTitleVisible: false,

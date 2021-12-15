@@ -17,7 +17,7 @@ const Post = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      <ScrollView scrollEnabled={!disableScroll}>
+      <ScrollView scrollEnabled={!disableScroll} contentContainerStyle={{paddingBottom: 10}}>
         <PostComponent
           postId={postId}
           navigation={navigation}

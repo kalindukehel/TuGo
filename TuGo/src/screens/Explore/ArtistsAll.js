@@ -6,6 +6,9 @@ import ArtistBlock from "../../components/Explore/ArtistBlock";
 
 //api
 import { topArtists as topArtistsAPI } from "../../api";
+import { Dimensions } from "react-native";
+
+var {width,height} = Dimensions.get("window")
 
 const ArtistsAll = (props) => {
   const { navigation } = props;
@@ -17,16 +20,7 @@ const ArtistsAll = (props) => {
     setLoading(true);
     async function getArtists() {
       const artistsRes = await topArtistsAPI();
-      const filteredArtists = artistsRes.data.artists.map((artist) => {
-        return {
-          name: artist.name,
-          id: artist.id,
-          image:
-            "https://api.napster.com/imageserver/v2/artists/" +
-            artist.id +
-            "/images/230x153.jpg",
-        };
-      });
+      const filteredArtists = artistsRes.data.artists
       setArtists(filteredArtists);
     }
     getArtists();
@@ -37,14 +31,18 @@ const ArtistsAll = (props) => {
     onRefresh();
   }, []);
 
+  const getArtistImage = (artistId) => {
+    return `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`;
+  };
+
   const renderArtist = ({ item, index }) => {
     return (
       <ArtistBlock
         artist={item.name}
         navigation={navigation}
-        image={item.image}
+        image={getArtistImage(item.id)}
         id={item.id}
-        index={index + 1}
+        similarArtist={true}
         columns={3}
       />
     );
@@ -52,18 +50,21 @@ const ArtistsAll = (props) => {
 
   return (
     <SafeAreaView style={styles.container}>
+
       <FlatList
-        contentContainerStyle={{
-          justifyContent: "center",
-          alignItems: "center",
-          paddingVertical: 20,
-        }}
-        data={artists}
-        renderItem={renderArtist}
-        keyExtractor={(item, index) => item.id.toString()}
-        onRefresh={loading}
-        numColumns={2}
-        ItemSeparatorComponent={() => <View style={{ height: 10 }} />}
+          style={{ flexGrow: 1 }}
+          ItemSeparatorComponent={() => <View style={{ margin: 30 }}></View>}
+          contentContainerStyle={{
+            width: width,
+            alignItems: "center",
+            paddingVertical: 10,
+          }}
+          data={artists}
+          renderItem={renderArtist}
+          keyExtractor={(item, index) => {
+            return index.toString();
+          }}
+          numColumns={2}
       />
     </SafeAreaView>
   );

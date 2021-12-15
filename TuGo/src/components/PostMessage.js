@@ -9,26 +9,35 @@ import {
 } from "react-native";
 import moment from "moment";
 import { useAuthState } from "../context/authContext";
-import { Colors } from "../../constants";
+import { Colors, API_URL } from "../../constants";
 import {
   getPostById as getPostByIdAPI,
   getAccountById as getAccountByIdAPI,
 } from "../api";
+import { TouchableWithoutFeedback } from "react-native-gesture-handler";
+import GText from "./GText"
 
 const PostMessage = ({ message, navigation }) => {
   const { userToken, self } = useAuthState();
-
   const [post, setPost] = useState(null);
+  const [error, setError] = useState(null)
   const [loadingPost, setLoadingPost] = useState(false);
   const [author, setAuthor] = useState(null);
+  const [isViewable, setIsViewable] = useState(false)
 
   useEffect(() => {
     setLoadingPost(true);
     async function getPost() {
+      try{
       const postRes = await getPostByIdAPI(userToken, message.content);
+      if (postRes.data.isViewable !== false) setIsViewable(true)
       setPost(postRes.data);
       const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
       setAuthor(authorRes.data);
+      }
+      catch(e){
+        setError('Post has been Deleted.')
+      }
     }
     getPost();
     setLoadingPost(false);
@@ -43,16 +52,24 @@ const PostMessage = ({ message, navigation }) => {
         justifyContent: isMyMessage() ? "flex-end" : "flex-start",
       }}
     >
-      {!isMyMessage() && (
-        <Image
-          style={{
-            width: 30,
-            height: 30,
-            borderRadius: 999,
-            marginRight: 10,
+      {!isMyMessage() && (            
+        <TouchableWithoutFeedback
+          onPress={()=>{
+            navigation.push("Profile", {
+              id: author.id,
+            });
           }}
-          source={{ uri: message.user.imageUri }}
-        />
+        >
+          <Image
+            style={{
+              width: 30,
+              height: 30,
+              borderRadius: 999,
+              marginRight: 10,
+            }}
+            source={{ uri: API_URL + message.user.imageUri }}
+          />
+        </TouchableWithoutFeedback>
       )}
       <View
         style={[
@@ -77,16 +94,12 @@ const PostMessage = ({ message, navigation }) => {
                 source={{ uri: author.profile_picture }}
                 style={{ borderRadius: 999, height: 25, width: 25 }}
               />
-              <Text style={{ color: Colors.text, marginLeft: 10 }}>
+              <GText style={{ color: Colors.text, marginLeft: 10 }}>
                 {author.username}
-              </Text>
+              </GText>
             </View>
-            <TouchableOpacity
-              style={{
-                ...styles.image,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
+            <TouchableWithoutFeedback
+              disabled={!isViewable}
               onPress={() => {
                 navigation.push("Post", {
                   screen: "Post",
@@ -97,12 +110,30 @@ const PostMessage = ({ message, navigation }) => {
                 });
               }}
             >
-              <Image style={styles.image} source={{ uri: post.album_cover }} />
-            </TouchableOpacity>
-            {/* <Text style={styles.time}>{moment(message.createdAt).fromNow()}</Text> */}
+              <View 
+                style={{
+                  ...styles.image,
+                  alignItems: "center",
+                  justifyContent: "center",
+                }}
+              >
+                {isViewable ? 
+                <Image style={styles.image} source={{ uri: post.album_cover }} /> : 
+                <View 
+                style={styles.errorView}>
+                  <GText style={{color: Colors.text, fontSize: 12}}>Post is private, follow to see.</GText>
+                </View>}
+              </View>
+            </TouchableWithoutFeedback>
+            {/* <GText style={styles.time}>{moment(message.createdAt).fromNow()}</GText> */}
+          </View>
+        ) : error ? (
+          <View 
+            style={styles.errorView}>
+            <GText style={{color: Colors.text, fontSize: 12}}>{error}</GText>
           </View>
         ) : (
-          <View style={{ height: 190, width: 150 }}>
+          <View style={{ height: 190, width: 150, justifyContent: 'center' }}>
             <ActivityIndicator
               animating={true}
               size="small"
@@ -138,6 +169,14 @@ const styles = StyleSheet.create({
     alignSelf: "flex-end",
     color: "grey",
   },
+  errorView: {
+    height: 150, 
+    width: 150, 
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 10, 
+    backgroundColor: Colors.contrastGray
+  }
 });
 
 export default PostMessage;

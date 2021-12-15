@@ -27,7 +27,7 @@ import { SimpleLineIcons } from "@expo/vector-icons";
 
 import { Auth, API, graphqlOperation } from "aws-amplify";
 import { getUser } from "../graphql/queries";
-import { createUser } from "../graphql/mutations";
+import { createUser, updateUser } from "../graphql/mutations";
 import { OpaqueColorValue } from "react-native";
 
 const Tab = createBottomTabNavigator();
@@ -53,7 +53,6 @@ const MainNavigator = () => {
   useEffect(() => {
     const fetchUser = async () => {
       const userInfo = self;
-
       if (userInfo) {
         const userData = await API.graphql(
           graphqlOperation(getUser, { id: self.id })
@@ -80,8 +79,8 @@ const MainNavigator = () => {
 
   //notification listener
   useEffect(() => {
+    let token;
     async function registerForPushNotificationsAsync() {
-      let token;
       if (Constants.isDevice) {
         const { status: existingStatus } =
           await Notifications.getPermissionsAsync();
@@ -108,7 +107,11 @@ const MainNavigator = () => {
         });
       }
       console.log(token);
-      const res = await postNotificationTokenAPI(token, userToken, self.id);
+      try {
+        const res = await postNotificationTokenAPI(token, userToken, self.id);
+      } catch (e) {
+        alert(e);
+      }
     }
     registerForPushNotificationsAsync();
     // This listener is fired whenever a notification is received while the app is foregrounded
@@ -120,7 +123,7 @@ const MainNavigator = () => {
     // This listener is fired whenever a user taps on or interacts with a notification (works when app is foregrounded, backgrounded, or killed)
     responseListener.current =
       Notifications.addNotificationResponseReceivedListener((response) => {
-        const type = response.notification.request.content.data.body.type;
+        const type = response.notification.request.content.data.type;
         if (type == "follow") {
           navigation.navigate("Activity");
         } else if (type == "like") {
@@ -131,8 +134,51 @@ const MainNavigator = () => {
           navigation.navigate("Activity");
         } else if (type == "tag") {
           navigation.navigate("Activity");
+        } else if (type == "message") {
+          navigation.navigate("Chat");
         }
       });
+
+    //check if user in database
+    const fetchUser = async () => {
+      const userInfo = self;
+      function getPosition(string, subString, index) {
+        return string.split(subString, index).join(subString).length;
+      }
+      const firstIndex = getPosition(self.profile_picture, ':', 2) 
+      const substring = self.profile_picture.substring(firstIndex + 5, self.profile_picture.length)
+      if (userInfo) {
+        const userData = await API.graphql(
+          graphqlOperation(getUser, { id: self.id })
+        );
+
+        if (userData.data.getUser) {
+          // User is already registered in database
+          const update = {
+            id: userData.data.getUser.id,
+            expoPushToken: token,
+            imageUri: substring
+          };
+          const chatRoomData = await API.graphql(
+            graphqlOperation(updateUser, { input: update })
+          );
+
+          return;
+        }
+        // User not in database
+        const newUser = {
+          id: self.id,
+          name: userInfo.name,
+          username: userInfo.username,
+          imageUri: substring,
+          status: "Hey, I am using Tugo",
+          expoPushToken: self.notification_token,
+        };
+        await API.graphql(graphqlOperation(createUser, { input: newUser }));
+      }
+    };
+
+    fetchUser();
 
     return () => {
       Notifications.removeNotificationSubscription(notificationListener);
@@ -142,6 +188,7 @@ const MainNavigator = () => {
 
   return (
     <Tab.Navigator
+      lazy={true}
       initialRouteName="Feed"
       screenOptions={({ route }) => ({
         tabBarIcon: ({ focused, color, size }) => {
@@ -150,7 +197,7 @@ const MainNavigator = () => {
             iconName = focused ? "md-home" : "md-home";
           } else if (route.name === "Profile") {
             return (
-              <Image
+              self && <Image
                 source={{ uri: self.profile_picture }}
                 style={{
                   width: 20,
@@ -183,11 +230,11 @@ const MainNavigator = () => {
         activeTintColor: Colors.FG,
         inactiveTintColor: "gray",
         style: {
-          backgroundColor: Colors.BG,
+          backgroundColor: Colors.Footer,
         },
       }}
     >
-      <Tab.Screen name="Feed" component={FeedNavigator} options={{}} />
+      <Tab.Screen name="Feed" component={FeedNavigator} />
       <Tab.Screen name="Chat" component={DirectNavigator} />
       <Tab.Screen name="Explore" component={ExploreNavigator} />
       <Tab.Screen name="Activity" component={ActivityNavigator} />

@@ -15,6 +15,7 @@ import { getActivity as getActivityAPI } from "../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { Colors } from "../../constants";
 import { useScrollToTop } from "@react-navigation/native";
+import GText from "../components/GText"
 
 const Activity = ({ navigation }) => {
   const { userToken } = useAuthState();
@@ -92,9 +93,9 @@ const Activity = ({ navigation }) => {
           borderBottomWidth: 0.3,
         }}
       >
-        <Text style={{ fontWeight: "bold", color: Colors.FG }}>
+        <GText style={{ fontWeight: "bold", color: Colors.FG }}>
           Follow Requests +
-        </Text>
+        </GText>
       </TouchableOpacity>
     );
   };
