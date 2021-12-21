@@ -9,7 +9,9 @@ from django.core.exceptions import ValidationError
 from django.core.validators import validate_email
 from rest_framework import status
 from django.contrib.auth import authenticate
+from django.conf import settings
 from django.db.models import Q, Count
+import boto3
 from rest_framework.authtoken.views import ObtainAuthToken
 from rest_framework.authtoken.models import Token
 from rest_framework.pagination import PageNumberPagination
@@ -430,7 +432,7 @@ class PostViewSet(viewsets.ModelViewSet):
             youtube_video_url = None
             custom_video_url = None
             if is_youtube == 'False':
-                custom_video_url = request.data.get('custom_video_url')
+                custom_video_url = request.FILES['custom_video_url']
             # if(is_youtube):
             #     # video = pafy.new(youtube_link)
             #     # best = video.getbest()
@@ -511,6 +513,20 @@ class PostViewSet(viewsets.ModelViewSet):
         liked = request.user.liked.all().order_by('-id')
         serializer = LikeSerializer(liked,many=True)
         return Response(serializer.data)
+    
+    @action(detail=False, methods=['POST'])
+    def get_url(self, request, *args, **kwargs):
+        #Get presigned url
+        key = self.request.data.get('key')
+        session = boto3.client(service_name='s3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        )
+        x = session.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': 'tugomedia', 'Key': key},
+            ExpiresIn=300)
+        return Response({'url':x})
 
     @action(detail=False, methods=['GET'], serializer_class=PrivatePostSerializer)
     def trending_posts(self, request, *args, **kwargs):
