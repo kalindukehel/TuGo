@@ -445,6 +445,9 @@ class PostViewSet(viewsets.ModelViewSet):
             try:
                 tile.full_clean()
                 tile.save()
+                post = self.get_object()
+                post.video_count = len(post.tiles.all())
+                post.save()
             except ValidationError as e:
                 print(e)
                 return Response({"detail":"Tile could not be created"},status=status.HTTP_400_BAD_REQUEST)
