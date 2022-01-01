@@ -10,6 +10,7 @@ import {
   Dimensions,
   TouchableWithoutFeedback,
   TextInput,
+  ActivityIndicator
 } from "react-native";
 
 import {
@@ -33,6 +34,8 @@ var { width, height } = Dimensions.get("window");
 
 const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
+let napsterLimit = 10
+
 const Artist = (props) => {
   const { navigation } = props;
   const { artist } = props.route.params;
@@ -44,6 +47,50 @@ const Artist = (props) => {
   const [artistDetails, setArtistDetails] = useState("");
   const [disableScroll, setDisableScroll] = useState(false);
   const [profileImage, setProfileImage] = useState(API_URL + "/media/default.jpg")
+  console.log(artist)
+  //Pagination
+  const [isLoading, setIsLoading] = useState(false)
+  const [offset, setOffset] = useState(0)
+  
+
+  useEffect(()=> {
+    if(offset !== null) {
+      setIsLoading(true)
+      getData()
+    }
+    checkImageURL(artist);
+  },[])
+
+  async function getData() {
+    const infoRes = await getArtistInfoAPI(artist);
+    setArtistDetails(infoRes.data.artists[0]);
+    let response = await artistSongsTopAPI(artist, offset);
+    if (response.data.tracks.length < 10) {
+      response = await artistSongsAPI(artist, offset);
+    }
+    setArtistSongs([...new Set(masterData.concat(response.data.tracks))]);
+    setFilteredData([...new Set(masterData.concat(response.data.tracks))]);
+    setMasterData([...new Set(masterData.concat(response.data.tracks))]);
+    if (response.data.meta.returnedCount === 0){
+      setOffset(null)
+    } else {
+      setOffset(offset + napsterLimit)
+    }
+    setIsLoading(false)
+  }
+
+  function checkImageURL(artistId){
+    const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`
+    fetch(url)
+       .then(res => {
+       if(res.status == 404){
+         if(masterData.length > 0) setProfileImage(getImage(masterData[0].albumId))
+       }else{
+         setProfileImage(`https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`)
+      }
+    })
+   .catch(err=>{console.log(err)})
+  }
 
   //filter search
   const [filteredData, setFilteredData] = useState([]);
@@ -60,34 +107,25 @@ const Artist = (props) => {
     async function getSongList() {
       const infoRes = await getArtistInfoAPI(artist);
       setArtistDetails(infoRes.data.artists[0]);
-      let res = await artistSongsTopAPI(artist);
-      if (res.data.tracks.length < 10) {
-        res = await artistSongsAPI(artist);
+      let response = await artistSongsTopAPI(artist, offset);
+      if (response.data.tracks.length < 10) {
+        response = await artistSongsAPI(artist, offset);
       }
-      setArtistSongs(res.data.tracks);
-      setFilteredData(res.data.tracks);
-      setMasterData(res.data.tracks);
+      if (response.data.meta.returnedCount === 0){
+        setOffset(null)
+      } else {
+        setOffset(offset + napsterLimit)
+      }
+      setArtistSongs([...new Set(masterData.concat(response.data.tracks))]);
+      setFilteredData([...new Set(masterData.concat(response.data.tracks))]);
+      setMasterData([...new Set(masterData.concat(response.data.tracks))]);
     }
-    function checkImageURL(artistId){
-      const url = `https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`
-      fetch(url)
-         .then(res => {
-         if(res.status == 404){
-           if(masterData.length > 0) setProfileImage(getImage(masterData[0].albumId))
-         }else{
-           setProfileImage(`https://api.napster.com/imageserver/v2/artists/${artistId}/images/500x500.jpg`)
-        }
-      })
-     .catch(err=>{console.log(err)})
-    }
-    getSongList();
-    checkImageURL(artist);
     setRefreshing(false);
   }, []);
 
-  useEffect(() => {
-    onRefresh();
-  }, []);
+  // useEffect(() => {
+  //   onRefresh();
+  // }, []);
 
   const toTop = () => {
     // use current
@@ -176,11 +214,30 @@ const Artist = (props) => {
       setSearch(text);
     }
   };
-  console
+
+  const handleLoadMore = () => {
+    setIsLoading(true)
+    getData()
+  }
+
+  const getFooter = () => {
+    return (
+      isLoading &&
+      <View style={styles.loader}>
+        <ActivityIndicator size='large'/>
+      </View>
+    )
+  }
+
   return (
     filteredData && (
       <SafeAreaView style={styles.container}>
         <AnimatedFlatList
+          onEndReachedThreshold={0}
+          ListFooterComponent={getFooter}
+          onEndReached={() => {
+            if(offset && !isLoading) handleLoadMore();
+          }}
           scrollEnabled={!disableScroll}
           keyboardDismissMode="interactive"
           ref={flatListRef}
@@ -328,6 +385,9 @@ const artistStyles = StyleSheet.create({
     padding: 10,
     marginTop: 30,
   },
+  loader: {
+    alignItems: 'center',
+  }
 //   button: {
 //     textAlign: "center",
 //     width: 120,
