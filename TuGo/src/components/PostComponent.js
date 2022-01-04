@@ -77,6 +77,7 @@ import TileRender from "../screens/Others/TileRender";
 import { useTilePlayerDispatch } from "../context/tilePlayerContext";
 import PostedTile from "./PostedTile";
 import GText from "./GText"
+import ImageS3 from "./ImageS3";
 
 var { width, height } = Dimensions.get("window");
 
@@ -372,19 +373,15 @@ const PostComponent = ({
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Image
-                source={{
-                  uri: author
-                    ? author.profile_picture
-                    : API_URL + "/media/default.jpg",
-                }}
+              <ImageS3
+                url={author.profile_picture}
                 style={{
                   width: 30,
                   height: 30,
                   borderRadius: 20,
                   marginRight: 5,
                 }}
-              ></Image>
+              ></ImageS3>
               <GText style={{ fontWeight: "bold", color: Colors.text }}>
                 {author ? author.username : ""}
               </GText>

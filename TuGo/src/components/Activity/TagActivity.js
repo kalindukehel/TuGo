@@ -17,6 +17,7 @@ import {
 import moment from "moment";
 import { Colors } from "../../../constants";
 import GText from "../GText"
+import ImageS3 from "../ImageS3";
 
 var { width, height } = Dimensions.get("window");
 
@@ -62,15 +63,15 @@ const TagActivity = (props) => {
               });
             }}
           >
-            <Image
-              source={{ uri: tagger.profile_picture }}
+            <ImageS3
+              url={tagger.profile_picture}
               style={{
                 width: 45,
                 height: 45,
                 borderRadius: 45 / 2,
                 borderWidth: 1,
               }}
-            ></Image>
+            ></ImageS3>
           </TouchableOpacity>
           <GText
             style={{

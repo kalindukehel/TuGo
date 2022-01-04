@@ -8,6 +8,7 @@ import { useAuthState } from "../context/authContext"
 import { API_URL, Colors } from '../../constants'
 import * as Haptics from "expo-haptics";
 import GText from "./GText"
+import ImageS3 from './ImageS3'
 
 let {width, height} = Dimensions.get('window')
 const maxlimit = 20;
@@ -55,15 +56,15 @@ const FollowTile = ({user, navigation}) => {
         }}
       >
         <View style={{ flexDirection: "row", alignItems: "center" }}>
-          <Image
-            source={{ uri: API_URL + user.profile_picture }}
+          <ImageS3
+            url={user.profile_picture}
             style={{
               width: height / 20,
               height: height / 20,
               borderRadius: 999,
               borderWidth: 1,
             }}
-          ></Image>
+          ></ImageS3>
           <View style={{ flexDirection: "column", flex: 1, marginLeft: 10 }}>
             <GText style={{ fontWeight: "bold", color: Colors.text }}>
               {user.username.length > maxlimit

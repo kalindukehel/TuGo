@@ -195,7 +195,7 @@ const FavoritesTile = (props) => {
   }
 
   return (
-    post && (
+    post && post.isViewable && (
       <ImageBackground
         source={{
           uri: post.album_cover,

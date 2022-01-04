@@ -19,6 +19,7 @@ import moment from "moment";
 import { Colors } from "../../../constants";
 import { Truncate } from "../../Helpers/Truncate";
 import GText from "../GText"
+import ImageS3 from "../ImageS3";
 
 var { width, height } = Dimensions.get("window");
 
@@ -59,15 +60,15 @@ const CommentActivity = (props) => {
               });
             }}
           >
-            <Image
-              source={{ uri: commenter.profile_picture }}
+            <ImageS3
+              url={commenter.profile_picture }
               style={{
                 width: 45,
                 height: 45,
                 borderRadius: 45 / 2,
                 borderWidth: 1,
               }}
-            ></Image>
+            ></ImageS3>
           </TouchableOpacity>
           <GText
             style={{

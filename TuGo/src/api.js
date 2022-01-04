@@ -766,6 +766,18 @@ export async function createPost(caption, postDetails, tiles, token) {
   }
 }
 
+// S3
+export async function s3URL(token, key) {
+  const data = {
+    key: key
+  }
+  return await axios.post(`${API_URL}/api/posts/get_url/`, data, {
+    headers: {
+      Authorization: "Token " + token,
+    },
+  });
+}
+
 // Song lyrics api
 export async function getSongLyrics(token, id) {
   await axios.get(`${API_URL}/api/posts/${id}/lyrics/`, {

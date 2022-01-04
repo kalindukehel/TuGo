@@ -37,6 +37,7 @@ import * as Haptics from "expo-haptics";
 import { useScrollToTop } from "@react-navigation/native";
 import { Colors } from "../../../constants";
 import GText from '../../components/GText'
+import ImageS3 from "../../components/ImageS3";
 
 var { width, height } = Dimensions.get("window");
 const blank =
@@ -342,6 +343,7 @@ const Profile = (props) => {
     };
 
     return (
+      user && 
       <>
         {isSelf && (
           <GText
@@ -357,12 +359,8 @@ const Profile = (props) => {
         )}
         <View style={styles.ProfileHeaderView}>
           <View style={styles.profilePicture}>
-            <Image
-              source={{
-                uri: user
-                  ? user.profile_picture
-                  : API_URL + "/media/default.jpg",
-              }}
+            <ImageS3
+              url={user.profile_picture}
               style={{ height: 100, width: 100, borderRadius: 999 }}
             />
           </View>

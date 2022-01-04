@@ -17,6 +17,7 @@ import { listUsers } from "../../src/graphql/queries";
 import { useAuthState } from "../context/authContext";
 import { getUser } from "../screens/Direct/queries";
 import GText from "./GText"
+import ImageS3 from "./ImageS3";
 
 var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
@@ -129,15 +130,15 @@ const ContactListItem = (props) => {
           alignContent: "center",
         }}
       >
-        <Image
-          source={{ uri: API_URL + account.profile_picture }}
+        <ImageS3
+          url={account.profile_picture}
           style={{
             width: height / 20,
             height: height / 20,
             borderRadius: 999,
             borderWidth: 1,
           }}
-        ></Image>
+        ></ImageS3>
         <View
           style={{
             flexDirection: "column",

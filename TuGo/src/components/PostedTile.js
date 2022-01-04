@@ -18,17 +18,37 @@ import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import TileRender from "../screens/Others/TileRender";
 import { Video, AVPlaybackStatus } from 'expo-av';
 import { API_URL } from "../../constants";
+import { useAuthState } from "../context/authContext";
+import { s3URL as s3URLAPI } from "../api"
 
 var { width, height } = Dimensions.get("window");
 
 //Video Tile to display YouTube video linked to a post, or in CreatePost
 const PostedTile = (props) => {
   const { tile, postId, isAuthor, getTileStates } = props;
+  const { userToken } = useAuthState()
   const refRBSheet = useRef();
   const insets = useSafeAreaInsets();
   const [xy, setXY] = useState(new Animated.ValueXY({ x: width/3.4, y: width/5 }));
   const video = useRef(null);
   const [status, setStatus] = useState({});
+  const [mediaUrl, setMediaUrl] = useState(null)
+
+  // useEffect(() => {
+  //   if (!tile.is_youtube){
+  //     getS3URL(substring)
+  //   }
+  // },[])
+
+  function getPosition(string, subString, index) {
+    return string.split(subString, index).join(subString).length;
+  }
+  async function getS3URL () {
+    const firstIndex = getPosition(tile.custom_video_url, '/', 3) 
+    const substring = tile.custom_video_url.substring(firstIndex + 1, tile.custom_video_url.length)
+    const res = await s3URLAPI(userToken, substring)
+    setMediaUrl(res.data.url)
+  }
 
   const imageAnimationIn = () => {
     Animated.timing(xy, {
@@ -82,6 +102,7 @@ const PostedTile = (props) => {
           <TileRender url={tile.youtube_link} tileModal={refRBSheet} isAuthor={isAuthor} tileId={tile.id} postId={postId} isYoutube={true} /> 
       </RBSheet> :
       <RBSheet
+          onOpen={() => getS3URL()}
           onClose={() => getTileStates()}
           height={500}
           ref={refRBSheet}
@@ -100,16 +121,15 @@ const PostedTile = (props) => {
           }}
         >
           <View style={{backgroundColor: 'black', flex: 1}}>              
-          <Image style={{height: 100, width: 100}} source={{uri: "http://0.0.0.0:8000/media/profilePictures/20200816_192744_VCyaYIn.jpg"}}/>
-          <Video   rate={1.0}
-  volume={1.0}
-  isMuted={false}
-  resizeMode="cover"
-  shouldPlay
-  isLooping
-  style={{ width: 1000, height: 1000}}
-                  source={{uri: "http://0.0.0.0:8000/media/videoUploads/AppDemo_I3VH7Yi.mp4/"}}
-          />
+            <Video   rate={1.0}
+              volume={1.0}
+              isMuted={false}
+              resizeMode="cover"
+              shouldPlay
+              useNativeControls
+              style={{ width: "100%", height: '100%'}}
+              source={{uri: mediaUrl}}
+            />
           </View>
       </RBSheet>}
     </View>

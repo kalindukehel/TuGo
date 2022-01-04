@@ -16,6 +16,7 @@ import {
 } from "../api";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
 import GText from "./GText"
+import ImageS3 from "./ImageS3";
 
 const PostMessage = ({ message, navigation }) => {
   const { userToken, self } = useAuthState();
@@ -90,8 +91,8 @@ const PostMessage = ({ message, navigation }) => {
                 height: 40,
               }}
             >
-              <Image
-                source={{ uri: author.profile_picture }}
+              <ImageS3
+                url={author.profile_picture }
                 style={{ borderRadius: 999, height: 25, width: 25 }}
               />
               <GText style={{ color: Colors.text, marginLeft: 10 }}>

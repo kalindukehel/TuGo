@@ -9,6 +9,7 @@ import {
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { API_URL, Colors } from "../../../constants";
 import GText from "../GText"
+import ImageS3 from "../ImageS3";
 
 const styles = StyleSheet.create({
   acceptButton: {
@@ -93,13 +94,9 @@ const FollowRequest = (props) => {
           marginHorizontal: 15,
         }}
       >
-        <Image
+        <ImageS3
           style={styles.profilePicture}
-          source={
-            requester
-              ? { uri: API_URL + requester.profile_picture }
-              : { uri: API_URL + "/media/default.jpg" }
-          }
+          url={requester.profile_picture}
         />
       </TouchableOpacity>
       <View>

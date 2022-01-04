@@ -41,6 +41,7 @@ import GText from "../../components/GText"
 //icons
 import { Feather } from "@expo/vector-icons";
 import { Colors, API_URL } from "../../../constants";
+import ImageS3 from "../../components/ImageS3";
 
 var { width, height } = Dimensions.get("window");
 
@@ -627,11 +628,9 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           alignItems: "center",
         }}
       >
-        <Image
+        <ImageS3
           style={styles.avatar}
-          source={{
-            uri: API_URL + user.profile_picture,
-          }}
+          url={user.profile_picture}
         />
         <View
           style={{

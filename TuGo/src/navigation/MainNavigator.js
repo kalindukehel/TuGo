@@ -29,6 +29,7 @@ import { Auth, API, graphqlOperation } from "aws-amplify";
 import { getUser } from "../graphql/queries";
 import { createUser, updateUser } from "../graphql/mutations";
 import { OpaqueColorValue } from "react-native";
+import ImageS3 from "../components/ImageS3";
 
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
@@ -50,32 +51,7 @@ const MainNavigator = () => {
   const responseListener = React.useRef();
 
   //aws create user if not in database
-  useEffect(() => {
-    const fetchUser = async () => {
-      const userInfo = self;
-      if (userInfo) {
-        const userData = await API.graphql(
-          graphqlOperation(getUser, { id: self.id })
-        );
-
-        if (userData.data.getUser) {
-          // User is already registered in database
-          return;
-        }
-        // User not in database
-        const newUser = {
-          id: self.id,
-          name: userInfo.name,
-          username: userInfo.username,
-          imageUri: userInfo.profile_picture,
-          status: "Hey, I am using Tugo",
-        };
-        await API.graphql(graphqlOperation(createUser, { input: newUser }));
-      }
-    };
-
-    fetchUser();
-  }, []);
+  
 
   //notification listener
   useEffect(() => {
@@ -142,11 +118,6 @@ const MainNavigator = () => {
     //check if user in database
     const fetchUser = async () => {
       const userInfo = self;
-      function getPosition(string, subString, index) {
-        return string.split(subString, index).join(subString).length;
-      }
-      const firstIndex = getPosition(self.profile_picture, ':', 2) 
-      const substring = self.profile_picture.substring(firstIndex + 5, self.profile_picture.length)
       if (userInfo) {
         const userData = await API.graphql(
           graphqlOperation(getUser, { id: self.id })
@@ -157,12 +128,11 @@ const MainNavigator = () => {
           const update = {
             id: userData.data.getUser.id,
             expoPushToken: token,
-            imageUri: substring
+            imageUri: self.profile_picture
           };
           const chatRoomData = await API.graphql(
             graphqlOperation(updateUser, { input: update })
           );
-
           return;
         }
         // User not in database
@@ -170,7 +140,7 @@ const MainNavigator = () => {
           id: self.id,
           name: userInfo.name,
           username: userInfo.username,
-          imageUri: substring,
+          imageUri: userInfo.profile_picture,
           status: "Hey, I am using Tugo",
           expoPushToken: self.notification_token,
         };
@@ -197,15 +167,15 @@ const MainNavigator = () => {
             iconName = focused ? "md-home" : "md-home";
           } else if (route.name === "Profile") {
             return (
-              self && <Image
-                source={{ uri: self.profile_picture }}
+              self && <ImageS3
+                url={self.profile_picture}
                 style={{
                   width: 20,
                   height: 20,
                   borderRadius: 5,
                   borderWidth: focused ? 1 : 0.5,
                 }}
-              ></Image>
+              ></ImageS3>
             );
           } else if (route.name === "Explore") {
             iconName = focused ? "md-add-circle" : "md-add-circle-outline";

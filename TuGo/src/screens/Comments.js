@@ -50,6 +50,7 @@ import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
 import GText from "../components/GText"
 import { useKeyboard } from "../components/UseKeyboard";
+import ImageS3 from "../components/ImageS3";
 
 var { width, height } = Dimensions.get("window");
 
@@ -160,8 +161,8 @@ const Comments = (props) => {
                     alignItems: "center",
                   }}
                 >
-                  <Image
-                    source={{ uri: one.profile_picture }}
+                  <ImageS3
+                    url={one.profile_picture}
                     style={{
                       width: 20,
                       height: 20,
@@ -301,10 +302,10 @@ const Comments = (props) => {
               });
             }}
           >
-            <Image
-              source={{ uri: API_URL + curAccount.profile_picture }}
+            <ImageS3
+              url={curAccount.profile_picture}
               style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
-            ></Image>
+            ></ImageS3>
           </TouchableOpacity>
           <GText
             style={{
@@ -347,11 +348,7 @@ const Comments = (props) => {
           }}
         >
           <Image
-            source={{
-              uri: author
-                ? author.profile_picture
-                : API_URL + "/media/default.jpg",
-            }}
+            url={author.profile_picture}
             style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
           ></Image>
         </TouchableOpacity>
