@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { View, Text, StyleSheet, RefreshControl, FlatList } from "react-native";
+import { View, Text, StyleSheet, RefreshControl, FlatList, ActivityIndicator } from "react-native";
 import { useAuthDispatch } from "../context/authContext";
 import { useAuthState } from "../context/authContext";
 import { useNotificationDispatch } from "../context/notificationContext";
@@ -13,7 +13,7 @@ import { Entypo } from "@expo/vector-icons";
 
 import { getActivity as getActivityAPI } from "../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
-import { Colors } from "../../constants";
+import { Colors, API_URL } from "../../constants";
 import { useScrollToTop } from "@react-navigation/native";
 import GText from "../components/GText"
 
@@ -24,7 +24,24 @@ const Activity = ({ navigation }) => {
   const [activities, setActivities] = useState([]);
   const [refreshing, setRefreshing] = useState(false);
   const firstRun = useRef(true);
-  const next = useRef(null);
+
+  const [data, setData] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [next, setNext] = useState(API_URL + "/api/accounts/activity/?page=" + 1)
+
+  useEffect(()=> {
+    if(next) {
+      setIsLoading(true)
+      getData()
+    }
+  },[])
+
+  async function getData() {
+    const response = await getActivityAPI(userToken, next);
+    setData(data.concat(response.data.results))
+    setNext(response.data.next)
+    setIsLoading(false)
+  }
 
   //tap active tab to scroll to the top
   const ref = React.useRef(null);
@@ -33,20 +50,19 @@ const Activity = ({ navigation }) => {
   const onRefresh = React.useCallback(() => {
     setRefreshing(true);
     async function getActivityStates() {
-      console.log(next);
-      const activityRes = await getActivityAPI(userToken, null);
-      setActivities([...activities, ...activityRes.data.results]);
-      next.current = activityRes.data.next;
-      console.log(next);
+      const url = API_URL + "/api/accounts/activity/?page=" + 1
+      const activityRes = await getActivityAPI(userToken, url);
+      setData(activityRes.data.results);
+      setNext(activityRes.data.next)
     }
     getActivityStates();
     setRefreshing(false);
   }, []);
 
-  useEffect(() => {
-    notificationDispatch({ type: "ADD_NOTIFICATION", unread: false });
-    onRefresh();
-  }, []);
+  // useEffect(() => {
+  //   notificationDispatch({ type: "ADD_NOTIFICATION", unread: false });
+  //   onRefresh();
+  // }, []);
 
   React.useEffect(() => {
     //When navigation is changed update the activity item states
@@ -100,18 +116,32 @@ const Activity = ({ navigation }) => {
     );
   };
 
+  const handleLoadMore = () => {
+    setIsLoading(true)
+    getData()
+  }
+
+  const getFooter = () => {
+    return (
+      isLoading &&
+      <View style={styles.loader}>
+        <ActivityIndicator size='large'/>
+      </View>
+    )
+  }
+
   return (
     <View style={styles.container}>
       <FlatList
         ref={ref}
-        data={activities}
+        data={data}
         renderItem={renderActivity}
         ListHeaderComponent={getHeader}
         keyExtractor={(activity) => activity.id.toString()}
-        onEndReachedThreshold={0.9}
+        onEndReachedThreshold={0}
+        ListFooterComponent={getFooter}
         onEndReached={() => {
-          console.log("end reached");
-          onRefresh();
+          if(next && !isLoading) handleLoadMore();
         }}
         refreshControl={
           <RefreshControl
@@ -130,6 +160,9 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: Colors.BG,
   },
+  loader: {
+    alignItems: 'center',
+  }
 });
 
 export default Activity;

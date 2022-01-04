@@ -80,7 +80,8 @@ const CreatePost = ({ navigation }) => {
     if (search != "") {
       setLoading(true);
       let response = await typeSongAheadSearchAPI(search);
-      const filteredSongs = response.data.search.data.tracks.map((song) => {
+      const filteredSongs = response.data.search.data.tracks.filter(item => item.previewURL !== "")
+      const mappedSongs = filteredSongs.map((song) => {
         return {
           albumId: song.albumId,
           trackId: song.id,
@@ -91,7 +92,7 @@ const CreatePost = ({ navigation }) => {
           artist_id: song.artistId,
         };
       });
-      setResults(filteredSongs);
+      setResults(mappedSongs);
       setLoading(false);
     } else {
       setResults([]);

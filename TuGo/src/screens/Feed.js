@@ -33,16 +33,10 @@ const leftSpacing = 20;
 
 const Feed = ({ navigation }) => {
   const { userToken, self } = useAuthState();
-  const { unread } = useNotificationState();
-  const dispatch = useAuthDispatch();
-  const notificationDispatch = useNotificationDispatch();
   const [refreshing, setRefreshing] = useState(false);
   const [feed, setFeed] = useState(null);
   const [trending, setTrending] = useState(null);
   const [disableScroll, setDisableScroll] = useState(false);
-  //push notifications expo
-  const notificationListener = useRef();
-  const responseListener = useRef();
 
   //tap active tab to scroll to the top
   const ref = React.useRef(null);

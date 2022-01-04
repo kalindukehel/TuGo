@@ -3,8 +3,8 @@ import { API_URL } from "../constants";
 import { useAuthState } from "./context/authContext";
 import * as Notifications from "expo-notifications";
 
-export async function getAccounts(token) {
-  return axios.get(`${API_URL}/api/accounts/`, {
+export async function getAccounts(token, nextUrl) {
+  return axios.get(nextUrl.toString(), {
     headers: {
       Authorization: "Token " + token,
     },
@@ -313,9 +313,8 @@ export async function getSavedSongs(token) {
   });
 }
 
-export async function getActivity(token, next) {
-  const url = next ? next : `${API_URL}/api/accounts/activity/`;
-  return axios.get(url, {
+export async function getActivity(token, nextUrl) {
+  return axios.get(nextUrl.toString(), {
     headers: {
       Authorization: "Token " + token,
     },
@@ -681,15 +680,15 @@ export async function topArtists() {
   );
 }
 
-export async function artistSongsTop(id) {
+export async function artistSongsTop(id, offset) {
   return axios.get(
-    `http://api.napster.com/v2.2/artists/${id}/tracks/top?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=50`
+    `http://api.napster.com/v2.2/artists/${id}/tracks/top?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=10&offset=${offset}`
   );
 }
 
-export async function artistSongs(id) {
+export async function artistSongs(id, offset) {
   return axios.get(
-    `http://api.napster.com/v2.2/artists/${id}/tracks?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=50`
+    `http://api.napster.com/v2.2/artists/${id}/tracks?apikey=ZjE2MDcyZDctNDNjMC00NDQ5LWI3YzEtZTExY2Y2ZWNlZTg3&limit=10&offset=${offset}`
   );
 }
 

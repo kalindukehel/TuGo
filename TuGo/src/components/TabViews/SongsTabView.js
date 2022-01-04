@@ -46,13 +46,14 @@ const SongsTabView = (props) => {
       if (isEditing && searchQuery != "") {
         isMounted && setLoading(true);
         const resArtist = await searchArtistAPI(searchQuery);
-        const resTracks = await typeSongAheadSearchAPI(searchQuery);
+        let resTracks = await typeSongAheadSearchAPI(searchQuery);
         const resAlbums = await searchAlbumAPI(searchQuery);
+        resTracks = resTracks.data.search.data.tracks.filter(item => item.previewURL !== "")
         isMounted &&
           setResults([
             ...resArtist.data.search.data.artists,
             ...resAlbums.data.search.data.albums,
-            ...resTracks.data.search.data.tracks,
+            ...resTracks,
           ]);
         isMounted && setLoading(false);
       } else if (searchQuery != "") {

@@ -12,7 +12,7 @@ import {
   KeyboardAvoidingView,
   Keyboard,
   Platform,
-  GestureResponderHandlers,
+  ActivityIndicator,
   Alert
 } from "react-native";
 import {
@@ -73,12 +73,46 @@ const Comments = (props) => {
 
   const insets = useSafeAreaInsets();
 
+  //pagination
+  const [isLoading, setIsLoading] = useState(false)
+  const [next, setNext] = useState(API_URL + "/api/accounts/?page=" + 1)
+
+  useEffect(()=> {
+    if(next) {
+      setIsLoading(true)
+      getData()
+    }
+  },[])
+
+  async function getData() {
+    const response = await getAccountsAPI(userToken, next);
+    setAccounts(accounts.concat(response.data.results))
+    setNext(response.data.next)
+    setIsLoading(false)
+  }
+
+  const handleLoadMore = () => {
+    setIsLoading(true)
+    getData()
+  }
+
+  const getFooter = () => {
+    return (
+      isLoading &&
+      <View style={styles.loader}>
+        <ActivityIndicator size='small'/>
+      </View>
+    )
+  }
+
   useEffect(() => {
     const getAccounts = async () => {
       //check if searched text is not empty
-      const searchRes = await getAccountsAPI(userToken);
+      const url = API_URL + "/api/accounts/?page=" + 1
+      const searchRes = await getAccountsAPI(userToken, next);
+      setNext(searchRes.data.next)
       setAccounts(
-        searchRes.data.map((account) => ({
+        searchRes.data.results.map((account) => ({
           id: account.id,
           name: account.username,
           profile_picture: account.profile_picture,
@@ -132,49 +166,57 @@ const Comments = (props) => {
       }
 
       return (
-        <ScrollView
-          keyboardShouldPersistTaps={'always'}
-          style={{
-            backgroundColor: Colors.contrastGray,
-            position: "absolute",
-            bottom: 40,
-            left: 0,
-            right: 0,
-            maxHeight: (height - keyboardHeight) * 0.7,
-            borderRadius: 10,
-          }}
-        >
-          {suggestions
-            .filter((one) =>
-              one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())
-            )
-            .map((one) => {
+          <FlatList
+            style={{
+              backgroundColor: Colors.contrastGray,
+              position: "absolute",
+              bottom: 40,
+              left: 0,
+              right: 0,
+              maxHeight: (height - keyboardHeight) * 0.7,
+              borderRadius: 10,
+            }}
+            keyboardShouldPersistTaps={'always'}
+            data={suggestions
+              .filter((one) =>
+                one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())
+              )}
+            renderItem={({item})=>{
               return (
                 <TouchableWithoutFeedback
-                  key={one.id}
+                  key={item.id}
                   onPress={() => {
-                    onSuggestionPress(one)}
+                    onSuggestionPress(item)}
                   }
-                  style={{
-                    padding: 12,
-                    flexDirection: "row",
-                    alignItems: "center",
-                  }}
                 >
-                  <ImageS3
-                    url={one.profile_picture}
+                  <View 
                     style={{
-                      width: 20,
-                      height: 20,
-                      borderRadius: 999,
-                      marginRight: 10,
+                      padding: 12,
+                      flexDirection: "row",
+                      alignItems: "center",
                     }}
-                  />
-                  <GText style={{ color: Colors.FG }}>{one.name}</GText>
+                  >
+                    <ImageS3
+                      url={item.profile_picture}
+                      style={{
+                        width: 20,
+                        height: 20,
+                        borderRadius: 999,
+                        marginRight: 10,
+                      }}
+                    />
+                    <GText style={{ color: Colors.FG }}>{item.name}</GText>
+                  </View>
                 </TouchableWithoutFeedback>
               );
-            })}
-        </ScrollView>
+            }}
+            keyExtractor={(item) => item.id.toString()}
+            onEndReachedThreshold={0}
+            ListFooterComponent={getFooter}
+            onEndReached={() => {
+              if(next && !isLoading) handleLoadMore();
+            }}
+          />
       );
     };
 
@@ -473,6 +515,10 @@ const styles = StyleSheet.create({
     margin: 5,
     maxHeight: 100
   },
+  loader: {
+    alignItems: 'center',
+    justifyContent: 'center'
+  }
 });
 
 export default Comments;
