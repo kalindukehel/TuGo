@@ -8,7 +8,6 @@ const ImageS3 = ({style, url}) => {
     const [image, setImage] = useState(null)
 
     useEffect(()=>{
-        console.log(url)
         if(url) getS3URL()
     },[url])
 
@@ -20,7 +19,6 @@ const ImageS3 = ({style, url}) => {
         const substring = url.substring(firstIndex + 1, url.length)
         const res = await s3URLAPI(userToken, substring)
         setImage(res.data.url)
-        console.log(res.data.url)
     }
 
     return (

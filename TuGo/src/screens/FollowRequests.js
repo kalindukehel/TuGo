@@ -24,11 +24,11 @@ const FollowRequests = ({ navigation }) => {
     getRequests();
   }, []);
 
-  const renderItem = (request) => {
+  const renderItem = ({item}) => {
     //Render FollowRequest item for flatlist, send in userId variable and getRequests function
     return (
       <FollowRequest
-        userId={request.item.requester}
+        userId={item.requester}
         navigation={navigation}
         getRequests={getRequests}
       />

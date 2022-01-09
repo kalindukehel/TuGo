@@ -514,7 +514,8 @@ const Profile = (props) => {
             borderRadius: 30,
             marginVertical: 20,
             height: 70,
-            paddingLeft: leftSpacing
+            paddingLeft: leftSpacing,
+            marginHorizontal: 5
           }}
         >
          <GText style={{ fontWeight: "bold", color: Colors.text }}>

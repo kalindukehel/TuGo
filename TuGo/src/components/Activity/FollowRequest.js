@@ -4,7 +4,7 @@ import { useAuthState } from "../../context/authContext";
 import {
   getRequests as getRequestsAPI,
   manageRequest as manageRequestAPI,
-  by_ids as by_idsAPI,
+  getAccountById as getAccountByIdAPI,
 } from "../../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { API_URL, Colors } from "../../../constants";
@@ -55,8 +55,9 @@ const FollowRequest = (props) => {
   useEffect(() => {
     const getRequester = async () => {
       //Make API call to get username and get requester
-      const res = (await by_idsAPI([userId], userToken)).data[0];
-      setRequester(res);
+      const res = await getAccountByIdAPI(userId, userToken)
+      console.log(res.data)
+      setRequester(res.data);
     };
     getRequester();
   }, []);
@@ -76,6 +77,7 @@ const FollowRequest = (props) => {
   };
 
   return (
+    requester ?
     <View
       style={{
         flex: 1,
@@ -129,6 +131,7 @@ const FollowRequest = (props) => {
         </View>
       </View>
     </View>
+    : <></>
   );
 };
 export default FollowRequest;

@@ -39,7 +39,7 @@ const VideoSearchItem = (props) => {
           style={{
             width: 145,
             height: 90,
-            borderWidth: selected ? 3 : 0,
+            borderWidth: selected ? 6 : 0,
             borderRadius: 10,
             borderColor: selected ? outlineColor : "black",
             marginEnd: 10,

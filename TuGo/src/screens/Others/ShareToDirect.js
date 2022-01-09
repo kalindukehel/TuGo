@@ -259,7 +259,7 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
                 onChangeText={setMessage}
                 style={styles.messageInput}
                 placeholder="Write a message..."
-                placeholderTextColor={"white"}
+                placeholderTextColor={Colors.text}
               />
             </View>
           </View>
@@ -274,11 +274,12 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
                 value={query}
                 onChangeText={searchFilterFunction}
                 placeholder="Search"
-                placeholderTextColor={"white"}
+                placeholderTextColor={Colors.text}
               />
             </View>
             <FlatList
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{paddingBottom: insets.bottom}}
               style={{
                 height: height * (showFull ? 1 : 0.6) - 83.5 - 36 - 50,
                 marginTop: 5,
@@ -341,7 +342,6 @@ const styles = StyleSheet.create({
   messageInputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-
     paddingHorizontal: 15,
     minHeight: 50,
     width: "100%",
@@ -350,7 +350,7 @@ const styles = StyleSheet.create({
     minHeight: 30,
     width: width - 30 - 50,
     paddingHorizontal: 15,
-    color: "white",
+    color: Colors.text,
   },
   previewImage: {
     borderColor: "#ddd",
@@ -379,7 +379,7 @@ const styles = StyleSheet.create({
   searchInput: {
     height: "100%",
     width: width - 30 - 36 * 2,
-    color: "white",
+    color: Colors.text,
   },
   receiverItem: {
     flexDirection: "row",
@@ -641,7 +641,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           <GText
             style={{
               fontWeight: "500",
-              color: "#666",
+              color: Colors.text,
             }}
           >
             {user.username}
@@ -653,7 +653,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         style={{
           borderRadius: 10,
           padding: 6,
-          backgroundColor: sent ? Colors.gray : Colors.primary,
+          backgroundColor: sent ? 'transparent' : Colors.primary,
           width: 60,
           justifyContent: "center",
           alignItems: "center",
