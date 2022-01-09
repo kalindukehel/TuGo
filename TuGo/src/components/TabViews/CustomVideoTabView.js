@@ -14,6 +14,7 @@ import { Video } from "expo-av";
 import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
 import GText from "../GText"
+import * as VideoThumbnails from 'expo-video-thumbnails';
 
 var { width, height } = Dimensions.get("window");
 
@@ -21,21 +22,9 @@ const CustomVideoTabView = (props) => {
   const { setCustomVideos, customVideos, isMax } = props;
   const [videos, setVideos] = useState([]);
   const [status, setStatus] = useState({});
+  const [thumbnail, setThumbnail] = useState(null);
 
   const videosRef = useRef([]);
-
-  useEffect(() => {
-    // (async () => {
-    //   if (Platform.OS !== "web") {
-    //     const {
-    //       status,
-    //     } = await ImagePicker.requestMediaLibraryPermissionsAsync();
-    //     if (status !== "granted") {
-    //       alert("Sorry, we need camera roll permissions to make this work!");
-    //     }
-    //   }
-    // })();
-  }, []);
 
   const pickVideo = async () => {
     let result = await ImagePicker.launchImageLibraryAsync({
@@ -46,13 +35,20 @@ const CustomVideoTabView = (props) => {
     });
 
     if (!result.cancelled) {
+      const { uri } = await VideoThumbnails.getThumbnailAsync(
+        result.uri,
+        {
+          time: 15000,
+        }
+      );
       setCustomVideos([
         ...customVideos,
         {
-          isCustom: true,
+          is_youtube: true,
           width: result.width,
           height: result.height,
           uri: result.uri,
+          thumbnail: uri
         },
       ]);
     }

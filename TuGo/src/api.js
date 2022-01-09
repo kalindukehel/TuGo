@@ -753,6 +753,7 @@ export async function createPost(caption, postDetails, tiles, token) {
         is_youtube: false,
         custom_video_url: tiles[i].uri,
         view_count: 0,
+        image: tiles[i].thumbnail
       };
     }
     //Create tile object under created post

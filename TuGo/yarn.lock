@@ -8369,6 +8369,11 @@ expo-updates@~0.3.3:
     fbemitter "^2.1.1"
     uuid "^3.4.0"
 
+expo-video-thumbnails@~4.3.0:
+  version "4.3.0"
+  resolved "https://registry.yarnpkg.com/expo-video-thumbnails/-/expo-video-thumbnails-4.3.0.tgz#8381a73616a3c36604d8375d5b634d525a7f85a8"
+  integrity sha512-qe4bvSlTP0FNGbkg99vCo/kijSKXqXEFlLM3e5phArdmmY0c7NNevQRWHHQHSguGaKp7HBZ7LX0CyNAjiH8SpA==
+
 expo@^39.0.0:
   version "39.0.5"
   resolved "https://registry.yarnpkg.com/expo/-/expo-39.0.5.tgz#d2a37a65859c8c5c1821a49012548bdf541a4c7f"

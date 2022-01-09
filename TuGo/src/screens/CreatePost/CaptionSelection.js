@@ -45,7 +45,7 @@ const CaptionSelection = (props) => {
   const playerDispatch = usePlayerDispatch();
 
   const renderTile = ({ item }) => {
-    if (item.isCustom) {
+    if (item.is_youtube) {
       return (
         <View style={{ margin: (width - (3 * width) / 3.4) / 8  }}>
           <CustomVideoTile videosRef={videosRef} item={item}/>
