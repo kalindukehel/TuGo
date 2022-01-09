@@ -13,8 +13,8 @@ import * as ImagePicker from "expo-image-picker";
 import { Video } from "expo-av";
 import { Fontisto } from "@expo/vector-icons";
 import * as Haptics from "expo-haptics";
-import GText from "../GText"
-import * as VideoThumbnails from 'expo-video-thumbnails';
+import GText from "../GText";
+import * as VideoThumbnails from "expo-video-thumbnails";
 
 var { width, height } = Dimensions.get("window");
 
@@ -35,12 +35,10 @@ const CustomVideoTabView = (props) => {
     });
 
     if (!result.cancelled) {
-      const { uri } = await VideoThumbnails.getThumbnailAsync(
-        result.uri,
-        {
-          time: 15000,
-        }
-      );
+      const { uri } = await VideoThumbnails.getThumbnailAsync(result.uri, {
+        time: 15000,
+      });
+      console.log(result);
       setCustomVideos([
         ...customVideos,
         {
@@ -48,7 +46,7 @@ const CustomVideoTabView = (props) => {
           width: result.width,
           height: result.height,
           uri: result.uri,
-          thumbnail: uri
+          thumbnail: uri,
         },
       ]);
     }
@@ -90,8 +88,18 @@ const CustomVideoTabView = (props) => {
 
   return (
     <View style={styles.container}>
-      {isMax &&
-      <GText style={{color: Colors.close, textAlign: 'center', fontWeight: '200', fontSize: 15}}>Sorry, max attachments reached</GText>}
+      {isMax && (
+        <GText
+          style={{
+            color: Colors.close,
+            textAlign: "center",
+            fontWeight: "200",
+            fontSize: 15,
+          }}
+        >
+          Sorry, max attachments reached
+        </GText>
+      )}
       <FlatList
         data={customVideos}
         renderItem={renderVideo}
@@ -110,8 +118,20 @@ const CustomVideoTabView = (props) => {
           Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
         }}
       >
-        <View style={{...styles.actionButton, backgroundColor: isMax ? Colors.contrastGray:Colors.gray}}>
-          <GText style={{...styles.actionButtonText, color: isMax ? Colors.gray :Colors.complimentText,}}>View Gallery</GText>
+        <View
+          style={{
+            ...styles.actionButton,
+            backgroundColor: isMax ? Colors.contrastGray : Colors.gray,
+          }}
+        >
+          <GText
+            style={{
+              ...styles.actionButtonText,
+              color: isMax ? Colors.gray : Colors.complimentText,
+            }}
+          >
+            View Gallery
+          </GText>
         </View>
       </TouchableWithoutFeedback>
     </View>
@@ -121,7 +141,7 @@ const CustomVideoTabView = (props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    marginTop: 10
+    marginTop: 10,
   },
   video: {
     alignSelf: "center",

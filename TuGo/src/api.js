@@ -203,15 +203,15 @@ export async function addComment(token, id, data) {
 
 export async function deleteComment(postId, commentId, token) {
   const data = {
-    id: commentId
-  }
+    id: commentId,
+  };
   return axios.delete(`${API_URL}/api/posts/${postId}/comments/`, {
     headers: {
       Authorization: "Token " + token,
     },
     data: {
-      id: commentId
-    }
+      id: commentId,
+    },
   });
 }
 
@@ -234,8 +234,8 @@ export async function userLikes(token) {
 
 export async function searchPosts(token, query) {
   const data = {
-    search_query: query
-  }
+    search_query: query,
+  };
   return axios.post(`${API_URL}/api/posts/search_by_post/`, data, {
     headers: {
       Authorization: "Token " + token,
@@ -350,17 +350,17 @@ export async function postNotificationToken(data, token, id) {
 
 export async function postProfilePicture(data, token, id) {
   let formdata = new FormData();
-  formdata.append("profile_picture", {uri: data, name: 'image.jpg', type: 'image/jpeg'})
-  return axios.patch(
-    `${API_URL}/api/accounts/${id}/`,
-    formdata,
-    {
-      headers: {
-        Authorization: "Token " + token,
-        "Content-Type": "multipart/form-data",
-      },
-    }
-  );
+  formdata.append("profile_picture", {
+    uri: data,
+    name: "image.jpg",
+    type: "image/jpeg",
+  });
+  return axios.patch(`${API_URL}/api/accounts/${id}/`, formdata, {
+    headers: {
+      Authorization: "Token " + token,
+      "Content-Type": "multipart/form-data",
+    },
+  });
 }
 
 export async function deleteNotificationToken(token, id) {
@@ -461,8 +461,8 @@ export async function deleteTile(postId, tileId, token) {
       Authorization: "Token " + token,
     },
     data: {
-      id: tileId
-    }
+      id: tileId,
+    },
   });
 }
 
@@ -482,7 +482,7 @@ export async function editProfile(username, name, email, token) {
   let data = {
     username: username,
     name: name,
-    email: email
+    email: email,
   };
   if (username) {
     data = { ...data, username: username };
@@ -499,42 +499,48 @@ export async function editProfile(username, name, email, token) {
 }
 
 export async function isValidEmail(email) {
-  return axios.post(`${API_URL}/valid/`, 
+  return axios.post(
+    `${API_URL}/valid/`,
     {
       type: "email",
-      email: email
-    }  
-    , {
-    headers: {
-      "Content-Type": "application/json",
+      email: email,
     },
-  })
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 }
 
 export async function isValidUsername(username) {
-  return axios.post(`${API_URL}/valid/`, 
+  return axios.post(
+    `${API_URL}/valid/`,
     {
       type: "username",
-      username: username
-    }  
-    , {
-    headers: {
-      "Content-Type": "application/json",
+      username: username,
     },
-  })
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 }
 
 export async function isValidPassword(password) {
-  return axios.post(`${API_URL}/valid/`, 
+  return axios.post(
+    `${API_URL}/valid/`,
     {
       type: "password",
-      password: password
-    }  
-    , {
-    headers: {
-      "Content-Type": "application/json",
+      password: password,
     },
-  })
+    {
+      headers: {
+        "Content-Type": "application/json",
+      },
+    }
+  );
 }
 
 /* Non-Django API Functions */
@@ -729,11 +735,11 @@ export async function createPost(caption, postDetails, tiles, token) {
       "Content-Type": "application/json",
     },
   });
-
+  console.log(tiles);
   //For every string (YouTube ID) sent in as tiles, create a tile under created object
   for (let i = 0; i < tiles.length; i++) {
     let tileData = {};
-    if (tiles[i].is_youtube) {
+    if (false) {
       const videoId = tiles[i].video_id;
       const tileUrl = "https://www.youtube.com/watch?v=" + videoId;
       const tileThumbnail =
@@ -741,26 +747,40 @@ export async function createPost(caption, postDetails, tiles, token) {
       //Parse tileData from tile index
       tileData = {
         tile_type: "posted_choreo",
-        is_youtube: tiles[i].is_youtube,
+        is_youtube: "True",
         youtube_link: tileUrl,
         image: tileThumbnail,
         view_count: 0,
         youtube_video_url: videoId,
       };
     } else {
-      tileData = {
-        tile_type: "posted_choreo",
-        is_youtube: false,
-        custom_video_url: tiles[i].uri,
-        view_count: 0,
-        image: tiles[i].thumbnail
-      };
+      var data = new FormData();
+      data.append("tile_type", "posted_choreo");
+      data.append("is_youtube", "False");
+      data.append("image", "https://i.ytimg.com/vi/Kuz3DUNZaC8/mqdefault.jpg");
+      data.append("view_count", "0");
+
+      // data.append("custom_video_url", tiles[i].uri);
+      data.append("custom_video_url", {
+        uri: tiles[i].uri,
+        name: "video.mp4",
+        type: "video/mp4",
+      });
+      // tileData = {
+      //   tile_type: "posted_choreo",
+      //   is_youtube: "False",
+      //   custom_video_url: tiles[i].uri,
+      //   view_count: 0,
+      //   image: "https://i.ytimg.com/vi/Kuz3DUNZaC8/mqdefault.jpg",
+      //   // image: tiles[i].thumbnail,
+      // };
     }
+    console.log(data);
     //Create tile object under created post
-    await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, tileData, {
+    await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, data, {
       headers: {
         Authorization: "Token " + token,
-        "Content-Type": "application/json",
+        "Content-Type": "multipart/form-data",
       },
     });
   }
@@ -769,8 +789,8 @@ export async function createPost(caption, postDetails, tiles, token) {
 // S3
 export async function s3URL(token, key) {
   const data = {
-    key: key
-  }
+    key: key,
+  };
   return await axios.post(`${API_URL}/api/posts/get_url/`, data, {
     headers: {
       Authorization: "Token " + token,
