@@ -739,7 +739,7 @@ export async function createPost(caption, postDetails, tiles, token) {
   //For every string (YouTube ID) sent in as tiles, create a tile under created object
   for (let i = 0; i < tiles.length; i++) {
     let tileData = {};
-    if (false) {
+    if (tile.is_youtube) {
       const videoId = tiles[i].video_id;
       const tileUrl = "https://www.youtube.com/watch?v=" + videoId;
       const tileThumbnail =
@@ -757,25 +757,13 @@ export async function createPost(caption, postDetails, tiles, token) {
       var data = new FormData();
       data.append("tile_type", "posted_choreo");
       data.append("is_youtube", "False");
-      data.append("image", "https://i.ytimg.com/vi/Kuz3DUNZaC8/mqdefault.jpg");
       data.append("view_count", "0");
-
-      // data.append("custom_video_url", tiles[i].uri);
       data.append("custom_video_url", {
         uri: tiles[i].uri,
         name: "video.mp4",
         type: "video/mp4",
       });
-      // tileData = {
-      //   tile_type: "posted_choreo",
-      //   is_youtube: "False",
-      //   custom_video_url: tiles[i].uri,
-      //   view_count: 0,
-      //   image: "https://i.ytimg.com/vi/Kuz3DUNZaC8/mqdefault.jpg",
-      //   // image: tiles[i].thumbnail,
-      // };
     }
-    console.log(data);
     //Create tile object under created post
     await axios.post(`${API_URL}/api/posts/${res.data.id}/tiles/`, data, {
       headers: {

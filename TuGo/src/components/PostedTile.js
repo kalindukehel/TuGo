@@ -34,11 +34,11 @@ const PostedTile = (props) => {
   const [status, setStatus] = useState({});
   const [mediaUrl, setMediaUrl] = useState(null)
 
-  // useEffect(() => {
-  //   if (!tile.is_youtube){
-  //     getS3URL(substring)
-  //   }
-  // },[])
+  useEffect(() => {
+    if (!tile.is_youtube){
+      getS3URL()
+    }
+  },[])
 
   function getPosition(string, subString, index) {
     return string.split(subString, index).join(subString).length;
@@ -67,20 +67,21 @@ const PostedTile = (props) => {
   };
 
   return (
-    <View>
+      tile.is_youtube ?
+      <View>
       <TouchableWithoutFeedback onPress={()=> {
-          // tilePlayerDispatch({type: 'SHOW_TILE', id: youtube_id})
-          refRBSheet.current.open()
+        // tilePlayerDispatch({type: 'SHOW_TILE', id: youtube_id})
+        refRBSheet.current.open()
 
-        }}
+      }}
         onPressIn={imageAnimationIn}
         onPressOut={imageAnimationOut}
       >
           <View style={{width: width/3.4, height: width/5, alignItems: 'center', justifyContent: 'center'}}>
-            <Animated.Image style={{height: xy.y, width: xy.x, borderRadius: 10, borderWidth: 2}} source={{uri: tile.image}}/>
+            <Animated.Image style={{height: xy.y, width: xy.x, borderRadius: 10, borderWidth: 2, borderColor: Colors.primary}} source={{uri: tile.image}}/>
           </View>
       </TouchableWithoutFeedback>
-      {tile.is_youtube ? <RBSheet
+      <RBSheet
           closeOnDragDown
           onClose={() => getTileStates()}
           height={height}
@@ -100,7 +101,27 @@ const PostedTile = (props) => {
           }}
         >
           <TileRender url={tile.youtube_link} tileModal={refRBSheet} isAuthor={isAuthor} tileId={tile.id} postId={postId} isYoutube={true} /> 
-      </RBSheet> :
+      </RBSheet> 
+      </View> :
+      <View>
+      <TouchableWithoutFeedback onPress={()=> {
+        // tilePlayerDispatch({type: 'SHOW_TILE', id: youtube_id})
+        refRBSheet.current.open()
+
+      }}
+        onPressIn={imageAnimationIn}
+        onPressOut={imageAnimationOut}
+      >
+          <View style={{width: width/3.4, height: width/5, alignItems: 'center', justifyContent: 'center'}}>
+          <Video
+            ref={refRBSheet}
+            style={{width: "100%", height: '100%', borderColor: Colors.FG, borderWidth: 2, borderRadius: 10}}
+            source={{ uri: mediaUrl }} // Can be a URL or a local file.
+            resizeMode="contain"
+            onPlaybackStatusUpdate={(status) => {}}
+          ></Video>
+          </View>
+      </TouchableWithoutFeedback>
       <RBSheet
           onOpen={() => getS3URL()}
           onClose={() => getTileStates()}
@@ -121,9 +142,7 @@ const PostedTile = (props) => {
           }}
         >
           <View style={{backgroundColor: 'black', flex: 1}}>              
-            <Video   rate={1.0}
-              volume={1.0}
-              isMuted={false}
+            <Video
               resizeMode="cover"
               shouldPlay
               useNativeControls
@@ -131,7 +150,7 @@ const PostedTile = (props) => {
               source={{uri: mediaUrl}}
             />
           </View>
-      </RBSheet>}
+      </RBSheet>
     </View>
   );
 };

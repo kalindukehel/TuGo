@@ -221,7 +221,7 @@ const TileRender = ({ url, tileModal, isAuthor, tileId, postId, isYoutube=true }
                     WebViewRef && WebViewRef.reload();
                     }}
                 >
-                    <Foundation name="refresh" size={30} color={Colors.primary} />
+                    <Foundation name="refresh" size={30} color={Colors.primaryDark} />
                 </TouchableOpacity>
                 </View>
                 <WebView
