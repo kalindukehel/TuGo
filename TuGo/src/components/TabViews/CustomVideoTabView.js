@@ -42,7 +42,7 @@ const CustomVideoTabView = (props) => {
       setCustomVideos([
         ...customVideos,
         {
-          is_youtube: true,
+          is_youtube: false,
           width: result.width,
           height: result.height,
           uri: result.uri,

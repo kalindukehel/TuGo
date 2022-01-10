@@ -739,7 +739,7 @@ export async function createPost(caption, postDetails, tiles, token) {
   //For every string (YouTube ID) sent in as tiles, create a tile under created object
   for (let i = 0; i < tiles.length; i++) {
     let tileData = {};
-    if (tile.is_youtube) {
+    if (tiles[i].is_youtube) {
       const videoId = tiles[i].video_id;
       const tileUrl = "https://www.youtube.com/watch?v=" + videoId;
       const tileThumbnail =
