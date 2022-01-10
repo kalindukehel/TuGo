@@ -33,7 +33,7 @@ class Account(AbstractBaseUser, PermissionsMixin):
     username = models.CharField(max_length=20, unique=True, error_messages={'unique':'Username is taken.'})
     email = models.EmailField(max_length=30, unique=True, error_messages={'unique':'Email is already in use.'})
     name = models.CharField(max_length=30)
-    profile_picture = models.ImageField(upload_to='profilePictures/', default='/default.jpg')
+    profile_picture = models.ImageField(upload_to='profilePictures/', default='profilePictures/default.jpg')
     is_private = models.BooleanField(default=False)
 
     notification_token = models.CharField(max_length=50, unique=True, null=True, error_messages={'unique':'Token is already assigned.'})

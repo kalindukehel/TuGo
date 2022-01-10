@@ -380,9 +380,14 @@ class PostViewSet(viewsets.ModelViewSet):
                         return Response(status=status.HTTP_400_BAD_REQUEST)
                 return Response(status=status.HTTP_201_CREATED)
         else:
-            all_likes = self.get_object().likes.all()
-            serializer = LikeSerializer(all_likes,many=True)
-            return Response(serializer.data)
+            if(self.get_object().author.is_private == False or
+            self.get_object().author.followers.filter(follower=self.request.user).exists() or
+            self.get_object().author == self.request.user):
+                all_likes = self.get_object().likes.all()
+                serializer = LikeSerializer(all_likes,many=True)
+                return Response(serializer.data)
+            else:
+                return Response({"detail":"Private account."},status=HTTP_403_FORBIDDEN)
     
     @action(detail=True, methods=['GET','POST', 'DELETE'], serializer_class=CommentSerializer,pagination_class = StandardResultsSetPagination)
     def comments(self, request, *args, **kwargs): 
@@ -411,9 +416,15 @@ class PostViewSet(viewsets.ModelViewSet):
             else:
                 return Response({"detail":"Comment could not be deleted."},status=status.HTTP_400_BAD_REQUEST)
         else:
-            all_comments = self.get_object().comments.all()
-            serializer = CommentSerializer(all_comments,many=True)
-            return Response(serializer.data)
+            if(self.get_object().author.is_private == False or
+            self.get_object().author.followers.filter(follower=self.request.user).exists() or
+            self.get_object().author == self.request.user):
+                all_comments = self.get_object().comments.all()
+                serializer = CommentSerializer(all_comments,many=True)
+                return Response(serializer.data)
+            else:
+                return Response({"detail":"Private account."},status=HTTP_403_FORBIDDEN)
+
 
     @action(detail=True, methods=['GET','POST','DELETE'], serializer_class=TileSerializer )
     def tiles(self, request, *args, **kwargs): 
@@ -516,11 +527,36 @@ class PostViewSet(viewsets.ModelViewSet):
         liked = request.user.liked.all().order_by('-id')
         serializer = LikeSerializer(liked,many=True)
         return Response(serializer.data)
+
+    @action(detail=False, methods=['POST'])
+    def get_video_url(self, request, *args, **kwargs):
+        #Get presigned url
+        post_id = self.request.data.get('post_id')
+        tile_id = self.request.data.get('tile_id')
+        tile = Tile.objects.get(pk=tile_id)
+        post = Post.objects.get(pk=post_id)
+        key = tile.custom_video_url.file.obj.key
+        if not (post.author.is_private == False or
+        post.author.followers.filter(follower=self.request.user).exists() or
+        post.author == self.request.user):
+            return Response({"detail":"Private account."})
+        session = boto3.client(service_name='s3',
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+        )
+        x = session.generate_presigned_url(
+            'get_object',
+            Params={'Bucket': 'tugomedia', 'Key': key},
+            ExpiresIn=300)
+        return Response({'url':x})
+    
     
     @action(detail=False, methods=['POST'])
-    def get_url(self, request, *args, **kwargs):
+    def get_profile_picture_url(self, request, *args, **kwargs):
         #Get presigned url
-        key = self.request.data.get('key')
+        account_id = self.request.data.get('account_id')
+        account = Account.objects.get(pk=account_id)
+        key = account.profile_picture.file.obj.key
         session = boto3.client(service_name='s3',
             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
