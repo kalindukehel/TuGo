@@ -775,11 +775,27 @@ export async function createPost(caption, postDetails, tiles, token) {
 }
 
 // S3
-export async function s3URL(token, key) {
+export async function s3ImageURL(token, accountId) {
   const data = {
-    key: key,
+    account_id: accountId,
   };
-  return await axios.post(`${API_URL}/api/posts/get_url/`, data, {
+  return await axios.post(
+    `${API_URL}/api/posts/get_profile_picture_url/`,
+    data,
+    {
+      headers: {
+        Authorization: "Token " + token,
+      },
+    }
+  );
+}
+
+export async function s3VideoURL(token, postId, tileId) {
+  const data = {
+    post_id: postId,
+    tile_id: tileId,
+  };
+  return await axios.post(`${API_URL}/api/posts/get_video_url/`, data, {
     headers: {
       Authorization: "Token " + token,
     },

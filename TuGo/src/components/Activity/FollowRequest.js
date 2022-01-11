@@ -8,7 +8,7 @@ import {
 } from "../../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { API_URL, Colors } from "../../../constants";
-import GText from "../GText"
+import GText from "../GText";
 import ImageS3 from "../ImageS3";
 
 const styles = StyleSheet.create({
@@ -55,8 +55,8 @@ const FollowRequest = (props) => {
   useEffect(() => {
     const getRequester = async () => {
       //Make API call to get username and get requester
-      const res = await getAccountByIdAPI(userId, userToken)
-      console.log(res.data)
+      const res = await getAccountByIdAPI(userId, userToken);
+      console.log(res.data);
       setRequester(res.data);
     };
     getRequester();
@@ -76,8 +76,7 @@ const FollowRequest = (props) => {
     getRequests();
   };
 
-  return (
-    requester ?
+  return requester ? (
     <View
       style={{
         flex: 1,
@@ -96,10 +95,7 @@ const FollowRequest = (props) => {
           marginHorizontal: 15,
         }}
       >
-        <ImageS3
-          style={styles.profilePicture}
-          url={requester.profile_picture}
-        />
+        <ImageS3 style={styles.profilePicture} accountId={requester.id} />
       </TouchableOpacity>
       <View>
         <TouchableOpacity
@@ -131,7 +127,8 @@ const FollowRequest = (props) => {
         </View>
       </View>
     </View>
-    : <></>
+  ) : (
+    <></>
   );
 };
 export default FollowRequest;

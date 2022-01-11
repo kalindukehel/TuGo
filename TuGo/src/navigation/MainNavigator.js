@@ -51,7 +51,6 @@ const MainNavigator = () => {
   const responseListener = React.useRef();
 
   //aws create user if not in database
-  
 
   //notification listener
   useEffect(() => {
@@ -128,7 +127,7 @@ const MainNavigator = () => {
           const update = {
             id: userData.data.getUser.id,
             expoPushToken: token,
-            imageUri: self.profile_picture
+            imageUri: self.profile_picture,
           };
           const chatRoomData = await API.graphql(
             graphqlOperation(updateUser, { input: update })
@@ -167,15 +166,17 @@ const MainNavigator = () => {
             iconName = focused ? "md-home" : "md-home";
           } else if (route.name === "Profile") {
             return (
-              self && <ImageS3
-                url={self.profile_picture}
-                style={{
-                  width: 20,
-                  height: 20,
-                  borderRadius: 5,
-                  borderWidth: focused ? 1 : 0.5,
-                }}
-              ></ImageS3>
+              self && (
+                <ImageS3
+                  accountId={self.id}
+                  style={{
+                    width: 20,
+                    height: 20,
+                    borderRadius: 5,
+                    borderWidth: focused ? 1 : 0.5,
+                  }}
+                ></ImageS3>
+              )
             );
           } else if (route.name === "Explore") {
             iconName = focused ? "md-add-circle" : "md-add-circle-outline";

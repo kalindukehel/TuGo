@@ -16,7 +16,7 @@ import {
 
 import moment from "moment";
 import { Colors } from "../../../constants";
-import GText from "../GText"
+import GText from "../GText";
 import ImageS3 from "../ImageS3";
 
 var { width, height } = Dimensions.get("window");
@@ -50,7 +50,7 @@ const LikeActivity = (props) => {
             }}
           >
             <ImageS3
-              url={liker.profile_picture}
+              accountId={liker.id}
               style={{
                 width: 45,
                 height: 45,

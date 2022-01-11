@@ -16,7 +16,7 @@ import {
 
 import moment from "moment";
 import { Colors } from "../../../constants";
-import GText from "../GText"
+import GText from "../GText";
 import ImageS3 from "../ImageS3";
 
 var { width, height } = Dimensions.get("window");
@@ -64,7 +64,7 @@ const TagActivity = (props) => {
             }}
           >
             <ImageS3
-              url={tagger.profile_picture}
+              accountId={tagger.id}
               style={{
                 width: 45,
                 height: 45,
