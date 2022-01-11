@@ -223,6 +223,10 @@ class AccountViewSet(viewsets.ModelViewSet):
     @action(detail=False, methods=['GET'])
     def feed(self,request,*args,**kwargs):
         feed_posts = request.user.feed.all().order_by('-post')
+        page = self.paginate_queryset(feed_posts)
+        if page is not None:
+            serializer = FeedSerializer(page,many=True)
+            return self.get_paginated_response(serializer.data)
         serializer = FeedSerializer(feed_posts,many=True)
         return Response(serializer.data)
 
