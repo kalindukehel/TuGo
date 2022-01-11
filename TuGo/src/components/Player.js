@@ -40,7 +40,7 @@ const Player = (props) => {
   let tileColor = color ? color : "#ffffff00";
   const { playingId, stopAll, trackId } = usePlayerState();
   const playerDispatch = usePlayerDispatch();
-
+  
   const [refreshing, setRefreshing] = useState(false);
   const [isSeeking, setIsSeeking] = useState(false);
   const [sliderValue, setSliderValue] = useState(0);
@@ -230,7 +230,7 @@ const Player = (props) => {
               </TextTicker>
             </TouchableWithoutFeedback>
 
-            <TextTicker
+            {title && <TextTicker
               style={{
                 fontWeight: "bold",
                 height: 20,
@@ -243,7 +243,7 @@ const Player = (props) => {
               shouldAnimateTreshold={40}
             >
               {title.length > 32 ? title.substring(0, 32 - 3) + "..." : title}
-            </TextTicker>
+            </TextTicker>}
           </View>
         </View>
         <Slider

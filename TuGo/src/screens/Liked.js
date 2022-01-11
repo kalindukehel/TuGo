@@ -36,9 +36,7 @@ const Liked = ({navigation}) => {
 
     const renderItem = ({ item }) => {
         return (
-          <View style={{height: width/2, width: width/2, }}>
             <SongBlock postId={item.post} navigation={navigation} columns={2} blockHeight={160} blockWidth={160}/>
-          </View>
         );
     };
 

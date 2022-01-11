@@ -76,7 +76,8 @@ import ShareToDirect from "../screens/Others/ShareToDirect";
 import TileRender from "../screens/Others/TileRender";
 import { useTilePlayerDispatch } from "../context/tilePlayerContext";
 import PostedTile from "./PostedTile";
-import GText from "./GText"
+import GText from "./GText";
+import ImageS3 from "./ImageS3";
 
 var { width, height } = Dimensions.get("window");
 
@@ -131,21 +132,20 @@ const PostComponent = ({
   const playingIdRef = useRef();
   const tilesRef = useRef();
 
-
-  async function getTileStates(){
+  async function getTileStates() {
     const tilesRes = await getPostTilesAPI(userToken, postId);
     setTiles(tilesRes.data);
   }
 
-  async function getCommentStates(){
+  async function getCommentStates() {
     const commentsRes = await getPostCommentsAPI(userToken, postId);
     setComments(commentsRes.data);
   }
 
   useEffect(() => {
-    const unsubscribe = navigation.addListener('focus', () => {
+    const unsubscribe = navigation.addListener("focus", () => {
       // The screen is focused
-      getCommentStates()
+      getCommentStates();
     });
 
     // Return the function to unsubscribe from the event so it gets removed on unmount
@@ -162,7 +162,8 @@ const PostComponent = ({
           const postRes = await getPostByIdAPI(userToken, postId);
           isMounted && setPost(postRes.data);
           postRef.current = postRes.data;
-          isMounted && setIsSelf(postRes.data.author === self.id ? true : false);
+          isMounted &&
+            setIsSelf(postRes.data.author === self.id ? true : false);
           const likesRes = await getPostLikesAPI(userToken, postId);
           isMounted && setLikes(likesRes.data);
           const commentsRes = await getPostCommentsAPI(userToken, postId);
@@ -254,10 +255,10 @@ const PostComponent = ({
 
   const renderScene = ({ route }) => {
     switch (route.key) {
-      case 'first':
-        return <DanceChoreosTabView inCreatePost={false} song={post} />
-      case 'second':
-        return <VoiceCoversTabView inCreatePost={false} song={post} />
+      case "first":
+        return <DanceChoreosTabView inCreatePost={false} song={post} />;
+      case "second":
+        return <VoiceCoversTabView inCreatePost={false} song={post} />;
       default:
         return null;
     }
@@ -372,19 +373,15 @@ const PostComponent = ({
             }}
           >
             <View style={{ flexDirection: "row", alignItems: "center" }}>
-              <Image
-                source={{
-                  uri: author
-                    ? author.profile_picture
-                    : API_URL + "/media/default.jpg",
-                }}
+              <ImageS3
+                accountId={author.id}
                 style={{
                   width: 30,
                   height: 30,
                   borderRadius: 20,
                   marginRight: 5,
                 }}
-              ></Image>
+              ></ImageS3>
               <GText style={{ fontWeight: "bold", color: Colors.text }}>
                 {author ? author.username : ""}
               </GText>
@@ -545,7 +542,7 @@ const PostComponent = ({
                 style={{
                   justifyContent: "center",
                   alignItems: "center",
-                  height: Math.ceil(post.video_count/3) * (width/5),
+                  height: Math.ceil(post.video_count / 3) * (width / 5),
                   marginVertical: 10,
                 }}
               >
@@ -729,7 +726,7 @@ const PostComponent = ({
               });
             }}
           >
-            <GText style={{ color: Colors.text}}>
+            <GText style={{ color: Colors.text }}>
               {likes
                 ? likes.length == 1
                   ? likes.length + ` like`

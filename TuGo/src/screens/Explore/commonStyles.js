@@ -29,8 +29,6 @@ const styles = StyleSheet.create({
     textInputViewStyle: {
       height: 30,
       borderRadius: 7,
-      borderColor: "black",
-      borderWidth: 1,
       marginHorizontal: 20,
       marginTop: 20,
       width: "50%",

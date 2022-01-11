@@ -4,11 +4,12 @@ import { useAuthState } from "../../context/authContext";
 import {
   getRequests as getRequestsAPI,
   manageRequest as manageRequestAPI,
-  by_ids as by_idsAPI,
+  getAccountById as getAccountByIdAPI,
 } from "../../api";
 import { TouchableOpacity } from "react-native-gesture-handler";
 import { API_URL, Colors } from "../../../constants";
-import GText from "../GText"
+import GText from "../GText";
+import ImageS3 from "../ImageS3";
 
 const styles = StyleSheet.create({
   acceptButton: {
@@ -54,8 +55,9 @@ const FollowRequest = (props) => {
   useEffect(() => {
     const getRequester = async () => {
       //Make API call to get username and get requester
-      const res = (await by_idsAPI([userId], userToken)).data[0];
-      setRequester(res);
+      const res = await getAccountByIdAPI(userId, userToken);
+      console.log(res.data);
+      setRequester(res.data);
     };
     getRequester();
   }, []);
@@ -74,7 +76,7 @@ const FollowRequest = (props) => {
     getRequests();
   };
 
-  return (
+  return requester ? (
     <View
       style={{
         flex: 1,
@@ -93,14 +95,7 @@ const FollowRequest = (props) => {
           marginHorizontal: 15,
         }}
       >
-        <Image
-          style={styles.profilePicture}
-          source={
-            requester
-              ? { uri: API_URL + requester.profile_picture }
-              : { uri: API_URL + "/media/default.jpg" }
-          }
-        />
+        <ImageS3 style={styles.profilePicture} accountId={requester.id} />
       </TouchableOpacity>
       <View>
         <TouchableOpacity
@@ -132,6 +127,8 @@ const FollowRequest = (props) => {
         </View>
       </View>
     </View>
+  ) : (
+    <></>
   );
 };
 export default FollowRequest;

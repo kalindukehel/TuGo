@@ -312,7 +312,7 @@ const ChatInputBox = (props) => {
                     <MaterialCommunityIcons
                       name="send-circle"
                       size={30}
-                      color={message ? Colors.primary : Colors.FG}
+                      color={message ? Colors.FG : Colors.gray}
                     />
                 </View>
               </TouchableOpacity>

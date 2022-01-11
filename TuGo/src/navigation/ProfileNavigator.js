@@ -50,6 +50,7 @@ const ProfileNavigator = ({ id, fromMyProfile }) => {
           headerStyle: {
             backgroundColor: Colors.Header,
           },
+          headerShown: false,
           headerBackTitleVisible: false,
           headerTintColor: Colors.text,
           headerTitleStyle: {

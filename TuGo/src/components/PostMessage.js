@@ -15,28 +15,31 @@ import {
   getAccountById as getAccountByIdAPI,
 } from "../api";
 import { TouchableWithoutFeedback } from "react-native-gesture-handler";
-import GText from "./GText"
+import GText from "./GText";
+import ImageS3 from "./ImageS3";
 
 const PostMessage = ({ message, navigation }) => {
   const { userToken, self } = useAuthState();
   const [post, setPost] = useState(null);
-  const [error, setError] = useState(null)
+  const [error, setError] = useState(null);
   const [loadingPost, setLoadingPost] = useState(false);
   const [author, setAuthor] = useState(null);
-  const [isViewable, setIsViewable] = useState(false)
+  const [isViewable, setIsViewable] = useState(false);
 
   useEffect(() => {
     setLoadingPost(true);
     async function getPost() {
-      try{
-      const postRes = await getPostByIdAPI(userToken, message.content);
-      if (postRes.data.isViewable !== false) setIsViewable(true)
-      setPost(postRes.data);
-      const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
-      setAuthor(authorRes.data);
-      }
-      catch(e){
-        setError('Post has been Deleted.')
+      try {
+        const postRes = await getPostByIdAPI(userToken, message.content);
+        if (postRes.data.isViewable !== false) setIsViewable(true);
+        setPost(postRes.data);
+        const authorRes = await getAccountByIdAPI(
+          postRes.data.author,
+          userToken
+        );
+        setAuthor(authorRes.data);
+      } catch (e) {
+        setError("Post has been Deleted.");
       }
     }
     getPost();
@@ -52,9 +55,9 @@ const PostMessage = ({ message, navigation }) => {
         justifyContent: isMyMessage() ? "flex-end" : "flex-start",
       }}
     >
-      {!isMyMessage() && (            
+      {!isMyMessage() && (
         <TouchableWithoutFeedback
-          onPress={()=>{
+          onPress={() => {
             navigation.push("Profile", {
               id: author.id,
             });
@@ -90,8 +93,8 @@ const PostMessage = ({ message, navigation }) => {
                 height: 40,
               }}
             >
-              <Image
-                source={{ uri: author.profile_picture }}
+              <ImageS3
+                accountId={author.id}
                 style={{ borderRadius: 999, height: 25, width: 25 }}
               />
               <GText style={{ color: Colors.text, marginLeft: 10 }}>
@@ -110,30 +113,35 @@ const PostMessage = ({ message, navigation }) => {
                 });
               }}
             >
-              <View 
+              <View
                 style={{
                   ...styles.image,
                   alignItems: "center",
                   justifyContent: "center",
                 }}
               >
-                {isViewable ? 
-                <Image style={styles.image} source={{ uri: post.album_cover }} /> : 
-                <View 
-                style={styles.errorView}>
-                  <GText style={{color: Colors.text, fontSize: 12}}>Post is private, follow to see.</GText>
-                </View>}
+                {isViewable ? (
+                  <Image
+                    style={styles.image}
+                    source={{ uri: post.album_cover }}
+                  />
+                ) : (
+                  <View style={styles.errorView}>
+                    <GText style={{ color: Colors.text, fontSize: 12 }}>
+                      Post is private, follow to see.
+                    </GText>
+                  </View>
+                )}
               </View>
             </TouchableWithoutFeedback>
             {/* <GText style={styles.time}>{moment(message.createdAt).fromNow()}</GText> */}
           </View>
         ) : error ? (
-          <View 
-            style={styles.errorView}>
-            <GText style={{color: Colors.text, fontSize: 12}}>{error}</GText>
+          <View style={styles.errorView}>
+            <GText style={{ color: Colors.text, fontSize: 12 }}>{error}</GText>
           </View>
         ) : (
-          <View style={{ height: 190, width: 150, justifyContent: 'center' }}>
+          <View style={{ height: 190, width: 150, justifyContent: "center" }}>
             <ActivityIndicator
               animating={true}
               size="small"
@@ -170,13 +178,13 @@ const styles = StyleSheet.create({
     color: "grey",
   },
   errorView: {
-    height: 150, 
-    width: 150, 
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderRadius: 10, 
-    backgroundColor: Colors.contrastGray
-  }
+    height: 150,
+    width: 150,
+    justifyContent: "center",
+    alignItems: "center",
+    borderRadius: 10,
+    backgroundColor: Colors.contrastGray,
+  },
 });
 
 export default PostMessage;

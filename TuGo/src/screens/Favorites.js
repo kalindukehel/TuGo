@@ -30,6 +30,7 @@ const Favorites = ({ navigation }) => {
   async function getSongsState() {
     const songsState = await getSavedSongsAPI(userToken);
     setSongs(songsState.data);
+    console.log(songsState.data)
   }
 
   const onRefresh = React.useCallback(() => {

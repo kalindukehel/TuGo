@@ -13,7 +13,7 @@ import {
   Keyboard,
   Platform,
   ActivityIndicator,
-  Alert
+  Alert,
 } from "react-native";
 import {
   getPostComments as getPostCommentsAPI,
@@ -24,7 +24,7 @@ import {
   pushNotification as pushNotificationAPI,
   getAccounts as getAccountsAPI,
   addTag as addTagAPI,
-  deleteComment as deleteCommentAPI
+  deleteComment as deleteCommentAPI,
 } from "../api";
 import { useAuthState } from "../context/authContext";
 import { API_URL, Length } from "../../constants";
@@ -48,8 +48,9 @@ import {
 } from "react-native-controlled-mentions";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import * as Haptics from "expo-haptics";
-import GText from "../components/GText"
+import GText from "../components/GText";
 import { useKeyboard } from "../components/UseKeyboard";
+import ImageS3 from "../components/ImageS3";
 
 var { width, height } = Dimensions.get("window");
 
@@ -73,43 +74,44 @@ const Comments = (props) => {
   const insets = useSafeAreaInsets();
 
   //pagination
-  const [isLoading, setIsLoading] = useState(false)
-  const [next, setNext] = useState(API_URL + "/api/accounts/?page=" + 1)
+  const [isLoading, setIsLoading] = useState(false);
+  const [next, setNext] = useState(API_URL + "/api/accounts/?page=" + 1);
 
-  useEffect(()=> {
-    if(next) {
-      setIsLoading(true)
-      getData()
+  useEffect(() => {
+    if (next) {
+      setIsLoading(true);
+      getData();
     }
-  },[])
+  }, []);
 
   async function getData() {
     const response = await getAccountsAPI(userToken, next);
-    setAccounts(accounts.concat(response.data.results))
-    setNext(response.data.next)
-    setIsLoading(false)
+    setAccounts(accounts.concat(response.data.results));
+    setNext(response.data.next);
+    setIsLoading(false);
   }
 
   const handleLoadMore = () => {
-    setIsLoading(true)
-    getData()
-  }
+    setIsLoading(true);
+    getData();
+  };
 
   const getFooter = () => {
     return (
-      isLoading &&
-      <View style={styles.loader}>
-        <ActivityIndicator size='small'/>
-      </View>
-    )
-  }
+      isLoading && (
+        <View style={styles.loader}>
+          <ActivityIndicator size="small" />
+        </View>
+      )
+    );
+  };
 
   useEffect(() => {
     const getAccounts = async () => {
       //check if searched text is not empty
-      const url = API_URL + "/api/accounts/?page=" + 1
+      const url = API_URL + "/api/accounts/?page=" + 1;
       const searchRes = await getAccountsAPI(userToken, next);
-      setNext(searchRes.data.next)
+      setNext(searchRes.data.next);
       setAccounts(
         searchRes.data.results.map((account) => ({
           id: account.id,
@@ -165,71 +167,70 @@ const Comments = (props) => {
       }
 
       return (
-          <FlatList
-            style={{
-              backgroundColor: Colors.contrastGray,
-              position: "absolute",
-              bottom: 40,
-              left: 0,
-              right: 0,
-              maxHeight: (height - keyboardHeight) * 0.7,
-              borderRadius: 10,
-            }}
-            keyboardShouldPersistTaps={'always'}
-            data={suggestions
-              .filter((one) =>
-                one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())
-              )}
-            renderItem={({item})=>{
-              return (
-                <TouchableWithoutFeedback
-                  key={item.id}
-                  onPress={() => {
-                    onSuggestionPress(item)}
-                  }
+        <FlatList
+          style={{
+            backgroundColor: Colors.contrastGray,
+            position: "absolute",
+            bottom: 40,
+            left: 0,
+            right: 0,
+            maxHeight: (height - keyboardHeight) * 0.7,
+            borderRadius: 10,
+          }}
+          keyboardShouldPersistTaps={"always"}
+          data={suggestions.filter((one) =>
+            one.name.toLocaleLowerCase().includes(keyword.toLocaleLowerCase())
+          )}
+          renderItem={({ item }) => {
+            return (
+              <TouchableWithoutFeedback
+                key={item.id}
+                onPress={() => {
+                  onSuggestionPress(item);
+                }}
+              >
+                <View
+                  style={{
+                    padding: 12,
+                    flexDirection: "row",
+                    alignItems: "center",
+                  }}
                 >
-                  <View 
+                  <ImageS3
+                    accountId={item.id}
                     style={{
-                      padding: 12,
-                      flexDirection: "row",
-                      alignItems: "center",
+                      width: 20,
+                      height: 20,
+                      borderRadius: 999,
+                      marginRight: 10,
                     }}
-                  >
-                    <Image
-                      source={{ uri: item.profile_picture }}
-                      style={{
-                        width: 20,
-                        height: 20,
-                        borderRadius: 999,
-                        marginRight: 10,
-                      }}
-                    />
-                    <GText style={{ color: Colors.FG }}>{item.name}</GText>
-                  </View>
-                </TouchableWithoutFeedback>
-              );
-            }}
-            keyExtractor={(item) => item.id.toString()}
-            onEndReachedThreshold={0}
-            ListFooterComponent={getFooter}
-            onEndReached={() => {
-              if(next && !isLoading) handleLoadMore();
-            }}
-          />
+                  />
+                  <GText style={{ color: Colors.FG }}>{item.name}</GText>
+                </View>
+              </TouchableWithoutFeedback>
+            );
+          }}
+          keyExtractor={(item) => item.id.toString()}
+          onEndReachedThreshold={0}
+          ListFooterComponent={getFooter}
+          onEndReached={() => {
+            if (next && !isLoading) handleLoadMore();
+          }}
+        />
       );
     };
 
-    async function getPostStates() {
-      const postRes = await getPostByIdAPI(userToken, postId);
-      setPost(postRes.data);
-      const commentsRes = await getPostCommentsAPI(userToken, postId);
-      list = commentsRes.data.map((item) => item.author);
-      setMasterData(commentsRes.data);
-      const commentAuthorsRes = await by_idsAPI(list, userToken);
-      setCommentAccounts(commentAuthorsRes.data);
-      const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
-      setAuthor(authorRes.data);
-    }
+  async function getPostStates() {
+    const postRes = await getPostByIdAPI(userToken, postId);
+    setPost(postRes.data);
+    const commentsRes = await getPostCommentsAPI(userToken, postId);
+    list = commentsRes.data.map((item) => item.author);
+    setMasterData(commentsRes.data);
+    const commentAuthorsRes = await by_idsAPI(list, userToken);
+    setCommentAccounts(commentAuthorsRes.data);
+    const authorRes = await getAccountByIdAPI(postRes.data.author, userToken);
+    setAuthor(authorRes.data);
+  }
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
@@ -248,7 +249,7 @@ const Comments = (props) => {
 
   async function onDeleteComment(commentId) {
     const res = await deleteCommentAPI(postId, commentId, userToken);
-    await getPostStates()
+    await getPostStates();
   }
 
   async function sendComment() {
@@ -257,7 +258,7 @@ const Comments = (props) => {
       if (author.notification_token != self.notification_token) {
         const notifRes = await pushNotificationAPI(
           author.notification_token,
-          {creator: self.username},
+          { creator: self.username },
           "comment"
         );
       }
@@ -280,7 +281,7 @@ const Comments = (props) => {
           ) {
             const notifRes = await pushNotificationAPI(
               account.notification_token,
-              {creator: self.username},
+              { creator: self.username },
               "tag"
             );
           }
@@ -334,7 +335,13 @@ const Comments = (props) => {
     ]);
     return (
       <View style={styles.comment}>
-        <View style={{flexDirection: 'row', alignItems: 'center', width: isSelf ? 0.8*width : 0.9*width}}>
+        <View
+          style={{
+            flexDirection: "row",
+            alignItems: "center",
+            width: isSelf ? 0.8 * width : 0.9 * width,
+          }}
+        >
           <TouchableOpacity
             style={{ flexDirection: "row", alignItems: "center" }}
             onPress={() => {
@@ -343,10 +350,15 @@ const Comments = (props) => {
               });
             }}
           >
-            <Image
-              source={{ uri: API_URL + curAccount.profile_picture }}
-              style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
-            ></Image>
+            <ImageS3
+              url={curAccount.profile_picture}
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 20,
+                marginRight: 5,
+              }}
+            ></ImageS3>
           </TouchableOpacity>
           <GText
             style={{
@@ -356,52 +368,59 @@ const Comments = (props) => {
               color: Colors.text,
             }}
           >
-            <GText style={styles.authorName}>{curAccount.username + `: `}</GText>
-            <GText style={{ color: Colors.text }}>{parts.map(renderPart)}</GText>
+            <GText style={styles.authorName}>
+              {curAccount.username + `: `}
+            </GText>
+            <GText style={{ color: Colors.text }}>
+              {parts.map(renderPart)}
+            </GText>
           </GText>
         </View>
-        {isSelf &&
-        <TouchableWithoutFeedback style={{}} onPress={() => {
-          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
-          deleteConfirmation(item.id)
-        }}>
-          <View
-            style={{paddingHorizontal: 5}}>
-            <AntDesign name="close" size={16} color={Colors.FG} />
-          </View>
-        </TouchableWithoutFeedback>
-        
-        }
+        {isSelf && (
+          <TouchableWithoutFeedback
+            style={{}}
+            onPress={() => {
+              Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+              deleteConfirmation(item.id);
+            }}
+          >
+            <View style={{ paddingHorizontal: 5 }}>
+              <AntDesign name="close" size={16} color={Colors.FG} />
+            </View>
+          </TouchableWithoutFeedback>
+        )}
       </View>
     );
   };
 
   const header = () => {
     return (
-      post.caption !== '' &&
-      <View style={styles.caption}>
-        <TouchableOpacity
-          style={{ flexDirection: "row", alignItems: "center" }}
-          onPress={() => {
-            navigation.push("Profile", {
-              id: author.id,
-            });
-          }}
-        >
-          <Image
-            source={{
-              uri: author
-                ? author.profile_picture
-                : API_URL + "/media/default.jpg",
+      post.caption !== "" && (
+        <View style={styles.caption}>
+          <TouchableOpacity
+            style={{ flexDirection: "row", alignItems: "center" }}
+            onPress={() => {
+              navigation.push("Profile", {
+                id: author.id,
+              });
             }}
-            style={{ width: 30, height: 30, borderRadius: 20, marginRight: 5 }}
-          ></Image>
-        </TouchableOpacity>
-        <GText style={{ flexWrap: "wrap", marginRight: 20, marginLeft: 10 }}>
-          <GText style={styles.authorName}>{author.username + `: `}</GText>
-          <GText style={{ color: Colors.text }}>{post.caption}</GText>
-        </GText>
-      </View>
+          >
+            <Image
+              url={author.profile_picture}
+              style={{
+                width: 30,
+                height: 30,
+                borderRadius: 20,
+                marginRight: 5,
+              }}
+            ></Image>
+          </TouchableOpacity>
+          <GText style={{ flexWrap: "wrap", marginRight: 20, marginLeft: 10 }}>
+            <GText style={styles.authorName}>{author.username + `: `}</GText>
+            <GText style={{ color: Colors.text }}>{post.caption}</GText>
+          </GText>
+        </View>
+      )
     );
   };
 
@@ -413,7 +432,7 @@ const Comments = (props) => {
       <View style={styles.container}>
         <FlatList
           keyboardDismissMode="interactive"
-          contentContainerStyle={{ flexGrow: 1}}
+          contentContainerStyle={{ flexGrow: 1 }}
           data={masterData}
           keyExtractor={(item, index) => index.toString()}
           refreshControl={
@@ -459,7 +478,7 @@ const Comments = (props) => {
               disabled={!canSendComment}
               style={{
                 opacity: canSendComment ? 1 : 0.5,
-                marginBottom: 3
+                marginBottom: 3,
               }}
               onPress={sendComment}
             >
@@ -502,7 +521,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 20,
     paddingVertical: 15,
     borderRadius: 20,
-    justifyContent: 'space-between'
+    justifyContent: "space-between",
   },
   commentBar: {
     color: Colors.text,
@@ -516,12 +535,12 @@ const styles = StyleSheet.create({
     backgroundColor: Colors.contrastGray,
     borderRadius: 20,
     margin: 5,
-    maxHeight: 100
+    maxHeight: 100,
   },
   loader: {
-    alignItems: 'center',
-    justifyContent: 'center'
-  }
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });
 
 export default Comments;

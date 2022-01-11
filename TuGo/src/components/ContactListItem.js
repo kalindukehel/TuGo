@@ -16,7 +16,8 @@ import {
 import { listUsers } from "../../src/graphql/queries";
 import { useAuthState } from "../context/authContext";
 import { getUser } from "../screens/Direct/queries";
-import GText from "./GText"
+import GText from "./GText";
+import ImageS3 from "./ImageS3";
 
 var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
@@ -55,13 +56,16 @@ const ContactListItem = (props) => {
       for (var index in activeChatRooms) {
         const currChatRoom = activeChatRooms[index];
         let otherUser;
-        if (currChatRoom.chatRoom.chatRoomUsers.items[0].user !== null && currChatRoom.chatRoom.chatRoomUsers.items[1].user !== null){
+        if (
+          currChatRoom.chatRoom.chatRoomUsers.items[0].user !== null &&
+          currChatRoom.chatRoom.chatRoomUsers.items[1].user !== null
+        ) {
           if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
             otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
           } else {
             otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
           }
-          if (otherUser && (otherUser.id == account.id)) {
+          if (otherUser && otherUser.id == account.id) {
             existingChatRoomId = currChatRoom.chatRoomID;
             break;
           }
@@ -79,7 +83,7 @@ const ContactListItem = (props) => {
           graphqlOperation(createChatRoom, {
             input: {
               lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
-              seen: []
+              seen: [],
             },
           })
         );
@@ -129,15 +133,15 @@ const ContactListItem = (props) => {
           alignContent: "center",
         }}
       >
-        <Image
-          source={{ uri: API_URL + account.profile_picture }}
+        <ImageS3
+          accountId={account.id}
           style={{
             width: height / 20,
             height: height / 20,
             borderRadius: 999,
             borderWidth: 1,
           }}
-        ></Image>
+        ></ImageS3>
         <View
           style={{
             flexDirection: "column",

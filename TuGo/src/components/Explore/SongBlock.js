@@ -198,6 +198,7 @@ const SongBlock = (props) => {
 
   return (
     post && post.isViewable === true && (
+      <View style={{height: width/2, width: width/2, }}>
       <ImageBackground 
         style={{
           height: '100%', 
@@ -313,6 +314,7 @@ const SongBlock = (props) => {
             </View>
         </TouchableWithoutFeedback>
       </ImageBackground>
+      </View>
     )
   );
 };

@@ -325,7 +325,7 @@ const Artist = (props) => {
               style={styles.textInputStyle}
               defaultValue={search}
               placeholder="Search Top Songs..."
-              placeholderTextColor={"white"}
+              placeholderTextColor={Colors.text}
               clearButtonMode="always"
               onFocus={() => {
                 scrollToTextInput();

@@ -25,7 +25,7 @@ import {
   searchUsers as searchUsersAPI,
   getAccounts as getAccountsAPI,
   viewableUsers as viewableUsersAPI,
-  pushNotification as pushNotificationAPI
+  pushNotification as pushNotificationAPI,
 } from "../../api";
 import { API, graphqlOperation } from "aws-amplify";
 import {
@@ -36,11 +36,12 @@ import {
 } from "../../graphql/mutations";
 import { getChatRoom, getUser } from "../Direct/queries";
 import { listUsers } from "../../graphql/queries";
-import GText from "../../components/GText"
+import GText from "../../components/GText";
 
 //icons
 import { Feather } from "@expo/vector-icons";
 import { Colors, API_URL } from "../../../constants";
+import ImageS3 from "../../components/ImageS3";
 
 var { width, height } = Dimensions.get("window");
 
@@ -65,17 +66,19 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
     const fetchUsers = async () => {
       //get users from aws database
       try {
-        const allUsersData = await viewableUsersAPI(userToken)
-        const filteredList = allUsersData.data.filter(item => item.id !== self.id)
+        const allUsersData = await viewableUsersAPI(userToken);
+        const filteredList = allUsersData.data.filter(
+          (item) => item.id !== self.id
+        );
         setSuggestionList(filteredList);
-        setReceiverList(filteredList)
+        setReceiverList(filteredList);
       } catch (e) {
         console.log(e);
       }
     };
     fetchUsers();
   }, []);
-  
+
   const searchFilterFunction = (text) => {
     // Check if searched text is not blank
     if (text) {
@@ -258,7 +261,7 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
                 onChangeText={setMessage}
                 style={styles.messageInput}
                 placeholder="Write a message..."
-                placeholderTextColor={"white"}
+                placeholderTextColor={Colors.text}
               />
             </View>
           </View>
@@ -273,11 +276,12 @@ const ShareToDirect = ({ shareItem, shareModal }) => {
                 value={query}
                 onChangeText={searchFilterFunction}
                 placeholder="Search"
-                placeholderTextColor={"white"}
+                placeholderTextColor={Colors.text}
               />
             </View>
             <FlatList
               showsVerticalScrollIndicator={false}
+              contentContainerStyle={{ paddingBottom: insets.bottom }}
               style={{
                 height: height * (showFull ? 1 : 0.6) - 83.5 - 36 - 50,
                 marginTop: 5,
@@ -340,7 +344,6 @@ const styles = StyleSheet.create({
   messageInputWrapper: {
     flexDirection: "row",
     alignItems: "center",
-
     paddingHorizontal: 15,
     minHeight: 50,
     width: "100%",
@@ -349,7 +352,7 @@ const styles = StyleSheet.create({
     minHeight: 30,
     width: width - 30 - 50,
     paddingHorizontal: 15,
-    color: "white",
+    color: Colors.text,
   },
   previewImage: {
     borderColor: "#ddd",
@@ -378,7 +381,7 @@ const styles = StyleSheet.create({
   searchInput: {
     height: "100%",
     width: width - 30 - 36 * 2,
-    color: "white",
+    color: Colors.text,
   },
   receiverItem: {
     flexDirection: "row",
@@ -430,18 +433,20 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         for (var index in activeChatRooms) {
           const currChatRoom = activeChatRooms[index];
           let otherUser = null;
-          if(currChatRoom.chatRoom.chatRoomUsers.items[0].user != null){
-            if (currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id) {
+          if (currChatRoom.chatRoom.chatRoomUsers.items[0].user != null) {
+            if (
+              currChatRoom.chatRoom.chatRoomUsers.items[0].user.id == self.id
+            ) {
               otherUser = currChatRoom.chatRoom.chatRoomUsers.items[1].user;
             } else {
               otherUser = currChatRoom.chatRoom.chatRoomUsers.items[0].user;
             }
           }
           if (otherUser)
-          if (otherUser.id == user.id) {
-            existingChatRoomId = currChatRoom.chatRoomID;
-            break;
-          }
+            if (otherUser.id == user.id) {
+              existingChatRoomId = currChatRoom.chatRoomID;
+              break;
+            }
         }
         if (existingChatRoomId) {
           const msg = {
@@ -454,13 +459,19 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
 
           // get receiver's push token
           const chatRoomData = await API.graphql(
-            graphqlOperation( getChatRoom, {
-              id: existingChatRoomId
+            graphqlOperation(getChatRoom, {
+              id: existingChatRoomId,
             })
           );
-          
-          let allUsersInChatRoom = chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(user => user.user.id != self.id)
-          const pushTokenReceiver = allUsersInChatRoom.length > 0 ? allUsersInChatRoom[0].user.expoPushToken : null
+
+          let allUsersInChatRoom =
+            chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(
+              (user) => user.user.id != self.id
+            );
+          const pushTokenReceiver =
+            allUsersInChatRoom.length > 0
+              ? allUsersInChatRoom[0].user.expoPushToken
+              : null;
 
           let newMessageData = await API.graphql(
             graphqlOperation(createMessage, {
@@ -469,10 +480,10 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           );
 
           //send push notification for post
-          if (pushTokenReceiver !== null){
+          if (pushTokenReceiver !== null) {
             const notifRes = await pushNotificationAPI(
               pushTokenReceiver,
-              {creator: self.username},
+              { creator: self.username },
               "post"
             );
           }
@@ -491,34 +502,33 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             );
 
             //send push notification for message
-            if (pushTokenReceiver !== null){
+            if (pushTokenReceiver !== null) {
               const notifRes = await pushNotificationAPI(
                 pushTokenReceiver,
-                {creator: self.username, content: message},
+                { creator: self.username, content: message },
                 "message"
               );
             }
           }
           //update lastMessage and seen list
-          let seen = []
-          seen.push(self.id)
+          let seen = [];
+          seen.push(self.id);
           await API.graphql(
             graphqlOperation(updateChatRoom, {
               input: {
                 id: existingChatRoomId,
                 lastMessageID: newMessageData.data.createMessage.id,
-                seen: seen
+                seen: seen,
               },
             })
           );
-
         } else {
           //1. Create a new Chat Room
           const newChatRoomData = await API.graphql(
             graphqlOperation(createChatRoom, {
               input: {
                 lastMessageID: "zz753fca-e8c3-473b-8e85-b14196e84e16",
-                seen: [self.id]
+                seen: [self.id],
               },
             })
           );
@@ -550,13 +560,19 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           );
           // get receiver's push token
           const chatRoomData = await API.graphql(
-            graphqlOperation( getChatRoom, {
-              id: newChatRoom.id
+            graphqlOperation(getChatRoom, {
+              id: newChatRoom.id,
             })
           );
-          
-          let allUsersInChatRoom = chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(user => user.user.id != self.id)
-          const pushTokenReceiver = allUsersInChatRoom.length > 0 ? allUsersInChatRoom[0].user.expoPushToken : null
+
+          let allUsersInChatRoom =
+            chatRoomData.data.getChatRoom.chatRoomUsers.items.filter(
+              (user) => user.user.id != self.id
+            );
+          const pushTokenReceiver =
+            allUsersInChatRoom.length > 0
+              ? allUsersInChatRoom[0].user.expoPushToken
+              : null;
 
           const msg = {
             content: shareItem.id,
@@ -572,10 +588,10 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           );
 
           //send push notification for post
-          if (pushTokenReceiver !== null){
+          if (pushTokenReceiver !== null) {
             const notifRes = await pushNotificationAPI(
               pushTokenReceiver,
-              {creator: self.username},
+              { creator: self.username },
               "post"
             );
           }
@@ -594,10 +610,10 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
             );
 
             //send push notification for message
-            if (pushTokenReceiver !== null){
+            if (pushTokenReceiver !== null) {
               const notifRes = await pushNotificationAPI(
                 pushTokenReceiver,
-                {creator: self.username, content: message},
+                { creator: self.username, content: message },
                 "message"
               );
             }
@@ -627,12 +643,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           alignItems: "center",
         }}
       >
-        <Image
-          style={styles.avatar}
-          source={{
-            uri: API_URL + user.profile_picture,
-          }}
-        />
+        <ImageS3 style={styles.avatar} accountId={user.id} />
         <View
           style={{
             marginLeft: 10,
@@ -642,7 +653,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
           <GText
             style={{
               fontWeight: "500",
-              color: "#666",
+              color: Colors.text,
             }}
           >
             {user.username}
@@ -654,7 +665,7 @@ const ReceiverItem = ({ user, index, shareItem, message }) => {
         style={{
           borderRadius: 10,
           padding: 6,
-          backgroundColor: sent ? Colors.gray : Colors.primary,
+          backgroundColor: sent ? "transparent" : Colors.primary,
           width: 60,
           justifyContent: "center",
           alignItems: "center",

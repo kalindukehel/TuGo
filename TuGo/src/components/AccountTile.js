@@ -8,7 +8,8 @@ import {
   Dimensions,
 } from "react-native";
 import { API_URL, Colors } from "../../constants";
-import GText from "./GText"
+import GText from "./GText";
+import ImageS3 from "./ImageS3";
 
 var { width, height } = Dimensions.get("window");
 const maxlimit = 20;
@@ -30,15 +31,15 @@ const AccountTile = (props) => {
           alignContent: "center",
         }}
       >
-        <Image
-          source={{ uri: API_URL + account.profile_picture }}
+        <ImageS3
+          accountId={account.id}
           style={{
             width: height / 20,
             height: height / 20,
             borderRadius: 999,
             borderWidth: 1,
           }}
-        ></Image>
+        ></ImageS3>
         <View
           style={{
             flexDirection: "column",

@@ -21,13 +21,15 @@ import {
 import { useAuthState } from "../../context/authContext";
 import { Colors, appTheme, Length } from "../../../constants";
 import { usePlayerState, usePlayerDispatch } from "../../context/playerContext";
-import GText from "../../components/GText"
+import GText from "../../components/GText";
+import { useErrorState, useErrorDispatch } from "../../context/errorContext";
 
 var { width, height } = Dimensions.get("window");
 
 const CaptionSelection = (props) => {
   const { song, customVideos } = props.route.params;
   let { danceChoreos, voiceCovers } = props.route.params;
+  const errorDispatch = useErrorDispatch();
   danceChoreos = danceChoreos.map((id) => ({
     is_youtube: true,
     video_id: id,
@@ -45,10 +47,10 @@ const CaptionSelection = (props) => {
   const playerDispatch = usePlayerDispatch();
 
   const renderTile = ({ item }) => {
-    if (item.isCustom) {
+    if (item.is_youtube) {
       return (
-        <View style={{ margin: (width - (3 * width) / 3.4) / 8  }}>
-          <CustomVideoTile videosRef={videosRef} item={item}/>
+        <View style={{ margin: (width - (3 * width) / 3.4) / 8 }}>
+          <CustomVideoTile videosRef={videosRef} item={item} />
         </View>
       );
     } else {
@@ -68,11 +70,13 @@ const CaptionSelection = (props) => {
 
   const makePost = async () => {
     //Call createPostAPI to create a new post
-    try{
+    try {
       await createPostAPI(caption, song, choreosAndCovers, userToken);
-    }
-    catch(e){
-      errorDispatch({type: 'REPORT_ERROR', message: "Something went wrong, could not create post"})
+    } catch (e) {
+      errorDispatch({
+        type: "REPORT_ERROR",
+        message: "Something went wrong, could not create post",
+      });
     }
   };
 
@@ -126,7 +130,7 @@ const CaptionSelection = (props) => {
           renderItem={renderTile}
           keyExtractor={(item, index) => index.toString()}
           style={{
-            maxHeight: height/3,
+            maxHeight: height / 3,
             marginTop: 15,
           }}
           numColumns={3}

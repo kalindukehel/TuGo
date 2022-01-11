@@ -12,6 +12,8 @@ django-rest-knox = "==4.1.0"
 django-pandas = "*"
 pandas = "*"
 sklearn = "*"
+boto3 = "*"
+django-storages = "*"
 
 [requires]
 python_version = "3.8"
